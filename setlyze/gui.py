@@ -72,7 +72,7 @@ class SelectionWindow(gtk.Window):
         self.show_all()
 
     def create_layout(self):
-        """Create the layout for the SelectAnalysis window."""
+        """Create the layout for the SelectAnalysis dialog."""
 
         # Create a table to organize the widgets.
         table = gtk.Table(rows=2, columns=2, homogeneous=False)
@@ -168,14 +168,16 @@ class SelectionWindow(gtk.Window):
         self.add(table)
 
     def destroy_handler_connections(self):
-        """
-        Disconnect all signal connections with signal handlers created
-        by this analysis.
-        """
+        """Disconnect all signal handlers created by this object."""
         setlyze.std.sender.disconnect(self.handler1)
 
     def set_header(self, header):
-        """Set a new description for the window."""
+        """Set a new description for the selection dialog.
+
+        Keyword arguments:
+            header
+                A string for the header text.
+        """
         header = "<span size='large' weight='bold'>%s</span>" % (header)
         self.header.set_markup(header)
 
@@ -184,22 +186,25 @@ class SelectionWindow(gtk.Window):
         self.label_descr.set_text(description)
 
     def set_save_slot(self, slot):
-        """
+        """Set the slot to save the selection to.
+
         The selection variable has two slots available for saving
         selections (in analysis 2.2, two selections need to be saved,
         hence two slots were created).
-        This function sets the slot to save the selection to.
+
+        Keyword arguments:
+            slot
+                The slot to save the selection to. Can be either 0 for
+                the first slot, or 1 for the second slot.
         """
         if slot not in (0,1):
-            logging.error("Attempt to set gui.SelectionWindow.save_slot \
-                to '%s'. Slot can be either 0 or 1, as for now only two \
-                slots are necessary." % slot)
+            logging.error("Attempt to set setlyze.gui.SelectionWindow.save_slot \
+                to '%s'. Slot can be either 0 or 1." % slot)
             sys.exit(1)
         self.save_slot = slot
 
     def on_continue(self, widget, data=None):
-        """
-        Save the locations selection and close this window.
+        """Save the locations selection and close this window.
 
         Design Part: 1.44
         """
@@ -242,8 +247,7 @@ class SelectionWindow(gtk.Window):
             self.selection.append(model.get_value(iter, column=0))
 
     def update_tree(self, widget=None):
-        """
-        Update the TreeView with the (updated) data.
+        """Update the tree view with the data.
 
         This function should be called whenever the data is updated.
 
@@ -267,17 +271,15 @@ class SelectionWindow(gtk.Window):
         setlyze.std.sender.emit("selection-dialog-closed")
 
     def on_select_data_files(self, widget, data=None):
-        """
-        Display the ChangeDataSource window.
+        """Display the ChangeDataSource window.
 
         Design Part: 1.11
         """
         ChangeDataSource()
 
 class SelectLocations(SelectionWindow):
-    """
-    Display a window that allows the user to make a selection from the
-    available locations.
+    """Display a window that allows the user to make a selection from
+    the available locations.
 
     Design Part: 3.1
     """
@@ -287,14 +289,15 @@ class SelectLocations(SelectionWindow):
         super(SelectLocations, self).__init__(title, description, width, slot)
 
     def on_back(self, widget, data=None):
-        """
-        Destroy window and send back signal.
+        """Destroy the selection dialog and send the back signal.
 
         This function is called when the user presses the Back button in
         a location selection window. This function destroys the
         selection window
 
-        Signals: 'locations-dialog-back' with the save slot.
+        Signals:
+            `locations-dialog-back` with the save slot as only its
+            attribute.
 
         Design Part: 1.45
         """
@@ -312,8 +315,11 @@ class SelectLocations(SelectionWindow):
         setlyze.std.sender.emit('locations-dialog-back', self.save_slot)
 
     def save_selection(self):
-        """
-        Save the locations selection.
+        """Save the locations selection.
+
+        Signals:
+            `locations-selection-saved` with the save slot as its only
+            attribute.
 
         Design Part: 1.7
         """
@@ -329,8 +335,7 @@ class SelectLocations(SelectionWindow):
         setlyze.std.sender.emit('locations-selection-saved', self.save_slot)
 
     def create_model(self):
-        """
-        Create a TreeView model from the location IDs and names.
+        """Create a TreeView model from the location IDs and names.
 
         Design Part: 1.42
         """
@@ -453,17 +458,17 @@ class DefinePlateAreas(gtk.Window):
     SETL plate (A, B, C and D). Sometimes it's interesting to combine
     areas for analysis 1 "spot preference". This dialog allows just that.
 
-    .-------------------.
+    +---+---+---+---+---+
     | A | B | B | B | A |
-    |-------------------|
+    +---+---+---+---+---+
     | B | C | C | C | B |
-    |-------------------|
+    +---+---+---+---+---+
     | B | C | D | C | B |
-    |-------------------|
+    +---+---+---+---+---+
     | B | C | C | C | B |
-    |-------------------|
+    +---+---+---+---+---+
     | A | B | B | B | A |
-    '-------------------'
+    +---+---+---+---+---+
 
     Design Part: 3.6
     """
@@ -849,8 +854,7 @@ class DefinePlateAreas(gtk.Window):
         setlyze.std.sender.emit('plate-areas-defined')
 
 class ChangeDataSource(gtk.Window):
-    """
-    Display a dialog where the user can change the data source.
+    """Display a dialog where the user can change the data source.
 
     * Allow the selection of CSV files with SETL data exported by
       MS Access.

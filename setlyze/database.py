@@ -38,8 +38,7 @@ __status__ = "Production"
 __date__ = "2010/09/22"
 
 class MakeLocalDB(threading.Thread):
-    """
-    Create a local SQLite database with default tables, and fill some
+    """Create a local SQLite database with default tables, and fill some
     tables based on the called function.
 
     Design Part: 1.2
@@ -53,8 +52,7 @@ class MakeLocalDB(threading.Thread):
         self.dbfile = setlyze.config.cfg.get('db-file')
 
     def run(self):
-        """
-        Decide which functions should be called.
+        """Decide which functions should be called.
 
         Design Part: 1.31
         """
@@ -71,15 +69,14 @@ class MakeLocalDB(threading.Thread):
             setlyze.std.sender.emit("local-db-created")
 
     def insert_from_csv(self):
-        """
-        Create a local SQLite database by loading data from the user
+        """Create a local SQLite database by loading data from the user
         selected CSV files.
 
         This method requires 4 CSV files:
-        * localities_file, containing the SETL locations.
-        * species_file, containing the SETL species.
-        * records_file, containing the SETL records.
-        * plates_file, containing the SETL plates.
+            * localities_file, containing the SETL locations.
+            * species_file, containing the SETL species.
+            * records_file, containing the SETL records.
+            * plates_file, containing the SETL plates.
 
         These files must be exported from the MS Access SETL database.
 
@@ -144,14 +141,15 @@ class MakeLocalDB(threading.Thread):
         setlyze.config.cfg.set('has-local-db', True)
 
     def insert_localities_from_csv(self, delimiter=';', quotechar='"'):
-        """
-        Insert the locations from a CSV file into the local database.
+        """Insert the locations from a CSV file into the local database.
 
         Keyword arguments:
-        delimiter:  A one-character string used to separate fields in
-                    the CSV file.
-        quotechar:  A one-character string used to quote fields
-                    containing special characters in the CSV file.
+            delimiter
+                A one-character string used to separate fields in the
+                CSV file.
+            quotechar
+                A one-character string used to quote fields containing
+                special characters in the CSV file.
 
         Design Part: 1.34
         """
@@ -178,14 +176,15 @@ class MakeLocalDB(threading.Thread):
         self.connection.commit()
 
     def insert_species_from_csv(self, delimiter=';', quotechar='"'):
-        """
-        Insert the species from a CSV file into the local database.
+        """Insert the species from a CSV file into the local database.
 
         Keyword arguments:
-        delimiter:  A one-character string used to separate fields in
-                    the CSV file.
-        quotechar:  A one-character string used to quote fields
-                    containing special characters in the CSV file.
+            delimiter
+                A one-character string used to separate fields in the CSV
+                file.
+            quotechar
+                A one-character string used to quote fields containing
+                special characters in the CSV file.
 
         Design Part: 1.35
         """
@@ -212,14 +211,15 @@ class MakeLocalDB(threading.Thread):
         self.connection.commit()
 
     def insert_plates_from_csv(self, delimiter=';', quotechar='"'):
-        """
-        Insert the plates from a CSV file into the local database.
+        """Insert the plates from a CSV file into the local database.
 
         Keyword arguments:
-        delimiter:  A one-character string used to separate fields in
-                    the CSV file.
-        quotechar:  A one-character string used to quote fields
-                    containing special characters in the CSV file.
+            delimiter
+                A one-character string used to separate fields in the CSV
+                file.
+            quotechar
+                A one-character string used to quote fields containing
+                special characters in the CSV file.
 
         Design Part: 1.36
         """
@@ -246,14 +246,15 @@ class MakeLocalDB(threading.Thread):
         self.connection.commit()
 
     def insert_records_from_csv(self, delimiter=';', quotechar='"'):
-        """
-        Insert the records from a CSV file into the local database.
+        """Insert the records from a CSV file into the local database.
 
         Keyword arguments:
-        delimiter:  A one-character string used to separate fields in
-                    the CSV file.
-        quotechar:  A one-character string used to quote fields
-                    containing special characters in the CSV file.
+            delimiter
+                A one-character string used to separate fields in the CSV
+                file.
+            quotechar
+                A one-character string used to quote fields containing
+                special characters in the CSV file.
 
         Design Part: 1.37
         """
@@ -284,8 +285,7 @@ class MakeLocalDB(threading.Thread):
         self.connection.commit()
 
     def insert_from_db(self):
-        """
-        Create a local SQLite database by loading data from the
+        """Create a local SQLite database by loading data from the
         SETL PostgreSQL database. This method just loads the localities
         and the species into the local database.
 
@@ -318,8 +318,7 @@ class MakeLocalDB(threading.Thread):
         setlyze.config.cfg.set('has-local-db', True)
 
     def create_new_db(self):
-        """
-        Create an empty database with the necessary tables.
+        """Create an empty database with the necessary tables.
 
         Design Part: 1.38
         """
@@ -545,8 +544,7 @@ class MakeLocalDB(threading.Thread):
         setlyze.config.cfg.set('make-new-db', False)
 
     def fill_distance_table(self):
-        """
-        Calculate all possible spot distances for a SETL plate and put
+        """Calculate all possible spot distances for a SETL plate and put
         them in a table in the local database.
 
         Design Part: 1.47
@@ -585,7 +583,7 @@ class MakeLocalDB(threading.Thread):
 
 class AccessDB(object):
     """Class for accessing the database. Based on the setting of
-    setlyze.config.cfg.get('data-source'), this class wil either use the
+    ``setlyze.config.cfg.get('data-source')``, this class wil either use the
     AccessLocalDB or AccessRemoteDB class to access the database.
 
     Design Part:
@@ -602,8 +600,7 @@ class AccessDB(object):
             sys.exit(1)
 
 class AccessDBGeneric(object):
-    """
-    Super class for AccessLocalDB and AccessRemoteDB.
+    """Super class for AccessLocalDB and AccessRemoteDB.
 
     This class contains methods that are generic for both sub-classes.
     """
@@ -613,11 +610,11 @@ class AccessDBGeneric(object):
         self.dbfile = setlyze.config.cfg.get('db-file')
 
     def get_locations(self):
-        """
-        Return a list of all locations from the local database.
+        """Return a list of all locations from the local database.
 
-        Returns: A list with tuples. Each tuple has the format:
-                 (loc_id, "loc_name")
+        Returns:
+            A list with tuples. Each tuple has the format
+            ``(loc_id, "loc_name")``
         """
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
@@ -628,63 +625,8 @@ class AccessDBGeneric(object):
 
         return locations
 
-    def set_species_spots(self, rec_ids, slot):
-        """
-        Create a table in the local database containing the record
-        information for the selected species and locations.
-        A row consists of the plate ID, and spot 1–25. The spots can
-        have a value 1 for present, or 0 for absent.
-
-        Design Part: 1.19
-        """
-
-        # The available tables to save the spots to.
-        tables = ('species_spots_1','species_spots_2')
-
-        # Turn the list into a string, as it'll be included in the query.
-        rec_ids_str = ",".join([str(item) for item in rec_ids])
-
-        # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
-        cursor2 = connection.cursor()
-
-        # Empty the required tables before we start.
-        cursor.execute( "DELETE FROM %s" % (tables[slot]) )
-
-        # Commit the database transaction.
-        connection.commit()
-
-        # Get plate ID and all 25 spots from each record that matches
-        # the list of record IDs.
-        cursor.execute( "SELECT rec_pla_id,"
-                        "rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,"
-                        "rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,"
-                        "rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,"
-                        "rec_sur16,rec_sur17,rec_sur18,rec_sur19,rec_sur20,"
-                        "rec_sur21,rec_sur22,rec_sur23,rec_sur24,rec_sur25 "
-                        "FROM records "
-                        "WHERE rec_id IN (%s)" %
-                        (rec_ids_str)
-                        )
-
-        # Insert each resulting row in the species_spots table.
-        placeholders = ','.join('?' * 26)
-        for row in cursor:
-            cursor2.execute("INSERT INTO %s VALUES (null,%s)" %
-                (tables[slot], placeholders), row)
-
-        # Commit the database transaction.
-        connection.commit()
-
-        # Close connection with the local database.
-        cursor.close()
-        cursor2.close()
-        connection.close()
-
     def make_plates_unique(self, slot):
-        """
-        Join the records in local database table 'species_spots' that
+        """Join the records in local database table 'species_spots' that
         have the same plate ID. If one spot in a column contains 1, the
         resulting spot becomes 1. If all spots from a column are 0, the
         resulting spot becomes 0.
@@ -759,9 +701,15 @@ class AccessDBGeneric(object):
         return n
 
     def remove_single_spot_plates(self, table):
-        """
-        Remove records that have just one spot with True. Intra-specific
+        """Remove records that have just one spot with True. Intra-specific
         distance can’t be calculated for those.
+
+        .. note::
+           Use of this function is discouraged. You can easily check for
+           a minimum number of spots in your functions. Also the function
+           :meth:`~setlyze.std.get_spot_combinations_from_record` will
+           return an empty list if no combinations are possibe (e.g. the
+           record contains less than 2 positive spots).
 
         Design Part: 1.21
         """
@@ -821,14 +769,17 @@ class AccessDBGeneric(object):
         plate contains.
 
         This table is used by several analysis functions:
-        * Calculating the expected distances, where the spot numbers
-            serve as a template for the random spots generator.
-        * Significance calculators, where the tests are applied to
-            plates with specific numbers of positive spots.
+            * Calculating the expected distances, where the spot numbers
+              serve as a template for the random spots generator.
+
+            * Significance calculators, where the tests are applied to
+              plates with specific numbers of positive spots.
 
         Keyword arguments:
-        spots_table1    - The name of a spots table.
-        spots_table2    - The name of a second spots table (optional).
+            spots_table1
+                The name of a spots table.
+            spots_table2
+                The name of a second spots table (optional).
 
         If just one table is provided, only the column 'n_spots_a' is
         filled. If two spots tables are provided, 'n_spots_a' is filled
@@ -968,8 +919,7 @@ class AccessDBGeneric(object):
                             )
 
 class AccessLocalDB(AccessDBGeneric):
-    """
-    Retrieve data from the local SQLite database.
+    """Retrieve data from the local SQLite database.
 
     Design Part: 1.28
     """
@@ -980,18 +930,19 @@ class AccessLocalDB(AccessDBGeneric):
         self.connection = None
 
     def get_species(self, loc_slot=0):
-        """
-        Return a list of species that match the selected locations from
+        """Return a list of species that match the selected locations from
         the local database.
 
         Keyword arguments:
-        loc_slot -  An integer defining which location selection to use,
-                    as a selection variable contains on or more selection
-                    lists. Default the first selection list is returned
-                    (loc_slot=0).
+            loc_slot
+                An integer defining which location selection to use,
+                as a selection variable contains on or more selection
+                lists. Default the first selection list is returned
+                (loc_slot=0).
 
-        Returns: A list with tuples. Each tuple has the format:
-                 (spe_id, "spe_name_venacular", "spe_name_latin")
+        Returns:
+            A list with tuples in the format ``(spe_id,
+            "spe_name_venacular", "spe_name_latin")``
         """
 
         # Get one of the location selections.
@@ -1028,28 +979,6 @@ class AccessLocalDB(AccessDBGeneric):
         cursor.execute("SELECT spe_id, spe_name_venacular, spe_name_latin FROM species WHERE spe_id IN (%s)" % spe_ids_str)
         species = cursor.fetchall()
 
-        # TODO: The code below is better, but raises the error:
-        # "sqlite3.OperationalError: too many SQL variables"
-        # This because each placeholder results in a SQL variable, and
-        # we're using too many. To solve this, we need to put it in a
-        # table beforehand, and then use LEFT OUTER JOIN to get the same
-        # result.
-        # Also read: http://www.sqlite.org/limits.html (item 9)
-
-        # Select all specie IDs from records with those plate IDs.
-        # We must take into account that, strangely, there are records
-        # with an empty rec_spe_id. Hence the inclusion of
-        # "rec_spe_id != ''"
-        #placeholders = ','.join('?' * len(pla_ids))
-        #cursor.execute("SELECT rec_spe_id FROM records WHERE rec_pla_id IN (%s) AND rec_spe_id != ''" % (placeholders), pla_ids)
-        #spe_ids = [row[0] for row in cursor] # Construct a list with the IDs
-        #spe_ids = setlyze.std.uniqify(spe_ids)
-
-        # Select information from species that match those species IDs.
-        #placeholders = ','.join('?' * len(spe_ids))
-        #cursor.execute("SELECT spe_id, spe_name_venacular, spe_name_latin FROM species WHERE spe_id IN (%s)" % (placeholders), spe_ids)
-        #species = cursor.fetchall()
-
         # Close connection with the local database.
         cursor.close()
         connection.close()
@@ -1057,11 +986,10 @@ class AccessLocalDB(AccessDBGeneric):
         return species
 
     def get_record_ids(self, loc_ids, spe_ids):
-        """
-        Return the record IDs that match both the provided locations and
+        """Return the record IDs that match both the provided locations and
         species IDs.
 
-        Design Park: 1.41
+        Design Part: 1.41
         """
 
         # Create strings containing all the selected locations and
@@ -1089,18 +1017,6 @@ class AccessLocalDB(AccessDBGeneric):
                         % (pla_ids_str, spe_ids_str)
                         )
 
-        # TODO: The query below is better than the one above, but also
-        # raises the "too many SQL variables" error. Use the above until
-        # we find a way to fix that.
-        #placeholders_pla = ','.join('?' * len(pla_ids))
-        #placeholders_spe = ','.join('?' * len(spe_ids))
-        #cursor.execute( "SELECT rec_id FROM records "
-        #                "WHERE rec_pla_id IN (%s) "
-        #                "AND rec_spe_id IN (%s)"
-        #                % (placeholders_pla, placeholders_spe),
-        #                pla_ids+spe_ids
-        #                )
-
         # Construct a list with the record IDs.
         rec_ids = [row[0] for row in cursor]
 
@@ -1111,9 +1027,7 @@ class AccessLocalDB(AccessDBGeneric):
         return rec_ids
 
     def get_spots(self, rec_ids):
-        """
-        Return all the spot booleans for the specified records.
-        """
+        """Return all the spot booleans for the specified records."""
 
         # Make a connection with the local database.
         connection = sqlite.connect(self.dbfile)
@@ -1141,10 +1055,62 @@ class AccessLocalDB(AccessDBGeneric):
 
         return records
 
+    def set_species_spots(self, rec_ids, slot):
+        """Create a table in the local database containing the record
+        information for the selected species and locations.
+        A row consists of the plate ID, and spot 1–25. The spots can
+        have a value 1 for present, or 0 for absent.
+
+        Design Part: 1.19.1
+        """
+
+        # The available tables to save the spots to.
+        tables = ('species_spots_1','species_spots_2')
+
+        # Turn the list into a string, as it'll be included in the query.
+        rec_ids_str = ",".join([str(item) for item in rec_ids])
+
+        # Make a connection with the local database.
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+        cursor2 = connection.cursor()
+
+        # Empty the required tables before we start.
+        cursor.execute( "DELETE FROM %s" % (tables[slot]) )
+
+        # Commit the database transaction.
+        connection.commit()
+
+        # Get plate ID and all 25 spots from each record that matches
+        # the list of record IDs.
+        cursor.execute( "SELECT rec_pla_id,"
+                        "rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,"
+                        "rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,"
+                        "rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,"
+                        "rec_sur16,rec_sur17,rec_sur18,rec_sur19,rec_sur20,"
+                        "rec_sur21,rec_sur22,rec_sur23,rec_sur24,rec_sur25 "
+                        "FROM records "
+                        "WHERE rec_id IN (%s)" %
+                        (rec_ids_str)
+                        )
+
+        # Insert each resulting row in the species_spots table.
+        placeholders = ','.join('?' * 26)
+        for row in cursor:
+            cursor2.execute("INSERT INTO %s VALUES (null,%s)" %
+                (tables[slot], placeholders), row)
+
+        # Commit the database transaction.
+        connection.commit()
+
+        # Close connection with the local database.
+        cursor.close()
+        cursor2.close()
+        connection.close()
+
 
 class AccessRemoteDB(AccessDBGeneric):
-    """
-    Retrieve data from the SETL database.
+    """Retrieve data from the SETL database.
 
     Design Part: 1.29
     """

@@ -45,8 +45,8 @@ __date__ = "2010/09/22"
 class Begin(object):
     """
     Make all the preparations for analysis 2.1:
-    * Let the user select the locations.
-    * Let the user select the species.
+        * Let the user select the locations.
+        * Let the user select the species.
 
     When done, start the analysis.
 
@@ -221,13 +221,14 @@ class Start(threading.Thread):
     def run(self):
         """
         Call the necessary methods for the analysis in the right order:
-        * setlyze.database.AccessDB.get_record_ids
-        * setlyze.database.AccessDB.set_species_spots
-        * setlyze.database.AccessDB.make_plates_unique
-        * setlyze.database.AccessDB.remove_single_spot_plates
-        * self.calculate_distances_intra
-        * self.calculate_distances_expected
-        * self.generate_report
+            * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
+              :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
+            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
+              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
+            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
+            * :meth:`calculate_distances_intra`
+            * :meth:`calculate_distances_intra_expected`
+            * :meth:`generate_report`
 
         Design Part: 1.59
         """
@@ -456,9 +457,11 @@ class Start(threading.Thread):
         a distance n in 'observed' is unrelated to distance n in
         'expected' (where n is an item number in the lists).
 
-        Null hypothesis: The means of the two sets of distances are
+        Null hypothesis:
+            The means of the two sets of distances are
             equal. The specie in question doesn't attract or repel itself.
-        Alternative hypothesis: The means of the two sets of distances
+        Alternative hypothesis:
+            The means of the two sets of distances
             are not equal. The specie in question attracts (mean
             observed < mean expected) or repels (mean observed >
             mean expected) itself.
@@ -479,10 +482,8 @@ class Start(threading.Thread):
         perform the test on each of these groups.
 
         References:
-        1) N. Millar, Biology statistics made simple using Excel,
-            School Science Review, December 2001, 83(303).
-        2) P. Dalgaard, Introductory Statistics with R,
-            DOI: 10.1007 / 978-0-387-79054-1_1.
+        1. N. Millar, Biology statistics made simple using Excel, School Science Review, December 2001, 83(303).
+        2. P. Dalgaard, Introductory Statistics with R, DOI: 10.1007 / 978-0-387-79054-1_1.
 
         Design Part: 1.24
         """

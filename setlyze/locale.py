@@ -18,6 +18,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""The module is for storing frequently used English lines throughout the
+application. The purpose is to easily change english sentences in the
+application without having to look them up in the different modules.
+
+This module wasn't created for adding multi-language support, though
+this module can be easily expanded to do so.
+
+"""
+
 import sys
 import logging
 

@@ -42,11 +42,10 @@ __status__ = "Production"
 __date__ = "2010/09/22"
 
 class Begin(object):
-    """
-    Make all the preparations for analysis 1:
-    * Let the user select the locations.
-    * Let the user select the species.
-    * Let the user define the spot areas.
+    """Make all the preparations for analysis 1:
+        * Let the user select the locations.
+        * Let the user select the species.
+        * Let the user define the plate areas.
 
     When done, start the analysis.
 
@@ -134,8 +133,7 @@ class Begin(object):
             self.on_analysis_started)
 
     def on_analysis_started(self, sender):
-        """
-        Handle events that need to happen when the analysis has
+        """Handle events that need to happen when the analysis has
         started.
         """
 
@@ -143,9 +141,8 @@ class Begin(object):
         sender.handler_unblock(self.handler12)
 
     def destroy_handler_connections(self):
-        """
-        Disconnect all signal connections with signal handlers created
-        by this analysis.
+        """Disconnect all signal connections with signal handlers
+        created by this analysis.
         """
         setlyze.std.sender.disconnect(self.handler1)
         setlyze.std.sender.disconnect(self.handler2)
@@ -229,8 +226,7 @@ class Begin(object):
         t.run()
 
     def on_display_report(self, sender):
-        """
-        Display the report in a window.
+        """Display the report in a window.
 
         Design Part: 1.68
         """
@@ -238,8 +234,7 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """
-    Perform the calculations for analysis 1 "Spot Preference".
+    """Perform the calculations for analysis 1 "Spot Preference".
 
     Design Part: 1.3.2
     """
@@ -263,14 +258,13 @@ class Start(threading.Thread):
         logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
 
     def run(self):
-        """
-        Call the necessary methods for the analysis in the right order
+        """Call the necessary methods for the analysis in the right order
         and do some data checks:
-        * self.get_areas_totals_observed
-        * Check if all plate areas totals are zero. If so, abort.
-        * self.get_areas_totals_expected
-        * self.chi_square_tester
-        * self.generate_report
+            * :meth:`get_areas_totals_observed`
+            * Check if all plate areas totals are zero. If so, abort.
+            * :meth:`get_areas_totals_expected`
+            * :meth:`chi_square_tester`
+            * :meth:`generate_report`
 
         Design Part: 1.58
         """

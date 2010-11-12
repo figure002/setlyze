@@ -38,12 +38,11 @@ __status__ = "Production"
 __date__ = "2010/09/22"
 
 class Begin(object):
-    """
-    Make all the preparations for analysis 2.2:
-    * Let the user select the first locations.
-    * Let the user select the first species.
-    * Let the user select the second locations.
-    * Let the user select the second species.
+    """Make all the preparations for analysis 2.2:
+        * Let the user make the first locations selection.
+        * Let the user make the first species selection.
+        * Let the user make the second locations selection.
+        * Let the user make the second species selection.
 
     When done, start the analysis.
 
@@ -285,15 +284,21 @@ class Start(threading.Thread):
     def run(self):
         """
         Call the necessary methods for the analysis in the right order:
-        * setlyze.database.AccessDB.get_record_ids (1)
-        * setlyze.database.AccessDB.set_species_spots (1)
-        * setlyze.database.AccessDB.make_plates_unique (1)
-        * setlyze.database.AccessDB.get_record_ids (2)
-        * setlyze.database.AccessDB.set_species_spots (2)
-        * setlyze.database.AccessDB.make_plates_unique (2)
-        * self.calculate_distances_inter
-        * self.calculate_distances_expected
-        * self.generate_report
+            * For the first species selection:
+                * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
+                  :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
+                * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
+                  :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
+                * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
+            * For the second species selection:
+                * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
+                  :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
+                * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
+                  :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
+                * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
+            * :meth:`calculate_distances_inter`
+            * :meth:`calculate_distances_inter_expected`
+            * :meth:`generate_report`
 
         Design Part: 1.60
         """

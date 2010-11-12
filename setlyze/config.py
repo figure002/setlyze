@@ -18,6 +18,30 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""This modules provides application-wide access to SETLyze's
+configuration and data variables.
+
+This module provides an object ``cfg`` for handling a fixed set of
+configuration and data variables for SETLyze. The big advantage is that
+this makes the variables available across all modules. Here is a small
+usage example, ::
+
+    >>> import setlyze.config
+    >>> setlyze.config.cfg.set('significance-alpha', 0.01)
+    >>> setlyze.config.cfg.set('species-selection', [11, 12, 13, 14], slot=0)
+    >>> setlyze.config.cfg.set('species-selection', [15, 16, 17], slot=1)
+    >>> print "The alpha level for the t-test and Wilcoxon test is set to", setlyze.config.cfg.get('significance-alpha')
+    The alpha level for the t-test and Wilcoxon test is set to 0.01
+    >>> print "The first species selection is", setlyze.config.cfg.get('species-selection', slot=0)
+    The first species selection is [11, 12, 13, 14]
+    >>> print "The second species selection is", setlyze.config.cfg.get('species-selection', slot=1)
+    The second species selection is [15, 16, 17]
+
+Importing this module in a different module gives access to the ``cfg``
+object, and thus the variables can be obtained or manipulated using its
+get() and set() methods.
+"""
+
 import os
 import sys
 import logging
@@ -81,8 +105,7 @@ DEFAULT_CONFIG = [
 ]
 
 class ConfigManager(object):
-    """
-    There is just one ConfigManager instance, which holds and
+    """There is just one ConfigManager instance, which holds and
     manipulates the configurations and data variables.
 
     Design Part: 1.57
@@ -92,7 +115,17 @@ class ConfigManager(object):
         self._conf = dict(DEFAULT_CONFIG)
 
     def set(self, key, value, **kwargs):
-        """Set the configure value for a configure key."""
+        """Set the configuration with name `key` to `value`.
+
+        Some configurations have extra keyword arguments. These
+        arguments are handled by `kwargs`. The configurations that have
+        extra arguments are as follows:
+
+            ``locations-selection``, ``species-selection``
+                If `slot` is set to 0 (default), the value is saved
+                as the first selection. If set to 1, the value is saved
+                as the second selection.
+        """
         if key not in self._conf:
             logging.error("ConfigManager: unknown key '%s'" % key)
             sys.exit(1)
@@ -125,26 +158,13 @@ class ConfigManager(object):
         # Set the new value for the configuration key.
         self._conf[key] = value
 
-    def get(self, key, **kwargs):
-        """Return the configure value for a configure key."""
-        if key not in self._conf:
-            logging.error("ConfigManager: unknown key '%s'" % key)
-            sys.exit(1)
-
-        if key in ('locations-selection', 'species-selection'):
-            slot = kwargs.get('slot', 0)
-            return self._conf[key][slot]
-
-        return self._conf.get(key)
-
     def set_data_source(self, source):
-        """
-        Set the application variable 'data_source' to a new value.
-        This variable is used to decide where to get the data from.
+        """Set the configuration with name ``data-source`` to `source`.
 
-        Keyword arguments:
-        source - A string representing the new data source.
-                 Can be one of "setl-database", "csv-msaccess".
+        Possible values for `source` are ``setl-database`` and
+        ``csv-msaccess``. The value of this configuration tells the
+        application where to look for SETL data. This is especially used
+        by the database module.
         """
 
         # Legal data sources.
@@ -160,6 +180,28 @@ class ConfigManager(object):
         else:
             logging.error("Encountered unknown data source of type '%s'" % source)
             sys.exit(1)
+
+    def get(self, key, **kwargs):
+        """Return the value for the configuration with name `key`.
+
+        Some configurations have extra keyword arguments. These
+        arguments are handled by `kwargs`. The configurations that have
+        extra arguments are as follows:
+
+            ``locations-selection``, ``species-selection``
+                If `slot` is set to 0 (default), the value of the
+                first selection is returned. If set to 1,the second
+                selection is returned.
+        """
+        if key not in self._conf:
+            logging.error("ConfigManager: unknown key '%s'" % key)
+            sys.exit(1)
+
+        if key in ('locations-selection', 'species-selection'):
+            slot = kwargs.get('slot', 0)
+            return self._conf[key][slot]
+
+        return self._conf.get(key)
 
 # Create an instance of ConfigManager. This instance is only created
 # once, upon the first import. Subsequent imports will use the first
