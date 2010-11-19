@@ -33,6 +33,8 @@ import rpy
 
 import setlyze.config
 
+"""This module provides standard functions and classes."""
+
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
@@ -49,18 +51,16 @@ def update_progress_dialog(fraction, action=None, autoclose=True):
     if not pdialog:
         return
 
+    # This is always called from a separate thread, so we must use
+    # gobject.idle_add to access the GUI.
     gobject.idle_add(on_update_progress_dialog, fraction, action, autoclose)
 
 def on_close_progress_dialog(delay=0):
     """Close the progress dialog. Optionally set a delay before it's
     being closed.
 
-    This is a callback function that should be called from a worker
-    thread. If called from a worker thread, it must be called with:
-        gobject.idle_add(on_close_progress_dialog, delay)
-
     There's no need to call this function manually, as it is called
-    by on_update_progress_dialog() when it's needed.
+    by :meth:`on_update_progress_dialog` when it's needed.
     """
     pdialog = setlyze.config.cfg.get('progress-dialog')
 
@@ -78,9 +78,8 @@ def on_update_progress_dialog(fraction, action=None, autoclose=True):
     """Update the progress dialog fraction and action-string. Optionally
     set autoclose if fraction equals 1.0.
 
-    This is a callback function that should be called from a worker
-    thread. If called from a worker thread, it must be called with:
-        gobject.idle_add(on_update_progress_dialog, fraction, action, autoclose)
+    Don't call this function manually; use :meth:`update_progress_dialog`
+    instead.
     """
     pdialog = setlyze.config.cfg.get('progress-dialog')
 
@@ -104,6 +103,9 @@ def on_update_progress_dialog(fraction, action=None, autoclose=True):
             # Close the progress dialog when finished. We set a delay
             # of 1 second before closing it, so the user observedly gets
             # to see the dialog when an analysis finishes very fast.
+
+            # This is always called from a separate thread, so we must
+            # use gobject.idle_add to access the GUI.
             gobject.idle_add(on_close_progress_dialog, 1)
 
     # This callback function must return False, so it is
@@ -139,36 +141,53 @@ def distance(p1, p2):
     return val
 
 def get_spot_combinations_from_record(record1, record2=None):
-    """Return all possible positive spot combinations. If only one record
-    was provided, return all possible spot combinations within this
-    record. If two records are given, return all possible positive spot
-    combinations between the spots from the first and the second record.
-    If the records contain less than 2 positive spots, an empty list
-    will be returned.
+    """Return all possible positive spot combinations from `record1` or
+    between `record1` and `record2`. Each record must be a sequence of
+    25 spot booleans.
 
-    Keyword arguments:
-    record1 -   A sequence containing 25 booleans. Each boolean
-                represents a spot on a SETL plate.
-    record2 -   A sequence containing 25 booleans. Each boolean
-                represents a spot on a SETL plate (optional).
+    If just `record1` was provided, return all possible positive spot
+    combinations within this record. If both `record1` and `record2` are
+    given, return all possible positive spot combinations between the
+    the two records. If no combinations are possible (i.e. not enough
+    positive spots), and empty list will be returned.
 
-    Returns:
-    An iterable object, which returns the combinations as tuples with
-    two items. Each item representing a positive spot.
+    This method returns an iterable object, which returns the
+    combinations as tuples with two items. Each item is the spot number
+    of a positive spot.
 
-    Usage example:
-        Get all possible combos within one records:
-        record = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
-        combos = get_spot_combinations_from_record(record[1:])
-        for spot1,spot2 in combos:
-            print get_spot_position_difference(spot1,spot2)
+    Example, get all possible combinations within one records ::
 
-        Get all possible combos between two records:
-        record1 = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
-        record2 = (4538,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1)
-        combos = get_spot_combinations_from_record(record1[1:], record2[1:])
-        for spot1,spot2 in combos:
-            print get_spot_position_difference(spot1,spot2)
+        >>> import setlyze.std
+        >>> record = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
+        >>> combos = setlyze.std.get_spot_combinations_from_record(record[1:])
+        >>> for spot1,spot2 in combos:
+        ...     print spot1,spot2
+        ...
+        1 2
+        1 5
+        1 15
+        2 5
+        2 15
+        5 15
+
+    Example, get all possible combinations between two records ::
+
+        >>> import setlyze.std
+        >>> record1 = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
+        >>> record2 = (4538,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1)
+        >>> combos = setlyze.std.get_spot_combinations_from_record(record1[1:], record2[1:])
+        >>> for spot1,spot2 in combos:
+        ...     print spot1,spot2
+        ...
+        1 3
+        1 25
+        2 3
+        2 25
+        5 3
+        5 25
+        15 3
+        15 25
+
     """
     spots1 = get_spots_from_record(record1)
 
@@ -277,31 +296,44 @@ def get_random_for_plate(n):
     spots = random.sample(xrange(1,26), n)
     return spots
 
-def combine_by_plate(rows):
-    """Combine the rows that have the same plate ID.
+def combine_by_plate(records):
+    """Combine SETL records that have the same plate ID. `records`
+    is a tuple containing multiple SETL records. Each record must consist
+    of a plate ID as the fisrt item followed by 25 spot booleans.
 
-    Keyword arguments:
-    rows -  A tuple containing the rows. A row is a list containing
-            the plate ID and all 25 spots.
+    If one spot in a column contains 1, the resulting spot becomes 1.
+    If all spots from a column are 0, the resulting spot becomes 0.
+
+    If this isn't very clear, look at this visual example. Let's say
+    `records` has the following 3 records. Notice that they must have the
+    same plate ID:
+
+    (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
+    (4567,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1)
+    (4567,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0)
+
+    The following combined record would then be returned:
+
+    (4567,1,1,1,0,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1)
     """
     combined = [None,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
     # Set the plate ID.
-    if len(rows):
-        combined[0] = rows[0][0]
+    if len(records):
+        combined[0] = records[0][0]
 
-    for row in rows:
+    for record in records:
         # Make sure all plate IDs are the same.
-        if combined[0] != row[0]:
-            sys.exit("combine_by_plate: 'rows' argumunt must "
-                "contain rows with the same plate ID.")
+        if combined[0] != record[0]:
+            sys.exit("setlyze.std.combine_by_plate: 'records' argument must "
+                "contain records with the same plate ID.")
 
-        # For each True spot we find, set True for that spot in the
-        # combined list as well.
-        for i, spot in enumerate(row[1:], start=1):
+        # For each positive spot we find, set that spot in the combined
+        # record to 1.
+        for i, spot in enumerate(record[1:], start=1):
             # We skip the first item, as that's the plate ID.
-            # If spot is True, set the same spot in 'combined'
-            # to True.
+            # If spot is positive, set the same spot in 'combined'
+            # to 1.
             if spot:
                 combined[i] = 1
 

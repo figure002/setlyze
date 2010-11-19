@@ -312,8 +312,7 @@ class Start(threading.Thread):
         self.total_steps = 11.0
 
         # Make an object that facilitates access to the database.
-        accessdb = setlyze.database.AccessDB()
-        db = accessdb.db
+        db = setlyze.database.get_database_accessor()
 
         # SELECTION 1
 

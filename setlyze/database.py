@@ -18,6 +18,19 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Facilitate access to the local SQLite database and the remote SETL
+database.
+
+The local SQLite database is created by :meth:`setlyze.database.MakeLocalDB.create_new_db`.
+It is created using the SQLite Python module. This database is used
+internally by SETLyze for local data storage and allows for the
+execution of SQL queries. The database is a single file created in the
+user's home directory in a subfolder called ``.setlyze``.
+
+Here we refer to the PostgreSQL SETL database as the remote SETL
+database.
+"""
+
 import sys
 import os
 import csv
@@ -37,9 +50,43 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/09/22"
 
+def get_database_accessor():
+    """Return an object that facilitates access to either the local or
+    the remote database.
+
+    Based on the data source configuration, obtained with
+    ``setlyze.config.cfg.get('data-source')``, this function wil either
+    return an instance of AccessLocalDB or AccessRemoteDB. This instance
+    provides methods that are specific to the data source currently in
+    use.
+    """
+    data_source = setlyze.config.cfg.get('data-source')
+    if data_source == "csv-msaccess":
+        db = AccessLocalDB()
+    elif data_source == "setl-database":
+        db = AccessRemoteDB()
+    else:
+        logging.error("setlyze.database.get_database_accessor: '%s' is not a valid data source." % data_source)
+        sys.exit(1)
+    return db
+
 class MakeLocalDB(threading.Thread):
-    """Create a local SQLite database with default tables, and fill some
-    tables based on the called function.
+    """Create a local SQLite database with default tables and fill some
+    tables based on the data source.
+
+    This class can load data from two data sources. One data source
+    is user supplied CSV files containing SETL data. The CSV files must
+    be exported by the MS Access SETL database.
+    The second source is the PostgreSQL SETL database. This function
+    requires a direct connection with the SETL database server.
+
+    Because the import of SETL data into the local database can take
+    a while, and instance of this class must run in a separate thread.
+    An instance of this class is therefor a thread object.
+
+    Once a thread object is created, its activity must be started by
+    calling the thread’s start() method. This invokes the run() method
+    in a separate thread of control.
 
     Design Part: 1.2
     """
@@ -52,7 +99,23 @@ class MakeLocalDB(threading.Thread):
         self.dbfile = setlyze.config.cfg.get('db-file')
 
     def run(self):
-        """Decide which functions should be called.
+        """Decide based on the configuration variables which functions
+        should be called.
+
+        This method first checks if SETLyze is configured to create
+        a new local database. This is done by checking the value of
+        ``setlyze.config.cfg.get('make-new-db')``. If this is set to
+        ``False``, the method ends and the thread is destroyed. If set
+        to ``True``, a new local database is created based on the data
+        source configuration.
+
+        The data source configuration is checked by calling
+        ``setlyze.config.cfg.get('data-source')``. If this is set to
+        ``setl-database``, the method ``insert_from_db`` is called and
+        some SETL data from the remote SETL database is loaded into the
+        local database. If set to ``csv-msaccess``, the method
+        ``insert_from_csv`` is called which loads all SETL data from the
+        supplied CSV files into the local database.
 
         Design Part: 1.31
         """
@@ -69,16 +132,19 @@ class MakeLocalDB(threading.Thread):
             setlyze.std.sender.emit("local-db-created")
 
     def insert_from_csv(self):
-        """Create a local SQLite database by loading data from the user
-        selected CSV files.
+        """Create a new local database and load all SETL data from the
+        user selected CSV files into the local database.
 
-        This method requires 4 CSV files:
+        The SETL data is loaded from four separate CSV files:
             * localities_file, containing the SETL locations.
             * species_file, containing the SETL species.
             * records_file, containing the SETL records.
             * plates_file, containing the SETL plates.
 
-        These files must be exported from the MS Access SETL database.
+        These files must be exported from the MS Access SETL database
+        and contain all fields. The CSV file must be in Excel format,
+        which means delimited by semicolons (;) and double quotes (") as
+        the quote character for fields with special characters.
 
         Design Part: 1.32
         """
@@ -141,15 +207,17 @@ class MakeLocalDB(threading.Thread):
         setlyze.config.cfg.set('has-local-db', True)
 
     def insert_localities_from_csv(self, delimiter=';', quotechar='"'):
-        """Insert the locations from a CSV file into the local database.
+        """Insert the SETL localities from a CSV file into the local
+        database.
 
-        Keyword arguments:
-            delimiter
-                A one-character string used to separate fields in the
-                CSV file.
-            quotechar
-                A one-character string used to quote fields containing
-                special characters in the CSV file.
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.18`.
 
         Design Part: 1.34
         """
@@ -178,13 +246,14 @@ class MakeLocalDB(threading.Thread):
     def insert_species_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the species from a CSV file into the local database.
 
-        Keyword arguments:
-            delimiter
-                A one-character string used to separate fields in the CSV
-                file.
-            quotechar
-                A one-character string used to quote fields containing
-                special characters in the CSV file.
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.19`.
 
         Design Part: 1.35
         """
@@ -213,13 +282,14 @@ class MakeLocalDB(threading.Thread):
     def insert_plates_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the plates from a CSV file into the local database.
 
-        Keyword arguments:
-            delimiter
-                A one-character string used to separate fields in the CSV
-                file.
-            quotechar
-                A one-character string used to quote fields containing
-                special characters in the CSV file.
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.20`.
 
         Design Part: 1.36
         """
@@ -248,13 +318,14 @@ class MakeLocalDB(threading.Thread):
     def insert_records_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the records from a CSV file into the local database.
 
-        Keyword arguments:
-            delimiter
-                A one-character string used to separate fields in the CSV
-                file.
-            quotechar
-                A one-character string used to quote fields containing
-                special characters in the CSV file.
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.21`.
 
         Design Part: 1.37
         """
@@ -285,9 +356,18 @@ class MakeLocalDB(threading.Thread):
         self.connection.commit()
 
     def insert_from_db(self):
-        """Create a local SQLite database by loading data from the
-        SETL PostgreSQL database. This method just loads the localities
-        and the species into the local database.
+        """Create a new local database and load localities and species
+        data from the remote SETL database into the local database.
+
+        This method requires a direct connection with the SETL
+        database server.
+
+        The reason why we don't load all SETL data into the local database
+        is because we can execute queries on the remote database. So
+        there's no need to load large amounts of data onto the user's
+        computer. Because the localities and species data is accessed
+        often, loading this into the local database increases speed of
+        the application.
 
         Design Part: 1.33
         """
@@ -299,6 +379,8 @@ class MakeLocalDB(threading.Thread):
         # Create a connection with the local database.
         self.connection = sqlite.connect(self.dbfile)
         self.cursor = self.connection.cursor()
+
+        setlyze.std.update_progress_dialog(0.0)
 
         # Next time we run the tool, we'll know what data is in the
         # database.
@@ -318,7 +400,11 @@ class MakeLocalDB(threading.Thread):
         setlyze.config.cfg.set('has-local-db', True)
 
     def create_new_db(self):
-        """Create an empty database with the necessary tables.
+        """Create a new local database and then calls the methods
+        that create the necessary tables.
+
+        This deletes the current local database if present in the user's
+        home folder.
 
         Design Part: 1.38
         """
@@ -335,213 +421,311 @@ class MakeLocalDB(threading.Thread):
             os.remove(self.dbfile)
 
         # This will automatically create a new database file.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+        self.connection = sqlite.connect(self.dbfile)
+        self.cursor = self.connection.cursor()
 
         # Create the tables.
-
-        # This info table contains basic information about the
-        # local database. A version number could be handy in the future,
-        # for example we can notify the user if the local database is
-        # too old.
-        cursor.execute("CREATE TABLE info (\
-                        id INTEGER PRIMARY KEY, \
-                        name VARCHAR, \
-                        value VARCHAR)")
-        cursor.execute("INSERT INTO info VALUES (null, 'version', ?)", ["0.1"])
-
-        # Design Part: 2.4
-        cursor.execute("CREATE TABLE localities (\
-                        loc_id INTEGER PRIMARY KEY, \
-                        loc_name VARCHAR, \
-                        loc_nr VARCHAR, \
-                        loc_coordinates VARCHAR, \
-                        loc_description VARCHAR \
-                        )")
-
-        # Design Part: 2.3
-        cursor.execute("CREATE TABLE species (\
-                        spe_id INTEGER PRIMARY KEY, \
-                        spe_name_venacular VARCHAR, \
-                        spe_name_latin VARCHAR, \
-                        spe_invasive_in_nl INTEGER, \
-                        spe_description VARCHAR, \
-                        spe_remarks VARCHAR \
-                        )")
-
-        # Design Part: 2.16
-        cursor.execute("CREATE TABLE plates (\
-                        pla_id INTEGER PRIMARY KEY, \
-                        pla_loc_id INTEGER, \
-                        pla_setl_coordinator VARCHAR, \
-                        pla_nr VARCHAR, \
-                        pla_deployment_date TEXT, \
-                        pla_retrieval_date TEXT, \
-                        pla_water_temperature VARCHAR, \
-                        pla_salinity VARCHAR, \
-                        pla_visibility VARCHAR, \
-                        pla_remarks VARCHAR \
-                        )")
-
-        # Design Part: 2.5
-        cursor.execute("CREATE TABLE records (\
-                        rec_id INTEGER PRIMARY KEY, \
-                        rec_pla_id INTEGER, \
-                        rec_spe_id INTEGER, \
-                        rec_unknown INTEGER, \
-                        rec_o INTEGER, \
-                        rec_r INTEGER, \
-                        rec_c INTEGER, \
-                        rec_a INTEGER, \
-                        rec_e INTEGER, \
-                        rec_sur_unknown INTEGER, \
-                        rec_sur1 INTEGER, \
-                        rec_sur2 INTEGER, \
-                        rec_sur3 INTEGER, \
-                        rec_sur4 INTEGER, \
-                        rec_sur5 INTEGER, \
-                        rec_sur6 INTEGER, \
-                        rec_sur7 INTEGER, \
-                        rec_sur8 INTEGER, \
-                        rec_sur9 INTEGER, \
-                        rec_sur10 INTEGER, \
-                        rec_sur11 INTEGER, \
-                        rec_sur12 INTEGER, \
-                        rec_sur13 INTEGER, \
-                        rec_sur14 INTEGER, \
-                        rec_sur15 INTEGER, \
-                        rec_sur16 INTEGER, \
-                        rec_sur17 INTEGER, \
-                        rec_sur18 INTEGER, \
-                        rec_sur19 INTEGER, \
-                        rec_sur20 INTEGER, \
-                        rec_sur21 INTEGER, \
-                        rec_sur22 INTEGER, \
-                        rec_sur23 INTEGER, \
-                        rec_sur24 INTEGER, \
-                        rec_sur25 INTEGER, \
-                        rec_1st INTEGER, \
-                        rec_2nd INTEGER, \
-                        rec_v INTEGER \
-                        )")
-
-        # Note that rec_pla_id doesn't have to be unique, so we're
-        # creating a separate primary key "id".
-        # Design Part: 2.9.1
-        # Design Part: 2.10.1
-        # Design Part: 2.11.1
-        cursor.execute("CREATE TABLE species_spots_1 (\
-                            id INTEGER PRIMARY KEY, \
-                            rec_pla_id INTEGER, \
-                            rec_sur1 INTEGER, \
-                            rec_sur2 INTEGER, \
-                            rec_sur3 INTEGER, \
-                            rec_sur4 INTEGER, \
-                            rec_sur5 INTEGER, \
-                            rec_sur6 INTEGER, \
-                            rec_sur7 INTEGER, \
-                            rec_sur8 INTEGER, \
-                            rec_sur9 INTEGER, \
-                            rec_sur10 INTEGER, \
-                            rec_sur11 INTEGER, \
-                            rec_sur12 INTEGER, \
-                            rec_sur13 INTEGER, \
-                            rec_sur14 INTEGER, \
-                            rec_sur15 INTEGER, \
-                            rec_sur16 INTEGER, \
-                            rec_sur17 INTEGER, \
-                            rec_sur18 INTEGER, \
-                            rec_sur19 INTEGER, \
-                            rec_sur20 INTEGER, \
-                            rec_sur21 INTEGER, \
-                            rec_sur22 INTEGER, \
-                            rec_sur23 INTEGER, \
-                            rec_sur24 INTEGER, \
-                            rec_sur25 INTEGER \
-                        )")
-
-        # Note that rec_pla_id doesn't have to be unique, so we're
-        # creating a separate unique key "id".
-        # Design Part: 2.9.2
-        # Design Part: 2.10.2
-        # Design Part: 2.11.2
-        cursor.execute("CREATE TABLE species_spots_2 (\
-                            id INTEGER PRIMARY KEY, \
-                            rec_pla_id INTEGER, \
-                            rec_sur1 INTEGER, \
-                            rec_sur2 INTEGER, \
-                            rec_sur3 INTEGER, \
-                            rec_sur4 INTEGER, \
-                            rec_sur5 INTEGER, \
-                            rec_sur6 INTEGER, \
-                            rec_sur7 INTEGER, \
-                            rec_sur8 INTEGER, \
-                            rec_sur9 INTEGER, \
-                            rec_sur10 INTEGER, \
-                            rec_sur11 INTEGER, \
-                            rec_sur12 INTEGER, \
-                            rec_sur13 INTEGER, \
-                            rec_sur14 INTEGER, \
-                            rec_sur15 INTEGER, \
-                            rec_sur16 INTEGER, \
-                            rec_sur17 INTEGER, \
-                            rec_sur18 INTEGER, \
-                            rec_sur19 INTEGER, \
-                            rec_sur20 INTEGER, \
-                            rec_sur21 INTEGER, \
-                            rec_sur22 INTEGER, \
-                            rec_sur23 INTEGER, \
-                            rec_sur24 INTEGER, \
-                            rec_sur25 INTEGER \
-                        )")
-
-        # Create the table that will contain all the pre-calculated
-        # spot distances.
-        # Design Part: 2.23
-        cursor.execute("CREATE TABLE spot_distances (\
-                        id INTEGER PRIMARY KEY, \
-                        delta_x INTEGER, \
-                        delta_y INTEGER, \
-                        distance REAL \
-                        )")
-
-        # The table for the found spot distances.
-        # Design Part: 2.12
-        cursor.execute("CREATE TABLE spot_distances_observed (\
-                        id INTEGER PRIMARY KEY, \
-                        rec_pla_id INTEGER, \
-                        distance REAL \
-                        )")
-
-        # The table for the expected spot distances.
-        # Design Part: 2.13
-        cursor.execute("CREATE TABLE spot_distances_expected (\
-                        id INTEGER PRIMARY KEY, \
-                        rec_pla_id INTEGER, \
-                        distance REAL \
-                        )")
-
-        # The table for the total of spots per plate in the distance
-        # tables.
-        # Design Part: 2.39
-        cursor.execute("CREATE TABLE plate_spot_totals (\
-                        pla_id INTEGER PRIMARY KEY, \
-                        n_spots_a INTEGER, \
-                        n_spots_b INTEGER \
-                        )")
+        self.create_table_info()
+        self.create_table_localities()
+        self.create_table_species()
+        self.create_table_plates()
+        self.create_table_records()
+        self.create_table_species_spots_1()
+        self.create_table_species_spots_2()
+        self.create_table_spot_distances()
+        self.create_table_spot_distances_observed()
+        self.create_table_spot_distances_expected()
+        self.create_table_plate_spot_totals()
 
         # Commit the transaction.
-        connection.commit()
+        self.connection.commit()
 
         # Close connection with the local database.
-        cursor.close()
-        connection.close()
+        self.cursor.close()
+        self.connection.close()
 
         # Fill the spot_distances table.
         self.fill_distance_table()
 
         # No need to make a new database, as we just created one.
         setlyze.config.cfg.set('make-new-db', False)
+
+    def create_table_info(self):
+        """Create a table for storing basic information about the
+        local database.
+
+        This information includes its creation date and the data source.
+        The data source is either the SETL database (MS Access/PostgreSQL)
+        or CSV files containing SETL data. A version number for the
+        database is also saved. This could be handy in the future,
+        for example we can notify the user if the local database is
+        too old, followed by creating a new local database.
+
+        Design Part: 1.75
+        """
+        db_version = 0.1
+
+        self.cursor.execute("CREATE TABLE info (\
+            id INTEGER PRIMARY KEY, \
+            name VARCHAR, \
+            value VARCHAR)"
+            )
+
+        self.cursor.execute("INSERT INTO info "
+            "VALUES (null, 'version', ?)", [db_version])
+
+    def create_table_localities(self):
+        """Create a table for the SETL localities.
+
+        Because the data from this table is accessed frequently, the
+        localities records are automatically saved to this table when
+        an analyze is started.
+
+        Design Part: 1.76
+        """
+        # Design Part: 2.4
+        self.cursor.execute("CREATE TABLE localities (\
+            loc_id INTEGER PRIMARY KEY, \
+            loc_name VARCHAR, \
+            loc_nr VARCHAR, \
+            loc_coordinates VARCHAR, \
+            loc_description VARCHAR \
+        )")
+
+    def create_table_species(self):
+        """Create a table for the SETL species.
+
+        Because the data from this table is accessed frequently, the
+        species records are automatically saved to this table when
+        an analyze is started.
+
+        Design Part: 1.77
+        """
+
+        # Design Part: 2.3
+        self.cursor.execute("CREATE TABLE species (\
+            spe_id INTEGER PRIMARY KEY, \
+            spe_name_venacular VARCHAR, \
+            spe_name_latin VARCHAR, \
+            spe_invasive_in_nl INTEGER, \
+            spe_description VARCHAR, \
+            spe_remarks VARCHAR \
+        )")
+
+    def create_table_plates(self):
+        """Create a table for the SETL plates.
+
+        This table is only filled if the user selected CSV files to
+        import SETL data from. If the remote SETL database is used,
+        the plate records are obtained directly via queries.
+
+        Design Part: 1.78
+        """
+        # Design Part: 2.16
+        self.cursor.execute("CREATE TABLE plates (\
+            pla_id INTEGER PRIMARY KEY, \
+            pla_loc_id INTEGER, \
+            pla_setl_coordinator VARCHAR, \
+            pla_nr VARCHAR, \
+            pla_deployment_date TEXT, \
+            pla_retrieval_date TEXT, \
+            pla_water_temperature VARCHAR, \
+            pla_salinity VARCHAR, \
+            pla_visibility VARCHAR, \
+            pla_remarks VARCHAR \
+        )")
+
+    def create_table_records(self):
+        """Create a table for the SETL records.
+
+        This table is only filled if the user selected CSV files to
+        import SETL data from. If the remote SETL database is used,
+        the records are obtained directly via queries.
+
+        Design Part: 1.79
+        """
+
+        # Design Part: 2.5
+        self.cursor.execute("CREATE TABLE records (\
+            rec_id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            rec_spe_id INTEGER, \
+            rec_unknown INTEGER, \
+            rec_o INTEGER, \
+            rec_r INTEGER, \
+            rec_c INTEGER, \
+            rec_a INTEGER, \
+            rec_e INTEGER, \
+            rec_sur_unknown INTEGER, \
+            rec_sur1 INTEGER, \
+            rec_sur2 INTEGER, \
+            rec_sur3 INTEGER, \
+            rec_sur4 INTEGER, \
+            rec_sur5 INTEGER, \
+            rec_sur6 INTEGER, \
+            rec_sur7 INTEGER, \
+            rec_sur8 INTEGER, \
+            rec_sur9 INTEGER, \
+            rec_sur10 INTEGER, \
+            rec_sur11 INTEGER, \
+            rec_sur12 INTEGER, \
+            rec_sur13 INTEGER, \
+            rec_sur14 INTEGER, \
+            rec_sur15 INTEGER, \
+            rec_sur16 INTEGER, \
+            rec_sur17 INTEGER, \
+            rec_sur18 INTEGER, \
+            rec_sur19 INTEGER, \
+            rec_sur20 INTEGER, \
+            rec_sur21 INTEGER, \
+            rec_sur22 INTEGER, \
+            rec_sur23 INTEGER, \
+            rec_sur24 INTEGER, \
+            rec_sur25 INTEGER, \
+            rec_1st INTEGER, \
+            rec_2nd INTEGER, \
+            rec_v INTEGER \
+        )")
+
+    def create_table_species_spots_1(self):
+        """Create a table that will contain the SETL records for the
+        first species selection.
+
+        Because the user can select multiple species, the plate IDs in
+        column ``rec_pla_id`` don't have to be unique, so we're
+        creating a separate column ``id`` as the primary key.
+
+        Design Part: 1.80
+        """
+
+        # Design Part: 2.9, 2.9.1, 2.9.2
+        self.cursor.execute("CREATE TABLE species_spots_1 (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            rec_sur1 INTEGER, \
+            rec_sur2 INTEGER, \
+            rec_sur3 INTEGER, \
+            rec_sur4 INTEGER, \
+            rec_sur5 INTEGER, \
+            rec_sur6 INTEGER, \
+            rec_sur7 INTEGER, \
+            rec_sur8 INTEGER, \
+            rec_sur9 INTEGER, \
+            rec_sur10 INTEGER, \
+            rec_sur11 INTEGER, \
+            rec_sur12 INTEGER, \
+            rec_sur13 INTEGER, \
+            rec_sur14 INTEGER, \
+            rec_sur15 INTEGER, \
+            rec_sur16 INTEGER, \
+            rec_sur17 INTEGER, \
+            rec_sur18 INTEGER, \
+            rec_sur19 INTEGER, \
+            rec_sur20 INTEGER, \
+            rec_sur21 INTEGER, \
+            rec_sur22 INTEGER, \
+            rec_sur23 INTEGER, \
+            rec_sur24 INTEGER, \
+            rec_sur25 INTEGER \
+        )")
+
+
+    def create_table_species_spots_2(self):
+        """Create a table that will contain the SETL records for the
+        second species selection.
+
+        Because the user can select multiple species, the plate IDs in
+        column ``rec_pla_id`` don't have to be unique, so we're
+        creating a separate column ``id`` as the primary key.
+
+        Design Part: 1.81
+        """
+
+        # Design Part: 2.10, 2.10.1, 2.10.2
+        self.cursor.execute("CREATE TABLE species_spots_2 (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            rec_sur1 INTEGER, \
+            rec_sur2 INTEGER, \
+            rec_sur3 INTEGER, \
+            rec_sur4 INTEGER, \
+            rec_sur5 INTEGER, \
+            rec_sur6 INTEGER, \
+            rec_sur7 INTEGER, \
+            rec_sur8 INTEGER, \
+            rec_sur9 INTEGER, \
+            rec_sur10 INTEGER, \
+            rec_sur11 INTEGER, \
+            rec_sur12 INTEGER, \
+            rec_sur13 INTEGER, \
+            rec_sur14 INTEGER, \
+            rec_sur15 INTEGER, \
+            rec_sur16 INTEGER, \
+            rec_sur17 INTEGER, \
+            rec_sur18 INTEGER, \
+            rec_sur19 INTEGER, \
+            rec_sur20 INTEGER, \
+            rec_sur21 INTEGER, \
+            rec_sur22 INTEGER, \
+            rec_sur23 INTEGER, \
+            rec_sur24 INTEGER, \
+            rec_sur25 INTEGER \
+        )")
+
+    def create_table_spot_distances(self):
+        """Create a table that will contain all the pre-calculated
+        spot distances that are possible on a SETL plate.
+
+        Design Part: 1.82
+        """
+
+        # Design Part: 2.23
+        self.cursor.execute("CREATE TABLE spot_distances (\
+            id INTEGER PRIMARY KEY, \
+            delta_x INTEGER, \
+            delta_y INTEGER, \
+            distance REAL \
+        )")
+
+    def create_table_spot_distances_observed(self):
+        """Create a table for the observed spot distances.
+
+        Design Part: 1.83
+        """
+
+        # Design Part: 2.12
+        self.cursor.execute("CREATE TABLE spot_distances_observed (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            distance REAL \
+        )")
+
+    def create_table_spot_distances_expected(self):
+        """Create a table for the expected spot distances.
+
+        Design Part: 1.84
+        """
+
+        # Design Part: 2.13
+        self.cursor.execute("CREATE TABLE spot_distances_expected (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            distance REAL \
+        )")
+
+    def create_table_plate_spot_totals(self):
+        """Create a table for the total of spots per plate in the
+        distance tables.
+
+        Design Part: 1.85
+        """
+
+        # Design Part: 2.39
+        self.cursor.execute("CREATE TABLE plate_spot_totals (\
+            pla_id INTEGER PRIMARY KEY, \
+            n_spots_a INTEGER, \
+            n_spots_b INTEGER \
+        )")
 
     def fill_distance_table(self):
         """Calculate all possible spot distances for a SETL plate and put
@@ -565,8 +749,8 @@ class MakeLocalDB(threading.Thread):
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
 
-        # Now calculate the distance for each Cartesian product and put
-        # each distance in the table.
+        # Now calculate the distance for each combination in the
+        # Cartesian product and put each distance in the table.
         for p1,p2 in products:
             cursor.execute( "INSERT INTO spot_distances "
                             "VALUES (null,?,?,?)",
@@ -580,29 +764,12 @@ class MakeLocalDB(threading.Thread):
         cursor.close()
         connection.close()
 
-
-class AccessDB(object):
-    """Class for accessing the database. Based on the setting of
-    ``setlyze.config.cfg.get('data-source')``, this class wil either use the
-    AccessLocalDB or AccessRemoteDB class to access the database.
-
-    Design Part:
-    """
-
-    def __init__(self):
-        data_source = setlyze.config.cfg.get('data-source')
-        if data_source == "csv-msaccess":
-            self.db = AccessLocalDB()
-        elif data_source == "setl-database":
-            self.db = AccessRemoteDB()
-        else:
-            logging.error("AccessDB: '%s' is not a valid data source." % data_source)
-            sys.exit(1)
-
 class AccessDBGeneric(object):
     """Super class for AccessLocalDB and AccessRemoteDB.
 
     This class contains methods that are generic for both sub-classes.
+    It provides both sub classes with methods for data that is always
+    present in the local database.
     """
 
     def __init__(self):
@@ -612,9 +779,7 @@ class AccessDBGeneric(object):
     def get_locations(self):
         """Return a list of all locations from the local database.
 
-        Returns:
-            A list with tuples. Each tuple has the format
-            ``(loc_id, "loc_name")``
+        Returns a list of tuples ``(loc_id, 'loc_name')``.
         """
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
@@ -626,13 +791,13 @@ class AccessDBGeneric(object):
         return locations
 
     def make_plates_unique(self, slot):
-        """Join the records in local database table 'species_spots' that
-        have the same plate ID. If one spot in a column contains 1, the
-        resulting spot becomes 1. If all spots from a column are 0, the
-        resulting spot becomes 0.
+        """Combine the records with the same plate ID in a spots table.
+        The value for `slot` defines which spots table is used.
+        The possible values of `slot` are ``0`` for table
+        ``species_spots_1`` and ``1`` for ``species_spots_2``.
 
-        The reason we're doing this, is because the user can select
-        multiple species. The analysis should threat them as one specie.
+        We're doing this so we can threat multiple species selected by
+        the user as a single specie.
 
         Design Part: 1.20
         """
@@ -701,7 +866,7 @@ class AccessDBGeneric(object):
         return n
 
     def remove_single_spot_plates(self, table):
-        """Remove records that have just one spot with True. Intra-specific
+        """Remove records that have just one positive spot. Intra-specific
         distance can’t be calculated for those.
 
         .. note::
@@ -764,27 +929,26 @@ class AccessDBGeneric(object):
         return delete
 
     def fill_plate_spot_totals_table(self, spots_table1, spots_table2=None):
-        """Fill the 'plate_spot_totals' table with the unique plate IDs
-        from the spots tables and the number of positive spots each
-        plate contains.
+        """Fill the ``plate_spot_totals`` table with the number of
+        positive spots for each plate.
 
-        This table is used by several analysis functions:
-            * Calculating the expected distances, where the spot numbers
-              serve as a template for the random spots generator.
+        The information is obtained from the tables `spots_table1` and
+        `spots_table2` (optional).
+
+        The ``plate_spot_totals`` table is used in several situations:
+
+            * Calculating the expected distances, where the positive spot
+              number serves as a template for the random spots generator
+              (see :ref:`~setlyze.std.get_random_for_plate`).
 
             * Significance calculators, where the tests are applied to
-              plates with specific numbers of positive spots.
+              plates with a specific number of positive spots (see
+              :ref:`get_distances_matching_spots_total`).
 
-        Keyword arguments:
-            spots_table1
-                The name of a spots table.
-            spots_table2
-                The name of a second spots table (optional).
-
-        If just one table is provided, only the column 'n_spots_a' is
-        filled. If two spots tables are provided, 'n_spots_a' is filled
-        from the first spots table, and 'n_spots_b' filled from the
-        second spots table.
+        If just `spots_table1` is provided, only the column ``n_spots_a``
+        is filled with positive spot numbers. If both `spots_table1` and
+        `spots_table2` are provided, ``n_spots_a`` is filled
+        from `spots_table1`, and ``n_spots_b`` filled from `spots_table2`.
 
         Design Part: 1.73
         """
@@ -892,15 +1056,32 @@ class AccessDBGeneric(object):
         # Return the number of records that were skipped.
         return skipped
 
-    def get_distances_matching_spots_total(self, cursor, distance_table, spots_n=-1):
+    def get_distances_matching_spots_total(self, cursor, distance_table, spots_n):
         """Get the distances from a distance table that are from plates
         matching a specific number of spots on a plate.
-
-        This function is specific to analysis 2.1.
         """
-        if spots_n == -1:
-            # If spots_n=-1, get all distances.
+        if spots_n < 0:
+            # If spots_n is a negative number, get all distances
+            # up to the absolute number. So if we find -5, get all
+            # distances up to 5.
             cursor.execute("SELECT distance FROM %s" % distance_table)
+
+            # Get the plate IDs that have n spots lower or equal to the
+            # absolute spots number.
+            cursor.execute( "SELECT pla_id "
+                            "FROM plate_spot_totals "
+                            "WHERE n_spots_a <= %d" %
+                            (abs(spots_n))
+                            )
+            plate_ids = cursor.fetchall()
+            plate_ids = ",".join([str(item[0]) for item in plate_ids])
+
+            # Get the distances that match the plate IDs.
+            cursor.execute( "SELECT distance "
+                            "FROM %s "
+                            "WHERE rec_pla_id IN (%s)" %
+                            (distance_table, plate_ids)
+                            )
         else:
             # Get the plate IDs that match the provided total spots number.
             cursor.execute( "SELECT pla_id "
@@ -919,7 +1100,12 @@ class AccessDBGeneric(object):
                             )
 
 class AccessLocalDB(AccessDBGeneric):
-    """Retrieve data from the local SQLite database.
+    """Provide standard methods for accessing data in the local
+    SQLite database. These methods are only used when the data source
+    is set to ``csv-msaccess``.
+
+    Inherits from :class:`AccessDBGeneric` which provides this
+    class with methods that are not data source specific.
 
     Design Part: 1.28
     """
@@ -930,19 +1116,12 @@ class AccessLocalDB(AccessDBGeneric):
         self.connection = None
 
     def get_species(self, loc_slot=0):
-        """Return a list of species that match the selected locations from
-        the local database.
+        """Return a list of species tuples in the format ``(spe_id,
+        'spe_name_venacular', 'spe_name_latin')`` from the local
+        database that match the localities selection.
 
-        Keyword arguments:
-            loc_slot
-                An integer defining which location selection to use,
-                as a selection variable contains on or more selection
-                lists. Default the first selection list is returned
-                (loc_slot=0).
-
-        Returns:
-            A list with tuples in the format ``(spe_id,
-            "spe_name_venacular", "spe_name_latin")``
+        The values for `loc_slot` are ``0`` for the first localities
+        selection and ``1`` for the second localities selection.
         """
 
         # Get one of the location selections.
@@ -986,8 +1165,8 @@ class AccessLocalDB(AccessDBGeneric):
         return species
 
     def get_record_ids(self, loc_ids, spe_ids):
-        """Return the record IDs that match both the provided locations and
-        species IDs.
+        """Return a list of record IDs that match the localities IDs
+        in the list `loc_ids` and the species IDs in the list `spe_ids`.
 
         Design Part: 1.41
         """
@@ -1027,7 +1206,8 @@ class AccessLocalDB(AccessDBGeneric):
         return rec_ids
 
     def get_spots(self, rec_ids):
-        """Return all the spot booleans for the specified records."""
+        """Return all 25 spot booleans for the records with IDs matching
+        the record IDs in the list `rec_ids`."""
 
         # Make a connection with the local database.
         connection = sqlite.connect(self.dbfile)
@@ -1056,10 +1236,13 @@ class AccessLocalDB(AccessDBGeneric):
         return records
 
     def set_species_spots(self, rec_ids, slot):
-        """Create a table in the local database containing the record
-        information for the selected species and locations.
-        A row consists of the plate ID, and spot 1–25. The spots can
-        have a value 1 for present, or 0 for absent.
+        """Create a table in the local database containing the spots
+        information for SETL records matching `rec_ids`. Two spots
+        tables can be created. The values for `slot` can be ``0`` for table
+        ``species_spots_1`` and ``1`` for ``species_spots_2``.
+
+        Each record in the spots table consists of the plate ID followed
+        by the 25 spot booleans.
 
         Design Part: 1.19.1
         """
@@ -1108,9 +1291,13 @@ class AccessLocalDB(AccessDBGeneric):
         cursor2.close()
         connection.close()
 
-
 class AccessRemoteDB(AccessDBGeneric):
-    """Retrieve data from the SETL database.
+    """Provide standard methods for accessing data in the remote
+    PostgreSQL SETL database. These methods are only used when the data
+    source is set to ``setl-database``.
+
+    Inherits from :class:`AccessDBGeneric` which provides this
+    class with methods that are not data source specific.
 
     Design Part: 1.29
     """

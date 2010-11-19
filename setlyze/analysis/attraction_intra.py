@@ -242,8 +242,7 @@ class Start(threading.Thread):
         self.total_steps = 10.0
 
         # Make an object that facilitates access to the database.
-        accessdb = setlyze.database.AccessDB()
-        self.db = accessdb.db
+        self.db = setlyze.database.get_database_accessor()
 
         # Get the record IDs that match the selections.
         locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
@@ -494,17 +493,17 @@ class Start(threading.Thread):
         cursor2 = connection.cursor()
 
         for n_spots in range(2,27):
-            # Of course, there are just 25 spots, so when we find
-            # n_spots=-1, take all distances.
+            # Of course, there are just 25 spots, so when we reach 26,
+            # set n_spots to -25 (meaning, take all spots up to 25).
             if n_spots == 26:
-                n_spots = -1
+                n_spots = -25
 
             # Get both sets of distances from plates per total spot numbers.
             self.db.get_distances_matching_spots_total(cursor, 'spot_distances_observed', n_spots)
             self.db.get_distances_matching_spots_total(cursor2, 'spot_distances_expected', n_spots)
 
-            # Create vectors for the distances so we can use it in
-            # a R object.
+            # Create lists for the distances so we can use it for the R
+            # functions.
             observed = [x[0] for x in cursor]
             expected = [x[0] for x in cursor2]
 
@@ -521,10 +520,21 @@ class Start(threading.Thread):
 
             # Get the number of plates found that match the current
             # number of positive spots.
-            cursor.execute( "SELECT COUNT(pla_id) "
-                            "FROM plate_spot_totals "
-                            "WHERE n_spots_a = ?", [n_spots])
-            n_plates = cursor.fetchone()[0]
+            if n_spots < 0:
+                # If spots_n is a negative number, get all distances
+                # up to the absolute number. So if we find -5, get all
+                # distances up to 5.
+                cursor.execute( "SELECT COUNT(pla_id) "
+                                "FROM plate_spot_totals "
+                                "WHERE n_spots_a <= ?", [abs(n_spots)])
+                n_plates = cursor.fetchone()[0]
+            else:
+                # If it's a positive number, just get the plates that
+                # match that spots number.
+                cursor.execute( "SELECT COUNT(pla_id) "
+                                "FROM plate_spot_totals "
+                                "WHERE n_spots_a = ?", [n_spots])
+                n_plates = cursor.fetchone()[0]
 
             # Perform the normality test.
             normality_result = setlyze.std.shapiro_test(observed)

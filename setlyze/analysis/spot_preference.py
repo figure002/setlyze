@@ -343,6 +343,7 @@ class Start(threading.Thread):
                         'area3': [],
                         'area4': [] }
 
+        # Fill area2surid
         for area, spot_names in areas_definition.iteritems():
             # Get all spot names of an area.
             for spot_name in spot_names:
@@ -364,8 +365,7 @@ class Start(threading.Thread):
             del area2surid[area]
 
         # Make an object that facilitates access to the database.
-        accessdb = setlyze.database.AccessDB()
-        db = accessdb.db
+        db = setlyze.database.get_database_accessor()
 
         # Get the record IDs that match the locations and species
         # selection.

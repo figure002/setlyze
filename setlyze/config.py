@@ -37,9 +37,9 @@ usage example, ::
     >>> print "The second species selection is", setlyze.config.cfg.get('species-selection', slot=1)
     The second species selection is [15, 16, 17]
 
-Importing this module in a different module gives access to the ``cfg``
-object, and thus the variables can be obtained or manipulated using its
-get() and set() methods.
+Importing this module in a different module gives access to the same
+``cfg`` object, and thus its variables can be obtained or manipulated
+using its get() and set() methods.
 """
 
 import os
@@ -105,8 +105,19 @@ DEFAULT_CONFIG = [
 ]
 
 class ConfigManager(object):
-    """There is just one ConfigManager instance, which holds and
-    manipulates the configurations and data variables.
+    """Class for managing SETLyze's data and configuration variables.
+
+    An instance of this class provides access to a fixed set of
+    variables that need to be accessable across SETLyze's modules. By
+    importing this module, one instance of this class is created.
+    Subsequent imports in other modules provides access to that same
+    instance.
+
+    The method set() is used to change the value of variables. The
+    method get() is used to get the value of a variable.
+
+    All variables and their default values can be found in the variable
+    ``DEFAULT_CONFIG`` of this module.
 
     Design Part: 1.57
     """
@@ -165,6 +176,8 @@ class ConfigManager(object):
         ``csv-msaccess``. The value of this configuration tells the
         application where to look for SETL data. This is especially used
         by the database module.
+
+        If an unknown data source is given, an error is printed.
         """
 
         # Legal data sources.

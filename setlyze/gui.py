@@ -18,6 +18,33 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""This module provides the graphical user interfaces ("GUIs") for SETLyze.
+
+We use GTK+ for the GUI creation. GTK+ is a highly usable, feature rich
+toolkit for creating graphical user interfaces which boasts cross
+platform compatibility and an easy to use API.
+
+GTK+ is an event driven toolkit, which means it will sleep in gtk.main()
+until an event occurs and control is passed to the appropriate function.
+To understand the code, it's important that you gain basic
+understanding of signals and callbacks, as these are used throughout
+the application (not just this module). The following tutorial is a good
+place to start: `Theory of Signals and Callbacks <http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html>`_
+
+Each class in this module represents a graphical dialog or window.
+Displaying one of these dialogs is as easy as instantiating the class.
+You can easily test this from the interactive Python shell:
+
+>>> import setlyze.gui
+>>> g = setlyze.gui.SelectLocations()
+
+The above would display a nice localities selection dialog. You could
+then do the following to get a list of the selected locations.
+
+>>> import setlyze.config
+>>> setlyze.config.cfg.get('locations-selection')
+"""
+
 import sys
 import os
 import logging
@@ -41,7 +68,7 @@ __status__ = "Production"
 __date__ = "2010/09/22"
 
 class SelectionWindow(gtk.Window):
-    """Superclass for SelectLocation and SelectSpecies."""
+    """Super class for :class:`SelectLocations` and :class:`SelectSpecies`."""
 
     def __init__(self, title, description, width, slot):
         super(SelectionWindow, self).__init__()
@@ -60,7 +87,7 @@ class SelectionWindow(gtk.Window):
         self.set_position(gtk.WIN_POS_CENTER)
 
         # Handle window signals.
-        self.connect('delete-event', self.close_window)
+        self.connect('delete-event', self.on_close_dialog)
 
         # Handle application signals.
         self.handler1 = setlyze.std.sender.connect('local-db-created', self.update_tree)
@@ -72,7 +99,7 @@ class SelectionWindow(gtk.Window):
         self.show_all()
 
     def create_layout(self):
-        """Create the layout for the SelectAnalysis dialog."""
+        """Construct the layout for the selection dialog."""
 
         # Create a table to organize the widgets.
         table = gtk.Table(rows=2, columns=2, homogeneous=False)
@@ -168,34 +195,27 @@ class SelectionWindow(gtk.Window):
         self.add(table)
 
     def destroy_handler_connections(self):
-        """Disconnect all signal handlers created by this object."""
+        """Disconnect all signal handlers created by this class."""
         setlyze.std.sender.disconnect(self.handler1)
 
     def set_header(self, header):
-        """Set a new description for the selection dialog.
-
-        Keyword arguments:
-            header
-                A string for the header text.
-        """
+        """Set the header text to `header`."""
         header = "<span size='large' weight='bold'>%s</span>" % (header)
         self.header.set_markup(header)
 
     def set_description(self, description):
-        """Set a new description for the window."""
+        """Set the description text to `description`."""
         self.label_descr.set_text(description)
 
     def set_save_slot(self, slot):
-        """Set the slot to save the selection to.
+        """Set the localities/species selection save slot to `slot`.
 
         The selection variable has two slots available for saving
         selections (in analysis 2.2, two selections need to be saved,
         hence two slots were created).
 
-        Keyword arguments:
-            slot
-                The slot to save the selection to. Can be either 0 for
-                the first slot, or 1 for the second slot.
+        The possible values of `slot` are ``0`` for the first selection,
+        and ``1`` for the second selection.
         """
         if slot not in (0,1):
             logging.error("Attempt to set setlyze.gui.SelectionWindow.save_slot \
@@ -203,8 +223,11 @@ class SelectionWindow(gtk.Window):
             sys.exit(1)
         self.save_slot = slot
 
-    def on_continue(self, widget, data=None):
-        """Save the locations selection and close this window.
+    def on_continue(self, button):
+        """Before saving the localities/species selection, check if
+        anything was selected. If not, display a message dialog. If yes,
+        call method self.save_selection to save the selection and then
+        close the selection dialog.
 
         Design Part: 1.44
         """
@@ -224,19 +247,21 @@ class SelectionWindow(gtk.Window):
                 dialog.destroy()
                 return
 
-        # Save the selection.
+        # Save the selection. This method is present in one of the sub
+        # classes.
         self.save_selection()
 
         # Destroy the handlers.
         self.destroy_handler_connections()
 
-        # Then close this window. We don't use self.close_window,
-        # because that'll send the 'selection-dialog-closed' signal.
-        # That signal will cause the main window to show again.
+        # Then close this window.
         self.destroy()
 
     def on_changed(self, treeselection):
-        """Save the new locations selection."""
+        """Save the locations selection to a temporary variable.
+
+        This method is called whenever the selection changes.
+        """
         (model, rows) = treeselection.get_selected_rows()
         self.selection = []
         for row in rows:
@@ -247,9 +272,13 @@ class SelectionWindow(gtk.Window):
             self.selection.append(model.get_value(iter, column=0))
 
     def update_tree(self, widget=None):
-        """Update the tree view with the data.
+        """Load the localities/species data from the local database into
+        the tree view.
 
-        This function should be called whenever the data is updated.
+        This function should be called whenever the localities/species
+        data is updated. For example after new localities/species data
+        was imported into the local database. This function is also
+        called when the selection dialog is created.
 
         Design Part: 1.39
         """
@@ -260,17 +289,23 @@ class SelectionWindow(gtk.Window):
         # Apply the new model to the TreeView.
         self.treeview.set_model(self.model)
 
-    def close_window(self, widget=None, data=None):
-        """Close this window."""
+    def on_close_dialog(self, widget=None, data=None):
+        """Close the dialog and send the ``selection-dialog-closed``
+        signal.
+
+        This method should is called when the user pressed the X (close)
+        button of the selection dialog. The signal can then be handled
+        in the analysis class.
+        """
         self.destroy()
 
         # Destroy the handlers.
         self.destroy_handler_connections()
 
-        # Emit the signal that a selection window was closed.
-        setlyze.std.sender.emit("selection-dialog-closed")
+        # Emit the signal that a selection dialog was closed.
+        setlyze.std.sender.emit('selection-dialog-closed')
 
-    def on_select_data_files(self, widget, data=None):
+    def on_select_data_files(self, button):
         """Display the ChangeDataSource window.
 
         Design Part: 1.11
@@ -278,48 +313,46 @@ class SelectionWindow(gtk.Window):
         ChangeDataSource()
 
 class SelectLocations(SelectionWindow):
-    """Display a window that allows the user to make a selection from
-    the available locations.
+    """Display a selection dialog that allows the user to make a
+    selection from the SETL locations in the local database.
 
-    Design Part: 3.1
+    Design Part: 1.87
     """
 
     def __init__(self, title="Locations Selection",
             description="Select the locations:", width=-1, slot=0):
         super(SelectLocations, self).__init__(title, description, width, slot)
 
-    def on_back(self, widget, data=None):
-        """Destroy the selection dialog and send the back signal.
+    def on_back(self, button):
+        """Destroy the selection dialog and send the
+        ``locations-dialog-back`` signal.
+
+        The ``locations-dialog-back`` signal is sent with the save slot
+        as an attribute. The save slot can have a value of ``0`` for the
+        first selection and ``1`` for the second selection.
 
         This function is called when the user presses the Back button in
-        a location selection window. This function destroys the
-        selection window
-
-        Signals:
-            `locations-dialog-back` with the save slot as only its
-            attribute.
+        a location selection window.
 
         Design Part: 1.45
         """
 
-        # Then close this window. We don't use self.close_window,
-        # because that'll send the 'selection-dialog-closed' signal.
-        # That signal will cause the main window to show again.
+        # Close the dialog.
         self.destroy()
 
         # Destroy the handlers.
         self.destroy_handler_connections()
 
-        # Emit the signal that the back button for an analysis was
-        # pressed.
+        # Emit the signal that the Back button was pressed.
         setlyze.std.sender.emit('locations-dialog-back', self.save_slot)
 
     def save_selection(self):
-        """Save the locations selection.
+        """Save the locations selection and send the
+        ``locations-selection-saved`` signal.
 
-        Signals:
-            `locations-selection-saved` with the save slot as its only
-            attribute.
+        The ``locations-selection-saved`` signal is sent with the save slot
+        as an attribute. The save slot can have a value of ``0`` for the
+        first selection and ``1`` for the second selection.
 
         Design Part: 1.7
         """
@@ -331,40 +364,42 @@ class SelectLocations(SelectionWindow):
             setlyze.config.cfg.get('locations-selection', slot=1)]
         logging.info("\tLocations selection set to: %s" % selection)
 
-        # Emit the signal that a selection was saved.
+        # Emit the signal the selection was saved.
         setlyze.std.sender.emit('locations-selection-saved', self.save_slot)
 
     def create_model(self):
-        """Create a TreeView model from the location IDs and names.
+        """Create a model for the tree view from the location IDs and
+        names.
 
         Design Part: 1.42
         """
 
         # Create an object for accessing the database.
-        accessdb = setlyze.database.AccessDB()
+        db = setlyze.database.get_database_accessor()
 
         # Create the model.
         self.model = gtk.ListStore(gobject.TYPE_INT,
                                    gobject.TYPE_STRING)
-        for item in accessdb.db.get_locations():
+        for item in db.get_locations():
             self.model.append([item[0], item[1]])
 
     def create_columns(self, treeview):
-        """Create columns for the TreeView."""
+        """Create the columns for the tree view."""
         renderer_text = gtk.CellRendererText()
         # Notice text=1, which means that we let the column display the
         # attribute values for the cell renderer from column 1 in the
-        # TreeModel. Column 1 contains the location names.
+        # tree model. Column 1 contains the location names.
         column = gtk.TreeViewColumn("Locations", renderer_text, text=1)
-        column.set_sort_column_id(1) # Sort on column 1 from the TreeModel.
+        # Sort on column 1 from the model.
+        column.set_sort_column_id(1)
+        # Add the column to the tree view.
         treeview.append_column(column)
 
 class SelectSpecies(SelectionWindow):
-    """
-    Display a window that allows the user to make a selection from the
-    available species.
+    """Display a selection dialog that allows the user to make a
+    selection from the SETL species in the local database.
 
-    Design Part: 3.2
+    Design Part: 1.88
     """
 
     def __init__(self, title="Species Selection",
@@ -372,33 +407,35 @@ class SelectSpecies(SelectionWindow):
         super(SelectSpecies, self).__init__(title, description, width, slot)
 
     def on_back(self, widget, data=None):
-        """
-        Destroy window and send back signal.
+        """Destroy the selection dialog and send the
+        ``species-dialog-back`` signal.
+
+        The ``species-dialog-back`` signal is sent with the save slot
+        as an attribute. The save slot can have a value of ``0`` for the
+        first selection and ``1`` for the second selection.
 
         This function is called when the user presses the Back button in
-        a species selection window. This function destroys the
-        selection window
-
-        Signals: 'species-dialog-back' with the save slot.
+        a species selection window.
 
         Design Part: 1.46
         """
 
-        # Then close this window. We don't use self.close_window,
-        # because that'll send the 'selection-dialog-closed' signal.
-        # That signal will cause the main window to show again.
+        # Then close this window.
         self.destroy()
 
         # Destroy the handlers.
         self.destroy_handler_connections()
 
-        # Emit the signal that the back button for an analysis was
-        # pressed.
+        # Emit the signal that the Back button was pressed.
         setlyze.std.sender.emit('species-dialog-back', self.save_slot)
 
     def save_selection(self):
-        """
-        Save the species selection.
+        """Save the species selection and send the
+        ``species-selection-saved`` signal.
+
+        The ``species-selection-saved`` signal is sent with the save slot
+        as an attribute. The save slot can have a value of ``0`` for the
+        first selection and ``1`` for the second selection.
 
         Design Part: 1.12.2
         """
@@ -414,8 +451,8 @@ class SelectSpecies(SelectionWindow):
         setlyze.std.sender.emit('species-selection-saved', self.save_slot)
 
     def create_model(self):
-        """
-        Create a TreeView model from the location IDs and names.
+        """Create a model for the tree view from the specie IDs and
+        names.
 
         Design Part: 1.43
         """
@@ -427,18 +464,21 @@ class SelectSpecies(SelectionWindow):
         self.model = gtk.ListStore(gobject.TYPE_INT,
                                    gobject.TYPE_STRING,
                                    gobject.TYPE_STRING)
+
         for item in db.get_species(loc_slot=self.save_slot):
             self.model.append([item[0], item[1], item[2]])
 
     def create_columns(self, treeview):
-        """Create columns for the TreeView object."""
+        """Create columns for the tree view."""
         renderer_text = gtk.CellRendererText()
         # Notice text=2, which means that we let the column display the
         # attribute values for the cell renderer from column 2 in the
         # TreeModel. Column 2 contains the species names (latin).
         column = gtk.TreeViewColumn("Specie (latin)", renderer_text, text=2)
-        column.set_sort_column_id(2) # Sort on column 2 from the TreeModel.
+        # Sort on column 2 from the model.
+        column.set_sort_column_id(2)
         column.set_resizable(True)
+        # Add the column to the tree view.
         treeview.append_column(column)
 
         renderer_text = gtk.CellRendererText()
@@ -446,17 +486,19 @@ class SelectSpecies(SelectionWindow):
         # attribute values for the cell renderer from column 1 in the
         # TreeModel. Column 1 contains the species names (venacular).
         column = gtk.TreeViewColumn("Specie (venacular)", renderer_text, text=1)
-        column.set_sort_column_id(1) # Sort on column 1 from the TreeModel.
+        # Sort on column 1 from the model.
+        column.set_sort_column_id(1)
         column.set_resizable(True)
+        # Add the column to the tree view.
         treeview.append_column(column)
 
 class DefinePlateAreas(gtk.Window):
-    """
-    Allow the user to define the areas on a SETL plate.
+    """Display a dialog that allows the user to define the areas on a
+    SETL plate.
 
-    Below is a SETL-plate with a grid. By default there are 4 areas on a
-    SETL plate (A, B, C and D). Sometimes it's interesting to combine
-    areas for analysis 1 "spot preference". This dialog allows just that.
+    Below is a SETL-plate with a grid. By default there are 4 surface
+    areas defined on a SETL plate (A, B, C and D). Sometimes it's useful
+    to combine plate areas.
 
     +---+---+---+---+---+
     | A | B | B | B | A |
@@ -470,13 +512,26 @@ class DefinePlateAreas(gtk.Window):
     | A | B | B | B | A |
     +---+---+---+---+---+
 
-    Design Part: 3.6
+    So if the user decides to combine A and B, the plate areas
+    definition looks like this,
+
+    +---+---+---+---+---+
+    | A | A | A | A | A |
+    +---+---+---+---+---+
+    | A | C | C | C | A |
+    +---+---+---+---+---+
+    | A | C | D | C | A |
+    +---+---+---+---+---+
+    | A | C | C | C | A |
+    +---+---+---+---+---+
+    | A | A | A | A | A |
+    +---+---+---+---+---+
+
+    Design Part: 1.91
     """
 
-    def __init__(self, title="Define SETL-plate Spots"):
+    def __init__(self, title="Define SETL-plate Areas"):
         super(DefinePlateAreas, self).__init__()
-
-        self.definition = None
 
         self.set_title(title)
         self.set_size_request(-1, -1)
@@ -485,8 +540,11 @@ class DefinePlateAreas(gtk.Window):
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
 
+        # The areas definition.
+        self.definition = None
+
         # Handle window signals.
-        self.connect('delete-event', self.close_window)
+        self.connect('delete-event', self.on_close_dialog)
 
         # Add widgets to the GTK window.
         self.create_layout()
@@ -495,7 +553,7 @@ class DefinePlateAreas(gtk.Window):
         self.show_all()
 
     def create_layout(self):
-        """Create the layout for the dialog."""
+        """Construct the layout for the dialog."""
 
         # Create a table to organize the widgets.
         table = gtk.Table(rows=4, columns=2, homogeneous=False)
@@ -513,7 +571,8 @@ class DefinePlateAreas(gtk.Window):
 
         # Load an image of the SETL grid.
         setl_grid = gtk.Image()
-        setl_grid.set_from_file(pkg_resources.resource_filename(__name__, 'images/setl-grid.png'))
+        setl_grid.set_from_file(pkg_resources.resource_filename(__name__,
+            'images/setl-grid.png'))
         # Add the image to the table.
         table.attach(setl_grid, left_attach=1, right_attach=2,
             top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
@@ -554,6 +613,8 @@ class DefinePlateAreas(gtk.Window):
         self.add(table)
 
     def create_definition_table(self):
+        """Construct the form for defining the plate areas."""
+
         # Create a table for the radio buttons.
         def_table = gtk.Table(rows=5, columns=5, homogeneous=False)
         def_table.set_col_spacings(10)
@@ -702,48 +763,55 @@ class DefinePlateAreas(gtk.Window):
 
         return def_table
 
-    def close_window(self, widget=None, data=None):
-        """Close this window."""
+    def on_close_dialog(self, widget=None, data=None):
+        """Close the dialog and send the ``define-areas-dialog-closed``
+        signal.
+
+        This method should is called when the user presses the X (close)
+        button of the selection dialog. The signal can then be handled
+        in the analysis class.
+        """
         self.destroy()
 
-        # Emit the signal that the window was closed by pressing the
-        # X-button.
+        # Emit the signal that the dialog was closed.
         setlyze.std.sender.emit('define-areas-dialog-closed')
 
     def on_continue(self, widget, data=None):
-        """Save the locations selection and close this window."""
+        """Check if the user made a correct definition. If yes, normalize
+        the definition and save it."""
 
-        # Get the user selected spot areas definition.
+        # Get the user selected plate areas definition.
         definition = self.get_selection()
 
-        # Check if the spot selection is any good.
+        # Check if the definition is any good.
         if not self.iscorrect(definition):
-            # Apparently the spot selection was not good.
+            # Apparently the definition was not good.
             return
 
         # Then close this window.
         self.destroy()
 
-        # Normalize spot areas definition.
+        # Normalize the definition.
         definition = self.normalize(definition)
 
-        # Save spots area definition.
+        # Save the definition.
         self.save(definition)
 
     def on_back(self, widget, data=None):
-        """Destroy window and send back signal."""
+        """Destroy the dialog and send the ``define-areas-dialog-back``
+        signal.
 
-        # Then close this window. We don't use self.close_window,
-        # because that'll send the 'selection-dialog-closed' signal.
-        # That signal will cause the main window to show again.
+        This function is called when the user presses the Back button.
+        """
+
+        # Close the dialog.
         self.destroy()
 
-        # Emit the signal that the back button for this window was
-        # pressed.
+        # Emit the signal that the Back button was pressed.
         setlyze.std.sender.emit('define-areas-dialog-back')
 
     def get_selection(self):
-        """Return the spot areas as defined by the user."""
+        """Return the plate areas as defined by the user."""
 
         # Spot are definition table.
         area_selection = {  'area1': [],
@@ -775,17 +843,19 @@ class DefinePlateAreas(gtk.Window):
         return area_selection
 
     def iscorrect(self, definition):
-        """
-        Check if the user defined spot areas are correct. If the
-        definition is correct, return True. Or else return False.
+        """Check if the user defined plate areas are correct.
+
+        Return True if the definition is correct, and False if it's not.
+        If the definition is False, display a message dialog describing
+        the problem.
         """
 
-        # Check if the user combined all spots together.
+        # Check if the user combined all surfaces together.
         for area, selection in definition.iteritems():
-            # Count the number of selected (True's) for each spot area.
+            # Count the number of selected (True's) for each plate area.
             if selection.count(True) == 4:
-                # The user combined all spots to one spot area. This is
-                # useless, so show a warning.
+                # The user combined all surfaces to one plate area. This
+                # is useless, so show a warning.
                 dialog = gtk.MessageDialog(parent=None, flags=0,
                     type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                     message_format="Invalid spot definition")
@@ -795,19 +865,37 @@ class DefinePlateAreas(gtk.Window):
                 if response == gtk.RESPONSE_OK:
                     dialog.destroy()
 
-                    # not OK sir.
+                    # The definition is not correct.
                     return False
 
         # 's alright...
         return True
 
     def normalize(self, definition):
+        """Return a normalized and simplified version of `definition`.
+
+        This means that an area selection that looks like
+        [True, False, True, False] will be converted to ['A','C']. Empty
+        areas are removed from the normalized spot areas definition.
+
+        For example, if `definition` equals ::
+
+            {
+            'area1': [True, False, False, False],
+            'area2': [False, True, False, False],
+            'area3': [False, False, True, True],
+            'area4': [False, False, False, False]
+            }
+
+        This method will return ::
+
+            {
+            'area1': ['A'],
+            'area2': ['B'],
+            'area3': ['C', 'D']
+            }
         """
-        Normalize and simplify the areas definition. Meaning that a
-        selection that looks like [True, False, True, False] will be
-        converted to ['A','C']. Empty areas are removed from the
-        normalized spot areas definition.
-        """
+
         # Index to spot name.
         index2name = {0:'A', 1:'B', 2:'C', 3:'D'}
 
@@ -817,8 +905,8 @@ class DefinePlateAreas(gtk.Window):
                             'area3': [],
                             'area4': [] }
 
-        # For every True in a selection, replace it with the spot
-        # name, an put it in the new spot area definition.
+        # For every True in a selection, replace it with the surface
+        # name, an put it in the new plate area definition.
         for area, selection in definition.iteritems():
             i = 0
             for item in selection:
@@ -838,10 +926,8 @@ class DefinePlateAreas(gtk.Window):
         return new_definition
 
     def save(self, definition):
-        """
-        Save the spot areas definition.
-
-        Design Part:
+        """Save the plate areas definition and emit the
+        ``plate-areas-defined`` signal.
         """
 
         # Set the spots definition.
@@ -850,18 +936,20 @@ class DefinePlateAreas(gtk.Window):
         # Make log message.
         logging.info("\tPlate areas definition set to: %s" % definition)
 
-        # Emit the signal that the spot areas are defined.
+        # Emit the signal that the plate areas are defined.
         setlyze.std.sender.emit('plate-areas-defined')
 
 class ChangeDataSource(gtk.Window):
-    """Display a dialog where the user can change the data source.
+    """Display a dialog that allows the user to change to a different
+    data source. The following data sources are supported:
 
-    * Allow the selection of CSV files with SETL data exported by
-      MS Access.
-    * Allow the user to select the remote SETL database as the data
-      source (not yet implemented).
+        * CSV files with SETL data exported from the MS Access SETL
+          database.
 
-    Design Part: 3.4
+        * TODO: The remote SETL database. This requires a direct
+          connection with the SETL database server.
+
+    Design Part: 1.90
     """
 
     def __init__(self):
@@ -875,14 +963,14 @@ class ChangeDataSource(gtk.Window):
         self.set_keep_above(False)
         self.set_modal(True)
 
-        # Add widgets to the GTK window.
+        # Create the layout for the dialog.
         self.create_layout()
 
         # Display all widgets.
         self.show_all()
 
     def create_layout(self):
-        """Create the layout."""
+        """Construct the layout for the dialog."""
 
         # Create a new notebook, place the position of the tabs
         notebook = gtk.Notebook()
@@ -926,6 +1014,9 @@ class ChangeDataSource(gtk.Window):
         self.add(vbox)
 
     def create_page_db(self):
+        """Return a notebook page for switching to SETL data from
+        the remote SETL database."""
+
         # Create a table to organize the widgets in.
         table = gtk.Table(rows=1, columns=2, homogeneous=False)
         table.set_col_spacings(10)
@@ -944,6 +1035,9 @@ class ChangeDataSource(gtk.Window):
         return table
 
     def create_page_csv(self):
+        """Return a notebook page for switching to SETL data from
+        CSV files."""
+
         # Create a table to organize the widgets in.
         table = gtk.Table(rows=6, columns=2, homogeneous=False)
         table.set_col_spacings(10)
@@ -1028,7 +1122,7 @@ class ChangeDataSource(gtk.Window):
         # OK button
         button_ok = gtk.Button("OK")
         button_ok.set_size_request(70, -1)
-        button_ok.connect("clicked", self.on_ok)
+        button_ok.connect("clicked", self.on_csv_ok)
 
         # Cancel button
         button_cancel = gtk.Button("Cancel")
@@ -1051,8 +1145,12 @@ class ChangeDataSource(gtk.Window):
 
         return table
 
-    def on_ok(self, widget, data=None):
-        """Send the paths to the data files to the master class."""
+    def on_csv_ok(self, widget, data=None):
+        """Save the paths to the CSV files, set the new value for the
+        data source configuration, load the SETL data from the CSV file
+        into the local database, and close the dialog.
+        """
+
         # TODO: Check if all files are selected.
 
         # Save the paths.
@@ -1078,16 +1176,17 @@ class ChangeDataSource(gtk.Window):
         self.destroy()
 
     def on_cancel(self, widget, data=None):
-        """Close the window."""
+        """Close the dialog."""
         self.destroy()
 
-    def update_working_folder(self, widget, data=None):
+    def update_working_folder(self, chooser, data=None):
+        """Set the working folder for the file choosers to the folder
+        where the first data file was selected from.
+
+        This way the user doesn't have to navigate to the same folder
+        multiple times.
         """
-        Set a new working folder for the file choosers. This will
-        save the user some time, if all files are put in the same
-        folder.
-        """
-        path = widget.get_filename()
+        path = chooser.get_filename()
         if path:
             folder = os.path.dirname(path)
             self.spe_file_chooser.set_current_folder(folder)
@@ -1095,10 +1194,45 @@ class ChangeDataSource(gtk.Window):
             self.pla_file_chooser.set_current_folder(folder)
 
 class ProgressDialog(gtk.Window):
-    """
-    Show a progress dialog.
+    """Display a progress dialog.
 
-    Design Part: 3.7
+    This progress dialog is useful if you have a process that could
+    take a long time to run. This class allows you to display a progress
+    dialog which shows the progress for a long process (called the worker
+    process). This worker process needs to run in a separate thread for
+    this to work.
+
+    Follow these steps to get the progress dialog working:
+
+    1) Create an instance of this class, ::
+
+        pd = setlyze.gui.ProgressDialog(title="Analyzing",
+            description="Performing heavy calculations, please wait...")
+
+    2) Register the progress dialog using the ``config`` module, ::
+
+        setlyze.config.cfg.set('progress-dialog', pd)
+
+    3) Edit the worker process to automatically update the progress
+       dialog. This is as easy as calling the custom update method
+       between the lines of your code, ::
+
+        setlyze.std.update_progress_dialog(0.0, "Calculating this...")
+        ...
+        setlyze.std.update_progress_dialog(0.5, "Calculating that...")
+        ...
+        setlyze.std.update_progress_dialog(1.0, "Finished!")
+
+    4) Then start your worker process in a separate thread (if you're
+       new to threading, start with the
+       `threading documentation <http://docs.python.org/library/threading.html>`_) ::
+
+        t = MyClass()
+        t.start()
+
+    Then run your application and watch the progress bar grow.
+
+    Design Part: 1.92
     """
 
     def __init__(self, title, description):
@@ -1124,7 +1258,7 @@ class ProgressDialog(gtk.Window):
         self.show_all()
 
     def create_layout(self):
-        """Create the layout for the SelectAnalysis window."""
+        """Construct the layout for the dialog."""
 
         # Create a vertical box container.
         vbox = gtk.VBox(homogeneous=False, spacing=5)
@@ -1172,17 +1306,26 @@ class ProgressDialog(gtk.Window):
         self.add(vbox)
 
     def destroy_silent(self):
+        """Destroy the dialog without sending the
+        ``progress-dialog-closed`` signal.
+        """
         self.destroy()
 
     def on_close(self, widget=None):
+        """Destroy the dialog and send the ``progress-dialog-closed``
+        signal.
+        """
         self.destroy()
         setlyze.std.sender.emit('progress-dialog-closed')
 
 class DisplayReport(gtk.Window):
-    """
-    Show a window with the results from an analysis.
+    """Display a dialog visualizing the elements in the XML DOM analysis
+    data object.
 
-    Design Part: 3.3
+    This class uses :class:`setlyze.std.ReportReader` to read the data
+    from the XML DOM analysis data object.
+
+    Design Part: 1.89
     """
 
     def __init__(self, report=None):
@@ -1192,7 +1335,7 @@ class DisplayReport(gtk.Window):
         self.set_report_reader(report)
 
         self.set_title("Analysis Report")
-        self.set_size_request(500, 400)
+        self.set_size_request(600, 500)
         self.set_border_width(10)
         self.set_resizable(True)
         self.set_keep_above(False)
@@ -1208,16 +1351,9 @@ class DisplayReport(gtk.Window):
         self.show_all()
 
     def set_report_reader(self, report):
-        """
-        Set the setlyze.std.ReportReader object.
-
-        This class needs a ReportReader to read the data from the
-        XML DOM report. We let the ReportReader do all the checking.
-
-        Keyword arguments:
-        report -    Can be either an XML DOM report object created by
-                    setlyze.std.ReportGenerator, or the path to an
-                    XML report file.
+        """Create a report reader and pass the XML DOM report data
+        object `report` to the reader. `report` can also be the path to
+        a report data XML file.
         """
         self.reader = setlyze.std.ReportReader(report)
 
@@ -1226,7 +1362,7 @@ class DisplayReport(gtk.Window):
         textbuffer.set_text(text)
 
     def create_layout(self):
-        """Create the layout for the ShowResults window."""
+        """Construct the layout for the dialog."""
 
         # Create a table to organize the widgets.
         table = gtk.Table(rows=3, columns=2, homogeneous=False)
@@ -1300,7 +1436,7 @@ class DisplayReport(gtk.Window):
         self.add(table)
 
     def on_close(self, obj, data=None):
-        """Close the report window."""
+        """Close the dialog and emit the `report-dialog-closed` signal."""
 
         # Close the report window.
         self.destroy()
@@ -1309,9 +1445,14 @@ class DisplayReport(gtk.Window):
         setlyze.std.sender.emit('report-dialog-closed')
 
     def on_save(self, obj, data=None):
-        """
-        Show a dialog that allows the user to save the report in the
-        available formats.
+        """Display a dialog that allows the user to save the report to
+        a file.
+
+        Two types of files can be exported:
+            * An analysis data file containing the settings, data, and
+              results for the analysis (XML format).
+            * TODO: A document containing the analysis results (plain text,
+              LaTeX).
         """
 
         # Create a file chooser dialog.
@@ -1341,9 +1482,8 @@ class DisplayReport(gtk.Window):
         chooser.destroy()
 
     def add_report_elements(self):
-        """
-        Add the report elements present in the XML DOM report to the
-        report window.
+        """Add the report elements present in the XML DOM object to the
+        report dialog.
         """
         if not self.reader.doc:
             return
@@ -1377,8 +1517,7 @@ class DisplayReport(gtk.Window):
         #self.textbox.set_pixels_above_lines(5)
 
     def add_title_header(self):
-        """
-        Add a header line to the report dialog.
+        """Add a header text to the report dialog.
 
         The header contains the name of the analysis.
         """
@@ -1402,8 +1541,8 @@ class DisplayReport(gtk.Window):
         self.vbox_top.pack_start(header, expand=False, fill=True, padding=0)
 
     def add_distances(self):
-        """
-        Add the spot distances (observed + expected) to the report dialog.
+        """Add the spot distances (observed + expected) to the report
+        dialog.
         """
 
         # Create a Scrolled Window
@@ -1449,9 +1588,7 @@ class DisplayReport(gtk.Window):
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_selections(self):
-        """
-        Add the location + species selections to the report dialog.
-        """
+        """Add the locations + species selections to the report dialog."""
 
         # Create a scrolled window.
         scrolled_window = gtk.ScrolledWindow()
@@ -1518,9 +1655,7 @@ class DisplayReport(gtk.Window):
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_plate_areas_definition(self):
-        """
-        Add the spots definition to the report dialog.
-        """
+        """Add the plate areas definition to the report dialog."""
 
         # Create a Scrolled Window
         scrolled_window = gtk.ScrolledWindow()
@@ -1566,9 +1701,7 @@ class DisplayReport(gtk.Window):
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_area_totals(self):
-        """
-        Add the species totals per area to the report dialog.
-        """
+        """Add the species totals per plate area to the report dialog."""
 
         # Create a Scrolled Window
         scrolled_window = gtk.ScrolledWindow()
@@ -1642,7 +1775,7 @@ class DisplayReport(gtk.Window):
         column_names = ['Positive Spots','n (plates)',
             'n (distances)','P-value','Mean Observed','Mean Expected',
             'Conf. interval start','Conf. interval end','Method',
-            'Interestingness']
+            'Remarks']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -1667,14 +1800,26 @@ class DisplayReport(gtk.Window):
         statistics = self.reader.get_statistics_significance()
 
         for attr,items in statistics:
-            interesting = ""
-            if float(items['p_value']) < setlyze.config.cfg.get('significance-alpha'):
-                interesting += "*"
-                if int(attr['n']) >= 50:
-                    interesting += "*"
-                    if int(attr['n_positive_spots']) <= 10:
-                        interesting += "*"
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = []
+            if float(items['p_value']) < 0.001:
+                remarks.append("P < 0.001")
+            elif float(items['p_value']) < 0.01:
+                remarks.append("P < 0.01")
+            elif float(items['p_value']) < 0.05:
+                remarks.append("P < 0.05")
 
+            if int(attr['n']) > 1000:
+                remarks.append("n > 1000")
+            elif int(attr['n']) > 100:
+                remarks.append("n > 100")
+            elif int(attr['n']) > 50:
+                remarks.append("n > 50")
+
+            remarks = "; ".join(remarks)
+
+            # Add all result items to the tree model.
             liststore.append([
                 int(attr['n_positive_spots']),
                 int(attr['n_plates']),
@@ -1686,7 +1831,7 @@ class DisplayReport(gtk.Window):
                 float(items['conf_int_start']),
                 float(items['conf_int_end']),
                 attr['method'],
-                interesting,
+                remarks,
                 ])
 
         # Set the tree model.
@@ -1699,7 +1844,7 @@ class DisplayReport(gtk.Window):
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_normality(self):
-        """Add the statistic results to the report dialog."""
+        """Add the statistic results for normality to the report dialog."""
 
         # Create a Scrolled Window
         scrolled_window = gtk.ScrolledWindow()

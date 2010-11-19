@@ -96,7 +96,7 @@ class SelectAnalysis(object):
         self.w.show_all()
 
     def create_layout(self):
-        """Create the layout for the SelectAnalysis window."""
+        """Construct the layout for the SelectAnalysis window."""
 
         # Create a table to organize the widgets.
         table = gtk.Table(rows=5, columns=2, homogeneous=False)
