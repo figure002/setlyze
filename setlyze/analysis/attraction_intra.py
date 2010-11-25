@@ -26,7 +26,6 @@ import threading
 import time
 from sqlite3 import dbapi2 as sqlite
 
-import gtk
 import gobject
 
 import setlyze.locale
@@ -102,28 +101,9 @@ class Begin(object):
         self.handler7 = setlyze.std.sender.connect('report-dialog-closed',
             self.on_analysis_closed)
 
-        # Display the report after the progress dialog for the analysis
-        # was closed. Warning: A progress dialog will also close when
-        # the user decided to switch to a new data source in the
-        # locations selection window, so disable this handler until the
-        # analysis has started.
-        self.handler8 = setlyze.std.sender.connect('progress-dialog-closed',
+        # Display the report after the analysis has finished.
+        self.handler8 = setlyze.std.sender.connect('analysis-finished',
             self.on_display_report)
-        # Block handler 8.
-        setlyze.std.sender.handler_block(self.handler8)
-
-        # Things to do when the analysis has started.
-        self.handler9 = setlyze.std.sender.connect('analysis-started',
-            self.on_analysis_started)
-
-    def on_analysis_started(self, sender):
-        """
-        Handle events that need to happen when the analysis has
-        started.
-        """
-
-        # Unblock handler 8.
-        sender.handler_unblock(self.handler8)
 
     def destroy_handler_connections(self):
         """
@@ -138,7 +118,6 @@ class Begin(object):
         setlyze.std.sender.disconnect(self.handler6)
         setlyze.std.sender.disconnect(self.handler7)
         setlyze.std.sender.disconnect(self.handler8)
-        setlyze.std.sender.disconnect(self.handler9)
 
     def on_analysis_closed(self, obj=None, data=None):
         """Show the main window and destroy the handler connections."""
@@ -307,8 +286,11 @@ class Start(threading.Thread):
 
         # Update progress dialog.
         setlyze.std.update_progress_dialog(10/self.total_steps, "", autoclose=True)
+
         # Emit the signal that the analysis has finished.
-        setlyze.std.sender.emit('analysis-finished')
+        # Note that the signal will be sent from a separate thread,
+        # so we must use gobject.idle_add.
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
     def calculate_distances_intra(self):
         """
@@ -476,7 +458,7 @@ class Start(threading.Thread):
         to a high P-value. These plates will negatively affect the
         result of statistical test. To account for this, the tests
         are performed multiple times. Instead of doing one test on all
-        plates, we sort the plates based on the number of positive spots
+        plates, we group the plates based on the number of positive spots
         they contain. This results in 24 groups (2 to 25 spots). And we
         perform the test on each of these groups.
 
@@ -507,11 +489,10 @@ class Start(threading.Thread):
             observed = [x[0] for x in cursor]
             expected = [x[0] for x in cursor2]
 
-            # We can't continue if the total distances for this
-            # positive spots number is less than 2. So skip this
-            # spots number.
+            # A minimum of 3 observed distances is required for the
+            # normality test. So skip this spots number if it's less.
             count_observed = len(observed)
-            if count_observed < 2:
+            if count_observed < 3:
                 continue
 
             # Calculate the means.

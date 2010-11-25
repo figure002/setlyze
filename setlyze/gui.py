@@ -1810,12 +1810,13 @@ class DisplayReport(gtk.Window):
             elif float(items['p_value']) < 0.05:
                 remarks.append("P < 0.05")
 
-            if int(attr['n']) > 1000:
-                remarks.append("n > 1000")
-            elif int(attr['n']) > 100:
-                remarks.append("n > 100")
-            elif int(attr['n']) > 50:
-                remarks.append("n > 50")
+            if len(remarks):
+                if int(attr['n']) > 1000:
+                    remarks.append("n > 1000")
+                elif int(attr['n']) > 100:
+                    remarks.append("n > 100")
+                elif int(attr['n']) > 50:
+                    remarks.append("n > 50")
 
             remarks = "; ".join(remarks)
 

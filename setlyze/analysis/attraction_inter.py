@@ -24,6 +24,8 @@ import itertools
 import time
 from sqlite3 import dbapi2 as sqlite
 
+import gobject
+
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -101,32 +103,13 @@ class Begin(object):
         self.handler6 = setlyze.std.sender.connect('species-selection-saved',
             self.on_species_saved)
 
-        # Display the report after the progress dialog for the analysis
-        # was closed. Warning: A progress dialog will also close when
-        # the user decided to switch to a new data source in the
-        # locations selection window, so disable this handler until the
-        # analysis has started.
-        self.handler7 = setlyze.std.sender.connect('progress-dialog-closed',
+        # Display the report after the analysis has finished.
+        self.handler7 = setlyze.std.sender.connect('analysis-finished',
             self.on_display_report)
-        # Block handler 7.
-        setlyze.std.sender.handler_block(self.handler7)
-
-        # Things to do when the analysis has started.
-        self.handler8 = setlyze.std.sender.connect('analysis-started',
-            self.on_analysis_started)
 
         # The report window was closed.
-        self.handler9 = setlyze.std.sender.connect('report-dialog-closed',
+        self.handler8 = setlyze.std.sender.connect('report-dialog-closed',
             self.on_analysis_closed)
-
-    def on_analysis_started(self, sender):
-        """
-        Handle events that need to happen when the analysis has
-        started.
-        """
-
-        # Unblock handler 7.
-        sender.handler_unblock(self.handler7)
 
     def on_analysis_closed(self, obj=None):
         """Show the main window and destroy the handler connections."""
@@ -153,7 +136,6 @@ class Begin(object):
         setlyze.std.sender.disconnect(self.handler6)
         setlyze.std.sender.disconnect(self.handler7)
         setlyze.std.sender.disconnect(self.handler8)
-        setlyze.std.sender.disconnect(self.handler9)
 
     def on_locations_saved(self, sender, save_slot=0, data=None):
         if save_slot == 0:
@@ -396,8 +378,11 @@ class Start(threading.Thread):
 
         # Update progress dialog.
         setlyze.std.update_progress_dialog(11/self.total_steps, "")
+
         # Emit the signal that the analysis has finished.
-        setlyze.std.sender.emit('analysis-finished')
+        # Note that the signal will be sent from a separate thread,
+        # so we must use gobject.idle_add.
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
     def calculate_distances_inter(self):
         """

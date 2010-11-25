@@ -87,7 +87,7 @@ class SelectAnalysis(object):
         # Handle application signals.
         self.handler1 = setlyze.std.sender.connect('beginning-analysis', self.on_analysis_started)
         self.handler2 = setlyze.std.sender.connect('analysis-closed', self.on_analysis_closed)
-        self.handler3 = setlyze.std.sender.connect('progress-dialog-closed', self.on_continue)
+        self.handler3 = setlyze.std.sender.connect('local-db-created', self.on_continue)
 
         # Add widgets to the GTK window.
         self.create_layout()

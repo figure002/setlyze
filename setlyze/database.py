@@ -38,6 +38,9 @@ import logging
 import threading
 import itertools
 from sqlite3 import dbapi2 as sqlite
+import time
+
+import gobject
 
 import setlyze.config
 import setlyze.std
@@ -129,7 +132,9 @@ class MakeLocalDB(threading.Thread):
                 self.insert_from_csv()
 
             # Emit the signal that the local database has been created.
-            setlyze.std.sender.emit("local-db-created")
+            # Note that the signal will be sent from a separate thread,
+            # so we must use gobject.idle_add.
+            gobject.idle_add(setlyze.std.sender.emit, 'local-db-created')
 
     def insert_from_csv(self):
         """Create a new local database and load all SETL data from the
@@ -418,7 +423,7 @@ class MakeLocalDB(threading.Thread):
 
         # Delete the current database file.
         if os.path.isfile(self.dbfile):
-            os.remove(self.dbfile)
+            self.remove_db_file()
 
         # This will automatically create a new database file.
         self.connection = sqlite.connect(self.dbfile)
@@ -449,6 +454,27 @@ class MakeLocalDB(threading.Thread):
 
         # No need to make a new database, as we just created one.
         setlyze.config.cfg.set('make-new-db', False)
+
+    def remove_db_file(self, tries=0):
+        """Remove the database file.
+
+        This method does 3 tries if for some reason the database file
+        could not be deleted (e.g. the file is in use by a different
+        process.
+        """
+        if tries > 2:
+            raise ValueError("I was unable to remove the file %s. "
+                "Please make sure it's not in use by a different "
+                "process." % self.dbfile)
+
+        try:
+            os.remove(self.dbfile)
+        except:
+            tries += 1
+            time.sleep(2)
+            self.remove_db_file(tries)
+
+        return True
 
     def create_table_info(self):
         """Create a table for storing basic information about the
@@ -833,7 +859,7 @@ class AccessDBGeneric(object):
             # Create a combined record from all records with this
             # plate ID.
             rows = cursor.fetchall()
-            combined = setlyze.std.combine_by_plate(rows)
+            combined = setlyze.std.combine_records(rows)
 
             # Remove all records with that plate ID from the
             # species_spots table.

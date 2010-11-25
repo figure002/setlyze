@@ -18,6 +18,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""This module provides standard functions and classes. All functions
+and classes that don't belong in any of the other modules are placed
+here.
+"""
+
 import sys
 import os
 import math
@@ -33,8 +38,6 @@ import rpy
 
 import setlyze.config
 
-"""This module provides standard functions and classes."""
-
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
@@ -43,8 +46,32 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/10/01 13:42:16"
 
+DIST_PROBS = {1: 0.133,
+1.41: 0.107,
+2: 0.100,
+2.24: 0.160,
+2.83: 0.060,
+3: 0.067,
+3.16: 0.107,
+3.61: 0.080,
+4: 0.033,
+4.12: 0.053,
+4.24: 0.027,
+4.47: 0.040,
+5: 0.027,
+5.66: 0.007,}
+
 def update_progress_dialog(fraction, action=None, autoclose=True):
-    """Set a new fraction for the progress bar."""
+    """Set the progress dialog's progressbar fraction to ``fraction``.
+    The value of `fraction` should be between 0.0 and 1.0. Optionally set
+    the current action to `action`, a short string explaining the current
+    action. Optionally set `autoclose` to automatically close the
+    progress dialog if `fraction` equals ``1.0``.
+
+    The ``progress-dialog`` configuration must be set to an instance of
+    gtk.ProgressBar for this to work. If no progress dialog is set,
+    nothing will happen.
+    """
     pdialog = setlyze.config.cfg.get('progress-dialog')
 
     # If no progress dialog is set, do nothing.
@@ -56,8 +83,8 @@ def update_progress_dialog(fraction, action=None, autoclose=True):
     gobject.idle_add(on_update_progress_dialog, fraction, action, autoclose)
 
 def on_close_progress_dialog(delay=0):
-    """Close the progress dialog. Optionally set a delay before it's
-    being closed.
+    """Close the progress dialog. Optionally set a delay of `delay`
+    seconds before it's being closed.
 
     There's no need to call this function manually, as it is called
     by :meth:`on_update_progress_dialog` when it's needed.
@@ -75,8 +102,11 @@ def on_close_progress_dialog(delay=0):
     return False
 
 def on_update_progress_dialog(fraction, action=None, autoclose=True):
-    """Update the progress dialog fraction and action-string. Optionally
-    set autoclose if fraction equals 1.0.
+    """Set the progress dialog's progressbar fraction to ``fraction``.
+    The value of `fraction` should be between 0.0 and 1.0. Optionally set
+    the current action to `action`, a short string explaining the current
+    action. Optionally set `autoclose` to automatically close the
+    progress dialog if `fraction` equals ``1.0``.
 
     Don't call this function manually; use :meth:`update_progress_dialog`
     instead.
@@ -101,8 +131,8 @@ def on_update_progress_dialog(fraction, action=None, autoclose=True):
 
         if autoclose:
             # Close the progress dialog when finished. We set a delay
-            # of 1 second before closing it, so the user observedly gets
-            # to see the dialog when an analysis finishes very fast.
+            # of 1 second before closing it, so the user gets to see the
+            # dialog when an analysis finishes very fast.
 
             # This is always called from a separate thread, so we must
             # use gobject.idle_add to access the GUI.
@@ -141,21 +171,21 @@ def distance(p1, p2):
     return val
 
 def get_spot_combinations_from_record(record1, record2=None):
-    """Return all possible positive spot combinations from `record1` or
-    between `record1` and `record2`. Each record must be a sequence of
-    25 spot booleans.
+    """Return all possible positive spot combinations for `record1` or
+    if both are provided, between `record1` and `record2`. Each record
+    must be a sequence of 25 spot booleans.
+
+    This function returns an iterable object, which returns the
+    combinations as tuples with two items. Each item in the tuple is the
+    spot number of a positive spot.
 
     If just `record1` was provided, return all possible positive spot
     combinations within this record. If both `record1` and `record2` are
     given, return all possible positive spot combinations between the
     the two records. If no combinations are possible (i.e. not enough
-    positive spots), and empty list will be returned.
+    positive spots), the iterable object returns nothing.
 
-    This method returns an iterable object, which returns the
-    combinations as tuples with two items. Each item is the spot number
-    of a positive spot.
-
-    Example, get all possible combinations within one records ::
+    An example with one record ::
 
         >>> import setlyze.std
         >>> record = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
@@ -170,7 +200,7 @@ def get_spot_combinations_from_record(record1, record2=None):
         2 15
         5 15
 
-    Example, get all possible combinations between two records ::
+    An example with two records ::
 
         >>> import setlyze.std
         >>> record1 = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
@@ -205,13 +235,15 @@ def get_spot_combinations_from_record(record1, record2=None):
     return combos
 
 def get_spots_from_record(record):
-    """Return a list with all numbers of the positive spots.
+    """Return a list containing all spot numbers of the positive spots
+    from `record`, a sequence of 25 spot booleans.
 
-    Example:
-    record = (1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
-    print get_spots_from_record(record)
+    A simple usage example ::
 
-    This would print [1,2,5,15]
+        >>> import setlyze.std
+        >>> record = (1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
+        >>> print setlyze.std.get_spots_from_record(record)
+        [1, 2, 5, 15]
     """
     spots = []
     for i, spot in enumerate(record, start=1):
@@ -220,16 +252,40 @@ def get_spots_from_record(record):
     return spots
 
 def get_spot_coordinate(spot_num):
-    """Return a tuple (row,col) representing on which row and column a
-    spot is located on a 5x5 SETL plate.
+    """Return a tuple ``(row,col)`` representing on which row and column
+    a spot with number `spot_num` is located on a 5x5 SETL plate.
+    The possible values for `spot_num` are integers from 1 to 25.
 
-    Keyword arguments:
-    spot_num -  The spot number (1 - 25)
+    If this is not clear, picture this 5x5 SETL plate and compare it
+    with the examples below:
+
+    +---+---+---+---+---+
+    | 1 | 2 | 3 | 4 | 5 |
+    +---+---+---+---+---+
+    | 6 | 7 | 8 | 9 | 10|
+    +---+---+---+---+---+
+    | 11| 12| 13| 14| 15|
+    +---+---+---+---+---+
+    | 16| 17| 18| 19| 20|
+    +---+---+---+---+---+
+    | 21| 22| 23| 24| 25|
+    +---+---+---+---+---+
+
+    Some examples: ::
+
+        >>> import setlyze.std
+        >>> setlyze.std.get_spot_coordinate(1)
+        (1, 1)
+        >>> setlyze.std.get_spot_coordinate(5)
+        (1, 5)
+        >>> setlyze.std.get_spot_coordinate(14)
+        (3, 4)
+        >>> setlyze.std.get_spot_coordinate(24)
+        (5, 4)
     """
     if not 1 <= spot_num <= 25:
-        logging.error("The spot number must be an integer between 0 and "
-            "26. Instead got: %s" % spot_num)
-        sys.exit(1)
+        raise ValueError("The value for 'spot_num' must be an integer from 1 to "
+            "25. Instead got '%s'" % spot_num)
 
     rows = [(1,2,3,4,5),
             (6,7,8,9,10),
@@ -257,16 +313,40 @@ def get_spot_coordinate(spot_num):
     return (row,col)
 
 def get_spot_position_difference(s1, s2):
-    """Return the horizontal and vertical difference between two spots.
+    """Return a tuple ``(h,v)`` containing the horizontal and vertical
+    difference (delta x and y) between spots `s1` and `s2`. `s1` and
+    `s2` are spot numbers with possible values from 1 to 25.
 
-    Keyword arguments:
-    s1 -  Integer, first spot number (1 - 25).
-    s2 -  Integer, second spot number (1 - 25).
+    Picture a 5x5 grid with spots numbered from 1 to 25:
 
-    Returns:
-    A tuple: (h,v)
-        h = horizontal difference (delta X)
-        v = vertical difference (delta Y)
+    +---+---+---+---+---+
+    | 1 | 2 | 3 | 4 | 5 |
+    +---+---+---+---+---+
+    | 6 | 7 | 8 | 9 | 10|
+    +---+---+---+---+---+
+    | 11| 12| 13| 14| 15|
+    +---+---+---+---+---+
+    | 16| 17| 18| 19| 20|
+    +---+---+---+---+---+
+    | 21| 22| 23| 24| 25|
+    +---+---+---+---+---+
+
+    If you got two spot numbers that are right next to eachother (say 1
+    and 2), the horizontal difference would be 1, and the vertical
+    difference 0. A few more examples: ::
+
+        >>> print setlyze.std.get_spot_position_difference(3,3)
+        (0, 0)
+        >>> print setlyze.std.get_spot_position_difference(1,2)
+        (1, 0)
+        >>> print setlyze.std.get_spot_position_difference(3,5)
+        (2, 0)
+        >>> print setlyze.std.get_spot_position_difference(6,11)
+        (0, 1)
+        >>> print setlyze.std.get_spot_position_difference(9,25)
+        (1, 3)
+        >>> print setlyze.std.get_spot_position_difference(1,25)
+        (4, 4)
     """
 
     # Calculate the coordinates for both spots.
@@ -281,40 +361,46 @@ def get_spot_position_difference(s1, s2):
     return (h,v)
 
 def get_random_for_plate(n):
-    """Return n random spots from a single plate.
+    """Return a `n` length list of random integers with a range from 1
+    to 25. So naturally `n` can have a value from 0 to 25. The list of
+    integers returned represents random selected spots from a 25 spots
+    SETL plate.
 
-    We make use of the random.sample function from the Python standard
-    library. This function used the system time as the random seed.
+    We make use of the :py:meth:`random.sample` function from the Python
+    standard library. As described in the Python documentation, this
+    function is bound to an instance of :py:class:`random.Random` which
+    uses the :py:meth:`random.random` method. In turn this method uses
+    the Mersenne Twister as the core generator. The Mersenne Twister is
+    one of the most extensively tested random number generators in
+    existence.
 
-    Keyword arguments:
-    n - Number of random positive spots to be generated. This must be
-        a value ranging from 1 to 25.
+    .. seealso::
 
-    Return: A list with n random values ranging from 1 to 25 without
-            replacement.
+       Module :py:mod:`random`
+          Documentation of the :py:mod:`random` standard module.
     """
     spots = random.sample(xrange(1,26), n)
     return spots
 
-def combine_by_plate(records):
-    """Combine SETL records that have the same plate ID. `records`
-    is a tuple containing multiple SETL records. Each record must consist
-    of a plate ID as the fisrt item followed by 25 spot booleans.
+def combine_records(records):
+    """Return a combined SETL records from a list of multiple SETL
+    records with the same plate ID.
 
-    If one spot in a column contains 1, the resulting spot becomes 1.
-    If all spots from a column are 0, the resulting spot becomes 0.
+    `records` is a list containing multiple SETL records where each
+    record is a sequence with the plate ID as the first item followed by
+    25 spot booleans. As this function is used for combining records
+    from different species found on the same plate, the plate ID of all
+    records must be equal.
 
-    If this isn't very clear, look at this visual example. Let's say
-    `records` has the following 3 records. Notice that they must have the
-    same plate ID:
+    A basic usage example:
 
-    (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
-    (4567,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1)
-    (4567,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0)
-
-    The following combined record would then be returned:
-
-    (4567,1,1,1,0,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,1)
+        >>> import setlyze.std
+        >>> rec1 = (4567,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0)
+        >>> rec2 = (4567,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1)
+        >>> rec3 = (4567,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0)
+        >>> records = [rec1,rec2,rec3]
+        >>> setlyze.std.combine_records(records)
+        [4567, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
     """
     combined = [None,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
@@ -325,15 +411,12 @@ def combine_by_plate(records):
     for record in records:
         # Make sure all plate IDs are the same.
         if combined[0] != record[0]:
-            sys.exit("setlyze.std.combine_by_plate: 'records' argument must "
-                "contain records with the same plate ID.")
+            raise ValueError("Argument 'records' must contain records with equal plate ID.")
 
         # For each positive spot we find, set that spot in the combined
-        # record to 1.
+        # record to 1. We skip the first item, as that's the plate ID.
         for i, spot in enumerate(record[1:], start=1):
-            # We skip the first item, as that's the plate ID.
-            # If spot is positive, set the same spot in 'combined'
-            # to 1.
+            # If spot is positive, set the same spot in 'combined' to 1.
             if spot:
                 combined[i] = 1
 
@@ -343,10 +426,31 @@ def t_test(x, y = None, alternative = "two.sided", mu = 0,
             paired = False, var_equal = False, conf_level = 0.95):
     """Performs one and two sample t-tests on sequences of data.
 
-    Keyword arguments:
-    x -  A sequence of numeric values.
+    This is a wrapper function for the ``t.test`` function from R. It
+    depends on R and RPy. The latter provides an interface to the R
+    Programming Language.
 
-    Returns: A dictionary,
+    This function returns a dictionary containing the results. Below
+    is the format of the dictionary with example results ::
+
+        {
+        'null.value': {'difference in means': 0},
+        'method': 'Welch Two Sample t-test',
+        'p.value': 0.97053139295765201,
+        'statistic': {'t': -0.037113583386291726},
+        'estimate': {'mean of y': 2.552142857142857, 'mean of x': 2.5417857142857141},
+        'conf.int': [-0.56985924418141154, 0.54914495846712563],
+        'parameter': {'df': 53.965197921982607},
+        'alternative': 'two.sided'
+        }
+
+    .. seealso::
+
+       R Documentation for Student's t-Test
+          The R Documentation gives a more extensive documentation of
+          this function, its arguments, usage, etc. To view the
+          documentation, type ``help(t.test)`` from the R prompt.
+
     """
     result = rpy.r['t.test'](x, y, alternative, mu, paired,
         var_equal, conf_level)
@@ -356,13 +460,33 @@ def t_test(x, y = None, alternative = "two.sided", mu = 0,
 def wilcox_test(x, y = None, alternative = "two.sided",
                  mu = 0, paired = False, exact = None, correct = True,
                  conf_int = False, conf_level = 0.95):
-    """Performs one and two sample Wilcoxon tests on vectors of data; the
-    latter is also known as ‘Mann-Whitney’ test.
+    """Performs one and two sample Wilcoxon tests on sequences of data;
+    the latter is also known as ‘Mann-Whitney’ test.
 
-    Keyword arguments:
-    x -  A sequence of numeric values.
+    This is a wrapper function for the ``wilcox.test`` function from R.
+    It depends on R and RPy. The latter provides an interface to the R
+    Programming Language.
 
-    Returns: A dictionary,
+    This function returns a dictionary containing the results. Below
+    is the format of the dictionary with example results ::
+
+        {
+        'estimate': {'difference in location': -2.0000005809455006},
+        'null.value': {'location shift': 0},
+        'p.value': 0.000810583642587086,
+        'statistic': {'W': 1.0},
+        'alternative': 'two.sided',
+        'conf.int': [-3.1200287512799796, -1.2399735289828238],
+        'parameter': None,
+        'method': 'Wilcoxon rank sum test with continuity correction'
+        }
+
+    .. seealso::
+
+       R Documentation for Wilcoxon Rank Sum and Signed Rank Tests
+          The R Documentation gives a more extensive documentation of
+          this function, its arguments, usage, etc. To view the
+          documentation, type ``help(wilcox.test)`` from the R prompt.
     """
     result = rpy.r['wilcox.test'](x, y, alternative, mu, paired, exact,
         correct, conf_int, conf_level)
@@ -372,33 +496,113 @@ def wilcox_test(x, y = None, alternative = "two.sided",
 def shapiro_test(x):
     """Performs the Shapiro-Wilk test of normality.
 
-    Keyword arguments:
-    x -  A sequence of numeric values.
+    This is a wrapper function for the ``shapiro.test`` function from R.
+    It depends on R and RPy. The latter provides an interface to the R
+    Programming Language.
 
-    Returns: A dictionary,
+    The data sequence `x` passed to the ``shapiro.test`` function must
+    contain between 3 and 5000 numberic values. If the length of `x` is
+    below 3, a ValueError is raised. If the length of `x` is above
+    5000, :py:meth:`random.sample` is used to get 5000 random values
+    from `x`.
+
+    This function returns a dictionary containing the results. Below
+    is the format of the dictionary with example results ::
+
         {
         'method': 'Shapiro-Wilk normality test',
-        'p.value': <P-value>,
-        'statistic': {'W': <W-value>}
+        'p.value': 6.862712394148655e-08,
+        'statistic': {'W': 0.75000003111895985}
         }
+
+    .. seealso::
+
+       R Documentation for Shapiro-Wilk Normality Test
+          The R Documentation gives a more extensive documentation of
+          this function, its arguments, usage, etc. To view the
+          documentation, type ``help(shapiro.test)`` from the R prompt.
     """
     if len(x) > 5000:
         rand_items = random.sample(x, 5000)
         result = rpy.r['shapiro.test'](rand_items)
     elif len(x) < 3:
-        return None
+        raise ValueError("Argument 'x' must contain at least 3 numeric values.")
     else:
         result = rpy.r['shapiro.test'](x)
 
     return result
 
-def average(values):
-    """Computes the arithmetic mean of a sequence of numbers."""
-    return sum(values, 0.0) / len(values)
+def average(x):
+    """Return the arithmetic mean of a sequence of numbers `x`.
+
+    A simple example: ::
+
+        >>> import setlyze.std
+        >>> x = [5.91, 1, 10, 19, 22.1, 16, 3.3, 25, 12, 8, 18.5, 17, 23, 2, 7]
+        >>> setlyze.std.average(x)
+        12.654
+
+    """
+    return sum(x, 0.0) / len(x)
 
 
 class Sender(gobject.GObject):
-    """Custom sender for emitting SETLyze specific application signals."""
+    """Custom GObject for emitting SETLyze specific application signals.
+
+    This module creates a single instance of this class. Subsequent
+    imports of this module gives access to the same instance. Thus only
+    one instance is created for each run.
+
+    The ``__gsignals__`` class attribute is a dictionary containing all
+    custom signals an instance of this class can emit. To emit a signal,
+    use the :meth:`~setlyze.std.Sender.emit` method. To signal
+    that an analysis has started for example, use: ::
+
+        setlyze.std.sender.emit('analysis-finished')
+
+    If you want to emit a signal from a separate thread, you must use
+    :meth:`gobject.idle_add` as only the main thread is allowed to touch
+    the GUI. Emitting a signal from a separate thread looks like this: ::
+
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+
+    Anywhere in your application you can add a function to be called
+    when this signal is emitted. This function is called a callback
+    method. To add a callback method for a specific signal, use the
+    :meth:`~setlyze.std.Sender.connect` method: ::
+
+        self.handler_id = setlyze.std.sender.connect('analysis-finished',
+            self.on_analysis_finished)
+
+    When you are done using that handler, be sure to destroy it as
+    the handler will continue to exist if the callback function does not
+    return ``False``. To destroy a signal handler, use
+    the :meth:`~setlyze.std.Sender.disconnect` method: ::
+
+        setlyze.std.sender.disconnect(self.handler_id)
+
+    .. warning::
+
+       Remember to use :meth:`gobject.idle_add` if you decide to emit
+       signals from separate threads. If you don't do this, the
+       application becomes unstable resulting in crashes.
+
+    .. seealso::
+
+       `Theory of Signals and Callbacks <http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html>`_
+          It's recommended to study this subject of the PyGTK
+          documentation to get a better understanding of signals and
+          callbacks.
+
+       `Advanced Event and Signal Handling <http://www.pygtk.org/pygtk2tutorial/ch-AdvancedEventAndSignalHandling.html>`_
+          It's recommended to study this subject of the PyGTK
+          documentation to get a better understanding of event and
+          signal handling.
+
+       `gobject.idle_add <http://www.pygtk.org/pygtk2reference/gobject-functions.html#function-gobject--idle-add>`_
+          PyGTK documentation for :meth:`gobject.idle_add`.
+
+    """
 
     __gproperties__ = {
         'save-slot' : (gobject.TYPE_INT, # type
@@ -452,7 +656,22 @@ class Sender(gobject.GObject):
 
 class ReportGenerator(object):
     """Create a XML DOM (Document Object Model) object of the analysis
-    settings and results. The DOM can then be exported to an XML file.
+    settings, data and results. The DOM can then be exported to an XML
+    file containing all data for the analysis.
+
+    Using XML DOM objects for storing analysis data has great
+    advantages. Because the object can contain all analysis data, it's
+    easy to use Python's XML parser to generate analysis reports. We can
+    allow the user to choose which elements of the XML DOM object to
+    export to say a LaTeX document. Also, :py:mod:`xml.dom.minidom`
+    provides methods for exporting this object to an XML file. This file
+    by default contains all analysis data. This file can be easily
+    loaded in SETLyze so we can display a dialog showing the analysis
+    data and results present in that XML file. The XML file can be used
+    as a backup file of the analysis data.
+
+    So too the class :class:`ReportReader` uses this XML DOM object
+    to access the analysis data.
 
     Design Part: 1.48
     """
@@ -470,6 +689,82 @@ class ReportGenerator(object):
         self.doc.appendChild(self.report)
 
     def create_element(self, parent, name, child_elements={}, attributes={}, text=None):
+        """Add a new child element with name `name` to the element
+        `parent` for the XML DOM object.
+
+        Usually you'll start by adding child elements to the
+        root element ``self.report``. In this case `parent` would be
+        ``self.report``. It's then possible to add child elements for
+        for those by setting `parent` to the newly created child
+        elements.
+
+        Optionally you can easily add child elements by setting
+        `child_elements` to a dictionary. The dictionary keys will be
+        the names of the child elements, and the corresponding
+        dictionary values will be the values for the elements.
+
+        This method also allows you to easily add attributes. To add
+        attributes, set `attributes` to a dictionary. The dictionary
+        keys will be the names of attributes, and the corresponding
+        dictionary values will be the values for the attributes.
+
+        The `text` argument gives the element a value. The value of
+        `text` can be anything.
+
+        This method returns the newly created element. This allows you
+        to set the returned element object as the parent element
+        for other elements.
+
+        We shall clarify with some usage examples. First we add an
+        empty child element to the root element: ::
+
+            location_selections_element = self.create_element(
+                parent=self.report,
+                name="location_selections"
+                )
+
+        Then we add some child elements to the just created element: ::
+
+            self.create_element(
+                parent=location_selections_element,
+                name="location",
+                child_elements={'nr':1, 'name':"Aquadome, Grevelingen"},
+                attributes={'id':1}
+                )
+
+            self.create_element(
+                parent=location_selections_element,
+                name="location",
+                child_elements={'nr':2, 'name':"Colijnsplaat, floating dock, Oosterschelde"},
+                attributes={'id':2}
+                )
+
+        Would this be exported to an XML file, the contents of the file
+        would look like this: ::
+
+            <?xml version="1.0" encoding="utf-8"?>
+            <setlyze:report xmlns:setlyze="http://www.gimaris.com/setlyze/">
+                <location_selections>
+                    <location id="1">
+                        <nr>
+                            1
+                        </nr>
+                        <name>
+                            Aquadome, Grevelingen
+                        </name>
+                    </location>
+                    <location id="2">
+                        <nr>
+                            2
+                        </nr>
+                        <name>
+                            Colijnsplaat, floating dock, Oosterschelde
+                        </name>
+                    </location>
+                </location_selections>
+            </setlyze:report>
+        """
+
         # Create a new element.
         element = self.doc.createElementNS(self.ns, name)
 
@@ -496,8 +791,14 @@ class ReportGenerator(object):
         return element
 
     def set_analysis(self, name):
-        """Create a new element in the XML DOM report that describes
-        which analysis this report belongs to.
+        """Add the element ``analysis`` with value `name` to the XML DOM
+        report.
+
+        This element describes to which analysis this report belongs. So
+        `name` is just a string with the title of an analysis. However,
+        if the value of `name` exists as a key in the ``analysis_names``
+        dictionary, the corresponding value from that dictionary will
+        be used as the value for the element instead.
 
         Design Part: 1.72
         """
@@ -523,8 +824,37 @@ class ReportGenerator(object):
             )
 
     def set_location_selections(self):
-        """Create the element 'location_selections' in the XML DOM report
-        that contains the user selected locations.
+        """Add the element ``location_selections`` to the XML DOM
+        report.
+
+        This element will be filled with the locations selections. If
+        two locations selections were made, both will be added to the
+        element.
+
+        The XML representation looks like this: ::
+
+            <location_selections>
+                <selection slot="0">
+                    <location id="1">
+                        <nr>
+                            1
+                        </nr>
+                        <name>
+                            Aquadome, Grevelingen
+                        </name>
+                    </location>
+                </selection>
+                <selection slot="1">
+                    <location id="2">
+                        <nr>
+                            2
+                        </nr>
+                        <name>
+                            Colijnsplaat, floating dock, Oosterschelde
+                        </name>
+                    </location>
+                </selection>
+            </location_selections>
 
         Design Part: 1.50
         """
@@ -532,7 +862,7 @@ class ReportGenerator(object):
         # Create a new element to save the location selections in.
         location_selections = self.create_element(
             parent=self.report,
-            name="location_selections"
+            name='location_selections'
             )
 
         # Connect to the local database.
@@ -577,8 +907,37 @@ class ReportGenerator(object):
         connection.close()
 
     def set_specie_selections(self):
-        """Create the element 'specie_selections' in the XML DOM report
-        that contains the user selected species.
+        """Add the element ``specie_selections`` to the XML DOM
+        report.
+
+        This element will be filled with the species selections. If
+        two species selections were made, both will be added to the
+        element.
+
+        The XML representation looks like this: ::
+
+            <specie_selections>
+                <selection slot="0">
+                    <specie id="2">
+                        <name_latin>
+                            Ectopleura larynx
+                        </name_latin>
+                        <name_venacular>
+                            Gorgelpijp
+                        </name_venacular>
+                    </specie>
+                </selection>
+                <selection slot="1">
+                    <specie id="6">
+                        <name_latin>
+                            Metridium senile
+                        </name_latin>
+                        <name_venacular>
+                            Zeeanjelier
+                        </name_venacular>
+                    </specie>
+                </selection>
+            </specie_selections>
 
         Design Part: 1.51
         """
@@ -631,8 +990,24 @@ class ReportGenerator(object):
         connection.close()
 
     def set_spot_distances_observed(self):
-        """Create the element 'spot_distances_observed' in the XML DOM
-        report that contains the observed spot distances.
+        """Add the element ``spot_distances_observed`` to the XML DOM
+        report.
+
+        This element will be filled with the observed spot distances.
+
+        The XML representation looks like this: ::
+
+            <spot_distances_observed>
+                <distance plate_id="63">
+                    1.0
+                </distance>
+                <distance plate_id="63">
+                    2.0
+                </distance>
+                <distance plate_id="229">
+                    3.16
+                </distance>
+            </spot_distances_observed>
 
         Design Part: 1.52
         """
@@ -664,8 +1039,24 @@ class ReportGenerator(object):
         connection.close()
 
     def set_spot_distances_expected(self):
-        """Create the element 'spot_distances_expected' in the XML DOM
-        report that contains the expected spot distances.
+        """Add the element ``spot_distances_expected`` to the XML DOM
+        report.
+
+        This element will be filled with the expected spot distances.
+
+        The XML representation looks like this: ::
+
+            <spot_distances_expected>
+                <distance plate_id="62">
+                    1.0
+                </distance>
+                <distance plate_id="62">
+                    3.16
+                </distance>
+                <distance plate_id="228">
+                    4.47
+                </distance>
+            </spot_distances_expected>
 
         Design Part: 1.53
         """
@@ -697,8 +1088,34 @@ class ReportGenerator(object):
         connection.close()
 
     def set_plate_areas_definition(self):
-        """Create the element 'plate_areas_definition' in the XML DOM
-        report that contains the user defined spot areas definition.
+        """Add the element ``plate_areas_definition`` to the XML DOM
+        report.
+
+        This element will be filled with the user defined spot areas
+        definition.
+
+        The XML representation looks like this: ::
+
+            <plate_areas_definition>
+                <area id="area1">
+                    <spot>
+                        A
+                    </spot>
+                </area>
+                <area id="area2">
+                    <spot>
+                        B
+                    </spot>
+                </area>
+                <area id="area3">
+                    <spot>
+                        C
+                    </spot>
+                    <spot>
+                        D
+                    </spot>
+                </area>
+            </plate_areas_definition>
 
         Design Part: 1.54
         """
@@ -726,8 +1143,25 @@ class ReportGenerator(object):
                     )
 
     def set_area_totals_observed(self, totals_observed):
-        """Create the element 'area_totals_observed' in the XML DOM
-        report that contains the observed species totals per plate area.
+        """Add the element ``area_totals_observed`` to the XML DOM
+        report.
+
+        This element will be filled with the observed species totals per
+        plate area.
+
+        The XML representation looks like this: ::
+
+            <area_totals_observed>
+                <area id="area1">
+                    27
+                </area>
+                <area id="area2">
+                    75
+                </area>
+                <area id="area3">
+                    52
+                </area>
+            </area_totals_observed>
 
         Design Part: 1.55
         """
@@ -746,8 +1180,25 @@ class ReportGenerator(object):
                 )
 
     def set_area_totals_expected(self, totals_observed):
-        """Create the element 'area_totals_expected' in the XML DOM
-        report that contains the expected species totals per plate area.
+        """Add the element ``area_totals_expected`` to the XML DOM
+        report.
+
+        This element will be filled with the expected species totals per
+        plate area.
+
+        The XML representation looks like this: ::
+
+            <area_totals_expected>
+                <area id="area1">
+                    24.64
+                </area>
+                <area id="area2">
+                    73.92
+                </area>
+                <area id="area3">
+                    55.44
+                </area>
+            </area_totals_expected>
 
         Design Part: 1.56
         """
@@ -766,19 +1217,37 @@ class ReportGenerator(object):
                 )
 
     def set_statistics_normality(self, results):
-        """Create the element 'statistics_normality' in the XML DOM
-        report that contains the results of the performed statistical
-        tests.
+        """Add the element ``statistics_normality`` to the XML DOM
+        report.
 
-        Keyword arguments:
-        results - A dictionary,
-            {
-            'attr': {'<name>': <value>, ...},
-            'items': {'<name>': <value>, ...}
-            }
+        This element will be filled with the results of the performed
+        normality tests. The results must be supplied with the
+        `results` argument. The `results` argument is a list containing
+        dictionaries in the format ``{'attr': {'<name>': <value>, ...},
+        'items': {'<name>': <value>, ...}}`` where the value for 'attr' is
+        a dictionary with the attributes and 'items' is a dictionary
+        with child elements for the ``statistics_normality`` element.
 
-            Where 'attr' contains the attributes and 'items' are the
-            sub-elements for the 'statistics_normality' element.
+        An XML representation: ::
+
+            <statistics_normality>
+                <result method="Shapiro-Wilk normality test" n="3" n_positive_spots="3">
+                    <p_value>
+                        6.86271239415e-08
+                    </p_value>
+                    <w>
+                        0.750000031119
+                    </w>
+                </result>
+                <result method="Shapiro-Wilk normality test" n="300" n_positive_spots="25">
+                    <p_value>
+                        1.9546526381e-08
+                    </p_value>
+                    <w>
+                        0.951228833504
+                    </w>
+                </result>
+            </statistics_normality>
 
         Design Part: 1.70
         """
@@ -798,19 +1267,38 @@ class ReportGenerator(object):
                 )
 
     def set_statistics_significance(self, results):
-        """Create the element 'statistics_significance' in the XML DOM
-        report that contains the results of the performed statistical
-        tests.
+        """Add the element ``statistics_significance`` to the XML DOM
+        report.
 
-        Keyword arguments:
-        results - A dictionary,
-            {
-            'attr': {'<name>': <value>, ...},
-            'items': {'<name>': <value>, ...}
-            }
+        This element will be filled with the results of the performed
+        statistical tests. The results must be supplied with the
+        `results` argument. The `results` argument is a list containing
+        dictionaries in the format {'attr': {'<name>': <value>, ...},
+        'items': {'<name>': <value>, ...}} where the value for 'attr' is
+        a dictionary with the attributes and 'items' is a dictionary
+        with child elements for the ``statistics_normality`` element.
 
-            Where 'attr' contains the attributes and 'items' are the
-            sub-elements for the 'statistics_significance' element.
+        An XML representation: ::
+
+            <statistics_significance>
+                <result alternative="two.sided" conf_level="0.95" method="Wilcoxon rank sum test with continuity correction" n="3" n_plates="1" n_positive_spots="3" paired="False">
+                    <conf_int_start>
+                        -2.16
+                    </conf_int_start>
+                    <p_value>
+                        0.353678517318
+                    </p_value>
+                    <mean_expected>
+                        2.13333333333
+                    </mean_expected>
+                    <conf_int_end>
+                        1.0
+                    </conf_int_end>
+                    <mean_observed>
+                        1.33333333333
+                    </mean_observed>
+                </result>
+            </statistics_significance>
 
         Design Part: 1.71
         """
@@ -840,9 +1328,8 @@ class ReportGenerator(object):
         f.close()
 
 class ReportReader(object):
-    """
-    Read the contents of a XML DOM (Document Object Model) of the
-    analysis settings and results.
+    """Provide standard methods for extracting data from the XML
+    DOM object containing analysis data.
 
     This class can also export the XML DOM object to an XML document.
 
@@ -857,29 +1344,29 @@ class ReportReader(object):
             self.set_report(report)
 
     def set_report(self, report):
-        """
-        Set the XML DOM report object created by ReportGenerator.
-
-        Keyword arguments:
-        report -    Can be either an XML DOM report object created by
-                    setlyze.std.ReportGenerator, or the path to an
-                    XML report file.
+        """Set the XML DOM report object `report` generated by
+        :class:`ReportGenerator`. `report` can also be the path to an
+        XML file containing an analysis report.
         """
         if isinstance(report, xml.dom.minidom.Document):
+            # 'report' is an XML DOM object.
             self.doc = report
         elif isinstance(report, str) and os.path.isfile(report):
+            # 'report' is path to an XML file. So parse its contents.
             self.doc = xml.dom.minidom.parse(report)
         else:
-            logging.error("set_report: attribute 'report' must be either an XML DOM report or the path to an XML file containing a report.")
-            sys.exit(1)
+            raise ValueError("Argument 'report' must be either a XML "
+                "DOM object or the path to an XML file containing "
+                "analysis data.")
 
         # Check if the report contains a 'report' element.
         if not self.doc.childNodes[0].localName == "report":
-            logging.error("set_report: the XML DOM object is missing a setlyze report.")
-            sys.exit(1)
+            raise ValueError("The XML DOM object is missing a setlyze report.")
 
     def get_element(self, parent, name):
-        """Return the element object from a parent element."""
+        """Return the element object with name `name` from a parent
+        element `parent`.
+        """
         element = None
         for e in parent.childNodes[0].childNodes:
             if e.nodeType == e.ELEMENT_NODE and e.localName == name:
@@ -888,8 +1375,8 @@ class ReportReader(object):
         return element
 
     def get_report_elements(self):
-        """
-        Return all the XML elements the top 'report' element contains.
+        """Return a list with all report elements from the XML DOM
+        object. The child elements for the report elements are excluded.
 
         Use this as a quick way to find out which elements are present
         in a XML DOM report object.
@@ -901,19 +1388,15 @@ class ReportReader(object):
         return report_elements
 
     def get_analysis_name(self):
-        """
-        Return the content of the 'analysis' element. This element
+        """Return the value of the `analysis` element. This element
         contains the name of the analysis.
-
-        The value of the 'analysis' element is used for the report
-        header.
         """
         analysis_name = None
 
         # Find the 'specie_selections' element in the XML DOM object.
         for e in self.doc.childNodes[0].childNodes:
             if e.nodeType == e.ELEMENT_NODE and \
-                    e.localName == "analysis":
+                    e.localName == 'analysis':
                 # Found the 'specie_selections' element. Now get one
                 # of the 'selection' child elements that matches the
                 # slot number.
@@ -923,16 +1406,19 @@ class ReportReader(object):
         return analysis_name
 
     def get_locations_selection(self, slot=0):
-        """
-        Return the user selected locations for the specified slot from
-        the XML DOM report.
+        """Return the locations selection from the selection slot with
+        number `slot` from the XML DOM report. Possible values for
+        `slot` are ``0`` and ``1``.
 
         This is a generator, meaning that this function returns an
-        iterator. This iterator can be used in a for-loop.
+        iterator. This iterator returns dictionaries in the format
+        ``{'nr': <value>, 'name': <value>}``.
 
-        Keyword arguments:
-        slot -  The slot from which to get the locations selection from.
-                There are two slots, so 0 and 1 are allowed slots.
+        Usage example: ::
+
+            locations_selection = reader.get_locations_selection(slot=0)
+            for loc in locations_selection:
+                print loc['nr'], loc['name']
         """
         locations_selection = None
 
@@ -950,7 +1436,8 @@ class ReportReader(object):
                         locations_selection = e2
                         break
 
-        # Check if the locations 'selection' node was found.
+        # Check if the 'selection' element was found. If not, yield
+        # None and exit.
         if not locations_selection:
             yield None
             return
@@ -968,16 +1455,19 @@ class ReportReader(object):
             yield location
 
     def get_species_selection(self, slot=0):
-        """
-        Return the user selected species for the specified slot from the
-        XML DOM report.
+        """Return the species selection from the selection slot with
+        number `slot` from the XML DOM report. Possible values for
+        `slot` are ``0`` and ``1``.
 
         This is a generator, meaning that this function returns an
-        iterator. This iterator can be used in a for-loop.
+        iterator. This iterator returns dictionaries in the format
+        ``{'name_latin': <value>, 'name_venacular': <value>}``.
 
-        Keyword arguments:
-        slot -  The slot from which to get the locations selection from.
-                There are two slots, so 0 and 1 are allowed slots.
+        Usage example: ::
+
+            species_selection = reader.get_species_selection(slot=0)
+            for spe in species_selection:
+                print spe['name_latin'], spe['name_venacular']
         """
         species_selection = None
 
@@ -995,7 +1485,8 @@ class ReportReader(object):
                         species_selection = e2
                         break
 
-        # Check if the species 'selection' node was found.
+        # Check if the 'selection' element was found. If not, yield
+        # None and exit.
         if not species_selection:
             yield None
             return
@@ -1003,7 +1494,7 @@ class ReportReader(object):
         # Return each specie from the 'species_selection' node.
         for e in species_selection.childNodes:
             specie = {}
-            if e.nodeType == e.ELEMENT_NODE and e.localName == "specie":
+            if e.nodeType == e.ELEMENT_NODE and e.localName == 'specie':
                 # Save each 'specie' element to the specie
                 # dictionary as: specie[node_name] = node_value
                 for e2 in e.childNodes:
@@ -1016,11 +1507,17 @@ class ReportReader(object):
         """Return the observed spot distances from the XML DOM report.
 
         This is a generator, meaning that this function returns an
-        iterator. This iterator can be used in a for-loop.
+        iterator. The iterator returns the distances.
+
+        Usage example: ::
+
+            observed_distances = reader.get_spot_distances_observed()
+            for dist in observed_distances:
+                print dist
         """
 
         # Find the 'spot_distances_observed' node in the XML DOM object.
-        spot_distances_observed = self.get_element(self.doc, "spot_distances_observed")
+        spot_distances_observed = self.get_element(self.doc, 'spot_distances_observed')
 
         # Check if the 'spot_distances_observed' node was found.
         if not spot_distances_observed:
@@ -1028,20 +1525,25 @@ class ReportReader(object):
 
         # Return each distance from the 'spot_distances_observed' node.
         for e in spot_distances_observed.childNodes:
-            if e.nodeType == e.ELEMENT_NODE and e.localName == "distance":
+            if e.nodeType == e.ELEMENT_NODE and e.localName == 'distance':
                 # Return the value for the distance element.
                 yield e.childNodes[0].nodeValue.strip()
 
     def get_spot_distances_expected(self):
-        """
-        Return the expected spot distances from the XML DOM report.
+        """Return the expected spot distances from the XML DOM report.
 
         This is a generator, meaning that this function returns an
-        iterator. This iterator can be used in a for-loop.
+        iterator. The iterator returns the distances.
+
+        Usage example: ::
+
+            expected_distances = reader.get_spot_distances_expected()
+            for dist in expected_distances:
+                print dist
         """
 
         # Find the 'spot_distances_expected' node in the XML DOM object.
-        spot_distances_expected = self.get_element(self.doc, "spot_distances_expected")
+        spot_distances_expected = self.get_element(self.doc, 'spot_distances_expected')
 
         # Check if the 'spot_distances_expected' node was found.
         if not spot_distances_expected:
@@ -1049,17 +1551,32 @@ class ReportReader(object):
 
         # Return each distance from the 'spot_distances_expected' node.
         for e in spot_distances_expected.childNodes:
-            if e.nodeType == e.ELEMENT_NODE and e.localName == "distance":
+            if e.nodeType == e.ELEMENT_NODE and e.localName == 'distance':
                 # Return the value for the distance element.
                 yield e.childNodes[0].nodeValue.strip()
 
     def get_plate_areas_definition(self):
-        """
-        Return the spot areas definition from the XML DOM report.
+        """Return the spot areas definition from the XML DOM report.
+        This method returns a dictionary. For example: ::
+
+            {
+            'area1': ['A'],
+            'area2': ['B'],
+            'area3': ['C', 'D']
+            }
+
+        or: ::
+
+            {
+            'area1': ['A'],
+            'area2': ['B'],
+            'area3': ['C'],
+            'area4': ['D']
+            }
         """
 
         # Find the 'spots_definition' node in the XML DOM object.
-        areas_definition = self.get_element(self.doc, "plate_areas_definition")
+        areas_definition = self.get_element(self.doc, 'plate_areas_definition')
 
         # Check if the 'spots_definition' node was found.
         if not areas_definition:
@@ -1083,8 +1600,16 @@ class ReportReader(object):
         return definition
 
     def get_area_totals_observed(self):
-        """
-        Return the observed specie totals per area from the XML DOM report.
+        """Return the observed specie totals per plate area from the
+        XML DOM report.
+
+        This method returns a dictionary. For example: ::
+
+            {
+            'area1': 24.64,
+            'area2': 73.92,
+            'area3': 55.44
+            }
         """
 
         # Find the 'area_totals_observed' node in the XML DOM object.
@@ -1105,11 +1630,16 @@ class ReportReader(object):
         return totals
 
     def get_area_totals_expected(self):
-        """
-        Return the expected specie totals per area from the XML DOM report.
+        """Return the expected specie totals per area from the XML DOM
+        report.
 
-        This is a generator, meaning that this function returns an
-        iterator. This iterator can be used in a for-loop.
+        This method returns a dictionary. For example: ::
+
+            {
+            'area1': 23.12,
+            'area2': 60.10,
+            'area3': 40.44
+            }
         """
 
         # Find the 'area_totals_expected' node in the XML DOM object.
@@ -1133,7 +1663,10 @@ class ReportReader(object):
         """Return the statistics from the XML DOM report.
 
         This is a generator, meaning that this function returns an
-        iterator. This iterator can be used in a for-loop.
+        iterator. This iterator returns tuples in the format
+        ``({'<name>': <value>, ...}, {'<name>': <value>, ...})`` where
+        the first dictionary contains the attributes and the second
+        the results.
         """
 
         # Find the 'statistics' node in the XML DOM object.
@@ -1168,7 +1701,10 @@ class ReportReader(object):
         """Return the statistics from the XML DOM report.
 
         This is a generator, meaning that this function returns an
-        iterator. This iterator can be used in a for-loop.
+        iterator. This iterator returns tuples in the format
+        ``({'<name>': <value>, ...}, {'<name>': <value>, ...})`` where
+        the first dictionary contains the attributes and the second
+        the results.
         """
 
         # Find the 'statistics' node in the XML DOM object.
@@ -1200,10 +1736,18 @@ class ReportReader(object):
                 yield (attributes,items)
 
     def save_report(self, path, type):
-        """Save the XML DOM report to a file.
+        """Save the data from the XML DOM report to a data file or an
+        analysis report document. The file is saved to `path` in a
+        format specified by `type`. Possible values for `type` are
+        strings containing ``xml``, ``txt`` or ``latex``.
 
-        The following file types are supported:
-        * XML: A regular XML file.
+        If `type` contains ``xml``, all data from the DOM object is
+        saved to an XML file. If `type` contians ``txt`` or ``latex``,
+        the report elements speciefied by the user will be save to a
+        human readable document.
+
+        .. todo::
+           Implement methods for generating text and LaTeX reports.
 
         Design Part: 1.17
         """
@@ -1218,6 +1762,15 @@ class ReportReader(object):
             # Save report.
             self.export_xml(path)
             logging.info("Analysis report saved to %s" % path)
+
+        elif "txt" in type:
+            logging.info("Analysis reports in text format are not yet supported.")
+
+        elif "latex" in type:
+            logging.info("Analysis reports in LaTeX format are not yet supported.")
+
+        else:
+            raise ValueError("Argument 'type' must be a string containing either `xml`, `txt` or `latex`")
 
     def get_xml(self):
         """Return the XML source for the XML DOM report."""
