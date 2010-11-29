@@ -177,35 +177,52 @@ class SelectAnalysis(object):
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Create an about button.
-        button_about = gtk.Button("About")
+        button_about = gtk.Button(stock=gtk.STOCK_ABOUT)
         button_about.set_size_request(70, -1)
         button_about.connect("clicked", self.on_about)
+
+        icon_path = pkg_resources.resource_filename(__name__,
+            'setlyze/images/help-icon.png')
+        help_icon = gtk.Image()
+        help_icon.set_from_file(icon_path)
+
+        # Continue button.
+        button_info = gtk.ToolButton(icon_widget=help_icon)
+        #button_info.set_stock_id(gtk.STOCK_HELP)
+        button_info.connect("clicked", self.on_info)
+
+        # Put the buttons in a horizontal box.
+        button_box_l = gtk.HBox(homogeneous=False, spacing=5)
+        button_box_l.add(button_about)
+        button_box_l.add(button_info)
+
         # Align the about button to the left.
-        about_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
-        about_align.add(button_about)
+        button_box_l_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
+        button_box_l_align.add(button_box_l)
+
         # Add the about button to the table.
-        table.attach(child=about_align, left_attach=0, right_attach=1,
+        table.attach(button_box_l_align, left_attach=0, right_attach=1,
             top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Continue button.
-        button_ok = gtk.Button("Continue")
+        button_ok = gtk.Button(stock=gtk.STOCK_OK)
         button_ok.set_size_request(70, -1)
         button_ok.connect("clicked", self.on_continue)
 
         # Quit button.
-        button_quit = gtk.Button("Quit")
+        button_quit = gtk.Button(stock=gtk.STOCK_QUIT)
         button_quit.set_size_request(70, -1)
         button_quit.connect("clicked", self.on_quit)
 
         # Put the buttons in a horizontal box.
-        button_box = gtk.HBox(homogeneous=True, spacing=5)
-        button_box.add(button_quit)
-        button_box.add(button_ok)
+        button_box_r = gtk.HBox(homogeneous=True, spacing=5)
+        button_box_r.add(button_quit)
+        button_box_r.add(button_ok)
 
         # Align the button box to the right.
         buttons_align = gtk.Alignment(xalign=1.0, yalign=0, xscale=0, yscale=0)
-        buttons_align.add(button_box)
+        buttons_align.add(button_box_r)
 
         # Add the aligned button box to the table.
         table.attach(child=buttons_align, left_attach=1, right_attach=2,
@@ -229,6 +246,9 @@ class SelectAnalysis(object):
         elif self.radio_ana3.get_active():
             self.frame_descr.set_label("Analysis 3")
             self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
+
+    def on_info(self, button):
+        pass
 
     def destroy_handler_connections(self):
         """
@@ -326,8 +346,7 @@ class SelectAnalysis(object):
         about.destroy()
 
     def make_local_database(self):
-        """
-        Prepare a local database. If there's already a local database
+        """Prepare a local database. If there's already a local database
         on the user's computer, ask the user if he/she wants to use that
         database.
         """
@@ -426,7 +445,7 @@ def main():
     # SQLite's supported types. This adds support for Unicode strings.
     sqlite.register_adapter(str, adapt_str)
 
-    # Initialize the logging module.
+    # Show all log messages of type INFO.
     logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 
     # Create a log message.

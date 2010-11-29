@@ -1120,12 +1120,12 @@ class ChangeDataSource(gtk.Window):
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # OK button
-        button_ok = gtk.Button("OK")
+        button_ok = gtk.Button(stock=gtk.STOCK_OK)
         button_ok.set_size_request(70, -1)
         button_ok.connect("clicked", self.on_csv_ok)
 
         # Cancel button
-        button_cancel = gtk.Button("Cancel")
+        button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
         button_cancel.set_size_request(70, -1)
         button_cancel.connect("clicked", self.on_cancel)
 
@@ -1283,7 +1283,7 @@ class ProgressDialog(gtk.Window):
         pbar_align.add(self.pbar)
 
         # Close button
-        self.button_close = gtk.Button("Close")
+        self.button_close = gtk.Button(stock=gtk.STOCK_CLOSE)
         self.button_close.set_size_request(70, -1)
         self.button_close.connect("clicked", self.on_close)
         # Disable this button by default, because we don't want the user
@@ -1416,7 +1416,7 @@ class DisplayReport(gtk.Window):
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Close button
-        button_close = gtk.Button("Close")
+        button_close = gtk.Button(stock=gtk.STOCK_CLOSE)
         button_close.set_size_request(70, -1)
         button_close.connect("clicked", self.on_close)
 
