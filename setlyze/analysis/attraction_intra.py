@@ -186,7 +186,9 @@ class Start(threading.Thread):
         self.dbfile = setlyze.config.cfg.get('db-file')
         # Dictionary for the statistic test results.
         self.statistics = {'normality':[], # Design Part: 2.36
-                        'significance':[]} # Design Part: 2.37
+            'wilcoxon':[], # Design Part: 2.37
+            'chi_squared':[]
+            }
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis2.1'))
@@ -274,7 +276,7 @@ class Start(threading.Thread):
         logging.info("\tPerforming statistical tests...")
         # Update progress dialog.
         setlyze.std.update_progress_dialog(6/self.total_steps, "Performing statistical tests...")
-        # Performing the significance test.
+        # Performing the statistical tests.
         self.calculate_significance()
 
         # Create log message.
@@ -429,11 +431,7 @@ class Start(threading.Thread):
         the means of the two sets of distances are statistically
         significant.
 
-        First we do a normality test on the observed distances. Based on
-        this result, we will either use the t-test (normality true) or
-        the Wilcoxon test (normality false).
-
-        We perform an unpaired two-sample T-test. We use unpaired
+        We perform an unpaired Wilcoxon signed-rank test. We use unpaired
         because the two sets of distances are unrelated. In other words,
         a distance n in 'observed' is unrelated to distance n in
         'expected' (where n is an item number in the lists).
@@ -474,123 +472,99 @@ class Start(threading.Thread):
         cursor = connection.cursor()
         cursor2 = connection.cursor()
 
-        for n_spots in range(2,27):
-            # Of course, there are just 25 spots, so when we reach 26,
-            # set n_spots to -25 (meaning, take all spots up to 25).
-            if n_spots == 26:
-                n_spots = -25
+        # Perform the tests for records that have a specific number of
+        # positive spots. The tests are performed separately for each
+        # number in the list. Numbers starting with "-" means all records
+        # with positive spots up to that number.
+        spot_totals = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,-24]
+
+        for n_spots in spot_totals:
+            # As you can see
 
             # Get both sets of distances from plates per total spot numbers.
-            self.db.get_distances_matching_spots_total(cursor, 'spot_distances_observed', n_spots)
-            self.db.get_distances_matching_spots_total(cursor2, 'spot_distances_expected', n_spots)
+            self.db.get_distances_matching_spots_total(cursor,
+                'spot_distances_observed', n_spots)
+            self.db.get_distances_matching_spots_total(cursor2,
+                'spot_distances_expected', n_spots)
 
             # Create lists for the distances so we can use it for the R
             # functions.
             observed = [x[0] for x in cursor]
             expected = [x[0] for x in cursor2]
 
-            # A minimum of 3 observed distances is required for the
-            # normality test. So skip this spots number if it's less.
+            # A minimum of 2 observed distances is required for the
+            # significance test. So skip this spots number if it's less.
             count_observed = len(observed)
-            if count_observed < 3:
+            if count_observed < 2:
                 continue
 
             # Calculate the means.
-            mean_observed = setlyze.std.average(observed)
-            mean_expected = setlyze.std.average(expected)
+            mean_observed = setlyze.std.mean(observed)
+            mean_expected = setlyze.std.mean(expected)
 
             # Get the number of plates found that match the current
             # number of positive spots.
-            if n_spots < 0:
-                # If spots_n is a negative number, get all distances
-                # up to the absolute number. So if we find -5, get all
-                # distances up to 5.
-                cursor.execute( "SELECT COUNT(pla_id) "
-                                "FROM plate_spot_totals "
-                                "WHERE n_spots_a <= ?", [abs(n_spots)])
-                n_plates = cursor.fetchone()[0]
-            else:
-                # If it's a positive number, just get the plates that
-                # match that spots number.
-                cursor.execute( "SELECT COUNT(pla_id) "
-                                "FROM plate_spot_totals "
-                                "WHERE n_spots_a = ?", [n_spots])
-                n_plates = cursor.fetchone()[0]
+            n_plates = setlyze.database.get_plates_total_matching_spots_total(n_spots)
 
-            # Perform the normality test.
-            normality_result = setlyze.std.shapiro_test(observed)
+            # Perform two sample Wilcoxon tests.
+            sig_result = setlyze.std.wilcox_test(observed, expected,
+                alternative = "two.sided", paired = False,
+                conf_level = setlyze.config.cfg.get('significance-confidence'),
+                conf_int = True)
 
-            # Save the normality result.
-            result = {}
-            result['attr'] = {
+            # Save the significance result.
+            data = {}
+            data['attr'] = {
                 'n_positive_spots': n_spots,
-                'method': normality_result['method'],
+                'n_plates': n_plates,
                 'n': count_observed,
+                'method': sig_result['method'],
+                'alternative': sig_result['alternative'],
+                'conf_level': setlyze.config.cfg.get('significance-confidence'),
+                'paired': False,
                 }
-            result['items'] = {
-                'p_value': normality_result['p.value'],
-                'w': normality_result['statistic']['W'],
+            data['results'] = {
+                'p_value': sig_result['p.value'],
+                'mean_observed': mean_observed,
+                'mean_expected': mean_expected,
+                'conf_int_start': sig_result['conf.int'][0],
+                'conf_int_end': sig_result['conf.int'][1],
                 }
-            self.statistics['normality'].append(result)
-
-            # Decide which significance test to use based on the
-            # result of the normality test. If P-value > alpha, then
-            # normality is True.
-            if normality_result['p.value'] > setlyze.config.cfg.get('normality-alpha'):
-                # Perform the Welch two sample T-test, which assumes
-                # the data has a normal distribution.
-                sig_result = setlyze.std.t_test(observed, expected,
-                    alternative="two.sided", paired=False,
-                    conf_level=setlyze.config.cfg.get('significance-confidence'))
-
-                # Save the significance result.
-                result = {}
-                result['attr'] = {
-                    'n_positive_spots': n_spots,
-                    'n_plates': n_plates,
-                    'n': count_observed,
-                    'method': sig_result['method'],
-                    'alternative': sig_result['alternative'],
-                    'conf_level': setlyze.config.cfg.get('significance-confidence'),
-                    'paired': False,
-                    }
-                result['items'] = {
-                    'p_value': sig_result['p.value'],
-                    't': sig_result['statistic']['t'],
-                    'mean_observed': sig_result['estimate']['mean of x'],
-                    'mean_expected': sig_result['estimate']['mean of y'],
-                    'df': sig_result['parameter']['df'],
-                    'conf_int_start': sig_result['conf.int'][0],
-                    'conf_int_end': sig_result['conf.int'][1],
-                    }
-            else:
-                # Perform two sample Wilcoxon tests.
-                sig_result = setlyze.std.wilcox_test(observed, expected,
-                    alternative = "two.sided", paired = False,
-                    conf_level = setlyze.config.cfg.get('significance-confidence'),
-                    conf_int = True)
-
-                # Save the significance result.
-                result = {}
-                result['attr'] = {
-                    'n_positive_spots': n_spots,
-                    'n_plates': n_plates,
-                    'n': count_observed,
-                    'method': sig_result['method'],
-                    'alternative': sig_result['alternative'],
-                    'conf_level': setlyze.config.cfg.get('significance-confidence'),
-                    'paired': False,
-                    }
-                result['items'] = {
-                    'p_value': sig_result['p.value'],
-                    'mean_observed': mean_observed,
-                    'mean_expected': mean_expected,
-                    'conf_int_start': sig_result['conf.int'][0],
-                    'conf_int_end': sig_result['conf.int'][1],
-                    }
 
             # Append the result to the list of results.
-            self.statistics['significance'].append(result)
+            self.statistics['wilcoxon'].append(data)
+
+
+            # Get the probability for each spot distance. Required for
+            # the Chi-squared test.
+            spot_dist_to_prob = setlyze.config.cfg.get('spot-dist-to-prob')
+
+            # Get the frequencies for the observed distances. These
+            # are required for the Chi-squared test.
+            observed_freq = setlyze.std.distance_frequency(observed)
+
+            # Also perform Chi-squared test.
+            sig_result = setlyze.std.chisq_test(observed_freq.values(),
+                p = spot_dist_to_prob.values())
+
+            # Save the significance result.
+            data = {}
+            data['attr'] = {
+                'n_positive_spots': n_spots,
+                'n_plates': n_plates,
+                'n': count_observed,
+                'method': sig_result['method'],
+                }
+            data['results'] = {
+                'chi_squared': sig_result['statistic']['X-squared'],
+                'p_value': sig_result['p.value'],
+                'df': sig_result['parameter']['df'],
+                'mean_observed': mean_observed,
+                'mean_expected': mean_expected,
+                }
+
+            # Append the result to the list of results.
+            self.statistics['chi_squared'].append(data)
 
         # Close connection with the local database.
         cursor.close()
@@ -618,11 +592,12 @@ class Start(threading.Thread):
 
         report.set_spot_distances_expected()
 
-        report.set_statistics_normality(self.statistics['normality'])
-        report.set_statistics_significance(self.statistics['significance'])
+        report.set_statistics('wilcoxon', self.statistics['wilcoxon'])
+        report.set_statistics('chi_squared', self.statistics['chi_squared'])
 
         # Create a global link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())
+
 
 
 

@@ -73,6 +73,46 @@ def get_database_accessor():
         sys.exit(1)
     return db
 
+def get_plates_total_matching_spots_total(n_spots, slot=0):
+    """Return an integer representing the number of plates that
+    match the provided number of positive spots `n_spots`.
+
+    Possible values for `slot` are 0 for the first species selection,
+    and 1 for the second species selection.
+    """
+    connection = sqlite.connect(setlyze.config.cfg.get('db-file'))
+    cursor = connection.cursor()
+
+    if slot == 0:
+        field = 'n_spots_a'
+    elif slot == 1:
+        field = 'n_spots_b'
+    else:
+        raise ValueError("Possible values for 'slot' are 0 and 1.")
+
+    if n_spots < 0:
+        # If spots_n is a negative number, get all distances
+        # up to the absolute number. So if we find -5, get all
+        # distances with up to 5 spots.
+        cursor.execute( "SELECT COUNT(pla_id) "
+                        "FROM plate_spot_totals "
+                        "WHERE %s <= ?" % (field),
+                        [abs(n_spots)])
+        n_plates = cursor.fetchone()[0]
+    else:
+        # If it's a positive number, just get the plates that
+        # match that spots number.
+        cursor.execute( "SELECT COUNT(pla_id) "
+                        "FROM plate_spot_totals "
+                        "WHERE %s = ?" % (field),
+                        [n_spots])
+        n_plates = cursor.fetchone()[0]
+
+    cursor.close()
+    connection.close()
+
+    return n_plates
+
 class MakeLocalDB(threading.Thread):
     """Create a local SQLite database with default tables and fill some
     tables based on the data source.
@@ -463,7 +503,7 @@ class MakeLocalDB(threading.Thread):
         process.
         """
         if tries > 2:
-            raise ValueError("I was unable to remove the file %s. "
+            raise EnvironmentError("I was unable to remove the file %s. "
                 "Please make sure it's not in use by a different "
                 "process." % self.dbfile)
 
@@ -1083,8 +1123,10 @@ class AccessDBGeneric(object):
         return skipped
 
     def get_distances_matching_spots_total(self, cursor, distance_table, spots_n):
-        """Get the distances from a distance table that are from plates
-        matching a specific number of spots on a plate.
+        """Get the distances from distance table `distance_table` that
+        are from plates having `spots_n` positive spot numbers.
+
+        `cursor` must be a SQLite cursor object.
         """
         if spots_n < 0:
             # If spots_n is a negative number, get all distances

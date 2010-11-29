@@ -46,20 +46,28 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/10/01 13:42:16"
 
-DIST_PROBS = {1: 0.133,
-1.41: 0.107,
-2: 0.100,
-2.24: 0.160,
-2.83: 0.060,
-3: 0.067,
-3.16: 0.107,
-3.61: 0.080,
-4: 0.033,
-4.12: 0.053,
-4.24: 0.027,
-4.47: 0.040,
-5: 0.027,
-5.66: 0.007,}
+def distance_frequency(x):
+    frequencies = {1: 0,
+        1.41: 0,
+        2: 0,
+        2.24: 0,
+        2.83: 0,
+        3: 0,
+        3.16: 0,
+        3.61: 0,
+        4: 0,
+        4.12: 0,
+        4.24: 0,
+        4.47: 0,
+        5: 0,
+        5.66: 0,}
+
+    for dist in x:
+        if dist not in frequencies:
+            raise ValueError("'x' contains unknown spot distance '%s' % dist")
+        else:
+            frequencies[dist] += 1
+    return frequencies
 
 def update_progress_dialog(fraction, action=None, autoclose=True):
     """Set the progress dialog's progressbar fraction to ``fraction``.
@@ -370,9 +378,9 @@ def get_random_for_plate(n):
     standard library. As described in the Python documentation, this
     function is bound to an instance of :py:class:`random.Random` which
     uses the :py:meth:`random.random` method. In turn this method uses
-    the Mersenne Twister as the core generator. The Mersenne Twister is
-    one of the most extensively tested random number generators in
-    existence.
+    the Mersenne Twister (:ref:`M. Matsumoto and T. Nishimura <ref-mersenne-twister>`)
+    as the core generator. The Mersenne Twister is one of the most
+    extensively tested random number generators in existence.
 
     .. seealso::
 
@@ -532,14 +540,54 @@ def shapiro_test(x):
 
     return result
 
-def average(x):
+def chisq_test(x, y = None, correct = True, p = None,
+    rescale_p = False, simulate_p_value = False, b = 2000):
+    """Performs chi-squared contingency table tests and
+     goodness-of-fit tests.
+
+    This is a wrapper function for the ``chisq.test`` function from R. It
+    depends on R and RPy. The latter provides an interface to the R
+    Programming Language.
+
+    This function returns a dictionary containing the results. Below
+    is the format of the dictionary with example results ::
+
+        {
+        'null.value': {'difference in means': 0},
+        'method': 'Welch Two Sample t-test',
+        'p.value': 0.97053139295765201,
+        'statistic': {'t': -0.037113583386291726},
+        'estimate': {'mean of y': 2.552142857142857, 'mean of x': 2.5417857142857141},
+        'conf.int': [-0.56985924418141154, 0.54914495846712563],
+        'parameter': {'df': 53.965197921982607},
+        'alternative': 'two.sided'
+        }
+
+    .. seealso::
+
+       R Documentation for Pearson's Chi-squared Test for Count Data
+          The R Documentation gives a more extensive documentation of
+          this function, its arguments, usage, etc. To view the
+          documentation, type ``help(chisq.test)`` from the R prompt.
+
+    """
+    if not p:
+        p = itertools.repeat(1.0/len(x), len(x))
+        p = [x for x in p]
+
+    result = rpy.r['chisq.test'](x, y, correct, p, rescale_p,
+        simulate_p_value, b)
+
+    return result
+
+def mean(x):
     """Return the arithmetic mean of a sequence of numbers `x`.
 
     A simple example: ::
 
         >>> import setlyze.std
         >>> x = [5.91, 1, 10, 19, 22.1, 16, 3.3, 25, 12, 8, 18.5, 17, 23, 2, 7]
-        >>> setlyze.std.average(x)
+        >>> setlyze.std.mean(x)
         12.654
 
     """
@@ -788,6 +836,17 @@ class ReportGenerator(object):
             text_node = self.doc.createTextNode(str(text))
             element.appendChild(text_node)
 
+        return element
+
+    def get_element(self, parent, name):
+        """Return the element object with name `name` from a parent
+        element `parent`.
+        """
+        element = None
+        for e in parent.childNodes:
+            if e.nodeType == e.ELEMENT_NODE and e.localName == name:
+                element = e
+                break
         return element
 
     def set_analysis(self, name):
@@ -1216,72 +1275,22 @@ class ReportGenerator(object):
                 text=total
                 )
 
-    def set_statistics_normality(self, results):
-        """Add the element ``statistics_normality`` to the XML DOM
-        report.
-
-        This element will be filled with the results of the performed
-        normality tests. The results must be supplied with the
-        `results` argument. The `results` argument is a list containing
-        dictionaries in the format ``{'attr': {'<name>': <value>, ...},
-        'items': {'<name>': <value>, ...}}`` where the value for 'attr' is
-        a dictionary with the attributes and 'items' is a dictionary
-        with child elements for the ``statistics_normality`` element.
-
-        An XML representation: ::
-
-            <statistics_normality>
-                <result method="Shapiro-Wilk normality test" n="3" n_positive_spots="3">
-                    <p_value>
-                        6.86271239415e-08
-                    </p_value>
-                    <w>
-                        0.750000031119
-                    </w>
-                </result>
-                <result method="Shapiro-Wilk normality test" n="300" n_positive_spots="25">
-                    <p_value>
-                        1.9546526381e-08
-                    </p_value>
-                    <w>
-                        0.951228833504
-                    </w>
-                </result>
-            </statistics_normality>
-
-        Design Part: 1.70
-        """
-
-        # Create a new child element for the report.
-        statistics_element = self.create_element(
-            parent=self.report,
-            name="statistics_normality"
-            )
-
-        for result in results:
-            self.create_element(
-                parent=statistics_element,
-                name="result",
-                attributes=result['attr'],
-                child_elements=result['items'],
-                )
-
-    def set_statistics_significance(self, results):
-        """Add the element ``statistics_significance`` to the XML DOM
-        report.
+    def set_statistics(self, name, data):
+        """Add the element ``statistics`` with child element
+        ``name`` to the XML DOM report.
 
         This element will be filled with the results of the performed
         statistical tests. The results must be supplied with the
-        `results` argument. The `results` argument is a list containing
+        `data` argument. The `data` argument is a list containing
         dictionaries in the format {'attr': {'<name>': <value>, ...},
-        'items': {'<name>': <value>, ...}} where the value for 'attr' is
-        a dictionary with the attributes and 'items' is a dictionary
-        with child elements for the ``statistics_normality`` element.
+        'results': {'<name>': <value>, ...}} where the value for 'attr' is
+        a dictionary with the attributes and 'results' is a dictionary
+        with child elements for the ``statistics`` element.
 
         An XML representation: ::
 
-            <statistics_significance>
-                <result alternative="two.sided" conf_level="0.95" method="Wilcoxon rank sum test with continuity correction" n="3" n_plates="1" n_positive_spots="3" paired="False">
+            <statistics>
+                <wilcoxon alternative="two.sided" conf_level="0.95" method="Wilcoxon rank sum test with continuity correction" n="3" n_plates="1" n_positive_spots="3" paired="False">
                     <conf_int_start>
                         -2.16
                     </conf_int_start>
@@ -1297,24 +1306,26 @@ class ReportGenerator(object):
                     <mean_observed>
                         1.33333333333
                     </mean_observed>
-                </result>
-            </statistics_significance>
+                </wilcoxon>
+            </statistics>
 
         Design Part: 1.71
         """
 
-        # Create a new child element for the report.
-        statistics_element = self.create_element(
-            parent=self.report,
-            name="statistics_significance"
-            )
+        # Create the 'statistics' element if it doesn't exist.
+        statistics_element = self.get_element(self.report, 'statistics')
+        if not statistics_element:
+            statistics_element = self.create_element(
+                parent=self.report,
+                name='statistics'
+                )
 
-        for result in results:
+        for x in data:
             self.create_element(
                 parent=statistics_element,
-                name="result",
-                attributes=result['attr'],
-                child_elements=result['items'],
+                name=name,
+                attributes=x['attr'],
+                child_elements=x['results'],
                 )
 
     def get_report(self):
@@ -1374,18 +1385,23 @@ class ReportReader(object):
                 break
         return element
 
-    def get_report_elements(self):
-        """Return a list with all report elements from the XML DOM
+    def get_child_names(self, parent=None):
+        """Return a list with all child element names from the XML DOM
         object. The child elements for the report elements are excluded.
 
         Use this as a quick way to find out which elements are present
         in a XML DOM report object.
         """
         report_elements = []
-        for e in self.doc.childNodes[0].childNodes:
-            if e.nodeType == e.ELEMENT_NODE:
-                report_elements.append(e.localName)
-        return report_elements
+        if parent:
+            for e in parent.childNodes:
+                if e.nodeType == e.ELEMENT_NODE:
+                    report_elements.append(e.localName)
+        else:
+            for e in self.doc.childNodes[0].childNodes:
+                if e.nodeType == e.ELEMENT_NODE:
+                    report_elements.append(e.localName)
+        return uniqify(report_elements)
 
     def get_analysis_name(self):
         """Return the value of the `analysis` element. This element
@@ -1659,8 +1675,9 @@ class ReportReader(object):
 
         return totals
 
-    def get_statistics_significance(self):
-        """Return the statistics from the XML DOM report.
+    def get_statistics(self, name):
+        """Return the statistics elements with name `name` from the
+        XML DOM report.
 
         This is a generator, meaning that this function returns an
         iterator. This iterator returns tuples in the format
@@ -1669,71 +1686,33 @@ class ReportReader(object):
         the results.
         """
 
-        # Find the 'statistics' node in the XML DOM object.
-        statistics = self.get_element(self.doc, "statistics_significance")
+        # Find the 'statistics' element in the XML DOM object.
+        statistics = self.get_element(self.doc, 'statistics')
 
-        # Check if the 'spot_distances_observed' node was found.
+        # Check if the 'statistics' element was returned.
         if not statistics:
             return
 
-        # Return each distance from the 'spot_distances_observed' node.
-        for result in statistics.childNodes:
-            if result.nodeType == result.ELEMENT_NODE and result.localName == "result":
+        # Return each element with name `name` from the 'statistics' node.
+        for e in statistics.childNodes:
+            if e.nodeType == e.ELEMENT_NODE and e.localName == name:
                 attributes = {}
-                items = {}
+                results = {}
 
                 # Get all attributes for this result element.
-                for key in result.attributes.keys():
+                for key in e.attributes.keys():
                     # Save each attribute to the attributes dictionary.
-                    attributes[key] = result.getAttribute(key)
+                    attributes[key] = e.getAttribute(key)
 
                 # Get all sub elements for this result element.
-                for e in result.childNodes:
-                    if e.nodeType == e.ELEMENT_NODE:
+                for e2 in e.childNodes:
+                    if e2.nodeType == e2.ELEMENT_NODE:
                         # Save each item of the result element to the
                         # items dictionary.
-                        items[e.localName] = e.childNodes[0].nodeValue.strip()
+                        results[e2.localName] = e2.childNodes[0].nodeValue.strip()
 
                 # Return a tuple.
-                yield (attributes,items)
-
-    def get_statistics_normality(self):
-        """Return the statistics from the XML DOM report.
-
-        This is a generator, meaning that this function returns an
-        iterator. This iterator returns tuples in the format
-        ``({'<name>': <value>, ...}, {'<name>': <value>, ...})`` where
-        the first dictionary contains the attributes and the second
-        the results.
-        """
-
-        # Find the 'statistics' node in the XML DOM object.
-        statistics = self.get_element(self.doc, "statistics_normality")
-
-        # Check if the 'spot_distances_observed' node was found.
-        if not statistics:
-            return
-
-        # Return each distance from the 'spot_distances_observed' node.
-        for result in statistics.childNodes:
-            if result.nodeType == result.ELEMENT_NODE and result.localName == "result":
-                attributes = {}
-                items = {}
-
-                # Get all attributes for this result element.
-                for key in result.attributes.keys():
-                    # Save each attribute to the attributes dictionary.
-                    attributes[key] = result.getAttribute(key)
-
-                # Get all sub elements for this result element.
-                for e in result.childNodes:
-                    if e.nodeType == e.ELEMENT_NODE:
-                        # Save each item of the result element to the
-                        # items dictionary.
-                        items[e.localName] = e.childNodes[0].nodeValue.strip()
-
-                # Return a tuple.
-                yield (attributes,items)
+                yield (attributes,results)
 
     def save_report(self, path, type):
         """Save the data from the XML DOM report to a data file or an

@@ -62,6 +62,24 @@ DATA_PATH = os.path.expanduser(os.path.join('~','.setlyze'))
 # Path to the local database file.
 DB_FILE = os.path.join(DATA_PATH, 'setl_local.db')
 
+# The probabilities for each spot distance on a 5x5 SETL plate.
+# Format: {distance: probability, ...}
+SPOT_DIST_TO_PROB = {1: 40/300.0,
+    1.41: 32/300.0,
+    2: 30/300.0,
+    2.24: 48/300.0,
+    2.83: 18/300.0,
+    3: 20/300.0,
+    3.16: 32/300.0,
+    3.61: 24/300.0,
+    4: 10/300.0,
+    4.12: 16/300.0,
+    4.24: 8/300.0,
+    4.47: 12/300.0,
+    5: 8/300.0,
+    5.66: 2/300.0,
+    }
+
 # Default configurations.
 DEFAULT_CONFIG = [
     # Current data source.
@@ -102,6 +120,8 @@ DEFAULT_CONFIG = [
     ('significance-alpha', 0.05),
     # Significance test: confidence level.
     ('significance-confidence', 0.95),
+    # Probabilities for each spot distance.
+    ('spot-dist-to-prob', SPOT_DIST_TO_PROB)
 ]
 
 class ConfigManager(object):

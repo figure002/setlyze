@@ -1488,26 +1488,43 @@ class DisplayReport(gtk.Window):
         if not self.reader.doc:
             return
 
-        report_elements = self.reader.get_report_elements()
+        report_elements = self.reader.get_child_names()
 
         # Add a header with the analysis name.
         self.add_title_header()
 
-        if "location_selections" in report_elements and \
-                "specie_selections" in report_elements:
-            self.add_selections()
-        if "spot_distances_observed" in report_elements and \
-                "spot_distances_expected" in report_elements:
+        if 'specie_selections' in report_elements:
+            self.add_species_selections()
+
+        if 'location_selections' in report_elements:
+            self.add_locations_selections()
+
+        if 'spot_distances_observed' in report_elements and \
+                'spot_distances_expected' in report_elements:
             self.add_distances()
-        if "plate_areas_definition" in report_elements:
+
+        if 'plate_areas_definition' in report_elements:
             self.add_plate_areas_definition()
-        if "area_totals_observed" in report_elements and \
-                "area_totals_expected" in report_elements:
+
+        if 'area_totals_observed' in report_elements and \
+                'area_totals_expected' in report_elements:
             self.add_area_totals()
-        if "statistics_normality" in report_elements:
-            self.add_statistics_normality()
-        if "statistics_significance" in report_elements:
-            self.add_statistics_significance()
+
+        if 'statistics' in report_elements:
+            stats = self.reader.get_element(self.reader.doc, 'statistics')
+            elements = self.reader.get_child_names(stats)
+
+            if 'normality' in elements:
+                self.add_statistics_normality()
+
+            if 'wilcoxon' in elements:
+                self.add_statistics_wilcoxon()
+
+            if 't_test' in elements:
+                self.add_statistics_ttest()
+
+            if 'chi_squared' in elements:
+                self.add_statistics_chisq()
 
         # Create a text box.
         #self.textbox = gtk.TextView()
@@ -1587,8 +1604,8 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_selections(self):
-        """Add the locations + species selections to the report dialog."""
+    def add_species_selections(self):
+        """Add the species selection(s) to the report dialog."""
 
         # Create a scrolled window.
         scrolled_window = gtk.ScrolledWindow()
@@ -1596,47 +1613,30 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Location and Species Selections")
+        expander = gtk.Expander("Species Selection(s)")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 200)
+        tree.set_size_request(-1, 150)
         # Add columns to the tree view.
         cell = gtk.CellRendererText()
-        column = gtk.TreeViewColumn("Location and Species Selections", cell, text=0)
+        column = gtk.TreeViewColumn("Species Selection(s)", cell, text=0)
         tree.append_column(column)
         # To store the data, we use the TreeStore object.
         treestore = gtk.TreeStore(gobject.TYPE_STRING)
 
-        # Add the locations selection to the model.
-        treeiter = treestore.append(parent=None, row=["1. Selected locations"])
-        locations_selection = self.reader.get_locations_selection(slot=0)
-        for loc in locations_selection:
-            location = "%s" % (loc['name'])
-            treestore.append(parent=treeiter, row=[location])
-
         # Add the species selection to the model.
-        treeiter = treestore.append(parent=None, row=["1. Selected species"])
+        treeiter = treestore.append(parent=None, row=["Selected species (1)"])
         species_selection = self.reader.get_species_selection(slot=0)
         for spe in species_selection:
             species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
             treestore.append(parent=treeiter, row=[species])
 
-        # Add the second locations selection to the model.
-        treeiter = treestore.append(parent=None, row=["2. Selected locations"])
-        locations_selection = self.reader.get_locations_selection(slot=1)
-        for loc in locations_selection:
-            if not loc:
-                treestore.remove(treeiter)
-                break
-            location = "%s. %s" % (loc['nr'], loc['name'])
-            treestore.append(parent=treeiter, row=[location])
-
         # Add the second species selection to the model.
-        treeiter = treestore.append(parent=None, row=["2. Selected species"])
+        treeiter = treestore.append(parent=None, row=["Selected species (2)"])
         species_selection = self.reader.get_species_selection(slot=1)
         for spe in species_selection:
             if not spe:
@@ -1644,6 +1644,56 @@ class DisplayReport(gtk.Window):
                 break
             species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
             treestore.append(parent=treeiter, row=[species])
+
+        # Set the tree model.
+        tree.set_model(treestore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the scorred window to the vertical box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_locations_selections(self):
+        """Add the locations selection(s) to the report dialog."""
+
+        # Create a scrolled window.
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Locations Selection(s)")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 150)
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+        column = gtk.TreeViewColumn("Locations Selection(s)", cell, text=0)
+        tree.append_column(column)
+        # To store the data, we use the TreeStore object.
+        treestore = gtk.TreeStore(gobject.TYPE_STRING)
+
+        # Add the locations selection to the model.
+        treeiter = treestore.append(parent=None, row=["Selected locations (1)"])
+        locations_selection = self.reader.get_locations_selection(slot=0)
+        for loc in locations_selection:
+            location = "%s" % (loc['name'])
+            treestore.append(parent=treeiter, row=[location])
+
+        # Add the second locations selection to the model.
+        treeiter = treestore.append(parent=None, row=["Selected locations (2)"])
+        locations_selection = self.reader.get_locations_selection(slot=1)
+        for loc in locations_selection:
+            if not loc:
+                treestore.remove(treeiter)
+                break
+            location = "%s" % (loc['name'])
+            treestore.append(parent=treeiter, row=[location])
 
         # Set the tree model.
         tree.set_model(treestore)
@@ -1749,7 +1799,7 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_significance(self):
+    def add_statistics_wilcoxon(self):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -1758,7 +1808,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Statistic Results: Significance")
+        expander = gtk.Expander("Results for Wilcoxon signed-rank test")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -1774,8 +1824,7 @@ class DisplayReport(gtk.Window):
 
         column_names = ['Positive Spots','n (plates)',
             'n (distances)','P-value','Mean Observed','Mean Expected',
-            'Conf. interval start','Conf. interval end','Method',
-            'Remarks']
+            'Conf. interval start','Conf. interval end','Remarks']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -1793,30 +1842,38 @@ class DisplayReport(gtk.Window):
             gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
             gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
             )
 
         # Add the distances to the model.
-        statistics = self.reader.get_statistics_significance()
+        statistics = self.reader.get_statistics('wilcoxon')
 
         for attr,items in statistics:
             # Create a remarks string which allows for easy recognition
             # of interesting results.
             remarks = []
+            if float(items['p_value']) > 0.05:
+                remarks.append("Not significant")
+            else:
+                remarks.append("Significant")
+
+                if float(items['mean_observed']) < float(items['mean_expected']):
+                    remarks.append("Attraction")
+                else:
+                    remarks.append("Repulsion")
+
             if float(items['p_value']) < 0.001:
                 remarks.append("P < 0.001")
             elif float(items['p_value']) < 0.01:
                 remarks.append("P < 0.01")
             elif float(items['p_value']) < 0.05:
                 remarks.append("P < 0.05")
+            else:
+                remarks.append("P > 0.05")
 
-            if len(remarks):
-                if int(attr['n']) > 1000:
-                    remarks.append("n > 1000")
-                elif int(attr['n']) > 100:
-                    remarks.append("n > 100")
-                elif int(attr['n']) > 50:
-                    remarks.append("n > 50")
+            if int(attr['n']) > 20:
+                remarks.append("n > 20")
+            else:
+                remarks.append("n < 20")
 
             remarks = "; ".join(remarks)
 
@@ -1826,12 +1883,111 @@ class DisplayReport(gtk.Window):
                 int(attr['n_plates']),
                 int(attr['n']),
                 float(items['p_value']),
-                #float(items['t']),
                 float(items['mean_observed']),
                 float(items['mean_expected']),
                 float(items['conf_int_start']),
                 float(items['conf_int_end']),
-                attr['method'],
+                #attr['method'],
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_chisq(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Results for Pearson's Chi-squared Test for Count Data")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 250)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Positive Spots','n (plates)',
+            'n (distances)','P-value','Chi squared','df',
+            'Mean Expected','Mean Observed','Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('chi_squared')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = []
+            if float(items['p_value']) > 0.05:
+                remarks.append("Not significant")
+            else:
+                remarks.append("Significant")
+
+                if float(items['mean_observed']) < float(items['mean_expected']):
+                    remarks.append("Attraction")
+                else:
+                    remarks.append("Repulsion")
+
+            if float(items['p_value']) < 0.001:
+                remarks.append("P < 0.001")
+            elif float(items['p_value']) < 0.01:
+                remarks.append("P < 0.01")
+            elif float(items['p_value']) < 0.05:
+                remarks.append("P < 0.05")
+            else:
+                remarks.append("P > 0.05")
+
+            if int(attr['n']) > 20:
+                remarks.append("n > 20")
+            else:
+                remarks.append("n < 20")
+
+            remarks = "; ".join(remarks)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                int(attr['n_positive_spots']),
+                int(attr['n_plates']),
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['chi_squared']),
+                float(items['df']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
                 remarks,
                 ])
 
