@@ -1,0 +1,621 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.analysis.spot_preference &mdash; SETLyze v1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v1.0 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for setlyze.analysis.spot_preference</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
+<span class="c">#</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#</span>
+<span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
+<span class="c">#  it under the terms of the GNU General Public License as published by</span>
+<span class="c">#  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c">#  (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c">#  SETLyze is distributed in the hope that it will be useful,</span>
+<span class="c">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c">#  GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c">#  You should have received a copy of the GNU General Public License</span>
+<span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">sqlite3</span> <span class="kn">import</span> <span class="n">dbapi2</span> <span class="k">as</span> <span class="n">sqlite</span>
+
+<span class="kn">import</span> <span class="nn">pygtk</span>
+<span class="n">pygtk</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s">&#39;2.0&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">gtk</span>
+
+<span class="kn">import</span> <span class="nn">setlyze.locale</span>
+<span class="kn">import</span> <span class="nn">setlyze.config</span>
+<span class="kn">import</span> <span class="nn">setlyze.gui</span>
+<span class="kn">import</span> <span class="nn">setlyze.std</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Jonathan den Boer, Serrano Pereira&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/09/22&quot;</span>
+
+<div class="viewcode-block" id="Begin"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin">[docs]</a><span class="k">class</span> <span class="nc">Begin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Make all the preparations for analysis 1:</span>
+<span class="sd">    * Let the user select the locations.</span>
+<span class="sd">    * Let the user select the species.</span>
+<span class="sd">    * Let the user define the spot areas.</span>
+
+<span class="sd">    When done, start the analysis.</span>
+
+<span class="sd">    Design Part: 1.3.1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Create log message.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Beginning </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+
+        <span class="c"># Bind handles to application signals.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_application_signals</span><span class="p">()</span>
+
+        <span class="c"># Reset the settings when an analysis is beginning.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;plate-areas-definition&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="c"># Emit the signal that we are beginning with an analysis.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Leaving </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Begin.handle_application_signals"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.handle_application_signals">[docs]</a>    <span class="k">def</span> <span class="nf">handle_application_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Respond to signals emitted by the application.&quot;&quot;&quot;</span>
+
+        <span class="c"># This analysis has just started.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_locations</span><span class="p">)</span>
+
+        <span class="c"># The user pressed the X button of a locations/species</span>
+        <span class="c"># selection window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler2</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;selection-dialog-closed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_window_closed</span><span class="p">)</span>
+
+        <span class="c"># The user pressed the X button of a define spots window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler3</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;define-areas-dialog-closed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_window_closed</span><span class="p">)</span>
+
+        <span class="c"># User pressed the Back button in the locations selection window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler4</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;locations-dialog-back&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_window_closed</span><span class="p">)</span>
+
+        <span class="c"># User pressed the Back button in the species selection window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler5</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;species-dialog-back&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_locations</span><span class="p">)</span>
+
+        <span class="c"># User pressed the Back button in the define spots window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler6</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;define-areas-dialog-back&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">)</span>
+
+        <span class="c"># The user selected locations have been saved.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler7</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;locations-selection-saved&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">)</span>
+
+        <span class="c"># The user selected species have been saved.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler8</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;species-selection-saved&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_define_plate_areas</span><span class="p">)</span>
+
+        <span class="c"># The spots have been defined by the user.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler9</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;plate-areas-defined&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_start_analysis</span><span class="p">)</span>
+
+        <span class="c"># The report window was closed.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler10</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;report-dialog-closed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_window_closed</span><span class="p">)</span>
+
+        <span class="c"># The analysis was finished.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler11</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-aborted&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_aborted</span><span class="p">)</span>
+
+        <span class="c"># Display the report after the progress dialog for the analysis</span>
+        <span class="c"># was closed. Warning: A progress dialog will also close when</span>
+        <span class="c"># the user decided to switch to a new data source in the</span>
+        <span class="c"># locations selection window, so block this handler until the</span>
+        <span class="c"># analysis has started.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler12</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;progress-dialog-closed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_display_report</span><span class="p">)</span>
+        <span class="c"># Block handler 12.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">handler_block</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler12</span><span class="p">)</span>
+
+        <span class="c"># Things to do when the analysis has started.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler13</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-started&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_started</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Begin.on_analysis_started"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_analysis_started">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_started</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handle events that need to happen when the analysis has</span>
+<span class="sd">        started.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Unblock handler 12.</span>
+        <span class="n">sender</span><span class="o">.</span><span class="n">handler_unblock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler12</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Begin.destroy_handler_connections"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.destroy_handler_connections">[docs]</a>    <span class="k">def</span> <span class="nf">destroy_handler_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Disconnect all signal connections with signal handlers created</span>
+<span class="sd">        by this analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler1</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler2</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler3</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler4</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler5</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler6</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler7</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler8</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler9</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler10</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler11</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler12</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler13</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">on_analysis_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">destroy_silent</span><span class="p">()</span>
+
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+            <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Empty plate areas&quot;</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="s">&quot;Got nothing to do, because &quot;</span>
+            <span class="s">&quot;all the plate areas totals were zero. &quot;</span>
+            <span class="s">&quot;You might have more luck if you select more locations &quot;</span>
+            <span class="s">&quot;next time. The current analysis will abort.&quot;</span><span class="p">)</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RESPONSE_OK</span><span class="p">:</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+            <span class="c"># Go back to the main window.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_window_closed</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Begin.on_window_closed"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_window_closed">[docs]</a>    <span class="k">def</span> <span class="nf">on_window_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the main window and destroy the handler connections.&quot;&quot;&quot;</span>
+
+        <span class="c"># This causes the main window to show.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-closed&#39;</span><span class="p">)</span>
+
+        <span class="c"># Make sure all handlers are destroyed when this object is</span>
+        <span class="c"># finished. If we don&#39;t do this, the same handlers will be</span>
+        <span class="c"># created again, resulting in copies of the same handlers, with</span>
+        <span class="c"># the result that callback functions are called multiple times.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy_handler_connections</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Begin.on_select_locations"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_select_locations">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the window for selecting the locations.&quot;&quot;&quot;</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectLocations</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">370</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-locations&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;option-change-source&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Begin.on_select_species"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_select_species">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the window for selecting the species.&quot;&quot;&quot;</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c"># This button should not be pressed now, so hide it.</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Begin.on_define_plate_areas"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_define_plate_areas">[docs]</a>    <span class="k">def</span> <span class="nf">on_define_plate_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the window for defining the plate areas.&quot;&quot;&quot;</span>
+        <span class="n">spots</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">DefinePlateAreas</span><span class="p">()</span>
+        <span class="n">spots</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Begin.on_start_analysis"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_start_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start the analysis.&quot;&quot;&quot;</span>
+
+        <span class="c"># Show a progress dialog.</span>
+        <span class="n">pd</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Performing analysis&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-running&#39;</span><span class="p">))</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="p">)</span>
+
+        <span class="c"># Perform analysis...</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">Start</span><span class="p">()</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Begin.on_display_report"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_display_report">[docs]</a>    <span class="k">def</span> <span class="nf">on_display_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Display the report in a window.</span>
+
+<span class="sd">        Design Part: 1.68</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;analysis-report&#39;</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">DisplayReport</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="Start"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start">[docs]</a><span class="k">class</span> <span class="nc">Start</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform the calculations for analysis 1 &quot;Spot Preference&quot;.</span>
+
+<span class="sd">    Design Part: 1.3.2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_species</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># Observed species totals per plate area (Design Part: 2.25)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span> <span class="o">=</span> <span class="bp">None</span> <span class="c"># Expected species totals per plate area (Design Part: 2.26)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area2chisquare</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chisquare</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="c"># Create log message.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+
+        <span class="c"># Emit the signal that an analysis has started.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-started&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+
+<div class="viewcode-block" id="Start.run"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call the necessary methods for the analysis in the right order</span>
+<span class="sd">        and do some data checks:</span>
+<span class="sd">        * self.get_areas_totals_observed</span>
+<span class="sd">        * Check if all plate areas totals are zero. If so, abort.</span>
+<span class="sd">        * self.get_areas_totals_expected</span>
+<span class="sd">        * self.chi_square_tester</span>
+<span class="sd">        * self.generate_report</span>
+
+<span class="sd">        Design Part: 1.58</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Add a short delay. This gives the progress dialog time to</span>
+        <span class="c"># display properly.</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c"># The total number of times we decide to update the progress</span>
+        <span class="c"># dialog.</span>
+        <span class="n">total_steps</span> <span class="o">=</span> <span class="mf">5.0</span>
+
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
+            <span class="s">&quot;Calculating observed species totals per plate area...&quot;</span><span class="p">)</span>
+
+        <span class="c"># Calculate the species totals.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas_totals_observed</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Observed species totals: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="p">)</span>
+
+        <span class="c"># Make sure that spot area totals are not all zero. If so, abort</span>
+        <span class="c"># the analysis, because we can&#39;t devide by zero (unless you&#39;re</span>
+        <span class="c"># Chuck Norris of course).</span>
+        <span class="n">areas_total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">area_total</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="n">areas_total</span> <span class="o">+=</span> <span class="n">area_total</span>
+
+        <span class="k">if</span> <span class="n">areas_total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">All plate areas totals are zero. Aborting.&quot;</span><span class="p">)</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-aborted&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
+            <span class="s">&quot;Calculating expected species totals per plate area...&quot;</span><span class="p">)</span>
+
+        <span class="c"># Calculate the expected totals.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas_totals_expected</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Expected species totals: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span><span class="p">)</span>
+
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
+            <span class="s">&quot;Performing Chi-square test...&quot;</span><span class="p">)</span>
+
+        <span class="c"># Perform Chi-square test.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chi_square_tester</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span><span class="p">)</span>
+
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
+            <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
+
+        <span class="c"># Generate the report.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
+
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">5</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
+            <span class="s">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="c"># Emit the signal that the analysis has finished.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-finished&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Start.get_areas_totals_observed"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.get_areas_totals_observed">[docs]</a>    <span class="k">def</span> <span class="nf">get_areas_totals_observed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the observed totals for a specie for each plate area.</span>
+
+<span class="sd">        Design Part: 1.62</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">areas_definition</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plate-areas-definition&#39;</span><span class="p">)</span>
+        <span class="n">locations_selection</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">species_selection</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># From spot name to spot surface IDs (used in the database).</span>
+        <span class="n">spotname2surid</span> <span class="o">=</span> <span class="p">{</span>  <span class="s">&#39;A&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">25</span><span class="p">),</span>
+                            <span class="s">&#39;B&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">24</span><span class="p">),</span>
+                            <span class="s">&#39;C&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">),</span>
+                            <span class="s">&#39;D&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">13</span><span class="p">)</span> <span class="p">}</span>
+
+        <span class="c"># Matrix of which surface IDs belong to which area.</span>
+        <span class="n">area2surid</span> <span class="o">=</span> <span class="p">{</span>  <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="p">[],</span>
+                        <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="p">[]</span> <span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">area</span><span class="p">,</span> <span class="n">spot_names</span> <span class="ow">in</span> <span class="n">areas_definition</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="c"># Get all spot names of an area.</span>
+            <span class="k">for</span> <span class="n">spot_name</span> <span class="ow">in</span> <span class="n">spot_names</span><span class="p">:</span>
+                <span class="c"># Get all surface IDs that belong to those spot names.</span>
+                <span class="n">items</span> <span class="o">=</span> <span class="n">spotname2surid</span><span class="p">[</span><span class="n">spot_name</span><span class="p">]</span>
+
+                <span class="c"># Combine all the surface IDs for an area.</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+                    <span class="n">area2surid</span><span class="p">[</span><span class="n">area</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">area2surid</span><span class="p">[</span><span class="n">area</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+
+        <span class="c"># Remove empty areas.</span>
+        <span class="n">remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">area</span><span class="p">,</span> <span class="n">surids</span> <span class="ow">in</span> <span class="n">area2surid</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">surids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">area</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">remove</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">area2surid</span><span class="p">[</span><span class="n">area</span><span class="p">]</span>
+
+        <span class="c"># Make an object that facilitates access to the database.</span>
+        <span class="n">accessdb</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">AccessDB</span><span class="p">()</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="n">accessdb</span><span class="o">.</span><span class="n">db</span>
+
+        <span class="c"># Get the record IDs that match the locations and species</span>
+        <span class="c"># selection.</span>
+        <span class="n">rec_ids</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_record_ids</span><span class="p">(</span><span class="n">locations_selection</span><span class="p">,</span> <span class="n">species_selection</span><span class="p">)</span>
+
+        <span class="c"># Get all 25 spot booleans from each record that matches the</span>
+        <span class="c"># list of record IDs.</span>
+        <span class="c"># TODO: Instead of loading all record spots in a variable, it&#39;s</span>
+        <span class="c"># better to save the matching records to a new table</span>
+        <span class="c"># in the local database (if data-source is SETL) and then select</span>
+        <span class="c"># one row at a time from the local database. This way we can</span>
+        <span class="c"># prevent large amounts of records from being saved in a variable.</span>
+        <span class="n">records</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_spots</span><span class="p">(</span><span class="n">rec_ids</span><span class="p">)</span>
+
+        <span class="c"># Make a log message.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Total records that match the species+locations selection: </span><span class="si">%d</span><span class="s">&quot;</span>
+            <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">))</span>
+
+        <span class="c"># Dictionary which will contain the species total for each area.</span>
+        <span class="n">areas_totals_observed</span> <span class="o">=</span> <span class="p">{</span>   <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                            <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                            <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                            <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="p">}</span>
+
+        <span class="c"># Fill the totals table.</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+            <span class="c"># Begin with spot 1 (up to 25).</span>
+            <span class="n">spot</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c"># A list of areas that should be skipped for this record.</span>
+            <span class="c">#skip_areas = []</span>
+            <span class="c"># Check for each spot in the record row if the specie is</span>
+            <span class="c"># present. &#39;present&#39; == True, if the specie is present on</span>
+            <span class="c"># that spot.</span>
+            <span class="k">for</span> <span class="n">precence</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
+                <span class="c"># In case the &#39;present&#39; boolean is False, just continue</span>
+                <span class="c"># with the next spot.</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">precence</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c"># If we pass here, the boolean is True.</span>
+                <span class="c"># Walk through each area in the area2surid dictionary.</span>
+                <span class="c"># And also get the surface IDs for that area.</span>
+                <span class="k">for</span> <span class="n">area</span><span class="p">,</span> <span class="n">surids</span> <span class="ow">in</span> <span class="n">area2surid</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+                    <span class="c"># We don&#39;t want to count the same record more than</span>
+                    <span class="c"># once for an area.</span>
+                    <span class="c">#if area in skip_areas:</span>
+                    <span class="c">#    continue</span>
+                    <span class="c"># Check if the current spot ID belongs to that</span>
+                    <span class="c"># area.</span>
+                    <span class="k">if</span> <span class="n">spot</span> <span class="ow">in</span> <span class="n">surids</span><span class="p">:</span>
+                        <span class="c"># If so, add 1 to the species total of that</span>
+                        <span class="c"># area.</span>
+                        <span class="n">areas_totals_observed</span><span class="p">[</span><span class="n">area</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="c"># Next time we find a spot for this area, skip</span>
+                        <span class="c"># it, as we don&#39;t want to count the same record</span>
+                        <span class="c"># more than once for an area.</span>
+                        <span class="c">#skip_areas.append(area)</span>
+                        <span class="c"># Once a match was found, that same spot ID</span>
+                        <span class="c"># can&#39;t belong to another area. So continue with</span>
+                        <span class="c"># the next spot for this record row.</span>
+                        <span class="k">break</span>
+                <span class="n">spot</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c"># Remove the areas that were earlier removed, as these areas</span>
+        <span class="c"># were empty, and shouldn&#39;t be included for the calculations</span>
+        <span class="c"># later on.</span>
+        <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">remove</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">areas_totals_observed</span><span class="p">[</span><span class="n">area</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">areas_totals_observed</span>
+</div>
+<div class="viewcode-block" id="Start.get_areas_totals_expected"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.get_areas_totals_expected">[docs]</a>    <span class="k">def</span> <span class="nf">get_areas_totals_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the expected totals for a specie for each plate area.</span>
+
+<span class="sd">        Design Part: 1.63</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">areas_definition</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plate-areas-definition&#39;</span><span class="p">)</span>
+
+        <span class="c"># The spot names, and how many times they occur on a plate.</span>
+        <span class="n">spot_multiplies</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;A&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+
+        <span class="c"># Calculate what each spot area should be multiplied with, as</span>
+        <span class="c"># the spot areas can be combinations of spots.</span>
+        <span class="n">multiply_rules</span> <span class="o">=</span> <span class="p">{</span> <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="p">}</span>
+        <span class="k">for</span> <span class="n">area</span><span class="p">,</span> <span class="n">spot_names</span> <span class="ow">in</span> <span class="n">areas_definition</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">spot_name</span> <span class="ow">in</span> <span class="n">spot_names</span><span class="p">:</span>
+                <span class="n">multiply_rules</span><span class="p">[</span><span class="n">area</span><span class="p">]</span> <span class="o">+=</span> <span class="n">spot_multiplies</span><span class="p">[</span><span class="n">spot_name</span><span class="p">]</span>
+
+        <span class="c"># Make log message.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Multiply rules: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">multiply_rules</span><span class="p">)</span>
+
+        <span class="c"># Calculate the sum of area totals.</span>
+        <span class="n">areas_total</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">area_total</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="n">areas_total</span> <span class="o">+=</span> <span class="n">area_total</span>
+
+        <span class="c"># Calculate the mean value for the spots.</span>
+        <span class="n">spot_mean</span> <span class="o">=</span> <span class="n">areas_total</span> <span class="o">/</span> <span class="mf">25.0</span>
+
+        <span class="c"># Calculate the expected values and put them in the expected</span>
+        <span class="c"># totals table.</span>
+        <span class="n">areas_totals_expected</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="o">.</span><span class="n">iterkeys</span><span class="p">():</span>
+            <span class="n">areas_totals_expected</span><span class="p">[</span><span class="n">area</span><span class="p">]</span> <span class="o">=</span> <span class="n">spot_mean</span> <span class="o">*</span> <span class="n">multiply_rules</span><span class="p">[</span><span class="n">area</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">areas_totals_expected</span>
+</div>
+<div class="viewcode-block" id="Start.chi_square_tester"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.chi_square_tester">[docs]</a>    <span class="k">def</span> <span class="nf">chi_square_tester</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">areas_totals_observed</span><span class="p">,</span> <span class="n">areas_totals_expected</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform the Chi-square test on the observed and expected values.</span>
+
+<span class="sd">        Design Part: 1.64</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Huh?</span>
+        <span class="n">P1</span> <span class="o">=</span> <span class="mf">11.34</span>
+        <span class="n">P25</span> <span class="o">=</span> <span class="mf">9.35</span>
+        <span class="n">P5</span> <span class="o">=</span> <span class="mf">7.81</span>
+        <span class="n">DoF</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="c"># Calculate Chi-square value for each spot area.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area2chisquare</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">area</span><span class="p">,</span> <span class="n">observed</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span><span class="p">[</span><span class="n">area</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">area2chisquare</span><span class="p">[</span><span class="n">area</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span> <span class="n">math</span><span class="o">.</span><span class="n">pow</span><span class="p">((</span><span class="n">observed</span><span class="o">-</span><span class="n">expected</span><span class="p">),</span><span class="mi">2</span><span class="p">)</span> <span class="p">)</span> <span class="o">/</span> <span class="n">expected</span>
+
+        <span class="c"># Make log message.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Chi-square per spot area: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">area2chisquare</span><span class="p">)</span>
+
+        <span class="c"># Calculate Chi-square.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chisquare</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">area_chi</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">area2chisquare</span><span class="o">.</span><span class="n">itervalues</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chisquare</span> <span class="o">+=</span> <span class="n">area_chi</span>
+
+        <span class="c"># Make log message.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Chi-square: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">chisquare</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Start.generate_report"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.generate_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate the analysis report and display the report in a dialog.</span>
+
+<span class="sd">        Design Part: 1.13</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ReportGenerator</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_analysis</span><span class="p">(</span><span class="s">&#39;spot_preference&#39;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_location_selections</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_specie_selections</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_plate_areas_definition</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_area_totals_observed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_area_totals_expected</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span><span class="p">)</span>
+
+        <span class="c"># Create global a link to the report.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;analysis-report&#39;</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">get_report</span><span class="p">())</span>
+</pre></div></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/setl-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>

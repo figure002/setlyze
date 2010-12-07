@@ -56,7 +56,7 @@ class Begin(object):
         self.previous_window = None
 
         # Create log message.
-        logging.info("Beginning %s" % setlyze.locale.text('analysis2.2'))
+        logging.info("Beginning Analysis 2.2 \"Attraction of species (inter-specific)\"")
 
         # Bind handles to application signals.
         self.handle_application_signals()
@@ -71,9 +71,6 @@ class Begin(object):
         # Emit the signal that an analysis has started.
         #setlyze.std.sender.set_property('save_slot', 0)
         setlyze.std.sender.emit('beginning-analysis')
-
-    def __del__(self):
-        logging.info("Leaving %s" % setlyze.locale.text('analysis2.2'))
 
     def handle_application_signals(self):
         """Respond to signals emitted by the application."""
@@ -124,8 +121,7 @@ class Begin(object):
         self.destroy_handler_connections()
 
     def destroy_handler_connections(self):
-        """
-        Disconnect all signal connections with signal handlers created
+        """Disconnect all signal connections with signal handlers created
         by this analysis.
         """
         setlyze.std.sender.disconnect(self.handler1)
@@ -138,65 +134,49 @@ class Begin(object):
         setlyze.std.sender.disconnect(self.handler8)
 
     def on_locations_saved(self, sender, save_slot=0, data=None):
-        if save_slot == 0:
-            self.on_select_species()
-            return
-        elif save_slot == 1:
-            self.on_select_species()
-            return
+        # Make sure the second slot for the locations selection is the
+        # same as the first slot, as the same selections should be used
+        # for both species selections.
+        selection = setlyze.config.cfg.get('locations-selection', slot=0)
+        setlyze.config.cfg.set('locations-selection', selection, slot=1)
+
+        # Show species selection dialog.
+        self.on_select_species()
 
     def on_species_saved(self, sender, save_slot=0, data=None):
         if save_slot == 0:
             sender.set_property('save-slot', 1)
-            self.on_select_locations()
+            self.on_select_species()
             return
         elif save_slot == 1:
             self.on_start_analysis()
             return
 
     def on_locations_back(self, sender, save_slot=0, data=None):
-        if save_slot == 0:
-            self.on_analysis_closed()
-            return
-        elif save_slot == 1:
-            sender.set_property('save-slot', 0)
-            self.on_select_species()
-            return
+        self.on_analysis_closed()
 
     def on_species_back(self, sender, save_slot=0, data=None):
         if save_slot == 0:
             self.on_select_locations()
             return
         elif save_slot == 1:
-            self.on_select_locations()
+            sender.set_property('save-slot', 0)
+            self.on_select_species()
             return
 
     def on_select_locations(self, sender=None, data=None):
         """Display the window for selecting the locations."""
 
-        # Find out to which selection slot this locations selection
-        # should be saved.
-        save_slot = setlyze.std.sender.get_property('save-slot')
-
         # Display the species selection window.
-        select = setlyze.gui.SelectLocations(width=370, slot=save_slot)
+        select = setlyze.gui.SelectLocations(width=370, slot=0)
         select.set_title(setlyze.locale.text('analysis2.2'))
 
         # Change the header text.
-        if save_slot == 0:
-            select.set_header("First Locations Selection")
-            select.set_description(setlyze.locale.text('select-locations') + "\n" +
-                setlyze.locale.text('option-change-source') + "\n\n" +
-                setlyze.locale.text('selection-tips')
-                )
-        elif save_slot == 1:
-            select.set_header("Second Locations Selection")
-            select.set_description( setlyze.locale.text('select-locations') + "\n\n" +
-                setlyze.locale.text('selection-tips')
-                )
-
-            # This button should not be pressed now, so hide it.
-            select.button_chg_source.hide()
+        select.set_header("Locations Selection")
+        select.set_description(setlyze.locale.text('select-locations') + "\n" +
+            setlyze.locale.text('option-change-source') + "\n\n" +
+            setlyze.locale.text('selection-tips')
+            )
 
     def on_select_species(self, sender=None, data=None):
         """Display the window for selecting the species."""
@@ -234,8 +214,7 @@ class Begin(object):
         t.start()
 
     def on_display_report(self, sender):
-        """
-        Display the report in a window.
+        """Display the report in a window.
 
         Design Part: 1.68
         """
@@ -243,8 +222,7 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """
-    Perform all the calculations for analysis 2.2.
+    """Perform all the calculations for analysis 2.2.
 
     Design Part: 1.5.2
     """
@@ -252,7 +230,13 @@ class Start(threading.Thread):
     def __init__(self):
         super(Start, self).__init__()
 
+        # Path to the local database file.
         self.dbfile = setlyze.config.cfg.get('db-file')
+        # Dictionary for the statistic test results.
+        self.statistics = {'normality':[], # Design Part: 2.36
+            'wilcoxon':[], # Design Part: 2.37
+            'chi_squared':[],
+            }
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis2.2'))
@@ -263,9 +247,32 @@ class Start(threading.Thread):
     def __del__(self):
         logging.info("%s was completed!" % setlyze.locale.text('analysis2.2'))
 
-    def run(self):
+    def generate_spot_ratio_groups(self):
+        """Return an iterator that returns the ratio groups.
+
+        Each returned group is a list of ratios in the form of two-item
+        tuples.
         """
-        Call the necessary methods for the analysis in the right order:
+        for end in range(6, 31, 5):
+            group = setlyze.std.combinations_with_replacement(xrange(1,end), 2)
+            group = list(group)
+
+            if end > 6:
+                # Remove the ratios present in the previous group from
+                # the current group.
+                remove = setlyze.std.combinations_with_replacement(xrange(1,end-5), 2)
+                setlyze.std.remove_items_from_list(group,remove)
+            if end == 26:
+                # Plates with a 25:25 ratio will never be significant.
+                # So we remove this ratio, as it is useless.
+                group.remove((25,25))
+
+            yield group
+
+        yield list(setlyze.std.combinations_with_replacement(xrange(1,26), 2))
+
+    def run(self):
+        """Call the necessary methods for the analysis in the right order:
             * For the first species selection:
                 * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
                   :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
@@ -280,6 +287,7 @@ class Start(threading.Thread):
                 * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
             * :meth:`calculate_distances_inter`
             * :meth:`calculate_distances_inter_expected`
+            * :meth:`calculate_significance`
             * :meth:`generate_report`
 
         Design Part: 1.60
@@ -291,10 +299,10 @@ class Start(threading.Thread):
 
         # The total number of times we update the progress dialog during
         # the analysis.
-        self.total_steps = 11.0
+        self.total_steps = 12.0
 
         # Make an object that facilitates access to the database.
-        db = setlyze.database.get_database_accessor()
+        self.db = setlyze.database.get_database_accessor()
 
         # SELECTION 1
 
@@ -303,21 +311,21 @@ class Start(threading.Thread):
         # Get the record IDs that match the selections.
         locations_selection1 = setlyze.config.cfg.get('locations-selection', slot=0)
         species_selection1 = setlyze.config.cfg.get('species-selection', slot=0)
-        rec_ids1 = db.get_record_ids(locations_selection1, species_selection1)
+        rec_ids1 = self.db.get_record_ids(locations_selection1, species_selection1)
         # Update progress dialog.
         logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
 
         # Create log message.
         logging.info("\t\tCreating first table with species spots...")
         # Make a spots table for both species selections.
-        db.set_species_spots(rec_ids1, slot=0)
+        self.db.set_species_spots(rec_ids1, slot=0)
 
         # Update progress dialog.
         setlyze.std.update_progress_dialog(2/self.total_steps, "Making plate IDs in species spots table unique...")
         # Create log message.
         logging.info("\t\tMaking plate IDs in species spots table unique...")
         # Make the plate IDs unique.
-        n_plates_unique = db.make_plates_unique(slot=0)
+        n_plates_unique = self.db.make_plates_unique(slot=0)
         # Create log message.
         logging.info("\t\t  %d records remaining." % (n_plates_unique))
 
@@ -328,21 +336,21 @@ class Start(threading.Thread):
         # Get the record IDs that match the selections.
         locations_selection2 = setlyze.config.cfg.get('locations-selection', slot=1)
         species_selection2 = setlyze.config.cfg.get('species-selection', slot=1)
-        rec_ids2 = db.get_record_ids(locations_selection2, species_selection2)
+        rec_ids2 = self.db.get_record_ids(locations_selection2, species_selection2)
         # Create log message.
         logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
 
         # Create log message.
         logging.info("\t\tCreating second table with species spots...")
         # Make a spots table for both species selections.
-        db.set_species_spots(rec_ids2, slot=1)
+        self.db.set_species_spots(rec_ids2, slot=1)
 
         # Update progress dialog.
         setlyze.std.update_progress_dialog(4/self.total_steps, "Making plate IDs in species spots table unique...")
         # Create log message.
         logging.info("\t\tMaking plate IDs in species spots table unique...")
         # Make the plate IDs unique.
-        n_plates_unique = db.make_plates_unique(slot=1)
+        n_plates_unique = self.db.make_plates_unique(slot=1)
         # Create log message.
         logging.info("\t\t  %d records remaining." % (n_plates_unique))
 
@@ -353,7 +361,7 @@ class Start(threading.Thread):
         # Update progress dialog.
         setlyze.std.update_progress_dialog(5/self.total_steps, "Saving the positive spot totals for each plate...")
         # Save the positive spot totals for each plate to the database.
-        db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
+        self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
 
         # Update progress dialog.
         setlyze.std.update_progress_dialog(6/self.total_steps, "Calculating the inter-specific distances for the selected species...")
@@ -370,14 +378,21 @@ class Start(threading.Thread):
         self.calculate_distances_inter_expected()
 
         # Create log message.
+        logging.info("\tPerforming statistical tests...")
+        # Update progress dialog.
+        setlyze.std.update_progress_dialog(8/self.total_steps, "Performing statistical tests...")
+        # Performing the statistical tests.
+        self.calculate_significance()
+
+        # Create log message.
         logging.info("\tGenerating the analysis report...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(8/self.total_steps, "Generating the analysis report...")
+        setlyze.std.update_progress_dialog(9/self.total_steps, "Generating the analysis report...")
         # Generate the report.
         self.generate_report()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(11/self.total_steps, "")
+        setlyze.std.update_progress_dialog(12/self.total_steps, "")
 
         # Emit the signal that the analysis has finished.
         # Note that the signal will be sent from a separate thread,
@@ -385,8 +400,7 @@ class Start(threading.Thread):
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
     def calculate_distances_inter(self):
-        """
-        Calculate the inter-specific distances for each plate (present
+        """Calculate the inter-specific distances for each plate (present
         in two tables) and save the distances to
         local_database.spot_distances_observed.
 
@@ -414,6 +428,7 @@ class Start(threading.Thread):
         for record in cursor:
             record1 = record[2:27]
             record2 = record[29:54]
+            plate_id = record[1]
 
             # Get all possible positive spot combinations between the
             # two records.
@@ -443,7 +458,7 @@ class Start(threading.Thread):
                 # Save the observed spot distances to the database.
                 cursor2.execute( "INSERT INTO spot_distances_observed "
                                  "VALUES (null,?,?)",
-                                 (record[0], distance)
+                                 (plate_id, distance)
                                 )
 
         # Commit the transaction.
@@ -455,8 +470,7 @@ class Start(threading.Thread):
         connection.close()
 
     def calculate_distances_inter_expected(self):
-        """
-        Calculate the expected distances based on the observed
+        """Calculate the expected distances based on the observed
         inter-specific distances (2.12) and save these to a table in the
         local database (2.13).
 
@@ -522,9 +536,158 @@ class Start(threading.Thread):
         cursor2.close()
         connection.close()
 
-    def generate_report(self):
+    def calculate_significance(self):
+        """Perform statistical tests to check if the differences between
+        the means of the two sets of distances are statistically
+        significant.
+
+        We perform an unpaired Wilcoxon signed-rank test. We use unpaired
+        because the two sets of distances are unrelated. In other words,
+        a distance n in 'observed' is unrelated to distance n in
+        'expected' (where n is an item number in the lists).
+
+        Null hypothesis:
+            The means of the two sets of distances are
+            equal. The specie in question doesn't attract or repel itself.
+        Alternative hypothesis:
+            The means of the two sets of distances
+            are not equal. The specie in question attracts (mean
+            observed < mean expected) or repels (mean observed >
+            mean expected) itself.
+
+        The decision is based on the P-value calculated by the test:
+        P >= alpha level: Null hypothesis.
+        P < alpha level: Alternative hypothesis.
+
+        The default value for the alpha level is 0.05 (5%).
+        The default value for the confidence level is 0.95 (95%).
+
+        A high number of positive spots on a plate will of course lead
+        to a high P-value. These plates will negatively affect the
+        result of statistical test. To account for this, the tests
+        are performed multiple times. Instead of doing one test on all
+        plates, we group the plates based on the number of positive spots
+        they contain. This results in 24 groups (2 to 25 spots). And we
+        perform the test on each of these groups.
+
+        References:
+        1. N. Millar, Biology statistics made simple using Excel, School Science Review, December 2001, 83(303).
+        2. P. Dalgaard, Introductory Statistics with R, DOI: 10.1007 / 978-0-387-79054-1_1.
+
+        Design Part: 1.24
         """
-        Generate the analysis report and display the report in a dialog.
+
+        # Make a connection with the local database.
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+        cursor2 = connection.cursor()
+
+        # Create an iterator returning the ratio groups.
+        ratio_groups = self.generate_spot_ratio_groups()
+
+        for n_group, ratio_group in enumerate(ratio_groups, start=1):
+            # Ratios group 6 is actually all 5 groups taken together.
+            # So change the group number to -5, meaning all groups up
+            # to 5.
+            if n_group == 6:
+                n_group = -5
+
+            # Get both sets of distances from plates per total spot numbers.
+            plates_o = self.db.get_distances_matching_ratios(cursor,
+                'spot_distances_observed', ratio_group)
+            plates_e = self.db.get_distances_matching_ratios(cursor2,
+                'spot_distances_expected', ratio_group)
+
+            # Get the plate totals.
+            n_plates = len(plates_o)
+
+            # Create lists for the distances so we can use it for the R
+            # functions.
+            observed = [x[0] for x in cursor]
+            expected = [x[0] for x in cursor2]
+
+            # Perform a consistency test. The number of observed and
+            # expected distances must always be the same.
+            count_observed = len(observed)
+            count_expected = len(expected)
+            if count_observed != count_expected:
+                raise ValueError("Number of observed and expected distances are not equal.")
+
+            # A minimum of 2 observed distances is required for the
+            # significance test. So skip this ratio group if it's less.
+            if count_observed < 2:
+                continue
+
+            # Calculate the means.
+            mean_observed = setlyze.std.mean(observed)
+            mean_expected = setlyze.std.mean(expected)
+
+            # Perform two sample Wilcoxon tests.
+            sig_result = setlyze.std.wilcox_test(observed, expected,
+                alternative = "two.sided", paired = False,
+                conf_level = setlyze.config.cfg.get('significance-confidence'),
+                conf_int = True)
+
+            # Save the significance result.
+            data = {}
+            data['attr'] = {
+                'ratio_group': n_group,
+                'n_plates': n_plates,
+                'n': count_observed,
+                'method': sig_result['method'],
+                'alternative': sig_result['alternative'],
+                'conf_level': setlyze.config.cfg.get('significance-confidence'),
+                'paired': False,
+                }
+            data['results'] = {
+                'p_value': sig_result['p.value'],
+                'mean_observed': mean_observed,
+                'mean_expected': mean_expected,
+                'conf_int_start': sig_result['conf.int'][0],
+                'conf_int_end': sig_result['conf.int'][1],
+                }
+
+            # Append the result to the list of results.
+            self.statistics['wilcoxon'].append(data)
+
+            # Get the probability for each spot distance. Required for
+            # the Chi-squared test.
+            spot_dist_to_prob = setlyze.config.cfg.get('spot-dist-to-prob-inter')
+
+            # Get the frequencies for the observed distances. These
+            # are required for the Chi-squared test.
+            observed_freq = setlyze.std.distance_frequency(observed, 'inter')
+
+            # Also perform Chi-squared test.
+            sig_result = setlyze.std.chisq_test(observed_freq.values(),
+                p = spot_dist_to_prob.values())
+
+            # Save the significance result.
+            data = {}
+            data['attr'] = {
+                'ratio_group': n_group,
+                'n_plates': n_plates,
+                'n': count_observed,
+                'method': sig_result['method'],
+                }
+            data['results'] = {
+                'chi_squared': sig_result['statistic']['X-squared'],
+                'p_value': sig_result['p.value'],
+                'df': sig_result['parameter']['df'],
+                'mean_observed': mean_observed,
+                'mean_expected': mean_expected,
+                }
+
+            # Append the result to the list of results.
+            self.statistics['chi_squared'].append(data)
+
+        # Close connection with the local database.
+        cursor.close()
+        cursor2.close()
+        connection.close()
+
+    def generate_report(self):
+        """Generate the analysis report and display the report in a dialog.
 
         Design Part: 1.15
         """
@@ -534,14 +697,17 @@ class Start(threading.Thread):
         report.set_specie_selections()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(9/self.total_steps, "Generating the analysis report...")
+        setlyze.std.update_progress_dialog(10/self.total_steps, "Generating the analysis report...")
 
         report.set_spot_distances_observed()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(10/self.total_steps, "Generating the analysis report...")
+        setlyze.std.update_progress_dialog(11/self.total_steps, "Generating the analysis report...")
 
         report.set_spot_distances_expected()
+
+        report.set_statistics('wilcoxon_ratios', self.statistics['wilcoxon'])
+        report.set_statistics('chi_squared_ratios', self.statistics['chi_squared'])
 
         # Create a global link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())

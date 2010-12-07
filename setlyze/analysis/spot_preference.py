@@ -24,6 +24,7 @@ import threading
 import time
 from sqlite3 import dbapi2 as sqlite
 
+import gobject
 import pygtk
 pygtk.require('2.0')
 import gtk
@@ -54,7 +55,7 @@ class Begin(object):
 
     def __init__(self):
         # Create log message.
-        logging.info("Beginning %s" % setlyze.locale.text('analysis1'))
+        logging.info("Beginning Analysis 1 \"Spot preference\"")
 
         # Bind handles to application signals.
         self.handle_application_signals()
@@ -66,9 +67,6 @@ class Begin(object):
 
         # Emit the signal that we are beginning with an analysis.
         setlyze.std.sender.emit('beginning-analysis')
-
-    def __del__(self):
-        logging.info("Leaving %s" % setlyze.locale.text('analysis1'))
 
     def handle_application_signals(self):
         """Respond to signals emitted by the application."""
@@ -118,27 +116,9 @@ class Begin(object):
         self.handler11 = setlyze.std.sender.connect('analysis-aborted',
             self.on_analysis_aborted)
 
-        # Display the report after the progress dialog for the analysis
-        # was closed. Warning: A progress dialog will also close when
-        # the user decided to switch to a new data source in the
-        # locations selection window, so block this handler until the
-        # analysis has started.
-        self.handler12 = setlyze.std.sender.connect('progress-dialog-closed',
+        # Display the report after the analysis has finished.
+        self.handler12 = setlyze.std.sender.connect('analysis-finished',
             self.on_display_report)
-        # Block handler 12.
-        setlyze.std.sender.handler_block(self.handler12)
-
-        # Things to do when the analysis has started.
-        self.handler13 = setlyze.std.sender.connect('analysis-started',
-            self.on_analysis_started)
-
-    def on_analysis_started(self, sender):
-        """Handle events that need to happen when the analysis has
-        started.
-        """
-
-        # Unblock handler 12.
-        sender.handler_unblock(self.handler12)
 
     def destroy_handler_connections(self):
         """Disconnect all signal connections with signal handlers
@@ -156,7 +136,6 @@ class Begin(object):
         setlyze.std.sender.disconnect(self.handler10)
         setlyze.std.sender.disconnect(self.handler11)
         setlyze.std.sender.disconnect(self.handler12)
-        setlyze.std.sender.disconnect(self.handler13)
 
     def on_analysis_aborted(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy_silent()
@@ -243,8 +222,8 @@ class Start(threading.Thread):
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.total_species = None
         self.mean = None
-        self.areas_totals_observed = None # Observed species totals per plate area (Design Part: 2.25)
-        self.areas_totals_expected = None # Expected species totals per plate area (Design Part: 2.26)
+        self.areas_totals_observed = None # Design Part: 2.25
+        self.areas_totals_expected = None # Design Part: 2.26
         self.area2chisquare = None
         self.chisquare = None
 
@@ -319,11 +298,12 @@ class Start(threading.Thread):
             "")
 
         # Emit the signal that the analysis has finished.
-        setlyze.std.sender.emit('analysis-finished')
+        # Note that the signal will be sent from a separate thread,
+        # so we must use gobject.idle_add.
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
     def get_areas_totals_observed(self):
-        """
-        Return the observed totals for a specie for each plate area.
+        """Return the observed totals for a specie for each plate area.
 
         Design Part: 1.62
         """
@@ -437,8 +417,7 @@ class Start(threading.Thread):
         return areas_totals_observed
 
     def get_areas_totals_expected(self):
-        """
-        Return the expected totals for a specie for each plate area.
+        """Return the expected totals for a specie for each plate area.
 
         Design Part: 1.63
         """
@@ -474,8 +453,7 @@ class Start(threading.Thread):
         return areas_totals_expected
 
     def chi_square_tester(self, areas_totals_observed, areas_totals_expected):
-        """
-        Perform the Chi-square test on the observed and expected values.
+        """Perform the Chi-square test on the observed and expected values.
 
         Design Part: 1.64
         """
@@ -504,8 +482,7 @@ class Start(threading.Thread):
         logging.info("\tChi-square: %s" % self.chisquare)
 
     def generate_report(self):
-        """
-        Generate the analysis report and display the report in a dialog.
+        """Generate the analysis report and display the report in a dialog.
 
         Design Part: 1.13
         """

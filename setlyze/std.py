@@ -46,25 +46,92 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/10/01 13:42:16"
 
-def distance_frequency(x):
-    frequencies = {1: 0,
-        1.41: 0,
-        2: 0,
-        2.24: 0,
-        2.83: 0,
-        3: 0,
-        3.16: 0,
-        3.61: 0,
-        4: 0,
-        4.12: 0,
-        4.24: 0,
-        4.47: 0,
-        5: 0,
-        5.66: 0,}
+def remove_items_from_list(a,b):
+    """Remove the items in list `b` from list `a`."""
+    for x in b:
+        try:
+            a.remove(x)
+        except:
+            pass
+
+def combinations_with_replacement(iterable, r):
+    """Return r length subsequences of elements from the input iterable
+    allowing individual elements to be repeated more than once.
+
+    Combinations are emitted in lexicographic sort order. So, if the
+    input iterable is sorted, the combination tuples will be produced
+    in sorted order.
+
+    Elements are treated as unique based on their position, not on their
+    value. So if the input elements are unique, the generated
+    combinations will also be unique.
+
+    This function was taken from the Python documentation for
+    :mod:`itertools`.
+
+    A simple example: ::
+
+        >>> i = setlyze.std.combinations_with_replacement('ABCD', 2)
+        >>> [x for x in i]
+        [('A', 'A'), ('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'B'), ('B', 'C'), ('B', 'D'), ('C', 'C'), ('C', 'D'), ('D', 'D')]
+    """
+    pool = tuple(iterable)
+    n = len(pool)
+    if not n and r:
+        return
+    indices = [0] * r
+    yield tuple(pool[i] for i in indices)
+    while True:
+        for i in reversed(range(r)):
+            if indices[i] != n - 1:
+                break
+        else:
+            return
+        indices[i:] = [indices[i] + 1] * (r - i)
+        yield tuple(pool[i] for i in indices)
+
+def distance_frequency(x, method):
+    if method == 'intra':
+        frequencies = {
+            1: 0,
+            1.41: 0,
+            2: 0,
+            2.24: 0,
+            2.83: 0,
+            3: 0,
+            3.16: 0,
+            3.61: 0,
+            4: 0,
+            4.12: 0,
+            4.24: 0,
+            4.47: 0,
+            5: 0,
+            5.66: 0
+            }
+    elif method == 'inter':
+        frequencies = {
+            0: 0,
+            1: 0,
+            1.41: 0,
+            2: 0,
+            2.24: 0,
+            2.83: 0,
+            3: 0,
+            3.16: 0,
+            3.61: 0,
+            4: 0,
+            4.12: 0,
+            4.24: 0,
+            4.47: 0,
+            5: 0,
+            5.66: 0
+            }
+    else:
+        raise ValueError("Unknown method '%s'." % method)
 
     for dist in x:
         if dist not in frequencies:
-            raise ValueError("'x' contains unknown spot distance '%s' % dist")
+            raise ValueError("Unknown spot distance '%s'" % dist)
         else:
             frequencies[dist] += 1
     return frequencies

@@ -1054,6 +1054,7 @@ class AccessDBGeneric(object):
             for record in cursor:
                 record1 = record[2:27]
                 record2 = record[29:54]
+                plate_id = record[1]
 
                 # Get the positive spots for both records.
                 spots1 = setlyze.std.get_spots_from_record(record1)
@@ -1075,7 +1076,7 @@ class AccessDBGeneric(object):
                 # plate_spot_totals table.
                 cursor2.execute( "INSERT INTO plate_spot_totals "
                                  "VALUES (?,?,?)",
-                                 (record[1], spots1, spots2)
+                                 (plate_id, spots1, spots2)
                                 )
         else:
             # One spots table is provided.
@@ -1091,6 +1092,8 @@ class AccessDBGeneric(object):
                             )
 
             for record in cursor:
+                plate_id = record[1]
+
                 # Get the positive spots for this plate.
                 spots = setlyze.std.get_spots_from_record(record[2:])
 
@@ -1108,7 +1111,7 @@ class AccessDBGeneric(object):
                 # plate_spot_totals table.
                 cursor2.execute( "INSERT INTO plate_spot_totals "
                                  "VALUES (?,?,null)",
-                                 (record[1], spots)
+                                 (plate_id, spots)
                                 )
 
         # Commit the transaction.
@@ -1166,6 +1169,61 @@ class AccessDBGeneric(object):
                             "WHERE rec_pla_id IN (%s)" %
                             (distance_table, plate_ids)
                             )
+
+    def get_distances_matching_ratios(self, cursor, distance_table, ratios):
+        """Get the spot distances from distance table `distance_table` where
+        positive spots numbers between species A and B have ratio
+        matching the list of ratios `ratios`.
+
+        The ratio A:B is considered the same as B:A.
+
+        `cursor` must be a SQLite cursor object.
+        """
+        plate_ids = []
+
+        for ratio in ratios:
+            # Get the plate IDs that match the ratio A:B.
+            cursor.execute( "SELECT pla_id "
+                            "FROM plate_spot_totals "
+                            "WHERE n_spots_a = %d "
+                            "AND n_spots_b = %d" %
+                            (ratio[0], ratio[1])
+                            )
+
+            # Add the plate IDs to the list of plate IDs.
+            ids = [x[0] for x in cursor.fetchall()]
+            plate_ids.extend(ids)
+
+            # We need the complement ratio B:A as well, so we get the
+            # plate IDs for the complement as well.
+
+            # No need to get the complement ratio if it's the same.
+            if ratio[0] == ratio[1]:
+                continue
+
+            # Get the plate IDs that match the complement ratio B:A.
+            cursor.execute( "SELECT pla_id "
+                            "FROM plate_spot_totals "
+                            "WHERE n_spots_a = %d "
+                            "AND n_spots_b = %d" %
+                            (ratio[1], ratio[0])
+                            )
+
+            # Add the plate IDs to the list of plate IDs.
+            ids = [x[0] for x in cursor.fetchall()]
+            plate_ids.extend(ids)
+
+        # Turn the list of plate IDs into a string.
+        plate_ids_str = ",".join([str(x) for x in plate_ids])
+
+        # Get the distances that match the plate IDs.
+        cursor.execute( "SELECT distance "
+                        "FROM %s "
+                        "WHERE rec_pla_id IN (%s)" %
+                        (distance_table, plate_ids_str)
+                        )
+
+        return plate_ids
 
 class AccessLocalDB(AccessDBGeneric):
     """Provide standard methods for accessing data in the local

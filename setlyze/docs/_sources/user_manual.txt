@@ -1,0 +1,183 @@
+=========================================
+SETLyze User Manual
+=========================================
+
+Welcome to the user manual for SETLyze. This manual is intended for the
+end user and explains how to use SETLyze. SETLyze comes with a graphical
+user interface (GUI). The GUI consists of dialogs which all have a
+specific task. These dialogs will guide you in performing an analysis
+on SETL data.
+
+When you start SETLyze, you are first presented with the
+:ref:`analysis selection dialog <dialog-analysis-selection>`. This
+dialog lists all possible analysis. Clicking on one of the analysis
+names shows a brief description of the selected analysis. You can then
+start the analysis by clicking on the OK button.
+
+Definition list
+###############
+
+Spot
+	To analyze SETL plates, pictures of the plates are being taken. The
+	pictures are then analyzed on the computer by applying a 5x5 grid to
+	the picture. This divides the SETL plate into 25 surface areas. Each
+	of the 25 surface areas are called `spots`. Species are scored for
+	each of the 25 spots on a SETL plate, and the data is stored in the
+	SETL database in the form of records. So each records contains
+	data for each spot on a SETL plate.
+
+Positive spot
+	Each record in the SETL database contains data for each of the 25
+	spots on a SETL plate. The spots are stored as booleans, meaning
+	they can have two values; 1 (True) means that the specie was present
+	on that spot, 0 (False) means that the species was not present on
+	that spot. A spot is `positive` is the value is 1 or True. Each
+	record can thus have up to 25 positive spots.
+
+SETLyze dialogs
+###############
+
+SETLyze comes with a graphical user interface consisting of separate
+dialogs. The key dialogs are described in this section.
+
+.. _dialog-analysis-selection:
+
+Analysis Selection dialog
+=========================
+
+The analysis selection dialog presents the user with a list of all
+analysis that can be performed on SETL data. The user can select one of
+the analysis in the list and click on the OK button to start with the
+analysis. Clicking the Quit button will close the application.
+
+This dialog also shows an About button. Clicking this button shows
+an About dialog as in most software applications. The About dialog
+shows basic information about SETLyze; the version number, the year it
+was licensed and by who, a link to the GiMaRIS website, the license
+statement, the application developers, and contact information.
+
+.. _dialog-loc-selection:
+
+Locations Selection dialog
+==========================
+
+The locations selection dialog shows a list of all SETL localities. This
+dialog allows you to select locations from which you want to select
+species. The species selection dialog which will be displayed after
+clicking the Continue button, will only display the species that are
+recorded in the selected locations. Subsequently this means that only
+the SETL records that match both the locations and species selection
+will be used for the analysis.
+
+The `Change Data Source` button opens the
+:ref:`Change Data Source dialog <dialog-change-data-source>`. This button
+is only visible upon the first locations selection. After loading new
+SETL data using the Change Data Source dialog, the Locations Selection
+dialog is automatically updated with the new data.
+
+Making a selection
+------------------
+Just click on one of the locations to select it. To select multiple
+locations, hold Ctrl or Shift. To select all locations, click on a
+location and press Ctrl+A.
+
+.. _dialog-spe-selection:
+
+Species Selection dialog
+========================
+The species selection dialog shows a list of all SETL species that were
+found in the selected SETL localities. This dialog allows you to select
+the species to be included in the analysis. Only the SETL records that
+match both the the locations and species selection will be used for the
+analysis.
+
+It is possible to select more than one specie (see below). Selecting
+more than one specie means the selected species are threated as one
+specie for the analysis. However, if the selected analysis requires two
+or more separate specie(s) selections (i.e. two species are compared),
+it will display the selection dialog multiple times. In this case, the
+header of the selection dialog will say "First Selection","Second
+Selection", etc.
+
+Making a selection
+------------------
+Just click on one of the species to select it. To select multiple
+species, hold Ctrl or Shift. To select all species, click on a specie
+and press Ctrl+A.
+
+.. _dialog-analysis-report:
+
+Analysis Report dialog
+======================
+
+The analysis report dialog shows the results for the anaylysis. The
+report is divided into sub elements. Each analysis element is described
+below.
+
+Locations and Species Selections
+--------------------------------
+Displays the locations and species selections. If multiple selections
+were made, each element is suffixed by a number. For example "Species
+selection (2)" stands for the second species selection.
+
+Spot Distances
+--------------
+Displays the observed and expected spot distances.
+
+Results for Wilcoxon signed-rank test
+-------------------------------------
+Shows the results for the Wilcoxon signed-rank test. First the records
+are grouped by positive spots number. This results in a maximum of 25
+groups. Group 1 contains records with just 1 positive spot, group 2
+contains records with 2 positive spots, et cetera. However, group 1 and
+25 are excluded from the tests. Group 1 is excluded because it is not
+possible to calculate spot distances for records with just one positive
+spot. Group 25 is excluded because a test on these records will always
+result in a p-value of 1. This is because the observed spot distances
+will always be the same as the expected distances. The test is also
+performed on a group with positive spots number -24. This actually means
+'up to that number of positive spots'. So this test is also performed on
+records wit up to 24 positive spots. Note that records with 1 positive
+spot will still be excluded.
+
+So the test is performed 24 times, and each test result is presented on
+a different row. Each row contains the result of the test for a group.
+Each result consists of the following elements:
+
+Positive Spots
+    A number representing the number of positive spots. For this test
+    only records matching that number of positive spots were used.
+
+n (plates)
+    The number of plates that match the number of positive spots.
+
+n (distances)
+    The number of spot distances derived from the records matching the
+    positive spots number.
+
+P-value
+    The P-value for the test.
+
+Mean Observed
+    The mean of the observed spot distances.
+
+Mean Expected
+    The mean of the expected spot distances.
+
+Conf. interval start
+    The start of the confidence interval for the test.
+
+Conf. interval end
+    The end of the confidence interval for the test.
+
+Remarks
+    A summary of the results. Shows whether the p-value is significant,
+    and if so, how significant and decides based on the means if the
+    species attract or repel.
+    Attraction: observed mean < expected mean.
+    Repulsion: observed mean > expected mean.
+
+Results for Pearson's Chi-squared Test for Count Data
+-----------------------------------------------------
+
+TODO

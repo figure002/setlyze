@@ -181,20 +181,9 @@ class SelectAnalysis(object):
         button_about.set_size_request(70, -1)
         button_about.connect("clicked", self.on_about)
 
-        icon_path = pkg_resources.resource_filename(__name__,
-            'setlyze/images/help-icon.png')
-        help_icon = gtk.Image()
-        help_icon.set_from_file(icon_path)
-
-        # Continue button.
-        button_info = gtk.ToolButton(icon_widget=help_icon)
-        #button_info.set_stock_id(gtk.STOCK_HELP)
-        button_info.connect("clicked", self.on_info)
-
         # Put the buttons in a horizontal box.
         button_box_l = gtk.HBox(homogeneous=False, spacing=5)
         button_box_l.add(button_about)
-        button_box_l.add(button_info)
 
         # Align the about button to the left.
         button_box_l_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
@@ -248,7 +237,8 @@ class SelectAnalysis(object):
             self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
 
     def on_info(self, button):
-        pass
+        h = setlyze.gui.Help()
+        h.set_text("Hello World!")
 
     def destroy_handler_connections(self):
         """
@@ -324,8 +314,8 @@ class SelectAnalysis(object):
             "You should have received a copy of the GNU General Public License\n"
             "along with this program.  If not, see http://www.gnu.org/licenses/")
 
-        logo_path = pkg_resources.resource_filename(__name__,
-            'setlyze/images/setl-logo.png')
+        logo_path = pkg_resources.resource_filename('setlyze',
+            '/images/setl-logo.png')
         logo = gtk.gdk.pixbuf_new_from_file(logo_path)
 
         about = gtk.AboutDialog()

@@ -1,0 +1,299 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>SETLyze User Manual &mdash; SETLyze v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v1.0 documentation" href="index.html" />
+    <link rel="next" title="SETLyze Developer Guide" href="developer_guide.html" />
+    <link rel="prev" title="Welcome to SETLyze’s documentation!" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="developer_guide.html" title="SETLyze Developer Guide"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SETLyze’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setlyze-user-manual">
+<h1>SETLyze User Manual<a class="headerlink" href="#setlyze-user-manual" title="Permalink to this headline">¶</a></h1>
+<p>Welcome to the user manual for SETLyze. This manual is intended for the
+end user and explains how to use SETLyze. SETLyze comes with a graphical
+user interface (GUI). The GUI consists of dialogs which all have a
+specific task. These dialogs will guide you in performing an analysis
+on SETL data.</p>
+<p>When you start SETLyze, you are first presented with the
+<a class="reference internal" href="#dialog-analysis-selection"><em>analysis selection dialog</em></a>. This
+dialog lists all possible analysis. Clicking on one of the analysis
+names shows a brief description of the selected analysis. You can then
+start the analysis by clicking on the OK button.</p>
+<div class="section" id="definition-list">
+<h2>Definition list<a class="headerlink" href="#definition-list" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Spot</dt>
+<dd>To analyze SETL plates, pictures of the plates are being taken. The
+pictures are then analyzed on the computer by applying a 5x5 grid to
+the picture. This divides the SETL plate into 25 surface areas. Each
+of the 25 surface areas are called <cite>spots</cite>. Species are scored for
+each of the 25 spots on a SETL plate, and the data is stored in the
+SETL database in the form of records. So each records contains
+data for each spot on a SETL plate.</dd>
+<dt>Positive spot</dt>
+<dd>Each record in the SETL database contains data for each of the 25
+spots on a SETL plate. The spots are stored as booleans, meaning
+they can have two values; 1 (True) means that the specie was present
+on that spot, 0 (False) means that the species was not present on
+that spot. A spot is <cite>positive</cite> is the value is 1 or True. Each
+record can thus have up to 25 positive spots.</dd>
+</dl>
+</div>
+<div class="section" id="setlyze-dialogs">
+<h2>SETLyze dialogs<a class="headerlink" href="#setlyze-dialogs" title="Permalink to this headline">¶</a></h2>
+<p>SETLyze comes with a graphical user interface consisting of separate
+dialogs. The key dialogs are described in this section.</p>
+<div class="section" id="analysis-selection-dialog">
+<span id="dialog-analysis-selection"></span><h3>Analysis Selection dialog<a class="headerlink" href="#analysis-selection-dialog" title="Permalink to this headline">¶</a></h3>
+<p>The analysis selection dialog presents the user with a list of all
+analysis that can be performed on SETL data. The user can select one of
+the analysis in the list and click on the OK button to start with the
+analysis. Clicking the Quit button will close the application.</p>
+<p>This dialog also shows an About button. Clicking this button shows
+an About dialog as in most software applications. The About dialog
+shows basic information about SETLyze; the version number, the year it
+was licensed and by who, a link to the GiMaRIS website, the license
+statement, the application developers, and contact information.</p>
+</div>
+<div class="section" id="locations-selection-dialog">
+<span id="dialog-loc-selection"></span><h3>Locations Selection dialog<a class="headerlink" href="#locations-selection-dialog" title="Permalink to this headline">¶</a></h3>
+<p>The locations selection dialog shows a list of all SETL localities. This
+dialog allows you to select locations from which you want to select
+species. The species selection dialog which will be displayed after
+clicking the Continue button, will only display the species that are
+recorded in the selected locations. Subsequently this means that only
+the SETL records that match both the locations and species selection
+will be used for the analysis.</p>
+<p>The <cite>Change Data Source</cite> button opens the
+<em class="xref std std-ref">Change Data Source dialog</em>. This button
+is only visible upon the first locations selection. After loading new
+SETL data using the Change Data Source dialog, the Locations Selection
+dialog is automatically updated with the new data.</p>
+<div class="section" id="making-a-selection">
+<h4>Making a selection<a class="headerlink" href="#making-a-selection" title="Permalink to this headline">¶</a></h4>
+<p>Just click on one of the locations to select it. To select multiple
+locations, hold Ctrl or Shift. To select all locations, click on a
+location and press Ctrl+A.</p>
+</div>
+</div>
+<div class="section" id="species-selection-dialog">
+<span id="dialog-spe-selection"></span><h3>Species Selection dialog<a class="headerlink" href="#species-selection-dialog" title="Permalink to this headline">¶</a></h3>
+<p>The species selection dialog shows a list of all SETL species that were
+found in the selected SETL localities. This dialog allows you to select
+the species to be included in the analysis. Only the SETL records that
+match both the the locations and species selection will be used for the
+analysis.</p>
+<p>It is possible to select more than one specie (see below). Selecting
+more than one specie means the selected species are threated as one
+specie for the analysis. However, if the selected analysis requires two
+or more separate specie(s) selections (i.e. two species are compared),
+it will display the selection dialog multiple times. In this case, the
+header of the selection dialog will say &#8220;First Selection&#8221;,&#8221;Second
+Selection&#8221;, etc.</p>
+<div class="section" id="id1">
+<h4>Making a selection<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<p>Just click on one of the species to select it. To select multiple
+species, hold Ctrl or Shift. To select all species, click on a specie
+and press Ctrl+A.</p>
+</div>
+</div>
+<div class="section" id="analysis-report-dialog">
+<span id="dialog-analysis-report"></span><h3>Analysis Report dialog<a class="headerlink" href="#analysis-report-dialog" title="Permalink to this headline">¶</a></h3>
+<p>The analysis report dialog shows the results for the anaylysis. The
+report is divided into sub elements. Each analysis element is described
+below.</p>
+<div class="section" id="locations-and-species-selections">
+<h4>Locations and Species Selections<a class="headerlink" href="#locations-and-species-selections" title="Permalink to this headline">¶</a></h4>
+<p>Displays the locations and species selections. If multiple selections
+were made, each element is suffixed by a number. For example &#8220;Species
+selection (2)&#8221; stands for the second species selection.</p>
+</div>
+<div class="section" id="spot-distances">
+<h4>Spot Distances<a class="headerlink" href="#spot-distances" title="Permalink to this headline">¶</a></h4>
+<p>Displays the observed and expected spot distances.</p>
+</div>
+<div class="section" id="results-for-wilcoxon-signed-rank-test">
+<h4>Results for Wilcoxon signed-rank test<a class="headerlink" href="#results-for-wilcoxon-signed-rank-test" title="Permalink to this headline">¶</a></h4>
+<p>Shows the results for the Wilcoxon signed-rank test. First the records
+are grouped by positive spots number. This results in a maximum of 25
+groups. Group 1 contains records with just 1 positive spot, group 2
+contains records with 2 positive spots, et cetera. However, group 1 and
+25 are excluded from the tests. Group 1 is excluded because it is not
+possible to calculate spot distances for records with just one positive
+spot. Group 25 is excluded because a test on these records will always
+result in a p-value of 1. This is because the observed spot distances
+will always be the same as the expected distances. The test is also
+performed on a group with positive spots number -24. This actually means
+&#8216;up to that number of positive spots&#8217;. So this test is also performed on
+records wit up to 24 positive spots. Note that records with 1 positive
+spot will still be excluded.</p>
+<p>So the test is performed 24 times, and each test result is presented on
+a different row. Each row contains the result of the test for a group.
+Each result consists of the following elements:</p>
+<dl class="docutils">
+<dt>Positive Spots</dt>
+<dd>A number representing the number of positive spots. For this test
+only records matching that number of positive spots were used.</dd>
+<dt>n (plates)</dt>
+<dd>The number of plates that match the number of positive spots.</dd>
+<dt>n (distances)</dt>
+<dd>The number of spot distances derived from the records matching the
+positive spots number.</dd>
+<dt>P-value</dt>
+<dd>The P-value for the test.</dd>
+<dt>Mean Observed</dt>
+<dd>The mean of the observed spot distances.</dd>
+<dt>Mean Expected</dt>
+<dd>The mean of the expected spot distances.</dd>
+<dt>Conf. interval start</dt>
+<dd>The start of the confidence interval for the test.</dd>
+<dt>Conf. interval end</dt>
+<dd>The end of the confidence interval for the test.</dd>
+<dt>Remarks</dt>
+<dd>A summary of the results. Shows whether the p-value is significant,
+and if so, how significant and decides based on the means if the
+species attract or repel.
+Attraction: observed mean &lt; expected mean.
+Repulsion: observed mean &gt; expected mean.</dd>
+</dl>
+</div>
+<div class="section" id="results-for-pearson-s-chi-squared-test-for-count-data">
+<h4>Results for Pearson&#8217;s Chi-squared Test for Count Data<a class="headerlink" href="#results-for-pearson-s-chi-squared-test-for-count-data" title="Permalink to this headline">¶</a></h4>
+<p>TODO</p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/setl-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">SETLyze User Manual</a><ul>
+<li><a class="reference internal" href="#definition-list">Definition list</a></li>
+<li><a class="reference internal" href="#setlyze-dialogs">SETLyze dialogs</a><ul>
+<li><a class="reference internal" href="#analysis-selection-dialog">Analysis Selection dialog</a></li>
+<li><a class="reference internal" href="#locations-selection-dialog">Locations Selection dialog</a><ul>
+<li><a class="reference internal" href="#making-a-selection">Making a selection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#species-selection-dialog">Species Selection dialog</a><ul>
+<li><a class="reference internal" href="#id1">Making a selection</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#analysis-report-dialog">Analysis Report dialog</a><ul>
+<li><a class="reference internal" href="#locations-and-species-selections">Locations and Species Selections</a></li>
+<li><a class="reference internal" href="#spot-distances">Spot Distances</a></li>
+<li><a class="reference internal" href="#results-for-wilcoxon-signed-rank-test">Results for Wilcoxon signed-rank test</a></li>
+<li><a class="reference internal" href="#results-for-pearson-s-chi-squared-test-for-count-data">Results for Pearson&#8217;s Chi-squared Test for Count Data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to SETLyze&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="developer_guide.html"
+                        title="next chapter">SETLyze Developer Guide</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/user_manual.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="developer_guide.html" title="SETLyze Developer Guide"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to SETLyze’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Locations Selection - SETLyze Help Contents</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" type="text/css" href="./main.css" />
+</head>
+<body>
+    <div id='content'>
+        <h1>Help Contents for SETLyze</h1>
+
+        <div class="section" id="locations-selection">
+            <h2>Locations Selection <a class="headerlink" href="#locations-selection">&para;</a></h2>
+            <p>
+            The <b>locations selection dialog</b> shows a list of all
+            SETL localities. This dialog allows you to select locations
+            from which you want to select species. The <b>species
+            selection dialog</b> which will be displayed after
+            clicking the Continue button, will <i>only</i>
+            display the species that are recorded in the selected
+            locations. Subsequently this means that <i>only</i>
+            the SETL records that match both the locations
+            and species selection will be used for the analysis.
+            </p>
+
+            <h3>Making a selection</h3>
+            <p>
+            Just click on one of the locations to select it. To
+            select multiple locations, hold Ctrl or Shift. To select
+            all locations, click on a location and press Ctrl+A.
+            </p>
+        </div>
+
+        <div class="section" id="species-selection">
+            <h2>Species Selection <a class="headerlink" href="#species-selection">&para;</a></h2>
+            <p>
+            The <b>species selection
+            dialog</b> shows a list of all SETL species that
+            were found in the selected SETL localities. This dialog
+            allows you to select the species to be included in the
+            analysis. Only the SETL records that match both the the
+            locations and species selection will be used for the analysis.
+            </p>
+            <p>
+            It is possible to select more than one specie (see below).
+            Selecting more than one specie means the selected species are
+            threated as one specie for the analysis. However, if the
+            selected analysis requires two or more separate
+            specie(s) selections (i.e. two species are compared), it
+            will display the selection dialog multiple times. In
+            this case, the header of the selection dialog will say
+           "First Selection","Second Selection", etc.
+           </p>
+
+            <h3>Making a selection</h3>
+            <p>
+            Just click on one of the species to select it. To select
+            multiple species, hold Ctrl or Shift. To select all species,
+            click on a specie and press Ctrl+A.
+            </p>
+        </div>
+
+        <div class="section" id="analysis-report">
+            <h2>Analysis Report <a class="headerlink" href="#analysis-report">&para;</a></h2>
+            <p>
+            The <b>analysis report dialog</b> shows the results for
+            the anaylysis. The report is divided into sub elements. Each
+            analysis element is described below.
+            </p>
+
+            <div class="section" id="report-loc-spe-selections">
+                <h3>Locations and Species Selections <a class="headerlink" href="#report-loc-spe-selections">&para;</a></h3>
+                <p>Displays the locations and species selections. If
+                multiple selections were made, each element is suffixed by
+                a number. For example "Species selection (2)" stands
+                for the second species selection.</p>
+            </div>
+
+            <div class="section" id="report-spot-distances">
+                <h3>Spot Distances <a class="headerlink" href="#report-spot-distances">&para;</a></h3>
+                <p>Displays the observed and expected spot distances.</p>
+            </div>
+
+            <div class="section" id="report-wilcox">
+                <h3>Results for Wilcoxon signed-rank test <a class="headerlink" href="#report-wilcox">&para;</a></h3>
+                <p>
+                    Shows the results for the Wilcoxon signed-rank test.
+                    First the records are grouped by positive spots numbers.
+                    Then the test is performed on each group. Each row contains
+                    the result of one test. Each row contains the following
+                    elements:
+                </p>
+                <dl>
+                    <dt>Positive Spots</dt>
+                    <dd>A number representing the number of positive
+                    spots. For this test only records matching that
+                    number of positive spots (spots on which the selected
+                    specie was found) were used. The test is first performed
+                    on records with 2 to 24 positive spots. 1 is not excluded
+                    because we can't calculate spot distances with just one
+                    positive spot. 25 is excluded because the results
+                    based on these records will never be significant.
+                    A negative number actually means 'up to that number
+                    of positive spots excluding 1'</dd>
+                    <dt>n (plates)</dt>
+                    <dd>The number of plates that match the number of
+                    positive spots.</dd>
+                    <dt>n (distances)</dt>
+                    <dd>The number of spot distances derived from the
+                    records matching the positive spots number.</dd>
+                    <dt>P-value</dt>
+                    <dd>The P-value for the test.</dd>
+                    <dt>Mean Observed</dt>
+                    <dd>The mean of the observed spot distances.</dd>
+                    <dt>Mean Expected</dt>
+                    <dd>The mean of the expected spot distances.</dd>
+                    <dt>Conf. interval start</dt>
+                    <dd>The start of the confidence interval for the test.</dd>
+                    <dt>Conf. interval end</dt>
+                    <dd>The end of the confidence interval for the test.</dd>
+                    <dt>Remarks</dt>
+                    <dd>A summary of the results. Shows whether the p-value
+                    is significant, and if so, decides based on the mean
+                    if species attract or repel.</dd>
+                </dl>
+            </div>
+
+            <div class="section" id="report-chisq">
+                <h3>Results for Pearson's Chi-squared Test for Count Data <a class="headerlink" href="#report-chisq">&para;</a></h3>
+                <p>TODO</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

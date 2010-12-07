@@ -49,6 +49,7 @@ import sys
 import os
 import logging
 import pkg_resources
+import webbrowser
 
 import pygtk
 pygtk.require('2.0')
@@ -67,6 +68,54 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/09/22"
 
+def on_help(button, section):
+    """Display the help contents for `section` in the system's default
+    application for displaying HTML files (usually a web browser).
+    """
+
+    # Construct the path to the help file.
+    path = pkg_resources.resource_filename('setlyze',
+        '/docs/user_manual.html#'+section)
+
+    # Turn the path into an URL.
+    if path.startswith('/'):
+        url = 'file://'+path
+    else:
+        url = 'file:///'+path
+
+    # WORKAROUND:
+    # On Windows, the section part of the URL (the '#...' part)
+    # is stripped off. This doesn't happen if 'file:///' is left out.
+    # This however always launches IE instead of the default browser.
+    #if os.name == 'nt':
+    #    url = path
+
+    # Open the URL in the system's web browser.
+    webbrowser.open(url)
+
+def on_quit(button, data=None):
+    """Quit the application."""
+    dialog = gtk.MessageDialog(parent=None, flags=0,
+        type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_YES_NO,
+        message_format="Are you sure you want to quit SETLyze?")
+
+    response = dialog.run()
+    if response == gtk.RESPONSE_YES:
+        dialog.destroy()
+        gtk.main_quit()
+    else:
+        dialog.destroy()
+
+    # Return True to stop other handlers from being invoked for the
+    # 'delete-event' signal. This prevents the GTK window that calles
+    # this function from closing anyway.
+    return True
+
+def bold(text):
+    """Return bold text marked up with Pango."""
+    text = "<span size='large' weight='bold'>%s</span>" % (text)
+    return text
+
 class SelectionWindow(gtk.Window):
     """Super class for :class:`SelectLocations` and :class:`SelectSpecies`."""
 
@@ -81,13 +130,13 @@ class SelectionWindow(gtk.Window):
 
         self.set_title(title)
         self.set_size_request(self.width, 400)
-        self.set_border_width(10)
+        self.set_border_width(0)
         self.set_resizable(True)
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
 
         # Handle window signals.
-        self.connect('delete-event', self.on_close_dialog)
+        self.connect('delete-event', on_quit)
 
         # Handle application signals.
         self.handler1 = setlyze.std.sender.connect('local-db-created', self.update_tree)
@@ -102,12 +151,40 @@ class SelectionWindow(gtk.Window):
         """Construct the layout for the selection dialog."""
 
         # Create a table to organize the widgets.
-        table = gtk.Table(rows=2, columns=2, homogeneous=False)
-        table.set_col_spacings(10)
-        table.set_row_spacings(10)
+        table = gtk.Table(rows=3, columns=2, homogeneous=False)
+        table.set_col_spacings(0)
+        table.set_row_spacings(5)
 
         # Create a vertical box to place the widgets in.
         vbox = gtk.VBox(homogeneous=False, spacing=5)
+
+        # Create a toolbar.
+        toolbar = gtk.Toolbar()
+        toolbar.set_style(gtk.TOOLBAR_ICONS)
+        toolbar.set_icon_size(gtk.ICON_SIZE_SMALL_TOOLBAR)
+        toolbar.set_tooltips(True)
+
+        # Create buttons for the toolbar.
+        button_home = gtk.ToolButton(gtk.STOCK_HOME)
+        sep = gtk.SeparatorToolItem()
+        button_info = gtk.ToolButton(gtk.STOCK_INFO)
+
+        # Add the buttons to the toolbar.
+        toolbar.insert(button_home, 0)
+        toolbar.insert(sep, 1)
+        toolbar.insert(button_info, 2)
+
+        # Handle button signals.
+        button_home.connect("clicked", self.on_close_dialog)
+        if isinstance(self, SelectLocations):
+            button_info.connect("clicked", on_help, 'locations-selection-dialog')
+        elif isinstance(self, SelectSpecies):
+            button_info.connect("clicked", on_help, 'species-selection-dialog')
+
+        # Add the toolbar to the vertical box.
+        table.attach(toolbar, left_attach=0, right_attach=2,
+            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Create a dialog header.
         self.header = gtk.Label()
@@ -152,20 +229,22 @@ class SelectionWindow(gtk.Window):
 
         # Add the vertical box to the table.
         table.attach(child=vbox, left_attach=0, right_attach=2,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.FILL|gtk.EXPAND, xpadding=0, ypadding=0)
+            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.EXPAND,
+            yoptions=gtk.FILL|gtk.EXPAND, xpadding=10, ypadding=0)
 
         # User Data File button
         self.button_chg_source = gtk.Button(" Change Data Source ")
         self.button_chg_source.set_size_request(-1, -1)
         self.button_chg_source.connect("clicked", self.on_select_data_files)
-        # Align the button to the left.
-        csv_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
-        csv_align.add(self.button_chg_source)
-        # Add the aligned button to the table.
-        table.attach(csv_align, left_attach=0, right_attach=1,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Align the about button to the left.
+        button_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
+        button_align.add(self.button_chg_source)
+
+        # Add the about button to the table.
+        table.attach(button_align, left_attach=0, right_attach=1,
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=10, ypadding=0)
 
         # Continue button
         button_ok = gtk.Button("Continue")
@@ -188,8 +267,8 @@ class SelectionWindow(gtk.Window):
 
         # Add the aligned button box to the table.
         table.attach(child=buttons_align, left_attach=1, right_attach=2,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=10, ypadding=5)
 
         # Add the table to the main window.
         self.add(table)
@@ -200,8 +279,7 @@ class SelectionWindow(gtk.Window):
 
     def set_header(self, header):
         """Set the header text to `header`."""
-        header = "<span size='large' weight='bold'>%s</span>" % (header)
-        self.header.set_markup(header)
+        self.header.set_markup(bold(header))
 
     def set_description(self, description):
         """Set the description text to `description`."""
@@ -218,9 +296,7 @@ class SelectionWindow(gtk.Window):
         and ``1`` for the second selection.
         """
         if slot not in (0,1):
-            logging.error("Attempt to set setlyze.gui.SelectionWindow.save_slot \
-                to '%s'. Slot can be either 0 or 1." % slot)
-            sys.exit(1)
+            raise ValueError("Wrong value for save slot. Slot can be either 0 or 1.")
         self.save_slot = slot
 
     def on_continue(self, button):
@@ -323,6 +399,8 @@ class SelectLocations(SelectionWindow):
             description="Select the locations:", width=-1, slot=0):
         super(SelectLocations, self).__init__(title, description, width, slot)
 
+        self.info_key = 'info-loc-selection'
+
     def on_back(self, button):
         """Destroy the selection dialog and send the
         ``locations-dialog-back`` signal.
@@ -357,7 +435,7 @@ class SelectLocations(SelectionWindow):
         Design Part: 1.7
         """
         setlyze.config.cfg.set('locations-selection', self.selection,
-            slot=self.save_slot)
+                slot=self.save_slot)
 
         # Make log message.
         selection = [setlyze.config.cfg.get('locations-selection', slot=0),
@@ -405,6 +483,8 @@ class SelectSpecies(SelectionWindow):
     def __init__(self, title="Species Selection",
             description="Select the species:", width=-1, slot=0):
         super(SelectSpecies, self).__init__(title, description, width, slot)
+
+        self.info_key = 'info-spe-selection'
 
     def on_back(self, widget, data=None):
         """Destroy the selection dialog and send the
@@ -535,7 +615,7 @@ class DefinePlateAreas(gtk.Window):
 
         self.set_title(title)
         self.set_size_request(-1, -1)
-        self.set_border_width(10)
+        self.set_border_width(0)
         self.set_resizable(False)
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
@@ -544,7 +624,7 @@ class DefinePlateAreas(gtk.Window):
         self.definition = None
 
         # Handle window signals.
-        self.connect('delete-event', self.on_close_dialog)
+        self.connect('delete-event', on_quit)
 
         # Add widgets to the GTK window.
         self.create_layout()
@@ -556,34 +636,75 @@ class DefinePlateAreas(gtk.Window):
         """Construct the layout for the dialog."""
 
         # Create a table to organize the widgets.
-        table = gtk.Table(rows=4, columns=2, homogeneous=False)
-        table.set_col_spacings(10)
-        table.set_row_spacings(10)
+        table = gtk.Table(rows=5, columns=2, homogeneous=False)
+        table.set_col_spacings(0)
+        table.set_row_spacings(5)
 
-        # Create a description label.
-        label_descr = gtk.Label( setlyze.locale.text('define-plate-areas') )
-        label_descr.set_line_wrap(True)
-        label_descr.set_justify(gtk.JUSTIFY_FILL)
-        # Add the label to the table.
-        table.attach(child=label_descr, left_attach=0, right_attach=2,
+        # Create a toolbar.
+        toolbar = gtk.Toolbar()
+        toolbar.set_style(gtk.TOOLBAR_ICONS)
+        toolbar.set_icon_size(gtk.ICON_SIZE_SMALL_TOOLBAR)
+        toolbar.set_tooltips(True)
+
+        # Create buttons for the toolbar.
+        button_home = gtk.ToolButton(gtk.STOCK_HOME)
+        sep = gtk.SeparatorToolItem()
+        button_info = gtk.ToolButton(gtk.STOCK_INFO)
+
+        # Add the buttons to the toolbar.
+        toolbar.insert(button_home, 0)
+        toolbar.insert(sep, 1)
+        toolbar.insert(button_info, 2)
+
+        # Handle button signals.
+        button_home.connect("clicked", self.on_close_dialog)
+        button_info.connect("clicked", on_help, 'define-plate-areas-dialog')
+
+        # Add the toolbar to the vertical box.
+        table.attach(toolbar, left_attach=0, right_attach=2,
             top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
+        # Create a vertical box to place the widgets in.
+        vbox = gtk.VBox(homogeneous=False, spacing=5)
+
+        # Create a dialog header.
+        header = gtk.Label()
+        header.set_alignment(xalign=0, yalign=0)
+        header.set_line_wrap(True)
+        header.set_justify(gtk.JUSTIFY_FILL)
+        header.set_markup(bold(self.get_title()))
+        # Add the label to the vertcal box.
+        vbox.pack_start(header, expand=False, fill=True, padding=0)
+
+        # Create a description label.
+        label_descr = gtk.Label( setlyze.locale.text('define-plate-areas') )
+        label_descr.set_alignment(xalign=0, yalign=0)
+        label_descr.set_line_wrap(True)
+        label_descr.set_justify(gtk.JUSTIFY_FILL)
+        # Add the label to the vertcal box.
+        vbox.pack_start(label_descr, expand=False, fill=True, padding=0)
+
+        # Add the label to the table.
+        table.attach(vbox, left_attach=0, right_attach=2,
+            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=10, ypadding=0)
+
         # Load an image of the SETL grid.
         setl_grid = gtk.Image()
-        setl_grid.set_from_file(pkg_resources.resource_filename(__name__,
-            'images/setl-grid.png'))
+        setl_grid.set_from_file(pkg_resources.resource_filename('setlyze',
+            '/images/setl-grid.png'))
         # Add the image to the table.
         table.attach(setl_grid, left_attach=1, right_attach=2,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=10, ypadding=0)
 
         # Create the definition table.
         def_table = self.create_definition_table()
         # Add def_table to the main table.
         table.attach(def_table, left_attach=0, right_attach=1,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=10, ypadding=0)
 
         # Continue button
         button_ok = gtk.Button("Continue")
@@ -606,8 +727,8 @@ class DefinePlateAreas(gtk.Window):
 
         # Add the aligned box to the table
         table.attach(child=buttons_align, left_attach=1, right_attach=2,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=10, ypadding=5)
 
         # Add the table to the main window.
         self.add(table)
@@ -1336,13 +1457,13 @@ class DisplayReport(gtk.Window):
 
         self.set_title("Analysis Report")
         self.set_size_request(600, 500)
-        self.set_border_width(10)
+        self.set_border_width(0)
         self.set_resizable(True)
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
 
         # Handle window signals.
-        self.connect('delete-event', self.on_close)
+        self.connect('delete-event', on_quit)
 
         # Add widgets to the GTK window.
         self.create_layout()
@@ -1357,17 +1478,42 @@ class DisplayReport(gtk.Window):
         """
         self.reader = setlyze.std.ReportReader(report)
 
-    def set_text(self, text):
-        textbuffer = self.textbox.get_buffer()
-        textbuffer.set_text(text)
-
     def create_layout(self):
         """Construct the layout for the dialog."""
 
         # Create a table to organize the widgets.
-        table = gtk.Table(rows=3, columns=2, homogeneous=False)
+        table = gtk.Table(rows=4, columns=2, homogeneous=False)
         table.set_col_spacings(10)
         table.set_row_spacings(10)
+
+        # Create a toolbar.
+        toolbar = gtk.Toolbar()
+        toolbar.set_style(gtk.TOOLBAR_BOTH)
+        toolbar.set_icon_size(gtk.ICON_SIZE_SMALL_TOOLBAR)
+        toolbar.set_tooltips(True)
+
+        # Create buttons for the toolbar.
+        button_home = gtk.ToolButton(gtk.STOCK_HOME)
+        button_save = gtk.ToolButton(gtk.STOCK_SAVE_AS)
+        button_save.set_label("Save Report")
+        sep = gtk.SeparatorToolItem()
+        button_info = gtk.ToolButton(gtk.STOCK_INFO)
+
+        # Add the buttons to the toolbar.
+        toolbar.insert(button_home, 0)
+        toolbar.insert(button_save, 1)
+        toolbar.insert(sep, 2)
+        toolbar.insert(button_info, 3)
+
+        # Handle button signals.
+        button_home.connect("clicked", self.on_close)
+        button_save.connect("clicked", self.on_save)
+        button_info.connect("clicked", on_help, 'analysis-report-dialog')
+
+        # Add the toolbar to the vertical box.
+        table.attach(toolbar, left_attach=0, right_attach=2,
+            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Create a vertical box for widgets that go on the top of the
         # report window, like the report header.
@@ -1375,10 +1521,10 @@ class DisplayReport(gtk.Window):
 
         # Add the vbox_top to the table.
         table.attach(self.vbox_top, left_attach=0, right_attach=2,
-            top_attach=0, bottom_attach=1,
+            top_attach=1, bottom_attach=2,
             xoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
             yoptions=gtk.SHRINK | gtk.FILL,
-            xpadding=0, ypadding=0)
+            xpadding=10, ypadding=0)
 
         # Create a vertical box for the differenct report elements like
         # locations/species selection, significance results, etc.
@@ -1395,42 +1541,13 @@ class DisplayReport(gtk.Window):
 
         # Add the scrolled window to the table.
         table.attach(scrolled_window, left_attach=0, right_attach=2,
-            top_attach=1, bottom_attach=2,
+            top_attach=2, bottom_attach=3,
             xoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
             yoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
-            xpadding=0, ypadding=0)
+            xpadding=10, ypadding=0)
 
         # Add report elements.
         self.add_report_elements()
-
-        # Create save button.
-        button_save = gtk.Button("Save Analysis Report")
-        button_save.set_size_request(-1, -1)
-        button_save.connect("clicked", self.on_save)
-        # Align the save button to the left.
-        about_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
-        about_align.add(button_save)
-        # Add the save button to the table.
-        table.attach(child=about_align, left_attach=0, right_attach=1,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Close button
-        button_close = gtk.Button(stock=gtk.STOCK_CLOSE)
-        button_close.set_size_request(70, -1)
-        button_close.connect("clicked", self.on_close)
-
-        # Put the buttons in a horizontal box.
-        button_box = gtk.HBox(homogeneous=True, spacing=5)
-        button_box.add(button_close)
-        # Align the button box to the right.
-        buttons_align = gtk.Alignment(xalign=1.0, yalign=0, xscale=0, yscale=0)
-        buttons_align.add(button_box)
-
-        # Add the aligned button box to the table.
-        table.attach(child=buttons_align, left_attach=1, right_attach=2,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Add the table to the window.
         self.add(table)
@@ -1493,11 +1610,15 @@ class DisplayReport(gtk.Window):
         # Add a header with the analysis name.
         self.add_title_header()
 
-        if 'specie_selections' in report_elements:
-            self.add_species_selections()
+        #if 'specie_selections' in report_elements:
+        #    self.add_species_selections()
 
-        if 'location_selections' in report_elements:
-            self.add_locations_selections()
+        #if 'location_selections' in report_elements:
+        #    self.add_locations_selections()
+
+        if "location_selections" in report_elements and \
+                "specie_selections" in report_elements:
+            self.add_selections()
 
         if 'spot_distances_observed' in report_elements and \
                 'spot_distances_expected' in report_elements:
@@ -1517,21 +1638,20 @@ class DisplayReport(gtk.Window):
             if 'normality' in elements:
                 self.add_statistics_normality()
 
+            if 't_test' in elements:
+                self.add_statistics_ttest()
+
             if 'wilcoxon' in elements:
                 self.add_statistics_wilcoxon()
 
-            if 't_test' in elements:
-                self.add_statistics_ttest()
+            if 'wilcoxon_ratios' in elements:
+                self.add_statistics_wilcoxon_ratios()
 
             if 'chi_squared' in elements:
                 self.add_statistics_chisq()
 
-        # Create a text box.
-        #self.textbox = gtk.TextView()
-        #self.textbox.set_editable(False)
-        #self.textbox.set_cursor_visible(True)
-        #self.textbox.set_wrap_mode(gtk.WRAP_NONE)
-        #self.textbox.set_pixels_above_lines(5)
+            if 'chi_squared_ratios' in elements:
+                self.add_statistics_chisq_ratios()
 
     def add_title_header(self):
         """Add a header text to the report dialog.
@@ -1604,6 +1724,73 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
+    def add_selections(self):
+        """Add the location + species selections to the report dialog."""
+
+        # Create a scrolled window.
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Locations and Species Selections")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 200)
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+        column = gtk.TreeViewColumn("Locations and Species Selections", cell, text=0)
+        tree.append_column(column)
+        # To store the data, we use the TreeStore object.
+        treestore = gtk.TreeStore(gobject.TYPE_STRING)
+
+        # Add the species selection to the model.
+        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
+        species_selection = self.reader.get_species_selection(slot=0)
+        for spe in species_selection:
+            species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
+            treestore.append(parent=treeiter, row=[species])
+
+        # Add the second species selection to the model.
+        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
+        species_selection = self.reader.get_species_selection(slot=1)
+        for spe in species_selection:
+            if not spe:
+                treestore.remove(treeiter)
+                break
+            species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
+            treestore.append(parent=treeiter, row=[species])
+
+        # Add the locations selection to the model.
+        treeiter = treestore.append(parent=None, row=["Locations selection (1)"])
+        locations_selection = self.reader.get_locations_selection(slot=0)
+        for loc in locations_selection:
+            location = "%s" % (loc['name'])
+            treestore.append(parent=treeiter, row=[location])
+
+        # Add the second locations selection to the model.
+        treeiter = treestore.append(parent=None, row=["Locations selection (2)"])
+        locations_selection = self.reader.get_locations_selection(slot=1)
+        for loc in locations_selection:
+            if not loc:
+                treestore.remove(treeiter)
+                break
+            location = "%s" % (loc['name'])
+            treestore.append(parent=treeiter, row=[location])
+
+        # Set the tree model.
+        tree.set_model(treestore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the scorred window to the vertical box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
     def add_species_selections(self):
         """Add the species selection(s) to the report dialog."""
 
@@ -1629,14 +1816,14 @@ class DisplayReport(gtk.Window):
         treestore = gtk.TreeStore(gobject.TYPE_STRING)
 
         # Add the species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Selected species (1)"])
+        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
         species_selection = self.reader.get_species_selection(slot=0)
         for spe in species_selection:
             species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
             treestore.append(parent=treeiter, row=[species])
 
         # Add the second species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Selected species (2)"])
+        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
         species_selection = self.reader.get_species_selection(slot=1)
         for spe in species_selection:
             if not spe:
@@ -1679,14 +1866,14 @@ class DisplayReport(gtk.Window):
         treestore = gtk.TreeStore(gobject.TYPE_STRING)
 
         # Add the locations selection to the model.
-        treeiter = treestore.append(parent=None, row=["Selected locations (1)"])
+        treeiter = treestore.append(parent=None, row=["Locations selection (1)"])
         locations_selection = self.reader.get_locations_selection(slot=0)
         for loc in locations_selection:
             location = "%s" % (loc['name'])
             treestore.append(parent=treeiter, row=[location])
 
         # Add the second locations selection to the model.
-        treeiter = treestore.append(parent=None, row=["Selected locations (2)"])
+        treeiter = treestore.append(parent=None, row=["Locations selection (2)"])
         locations_selection = self.reader.get_locations_selection(slot=1)
         for loc in locations_selection:
             if not loc:
@@ -1887,7 +2074,106 @@ class DisplayReport(gtk.Window):
                 float(items['mean_expected']),
                 float(items['conf_int_start']),
                 float(items['conf_int_end']),
-                #attr['method'],
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_wilcoxon_ratios(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Results for Wilcoxon signed-rank test")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 250)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Ratios Group','n (plates)',
+            'n (distances)','P-value','Mean Observed','Mean Expected',
+            'Conf. interval start','Conf. interval end','Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('wilcoxon_ratios')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = []
+            if float(items['p_value']) > 0.05:
+                remarks.append("Not significant")
+            else:
+                remarks.append("Significant")
+
+                if float(items['mean_observed']) < float(items['mean_expected']):
+                    remarks.append("Attraction")
+                else:
+                    remarks.append("Repulsion")
+
+            if float(items['p_value']) < 0.001:
+                remarks.append("P < 0.001")
+            elif float(items['p_value']) < 0.01:
+                remarks.append("P < 0.01")
+            elif float(items['p_value']) < 0.05:
+                remarks.append("P < 0.05")
+            else:
+                remarks.append("P > 0.05")
+
+            if int(attr['n']) > 20:
+                remarks.append("n > 20")
+            else:
+                remarks.append("n < 20")
+
+            remarks = "; ".join(remarks)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                int(attr['ratio_group']),
+                int(attr['n_plates']),
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
+                float(items['conf_int_start']),
+                float(items['conf_int_end']),
                 remarks,
                 ])
 
@@ -1981,6 +2267,106 @@ class DisplayReport(gtk.Window):
             # Add all result items to the tree model.
             liststore.append([
                 int(attr['n_positive_spots']),
+                int(attr['n_plates']),
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['chi_squared']),
+                float(items['df']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_chisq_ratios(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Results for Pearson's Chi-squared Test for Count Data")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 250)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Ratios Group','n (plates)',
+            'n (distances)','P-value','Chi squared','df',
+            'Mean Expected','Mean Observed','Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('chi_squared_ratios')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = []
+            if float(items['p_value']) > 0.05:
+                remarks.append("Not significant")
+            else:
+                remarks.append("Significant")
+
+                if float(items['mean_observed']) < float(items['mean_expected']):
+                    remarks.append("Attraction")
+                else:
+                    remarks.append("Repulsion")
+
+            if float(items['p_value']) < 0.001:
+                remarks.append("P < 0.001")
+            elif float(items['p_value']) < 0.01:
+                remarks.append("P < 0.01")
+            elif float(items['p_value']) < 0.05:
+                remarks.append("P < 0.05")
+            else:
+                remarks.append("P > 0.05")
+
+            if int(attr['n']) > 20:
+                remarks.append("n > 20")
+            else:
+                remarks.append("n < 20")
+
+            remarks = "; ".join(remarks)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                int(attr['ratio_group']),
                 int(attr['n_plates']),
                 int(attr['n']),
                 float(items['p_value']),

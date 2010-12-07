@@ -42,8 +42,7 @@ __status__ = "Production"
 __date__ = "2010/09/22"
 
 class Begin(object):
-    """
-    Make all the preparations for analysis 2.1:
+    """Make all the preparations for analysis 2.1:
         * Let the user select the locations.
         * Let the user select the species.
 
@@ -54,7 +53,7 @@ class Begin(object):
 
     def __init__(self):
         # Create log message.
-        logging.info("Beginning %s" % setlyze.locale.text('analysis2.1'))
+        logging.info("Beginning Analysis 2.1 \"Attraction of species (intra-specific)\"")
 
         # Bind handles to application signals.
         self.handle_application_signals()
@@ -65,9 +64,6 @@ class Begin(object):
 
         # Emit the signal that we are beginning with an analysis.
         setlyze.std.sender.emit('beginning-analysis')
-
-    def __del__(self):
-        logging.info("Leaving %s" % setlyze.locale.text('analysis2.1'))
 
     def handle_application_signals(self):
         """Respond to signals emitted by the application."""
@@ -106,8 +102,7 @@ class Begin(object):
             self.on_display_report)
 
     def destroy_handler_connections(self):
-        """
-        Disconnect all signal connections with signal handlers created
+        """Disconnect all signal connections with signal handlers created
         by this analysis.
         """
         setlyze.std.sender.disconnect(self.handler1)
@@ -164,8 +159,7 @@ class Begin(object):
         t.start()
 
     def on_display_report(self, sender):
-        """
-        Display the report in a window.
+        """Display the report in a window.
 
         Design Part: 1.68
         """
@@ -173,8 +167,7 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """
-    Perform all the calculations for analysis 2.1.
+    """Perform all the calculations for analysis 2.1.
 
     Design Part: 1.4.2
     """
@@ -187,7 +180,7 @@ class Start(threading.Thread):
         # Dictionary for the statistic test results.
         self.statistics = {'normality':[], # Design Part: 2.36
             'wilcoxon':[], # Design Part: 2.37
-            'chi_squared':[]
+            'chi_squared':[],
             }
 
         # Create log message.
@@ -200,8 +193,7 @@ class Start(threading.Thread):
         logging.info("%s was completed!" % setlyze.locale.text('analysis2.1'))
 
     def run(self):
-        """
-        Call the necessary methods for the analysis in the right order:
+        """Call the necessary methods for the analysis in the right order:
             * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
               :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
             * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
@@ -209,6 +201,7 @@ class Start(threading.Thread):
             * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
             * :meth:`calculate_distances_intra`
             * :meth:`calculate_distances_intra_expected`
+            * :meth:`calculate_significance`
             * :meth:`generate_report`
 
         Design Part: 1.59
@@ -295,8 +288,7 @@ class Start(threading.Thread):
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
     def calculate_distances_intra(self):
-        """
-        Calculate the intra-specific distances for each plate in the
+        """Calculate the intra-specific distances for each plate in the
         species_spots table and save the distances to a table in
         the local database.
 
@@ -362,9 +354,8 @@ class Start(threading.Thread):
         connection.close()
 
     def calculate_distances_intra_expected(self):
-        """
-        Calculate the expected distances based on the observed distances
-        and save these to a table in the local database.
+        """Calculate the expected distances based on the observed
+        distances and save these to a table in the local database.
 
         Design Part: 1.23
         """
@@ -492,9 +483,15 @@ class Start(threading.Thread):
             observed = [x[0] for x in cursor]
             expected = [x[0] for x in cursor2]
 
+            # Perform a consistency test. The number of observed and
+            # expected distances must always be the same.
+            count_observed = len(observed)
+            count_expected = len(expected)
+            if count_observed != count_expected:
+                raise ValueError("Number of observed and expected distances are not equal.")
+
             # A minimum of 2 observed distances is required for the
             # significance test. So skip this spots number if it's less.
-            count_observed = len(observed)
             if count_observed < 2:
                 continue
 
@@ -537,11 +534,11 @@ class Start(threading.Thread):
 
             # Get the probability for each spot distance. Required for
             # the Chi-squared test.
-            spot_dist_to_prob = setlyze.config.cfg.get('spot-dist-to-prob')
+            spot_dist_to_prob = setlyze.config.cfg.get('spot-dist-to-prob-intra')
 
             # Get the frequencies for the observed distances. These
             # are required for the Chi-squared test.
-            observed_freq = setlyze.std.distance_frequency(observed)
+            observed_freq = setlyze.std.distance_frequency(observed, 'intra')
 
             # Also perform Chi-squared test.
             sig_result = setlyze.std.chisq_test(observed_freq.values(),

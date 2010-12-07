@@ -37,8 +37,5 @@ __date__ = "2010/09/22"
 class Begin(object):
     def __init__(self):
         # Create log message.
-        logging.info("Beginning %s" % setlyze.locale.text('analysis3'))
-
-    def __del__(self):
-        logging.info("Leaving %s" % setlyze.locale.text('analysis3'))
+        logging.info("Beginning Analysis 3 \"Relation between species\"")
 

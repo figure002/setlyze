@@ -64,7 +64,8 @@ DB_FILE = os.path.join(DATA_PATH, 'setl_local.db')
 
 # The probabilities for each spot distance on a 5x5 SETL plate.
 # Format: {distance: probability, ...}
-SPOT_DIST_TO_PROB = {1: 40/300.0,
+SPOT_DIST_TO_PROB_INTRA = {
+    1: 40/300.0,
     1.41: 32/300.0,
     2: 30/300.0,
     2.24: 48/300.0,
@@ -78,6 +79,24 @@ SPOT_DIST_TO_PROB = {1: 40/300.0,
     4.47: 12/300.0,
     5: 8/300.0,
     5.66: 2/300.0,
+    }
+
+SPOT_DIST_TO_PROB_INTER = {
+    0: 25/625.0,
+    1: 80/625.0,
+    1.41: 64/625.0,
+    2: 60/625.0,
+    2.24: 96/625.0,
+    2.83: 36/625.0,
+    3: 40/625.0,
+    3.16: 64/625.0,
+    3.61: 48/625.0,
+    4: 20/625.0,
+    4.12: 32/625.0,
+    4.24: 16/625.0,
+    4.47: 24/625.0,
+    5: 16/625.0,
+    5.66: 4/625.0,
     }
 
 # Default configurations.
@@ -121,7 +140,9 @@ DEFAULT_CONFIG = [
     # Significance test: confidence level.
     ('significance-confidence', 0.95),
     # Probabilities for each spot distance.
-    ('spot-dist-to-prob', SPOT_DIST_TO_PROB)
+    ('spot-dist-to-prob-intra', SPOT_DIST_TO_PROB_INTRA),
+    # Probabilities for each spot distance.
+    ('spot-dist-to-prob-inter', SPOT_DIST_TO_PROB_INTER),
 ]
 
 class ConfigManager(object):

@@ -1,0 +1,32 @@
+===================================
+Introduction to SETLyze
+===================================
+
+The purpose of SETLyze is to provide the people (mostly biologists) involved
+with the SETL project an easy and fast way of getting useful information from
+the data stored in the SETL database. The database was created so certain
+analysis could be done which would provide more insight in a set of
+biological questions. The application should be capable of giving answer
+to those questions by applying specific analysis to the data, and
+providing the user with an understandable overview of the results.
+
+The application is currently capable of executing four analysis on the
+SETL data:
+
+Spot Preference:
+    Determine a species’ preference for a specific location on a SETL
+    plate.
+
+Attraction of Species (intra-specific):
+    Determine if a specie attracts or repels individuals of its own kind.
+
+Attraction of Species (inter-specific):
+    Determine if two different species attract or repel each other.
+
+Relation between Species:
+    Determine if there is correlation for the presence or absence of two
+    (groups of) species on SETL plates. Plates per location are compared.
+    And instead of looking at different plate spots, only the
+    presence/absence of a specie on a plate is taken into account.
+
+

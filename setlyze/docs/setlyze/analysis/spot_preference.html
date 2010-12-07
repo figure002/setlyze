@@ -1,0 +1,255 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.analysis.spot_preference — Analysis 1, Spot preference &mdash; SETLyze v1.0 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v1.0 documentation" href="../../index.html" />
+    <link rel="up" title="Analysis Modules" href="../../setlyze_modules_analysis.html" />
+    <link rel="next" title="References" href="../../references.html" />
+    <link rel="prev" title="setlyze.analysis.relations — Analysis 3, Relations between species" href="relations.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../references.html" title="References"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="relations.html" title="setlyze.analysis.relations — Analysis 3, Relations between species"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
+          <li><a href="../../setlyze_modules_analysis.html" accesskey="U">Analysis Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setlyze-analysis-spot-preference-analysis-1-spot-preference">
+<h1><a class="reference internal" href="#module-setlyze.analysis.spot_preference" title="setlyze.analysis.spot_preference"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.analysis.spot_preference</span></tt></a> &#8212; Analysis 1, Spot preference<a class="headerlink" href="#setlyze-analysis-spot-preference-analysis-1-spot-preference" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Jonathan den Boer</td>
+</tr>
+<tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 03, 2010</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-setlyze.analysis.spot_preference"></span><dl class="class">
+<dt id="setlyze.analysis.spot_preference.Begin">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.spot_preference.</tt><tt class="descname">Begin</tt><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Make all the preparations for analysis 1:</dt>
+<dd><ul class="first last simple">
+<li>Let the user select the locations.</li>
+<li>Let the user select the species.</li>
+<li>Let the user define the plate areas.</li>
+</ul>
+</dd>
+</dl>
+<p>When done, start the analysis.</p>
+<p>Design Part: 1.3.1</p>
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.destroy_handler_connections">
+<tt class="descname">destroy_handler_connections</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.destroy_handler_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.destroy_handler_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect all signal connections with signal handlers
+created by this analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.handle_application_signals">
+<tt class="descname">handle_application_signals</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.handle_application_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.handle_application_signals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Respond to signals emitted by the application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.on_define_plate_areas">
+<tt class="descname">on_define_plate_areas</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.on_define_plate_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.on_define_plate_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the window for defining the plate areas.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.on_display_report">
+<tt class="descname">on_display_report</tt><big>(</big><em>sender</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.on_display_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.on_display_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the report in a window.</p>
+<p>Design Part: 1.68</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.on_select_locations">
+<tt class="descname">on_select_locations</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.on_select_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.on_select_locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the window for selecting the locations.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.on_select_species">
+<tt class="descname">on_select_species</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.on_select_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.on_select_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the window for selecting the species.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.on_start_analysis">
+<tt class="descname">on_start_analysis</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.on_start_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.on_start_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Begin.on_window_closed">
+<tt class="descname">on_window_closed</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Begin.on_window_closed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Begin.on_window_closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the main window and destroy the handler connections.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.analysis.spot_preference.Start">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.spot_preference.</tt><tt class="descname">Start</tt><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the calculations for analysis 1 &#8220;Spot Preference&#8221;.</p>
+<p>Design Part: 1.3.2</p>
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.chi_square_tester">
+<tt class="descname">chi_square_tester</tt><big>(</big><em>areas_totals_observed</em>, <em>areas_totals_expected</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.chi_square_tester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.chi_square_tester" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform the Chi-square test on the observed and expected values.</p>
+<p>Design Part: 1.64</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.generate_report">
+<tt class="descname">generate_report</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.generate_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.generate_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the analysis report and display the report in a dialog.</p>
+<p>Design Part: 1.13</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.get_areas_totals_expected">
+<tt class="descname">get_areas_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.get_areas_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the expected totals for a specie for each plate area.</p>
+<p>Design Part: 1.63</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.get_areas_totals_observed">
+<tt class="descname">get_areas_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.get_areas_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observed totals for a specie for each plate area.</p>
+<p>Design Part: 1.62</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the necessary methods for the analysis in the right order
+and do some data checks:</p>
+<blockquote>
+<ul class="simple">
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_observed" title="setlyze.analysis.spot_preference.Start.get_areas_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">get_areas_totals_observed()</span></tt></a></li>
+<li>Check if all plate areas totals are zero. If so, abort.</li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_expected" title="setlyze.analysis.spot_preference.Start.get_areas_totals_expected"><tt class="xref py py-meth docutils literal"><span class="pre">get_areas_totals_expected()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.chi_square_tester" title="setlyze.analysis.spot_preference.Start.chi_square_tester"><tt class="xref py py-meth docutils literal"><span class="pre">chi_square_tester()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.generate_report" title="setlyze.analysis.spot_preference.Start.generate_report"><tt class="xref py py-meth docutils literal"><span class="pre">generate_report()</span></tt></a></li>
+</ul>
+</blockquote>
+<p>Design Part: 1.58</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/setl-logo.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="relations.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.analysis.relations</span></tt> &#8212; Analysis 3, Relations between species</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../../references.html"
+                        title="next chapter">References</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/setlyze/analysis/spot_preference.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../../references.html" title="References"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="relations.html" title="setlyze.analysis.relations — Analysis 3, Relations between species"
+             >previous</a> |</li>
+        <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
+          <li><a href="../../setlyze_modules_analysis.html" >Analysis Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,180 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.locale — English text retrieval &mdash; SETLyze v1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v1.0 documentation" href="../index.html" />
+    <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
+    <link rel="next" title="setlyze.std — Standard functions and classes" href="std.html" />
+    <link rel="prev" title="setlyze.gui — Graphical interfaces" href="gui.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="std.html" title="setlyze.std — Standard functions and classes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="gui.html" title="setlyze.gui — Graphical interfaces"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setlyze-locale-english-text-retrieval">
+<h1><a class="reference internal" href="#module-setlyze.locale" title="setlyze.locale"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.locale</span></tt></a> &#8212; English text retrieval<a class="headerlink" href="#setlyze-locale-english-text-retrieval" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira</td>
+</tr>
+<tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 03, 2010</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="module-setlyze.locale">
+<span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.locale" title="Permalink to this headline">¶</a></h2>
+<p>This module is for storing frequently used English lines used
+throughout the source-code. The purpose is to have a standard place for
+storing English sentences. This was basically meant for convenience so
+the developer doesn&#8217;t have to browse through code just to change a
+sentence.</p>
+<p>This module wasn&#8217;t created for adding multi-language support, though
+it can be easily expanded to do so.</p>
+<dl class="function">
+<dt id="setlyze.locale.html">
+<tt class="descclassname">setlyze.locale.</tt><tt class="descname">html</tt><big>(</big><em>key</em>, <em>*args</em><big>)</big><a class="headerlink" href="#setlyze.locale.html" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the XHTML code from the <tt class="docutils literal"><span class="pre">HTML</span></tt> dictionary where key is
+<cite>key</cite>.</p>
+<p>Usage is the same as <a class="reference internal" href="#setlyze.locale.text" title="setlyze.locale.text"><tt class="xref py py-meth docutils literal"><span class="pre">text()</span></tt></a>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.locale.text">
+<tt class="descclassname">setlyze.locale.</tt><tt class="descname">text</tt><big>(</big><em>key</em>, <em>*args</em><big>)</big><a class="reference internal" href="../_modules/setlyze/locale.html#text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.locale.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the text string from the <tt class="docutils literal"><span class="pre">ENGLISH</span></tt> dictionary where key
+is <cite>key</cite>.</p>
+<p>A simple example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.locale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-running&#39;</span><span class="p">)</span>
+<span class="go">&#39;Please stand by while the analysis is running. This may take a while...&#39;</span>
+</pre></div>
+</div>
+<p>Substitution is also supported:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.locale</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;dummy&#39;</span><span class="p">,</span> <span class="s">&quot;windy with a slight chance of rain&quot;</span><span class="p">)</span>
+<span class="go">&quot;And tomorrow&#39;s forecast is, windy with a slight chance of rain&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/setl-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a><ul>
+<li><a class="reference internal" href="#module-setlyze.locale">Module Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="gui.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.gui</span></tt> &#8212; Graphical interfaces</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="std.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.std</span></tt> &#8212; Standard functions and classes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/setlyze/locale.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="std.html" title="setlyze.std — Standard functions and classes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="gui.html" title="setlyze.gui — Graphical interfaces"
+             >previous</a> |</li>
+        <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>
