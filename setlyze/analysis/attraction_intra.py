@@ -178,10 +178,7 @@ class Start(threading.Thread):
         # Path to the local database file.
         self.dbfile = setlyze.config.cfg.get('db-file')
         # Dictionary for the statistic test results.
-        self.statistics = {'normality':[], # Design Part: 2.36
-            'wilcoxon':[], # Design Part: 2.37
-            'chi_squared':[],
-            }
+        self.statistics = {'wilcoxon':[], 'chi_squared':[]}
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis2.1'))
@@ -488,7 +485,9 @@ class Start(threading.Thread):
             count_observed = len(observed)
             count_expected = len(expected)
             if count_observed != count_expected:
-                raise ValueError("Number of observed and expected distances are not equal.")
+                raise ValueError("Number of observed and expected "
+                    "distances are not equal. This indicates a bug "
+                    "in the application.")
 
             # A minimum of 2 observed distances is required for the
             # significance test. So skip this spots number if it's less.
@@ -589,8 +588,8 @@ class Start(threading.Thread):
 
         report.set_spot_distances_expected()
 
-        report.set_statistics('wilcoxon', self.statistics['wilcoxon'])
-        report.set_statistics('chi_squared', self.statistics['chi_squared'])
+        report.set_statistics('wilcoxon_spots', self.statistics['wilcoxon'])
+        report.set_statistics('chi_squared_spots', self.statistics['chi_squared'])
 
         # Create a global link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())

@@ -59,6 +59,7 @@ import gobject
 import setlyze.locale
 import setlyze.config
 import setlyze.database
+from setlyze.std import make_remarks
 
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
@@ -111,8 +112,18 @@ def on_quit(button, data=None):
     # this function from closing anyway.
     return True
 
-def bold(text):
-    """Return bold text marked up with Pango."""
+def on_not_implemented():
+    dialog = gtk.MessageDialog(parent=None, flags=0,
+        type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+        message_format="Not yet implemented")
+    dialog.format_secondary_text("Sorry, the feature you're trying to "
+        "access is not yet implemented.")
+
+    response = dialog.run()
+    dialog.destroy()
+
+def markup_header(text):
+    """Apply Pango markup to `text` to make it look like a header."""
     text = "<span size='large' weight='bold'>%s</span>" % (text)
     return text
 
@@ -279,7 +290,7 @@ class SelectionWindow(gtk.Window):
 
     def set_header(self, header):
         """Set the header text to `header`."""
-        self.header.set_markup(bold(header))
+        self.header.set_markup(markup_header(header))
 
     def set_description(self, description):
         """Set the description text to `description`."""
@@ -461,6 +472,11 @@ class SelectLocations(SelectionWindow):
         for item in db.get_locations():
             self.model.append([item[0], item[1]])
 
+        # Create a sorted version of the model. Then sort the locations
+        # ascending.
+        self.model = gtk.TreeModelSort(self.model)
+        self.model.set_sort_column_id(1, gtk.SORT_ASCENDING)
+
     def create_columns(self, treeview):
         """Create the columns for the tree view."""
         renderer_text = gtk.CellRendererText()
@@ -545,8 +561,14 @@ class SelectSpecies(SelectionWindow):
                                    gobject.TYPE_STRING,
                                    gobject.TYPE_STRING)
 
+
         for item in db.get_species(loc_slot=self.save_slot):
             self.model.append([item[0], item[1], item[2]])
+
+        # Create a sorted version of the model. Then sort on the latin
+        # species names.
+        self.model = gtk.TreeModelSort(self.model)
+        self.model.set_sort_column_id(2, gtk.SORT_ASCENDING)
 
     def create_columns(self, treeview):
         """Create columns for the tree view."""
@@ -557,6 +579,7 @@ class SelectSpecies(SelectionWindow):
         column = gtk.TreeViewColumn("Specie (latin)", renderer_text, text=2)
         # Sort on column 2 from the model.
         column.set_sort_column_id(2)
+        column.set_sort_order(gtk.SORT_ASCENDING)
         column.set_resizable(True)
         # Add the column to the tree view.
         treeview.append_column(column)
@@ -673,7 +696,7 @@ class DefinePlateAreas(gtk.Window):
         header.set_alignment(xalign=0, yalign=0)
         header.set_line_wrap(True)
         header.set_justify(gtk.JUSTIFY_FILL)
-        header.set_markup(bold(self.get_title()))
+        header.set_markup(markup_header(self.get_title()))
         # Add the label to the vertcal box.
         vbox.pack_start(header, expand=False, fill=True, padding=0)
 
@@ -1117,8 +1140,7 @@ class ChangeDataSource(gtk.Window):
         label_header.set_alignment(xalign=0, yalign=0)
         label_header.set_line_wrap(True)
         label_header.set_justify(gtk.JUSTIFY_FILL)
-        header = "<span size='large' weight='bold'>Change Data Source</span>"
-        label_header.set_markup(header)
+        label_header.set_markup(markup_header("Change Data Source"))
         vbox.add(label_header)
 
         # Add a label to the vertical box.
@@ -1564,12 +1586,6 @@ class DisplayReport(gtk.Window):
     def on_save(self, obj, data=None):
         """Display a dialog that allows the user to save the report to
         a file.
-
-        Two types of files can be exported:
-            * An analysis data file containing the settings, data, and
-              results for the analysis (XML format).
-            * TODO: A document containing the analysis results (plain text,
-              LaTeX).
         """
 
         # Create a file chooser dialog.
@@ -1587,16 +1603,63 @@ class DisplayReport(gtk.Window):
         xml_filter.set_name("XML Document (*.xml)")
         xml_filter.add_mime_type("text/xml")
         xml_filter.add_pattern("*.xml")
+
+        txt_filter = gtk.FileFilter()
+        txt_filter.set_name("Plain Text Document (*.txt)")
+        #txt_filter.add_mime_type("text/plain")
+        txt_filter.add_pattern("*.txt")
+
+        tex_filter = gtk.FileFilter()
+        tex_filter.set_name("LaTeX Document (*.tex, *.latex)")
+        tex_filter.add_mime_type("application/x-tex")
+        tex_filter.add_mime_type("application/x-latex")
+        tex_filter.add_pattern("*.tex")
+        tex_filter.add_pattern("*.latex")
+
+        chooser.add_filter(txt_filter)
+        chooser.add_filter(tex_filter)
         chooser.add_filter(xml_filter)
 
         response = chooser.run()
         if response == gtk.RESPONSE_OK:
-            # Let the ReportReader save the report.
+            # Get the filename to which the data should be exported.
             path = chooser.get_filename()
-            type = chooser.get_filter().get_name()
-            self.reader.save_report(path, type)
 
-        chooser.destroy()
+            # Get the name of the selected file type.
+            filter_name = chooser.get_filter().get_name()
+
+            # Close the filechooser.
+            chooser.destroy()
+
+            # File type = XML
+            if "*.xml" in filter_name:
+                setlyze.std.export_report(self.reader, path, 'xml')
+
+            # File type = text
+            elif "*.txt" in filter_name:
+                # Let the user select which elements to export.
+                dialog = SelectExportElements(self.reader)
+                response = dialog.run()
+
+                # Export the selected report elements.
+                if response == gtk.RESPONSE_ACCEPT:
+                    setlyze.std.export_report(self.reader, path, 'txt',
+                        dialog.get_selected_elements())
+                dialog.destroy()
+
+            # File type = LaTeX
+            elif "*.tex" in filter_name:
+                # Let the user select which elements to export.
+                dialog = SelectExportElements(self.reader)
+                response = dialog.run()
+
+                # Export the selected report elements.
+                if response == gtk.RESPONSE_ACCEPT:
+                    setlyze.std.export_report(self.reader, path, 'latex',
+                        dialog.get_selected_elements())
+                dialog.destroy()
+        else:
+            chooser.destroy()
 
     def add_report_elements(self):
         """Add the report elements present in the XML DOM object to the
@@ -1641,14 +1704,14 @@ class DisplayReport(gtk.Window):
             if 't_test' in elements:
                 self.add_statistics_ttest()
 
-            if 'wilcoxon' in elements:
-                self.add_statistics_wilcoxon()
+            if 'wilcoxon_spots' in elements:
+                self.add_statistics_wilcoxon_spots()
 
             if 'wilcoxon_ratios' in elements:
                 self.add_statistics_wilcoxon_ratios()
 
-            if 'chi_squared' in elements:
-                self.add_statistics_chisq()
+            if 'chi_squared_spots' in elements:
+                self.add_statistics_chisq_spots()
 
             if 'chi_squared_ratios' in elements:
                 self.add_statistics_chisq_ratios()
@@ -1670,9 +1733,7 @@ class DisplayReport(gtk.Window):
             return
 
         # Set the header text from the title.
-        analysis_name = "<span size='large' weight='bold'>Analysis Report: %s</span>" % \
-            (analysis_name)
-        header.set_markup(analysis_name)
+        header.set_markup(markup_header("Analysis Report: %s" % analysis_name))
 
         # Add the header to the top vertcal box.
         self.vbox_top.pack_start(header, expand=False, fill=True, padding=0)
@@ -1749,38 +1810,48 @@ class DisplayReport(gtk.Window):
         treestore = gtk.TreeStore(gobject.TYPE_STRING)
 
         # Add the species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
         species_selection = self.reader.get_species_selection(slot=0)
+        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
+        check = 0
         for spe in species_selection:
             species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
             treestore.append(parent=treeiter, row=[species])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Add the second species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
         species_selection = self.reader.get_species_selection(slot=1)
+        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
+        check = 0
         for spe in species_selection:
-            if not spe:
-                treestore.remove(treeiter)
-                break
             species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
             treestore.append(parent=treeiter, row=[species])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Add the locations selection to the model.
         treeiter = treestore.append(parent=None, row=["Locations selection (1)"])
         locations_selection = self.reader.get_locations_selection(slot=0)
+        check = 0
         for loc in locations_selection:
             location = "%s" % (loc['name'])
             treestore.append(parent=treeiter, row=[location])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Add the second locations selection to the model.
         treeiter = treestore.append(parent=None, row=["Locations selection (2)"])
         locations_selection = self.reader.get_locations_selection(slot=1)
+        check = 0
         for loc in locations_selection:
-            if not loc:
-                treestore.remove(treeiter)
-                break
             location = "%s" % (loc['name'])
             treestore.append(parent=treeiter, row=[location])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Set the tree model.
         tree.set_model(treestore)
@@ -1816,21 +1887,26 @@ class DisplayReport(gtk.Window):
         treestore = gtk.TreeStore(gobject.TYPE_STRING)
 
         # Add the species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
         species_selection = self.reader.get_species_selection(slot=0)
+        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
+        check = 0
         for spe in species_selection:
             species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
             treestore.append(parent=treeiter, row=[species])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Add the second species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
         species_selection = self.reader.get_species_selection(slot=1)
+        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
+        check = 0
         for spe in species_selection:
-            if not spe:
-                treestore.remove(treeiter)
-                break
             species = "%s (%s)" % (spe['name_latin'], spe['name_venacular'])
             treestore.append(parent=treeiter, row=[species])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Set the tree model.
         tree.set_model(treestore)
@@ -1868,19 +1944,24 @@ class DisplayReport(gtk.Window):
         # Add the locations selection to the model.
         treeiter = treestore.append(parent=None, row=["Locations selection (1)"])
         locations_selection = self.reader.get_locations_selection(slot=0)
+        check = 0
         for loc in locations_selection:
             location = "%s" % (loc['name'])
             treestore.append(parent=treeiter, row=[location])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Add the second locations selection to the model.
         treeiter = treestore.append(parent=None, row=["Locations selection (2)"])
         locations_selection = self.reader.get_locations_selection(slot=1)
+        check = 0
         for loc in locations_selection:
-            if not loc:
-                treestore.remove(treeiter)
-                break
             location = "%s" % (loc['name'])
             treestore.append(parent=treeiter, row=[location])
+            check = 1
+        if check == 0:
+            treestore.remove(treeiter)
 
         # Set the tree model.
         tree.set_model(treestore)
@@ -1986,7 +2067,7 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_wilcoxon(self):
+    def add_statistics_wilcoxon_spots(self):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -1995,7 +2076,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Wilcoxon signed-rank test")
+        expander = gtk.Expander("Results for Wilcoxon signed-rank tests")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2032,37 +2113,12 @@ class DisplayReport(gtk.Window):
             )
 
         # Add the distances to the model.
-        statistics = self.reader.get_statistics('wilcoxon')
+        statistics = self.reader.get_statistics('wilcoxon_spots')
 
         for attr,items in statistics:
             # Create a remarks string which allows for easy recognition
             # of interesting results.
-            remarks = []
-            if float(items['p_value']) > 0.05:
-                remarks.append("Not significant")
-            else:
-                remarks.append("Significant")
-
-                if float(items['mean_observed']) < float(items['mean_expected']):
-                    remarks.append("Attraction")
-                else:
-                    remarks.append("Repulsion")
-
-            if float(items['p_value']) < 0.001:
-                remarks.append("P < 0.001")
-            elif float(items['p_value']) < 0.01:
-                remarks.append("P < 0.01")
-            elif float(items['p_value']) < 0.05:
-                remarks.append("P < 0.05")
-            else:
-                remarks.append("P > 0.05")
-
-            if int(attr['n']) > 20:
-                remarks.append("n > 20")
-            else:
-                remarks.append("n < 20")
-
-            remarks = "; ".join(remarks)
+            remarks = make_remarks(items,attr)
 
             # Add all result items to the tree model.
             liststore.append([
@@ -2095,7 +2151,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Wilcoxon signed-rank test")
+        expander = gtk.Expander("Results for Wilcoxon signed-rank tests")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2137,32 +2193,7 @@ class DisplayReport(gtk.Window):
         for attr,items in statistics:
             # Create a remarks string which allows for easy recognition
             # of interesting results.
-            remarks = []
-            if float(items['p_value']) > 0.05:
-                remarks.append("Not significant")
-            else:
-                remarks.append("Significant")
-
-                if float(items['mean_observed']) < float(items['mean_expected']):
-                    remarks.append("Attraction")
-                else:
-                    remarks.append("Repulsion")
-
-            if float(items['p_value']) < 0.001:
-                remarks.append("P < 0.001")
-            elif float(items['p_value']) < 0.01:
-                remarks.append("P < 0.01")
-            elif float(items['p_value']) < 0.05:
-                remarks.append("P < 0.05")
-            else:
-                remarks.append("P > 0.05")
-
-            if int(attr['n']) > 20:
-                remarks.append("n > 20")
-            else:
-                remarks.append("n < 20")
-
-            remarks = "; ".join(remarks)
+            remarks = make_remarks(items,attr)
 
             # Add all result items to the tree model.
             liststore.append([
@@ -2186,7 +2217,7 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_chisq(self):
+    def add_statistics_chisq_spots(self):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2195,7 +2226,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Pearson's Chi-squared Test for Count Data")
+        expander = gtk.Expander("Results for Pearson's Chi-squared Tests for Count Data")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2232,37 +2263,12 @@ class DisplayReport(gtk.Window):
             )
 
         # Add the distances to the model.
-        statistics = self.reader.get_statistics('chi_squared')
+        statistics = self.reader.get_statistics('chi_squared_spots')
 
         for attr,items in statistics:
             # Create a remarks string which allows for easy recognition
             # of interesting results.
-            remarks = []
-            if float(items['p_value']) > 0.05:
-                remarks.append("Not significant")
-            else:
-                remarks.append("Significant")
-
-                if float(items['mean_observed']) < float(items['mean_expected']):
-                    remarks.append("Attraction")
-                else:
-                    remarks.append("Repulsion")
-
-            if float(items['p_value']) < 0.001:
-                remarks.append("P < 0.001")
-            elif float(items['p_value']) < 0.01:
-                remarks.append("P < 0.01")
-            elif float(items['p_value']) < 0.05:
-                remarks.append("P < 0.05")
-            else:
-                remarks.append("P > 0.05")
-
-            if int(attr['n']) > 20:
-                remarks.append("n > 20")
-            else:
-                remarks.append("n < 20")
-
-            remarks = "; ".join(remarks)
+            remarks = make_remarks(items,attr)
 
             # Add all result items to the tree model.
             liststore.append([
@@ -2295,7 +2301,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Pearson's Chi-squared Test for Count Data")
+        expander = gtk.Expander("Results for Pearson's Chi-squared Tests for Count Data")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2337,32 +2343,7 @@ class DisplayReport(gtk.Window):
         for attr,items in statistics:
             # Create a remarks string which allows for easy recognition
             # of interesting results.
-            remarks = []
-            if float(items['p_value']) > 0.05:
-                remarks.append("Not significant")
-            else:
-                remarks.append("Significant")
-
-                if float(items['mean_observed']) < float(items['mean_expected']):
-                    remarks.append("Attraction")
-                else:
-                    remarks.append("Repulsion")
-
-            if float(items['p_value']) < 0.001:
-                remarks.append("P < 0.001")
-            elif float(items['p_value']) < 0.01:
-                remarks.append("P < 0.01")
-            elif float(items['p_value']) < 0.05:
-                remarks.append("P < 0.05")
-            else:
-                remarks.append("P > 0.05")
-
-            if int(attr['n']) > 20:
-                remarks.append("n > 20")
-            else:
-                remarks.append("n < 20")
-
-            remarks = "; ".join(remarks)
+            remarks = make_remarks(items,attr)
 
             # Add all result items to the tree model.
             liststore.append([
@@ -2395,7 +2376,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Statistic Results: Normality")
+        expander = gtk.Expander("Results for Shapiro-Wilk tests of normality")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2424,7 +2405,6 @@ class DisplayReport(gtk.Window):
             gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
             gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
             )
 
         # Add the distances to the model.
@@ -2440,7 +2420,6 @@ class DisplayReport(gtk.Window):
                 int(attr['n']),
                 float(items['p_value']),
                 float(items['w']),
-                attr['method'],
                 null_hypothesis,
                 ])
 
@@ -2452,3 +2431,111 @@ class DisplayReport(gtk.Window):
 
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+
+class SelectExportElements(gtk.Dialog):
+    """Display a dialog for allowing the user to select which report
+    elements to export.
+    """
+
+    def __init__(self, reader):
+        super(SelectExportElements, self).__init__()
+        self.set_report_reader(reader)
+
+        self.set_size_request(400, -1)
+        self.set_border_width(10)
+        self.set_title("Export Analysis Report - Select Elements")
+        self.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+            gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
+        self.set_has_separator(True)
+
+        # Add widgets to the GTK window.
+        self.create_layout()
+
+        # Display all widgets.
+        self.show_all()
+
+    def set_report_reader(self, reader):
+        """Set the report reader."""
+        self.reader = reader
+
+    def get_selected_elements(self):
+        """Return a list with the names of the selected report
+        elements.
+        """
+        selected = []
+        for element,button in self.check_buttons.iteritems():
+            if button.get_active():
+                selected.append(element)
+        return selected
+
+    def create_layout(self):
+        """Add widgets to the dialog."""
+
+        # Get gtk.Dialog's vertical box.
+        vbox = self.get_content_area()
+
+        # Create a label.
+        self.descr_label = gtk.Label()
+        self.descr_label.set_line_wrap(True)
+        self.descr_label.set_text("Please check the elements to export.")
+        self.descr_label.set_alignment(xalign=0, yalign=0)
+        vbox.pack_start(self.descr_label, expand=False, fill=False, padding=5)
+
+        # Create a dictionary of all known report elements and their
+        # name.
+        element_names = {'spot_distances': "Spot Distances",
+            'location_selections': "Locations Selection(s)",
+            'specie_selections': "Species Selection(s)",
+            'wilcoxon_spots': "Results for Wilcoxon signed-rank tests",
+            'wilcoxon_ratios': "Results for Wilcoxon signed-rank tests",
+            'chi_squared_spots': "Results for Pearson's Chi-squared Tests for Count Data",
+            'chi_squared_ratios': "Results for Pearson's Chi-squared Tests for Count Data",
+            'plate_areas_definition': "Plate Areas Definition",
+            'area_totals': "Species Totals per Plate Area",
+            'normality': "Results for Shapiro-Wilk tests of normality",
+            't_test': "Results for t-tests",
+            }
+
+        # Create check buttons.
+        self.check_buttons = {}
+        for element in self.reader.get_child_names():
+            # Don't add the 'statistics' element, but do add its sub
+            # elements.
+            if element == 'statistics':
+                stats = self.reader.get_element(self.reader.doc, 'statistics')
+                for element in self.reader.get_child_names(stats):
+                    if element in self.check_buttons:
+                        continue
+                    self.check_buttons[element] = gtk.CheckButton(element_names[element])
+                    self.check_buttons[element].set_active(True)
+                    vbox.pack_start(self.check_buttons[element],
+                        expand=False, fill=True, padding=3)
+                continue
+            # Group some elements in one element.
+            elif element == 'spot_distances_observed':
+                element  = 'spot_distances'
+            elif element == 'spot_distances_expected':
+                element  = 'spot_distances'
+            elif element == 'area_totals_observed':
+                element  = 'area_totals'
+            elif element == 'area_totals_expected':
+                element  = 'area_totals'
+            # Skip this element.
+            elif element == 'analysis':
+                continue
+
+            # Don't elements that are already in the list.
+            if element in self.check_buttons:
+                continue
+
+            self.check_buttons[element] = gtk.CheckButton(element_names[element])
+            self.check_buttons[element].set_active(True)
+            vbox.pack_start(self.check_buttons[element], expand=False,
+                fill=True, padding=3)
+
+        # Uncheck some 'not-so-interesting' report elements.
+        uncheck = ('spot_distances')
+        for element, button in self.check_buttons.iteritems():
+            if element in uncheck:
+                button.set_active(False)

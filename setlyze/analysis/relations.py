@@ -39,3 +39,4 @@ class Begin(object):
         # Create log message.
         logging.info("Beginning Analysis 3 \"Relation between species\"")
 
+        setlyze.gui.on_not_implemented()

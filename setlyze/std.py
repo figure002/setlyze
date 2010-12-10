@@ -46,6 +46,87 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/10/01 13:42:16"
 
+def make_remarks(results,attributes):
+    """Return a remarks string that contains a summary of the results
+    and attributes of a statistical test.
+    """
+    remarks = []
+
+    if 'p_value' in results:
+        if float(results['p_value']) > 0.05:
+            remarks.append("Not significant")
+        else:
+            remarks.append("Significant")
+
+            if 'mean_observed' in results and 'mean_expected' in results:
+                if float(results['mean_observed']) < float(results['mean_expected']):
+                    remarks.append("Attraction")
+                else:
+                    remarks.append("Repulsion")
+
+        if float(results['p_value']) < 0.001:
+            remarks.append("P < 0.001")
+        elif float(results['p_value']) < 0.01:
+            remarks.append("P < 0.01")
+        elif float(results['p_value']) < 0.05:
+            remarks.append("P < 0.05")
+        else:
+            remarks.append("P > 0.05")
+
+    if 'n' in attributes:
+        if int(attributes['n']) > 20:
+            remarks.append("n > 20")
+        else:
+            remarks.append("n < 20")
+
+    remarks = "; ".join(remarks)
+    return remarks
+
+def export_report(reader, path, type, elements=None):
+    """Save the data from the XML DOM report to a data file or an
+    analysis report document. The file is saved to `path` in a
+    format specified by `type`. Possible values for `type` are
+    ``xml``, ``txt`` or ``latex``.
+
+    If `type` is ``xml``, all data from the DOM object is
+    saved to an XML file. If `type` is ``txt`` or ``latex``,
+    the report elements specified by the user will be saved to a
+    human readable document.
+
+    .. todo::
+       Implement methods for generating text and LaTeX reports.
+
+    Design Part: 1.17
+    """
+
+    # Based on the type, decide in which file type to save the
+    # report.
+    if type == 'xml':
+        # Add the extension if it's missing from the filename.
+        if not path.endswith(".xml"):
+            path += ".xml"
+        reader.export_xml(path)
+
+    elif type == 'txt':
+        # Add the extension if it's missing from the filename.
+        if not path.endswith(".txt"):
+            path += ".txt"
+        exporter = ExportTextReport(reader)
+        exporter.export(path, elements)
+
+    elif type == 'latex':
+        # Add the extension if it's missing from the filename.
+        if not path.endswith(".tex") and not path.endswith(".latex"):
+            path += ".tex"
+        exporter = ExportLatexReport(reader)
+        exporter.export(path, elements)
+
+    else:
+        raise ValueError("Unknow value for 'type'. Must be either "
+            "'xml', 'txt' or 'latex'")
+
+    logging.info("Analysis report saved to %s" % path)
+
 def remove_items_from_list(a,b):
     """Remove the items in list `b` from list `a`."""
     for x in b:
@@ -1522,7 +1603,6 @@ class ReportReader(object):
         # Check if the 'selection' element was found. If not, yield
         # None and exit.
         if not locations_selection:
-            yield None
             return
 
         # Return each location from the 'locations_selection' node.
@@ -1571,7 +1651,6 @@ class ReportReader(object):
         # Check if the 'selection' element was found. If not, yield
         # None and exit.
         if not species_selection:
-            yield None
             return
 
         # Return each specie from the 'species_selection' node.
@@ -1781,43 +1860,6 @@ class ReportReader(object):
                 # Return a tuple.
                 yield (attributes,results)
 
-    def save_report(self, path, type):
-        """Save the data from the XML DOM report to a data file or an
-        analysis report document. The file is saved to `path` in a
-        format specified by `type`. Possible values for `type` are
-        strings containing ``xml``, ``txt`` or ``latex``.
-
-        If `type` contains ``xml``, all data from the DOM object is
-        saved to an XML file. If `type` contians ``txt`` or ``latex``,
-        the report elements speciefied by the user will be save to a
-        human readable document.
-
-        .. todo::
-           Implement methods for generating text and LaTeX reports.
-
-        Design Part: 1.17
-        """
-
-        # Based on the type, decide in which file type to save the
-        # report.
-        if "xml" in type:
-            # Add the extension if it's missing from the filename.
-            if not path.endswith(".xml"):
-                path += ".xml"
-
-            # Save report.
-            self.export_xml(path)
-            logging.info("Analysis report saved to %s" % path)
-
-        elif "txt" in type:
-            logging.info("Analysis reports in text format are not yet supported.")
-
-        elif "latex" in type:
-            logging.info("Analysis reports in LaTeX format are not yet supported.")
-
-        else:
-            raise ValueError("Argument 'type' must be a string containing either `xml`, `txt` or `latex`")
-
     def get_xml(self):
         """Return the XML source for the XML DOM report."""
         return self.doc.toprettyxml(encoding="utf-8")
@@ -1826,6 +1868,468 @@ class ReportReader(object):
         """Export the XML source of the XML DOM report to a file."""
         f = open(filename, 'w')
         self.doc.writexml(f, addindent="\t", newl="\n", encoding="utf-8")
+        f.close()
+
+class ExportLatexReport(object):
+    """Generate an analysis report in LaTeX format.
+
+    Design Part:
+    """
+
+    def __init__(self, reader = None):
+        self.set_report_reader(reader)
+
+    def set_report_reader(self, reader):
+        """Set the report reader."""
+        self.reader = reader
+
+    def generate(self, elements=None):
+        pass
+
+    def export(self, path, elements=None):
+        pass
+
+class ExportTextReport(object):
+    """Generate an analysis report in text format.
+
+    Design Part:
+    """
+
+    def __init__(self, reader = None):
+        self.set_report_reader(reader)
+
+    def set_report_reader(self, reader):
+        """Set the report reader."""
+        self.reader = reader
+
+    def part(self, header):
+        """Return `header` marked up as a header for parts in
+        reStructuredText format.
+        """
+        text = "<hr>\n<h>\n<hr>\n"
+        text = text.replace('<h>', header)
+        text = text.replace('<hr>', "="*len(header))
+        return text
+
+    def chapter(self, header):
+        """Return `header` marked up as a header for parts in
+        reStructuredText format.
+        """
+        text = "<hr>\n<h>\n<hr>\n"
+        text = text.replace('<h>', header)
+        text = text.replace('<hr>', "*"*len(header))
+        return text
+
+    def section(self, header):
+        """Return `header` marked up as a header for sections in
+        reStructuredText format.
+        """
+        text = "\n<h>\n<hr>\n\n"
+        text = text.replace('<h>', header)
+        text = text.replace('<hr>', "="*len(header))
+        return text
+
+    def subsection(self, header):
+        """Return `header` marked up as a header for subsections in
+        reStructuredText format.
+        """
+        text = "\n<h>\n<hr>\n\n"
+        text = text.replace('<h>', header)
+        text = text.replace('<hr>', "-"*len(header))
+        return text
+
+    def subsubsection(self, header):
+        """Return `header` marked up as a header for subsubsections in
+        reStructuredText format.
+        """
+        text = "\n<h>\n<hr>\n\n"
+        text = text.replace('<h>', header)
+        text = text.replace('<hr>', "^"*len(header))
+        return text
+
+    def table(self, headers):
+        """Return a table header with column names from `headers` in
+        reStructuredText format.
+
+        `headers` is a list/tuple containing two-item tuples
+        ``(<column name>, <column width>)``. The column name is a string,
+        and the column width is an integer defining the character width
+        of the column. A value of -1 for column with means that the
+        column will have the same width as the column name.
+        """
+        header = ""
+        header_lengths = []
+        format = []
+        for name,length in headers:
+            if length == -1:
+                length = len(name)
+
+            header_lengths.append(length)
+            format.append("%%-%ds" % length)
+
+        # Generate top rule for table.
+        header += self.table_rule(header_lengths)
+
+        # Generate column names.
+        format = "  ".join(format)
+        args = tuple([x[0] for x in headers])
+        header += format % args
+        header += "\n"
+
+        # Generate rule below column names.
+        header += self.table_rule(header_lengths)
+
+        # Generate rule for the end of the table.
+        footer = self.table_rule(header_lengths)
+
+        return (header,footer)
+
+    def table_rule(self, col_widths):
+        """Return a rule for a table with column widths `col_widths`.
+
+        `col_widths` is a list/tuple containing column widths (integers).
+        """
+        format = []
+        for n in col_widths:
+            format.append("="*n)
+        return "  ".join(format) + "\n"
+
+    def generate(self, elements=None):
+        # Get the child element names of the report root.
+        report_elements = self.reader.get_child_names()
+        # Add the child element names of the 'statistics' element to the
+        # list of root element names.
+        stats = self.reader.get_element(self.reader.doc, 'statistics')
+        if stats:
+            report_elements.extend(self.reader.get_child_names(stats))
+
+        # If 'elements' argument was provided, create a new
+        # 'report_elements' list containing only the elements that are
+        # present in both lists.
+        report_elements_new = []
+        if elements:
+            for element in elements:
+                for r_element in report_elements:
+                    # Now check if string 'element' is part of string
+                    # r_element. Note that they don't have to be
+                    # exactly the same, e.g. if 'spot_distances' is
+                    # present in 'elements', both 'spot_distances_observed'
+                    # and 'spot_distances_expected' will be added to
+                    # 'report_elements_new'.
+                    if element in r_element:
+                        report_elements_new.append(r_element)
+            report_elements = report_elements_new
+
+        # Write the header for the report which includes the analysis
+        # name.
+        header = "SETLyze Analysis Report - %s" % self.reader.get_analysis_name()
+        yield self.part(header)
+
+        # Add species selections.
+        if 'specie_selections' in report_elements:
+            yield self.section("Locations and Species Selections")
+
+            species_selection = self.reader.get_species_selection(slot=0)
+            yield self.subsection("Species Selection (1)")
+            for spe in species_selection:
+                if not len(spe['name_latin']):
+                    yield "* %s\n" % (spe['name_venacular'])
+                elif not len(spe['name_venacular']):
+                    yield "* %s\n" % (spe['name_latin'])
+                else:
+                    yield "* %s (%s)\n" % (spe['name_latin'], spe['name_venacular'])
+
+            if len(list(self.reader.get_species_selection(slot=1))):
+                species_selection = self.reader.get_species_selection(slot=1)
+                yield self.subsection("Species Selection (2)")
+                for spe in species_selection:
+                    if not len(spe['name_latin']):
+                        yield "* %s\n" % (spe['name_venacular'])
+                    elif not len(spe['name_venacular']):
+                        yield "* %s\n" % (spe['name_latin'])
+                    else:
+                        yield "* %s (%s)\n" % (spe['name_latin'], spe['name_venacular'])
+
+        # Add locations selections.
+        if 'location_selections' in report_elements:
+            yield self.subsection("Locations selection (1)")
+            locations_selection = self.reader.get_locations_selection(slot=0)
+            for loc in locations_selection:
+                yield "* %s\n" % loc['name']
+
+            if len(list(self.reader.get_locations_selection(slot=1))):
+                yield self.subsection("Locations selection (2)")
+                locations_selection = self.reader.get_locations_selection(slot=1)
+                for loc in locations_selection:
+                    yield "* %s\n" % loc['name']
+
+        # Add the spot distances.
+        if 'spot_distances_observed' in report_elements and \
+                'spot_distances_expected' in report_elements:
+            yield self.section("Spot Distances")
+
+            t_header, t_footer = self.table(
+                [("Observed", -1),
+                ("Expected", -1)]
+                )
+
+            yield t_header
+            observed_distances = self.reader.get_spot_distances_observed()
+            expected_distances = self.reader.get_spot_distances_expected()
+            for dist_observed in observed_distances:
+                yield "%8s  %8s\n" % (dist_observed, expected_distances.next())
+            yield t_footer
+
+        # Add the plate areas definition.
+        if 'plate_areas_definition' in report_elements:
+            yield self.section("Plate Areas Definition")
+
+            t_header, t_footer = self.table(
+                [("Area ID", -1),
+                ("Plate Area Spots", -1)]
+                )
+
+            yield t_header
+            spots_definition = self.reader.get_plate_areas_definition()
+            for area_id, spots in sorted(spots_definition.iteritems()):
+                spots = ", ".join(spots)
+                yield "%-7s  %s\n" % (area_id, spots)
+            yield t_footer
+
+        # Add the specie totals per plate area.
+        if 'area_totals_observed' in report_elements and \
+                'area_totals_expected' in report_elements:
+            yield self.section("Species Totals per Plate Area")
+
+            t_header, t_footer = self.table(
+                [("Area ID", -1),
+                ("Observed Totals", -1),
+                ("Expected Totals", -1)]
+                )
+
+            yield t_header
+            totals_observed = self.reader.get_area_totals_observed()
+            totals_expected = self.reader.get_area_totals_expected()
+            for area_id in sorted(totals_observed):
+                yield "%-7s  %15s  %15s\n" % (area_id, totals_observed[area_id], totals_expected[area_id])
+            yield t_footer
+
+        # Add the results for the normality tests.
+        if 'normality' in report_elements:
+            yield self.section("Results for Shapiro-Wilk tests of normality")
+
+            t_header, t_footer = self.table(
+                [("Positive Spots", -1),
+                ("n (distances)", -1),
+                ("P-value", -1),
+                ("W", 6),
+                ("Normality", -1)]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('normality')
+            for attr,items in statistics:
+                null_hypothesis = "True"
+                if float(items['p_value']) < setlyze.config.cfg.get('normality-alpha'):
+                    null_hypothesis = "False"
+
+                yield "%14s  %13s  %7.4f  %6.4f  %s\n" % \
+                    (attr['n_positive_spots'],
+                    attr['n'],
+                    float(items['p_value']),
+                    float(items['w']),
+                    null_hypothesis
+                    )
+            yield t_footer
+
+        # Add the results for the t-tests.
+        if 't_test' in report_elements:
+            yield self.section("Results for t-tests")
+            # TODO
+
+        # Add the results for the Wilcoxon signed-rank tests.
+        if 'wilcoxon_spots' in report_elements:
+            yield self.section("Results for Wilcoxon signed-rank tests")
+
+            t_header, t_footer = self.table(
+                [('Positive Spots', -1),
+                ('n (plates)', -1),
+                ('n (distances)', -1),
+                ('P-value', -1),
+                ('Mean Observed', -1),
+                ('Mean Expected', -1),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_spots')
+            for attr,items in statistics:
+                yield "%14s  %10s  %13s  %7.4f  %13.4f  %13.4f\n" % \
+                    (attr['n_positive_spots'],
+                    attr['n_plates'],
+                    attr['n'],
+                    float(items['p_value']),
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_footer = self.table(
+                [('Positive Spots', -1),
+                ('Conf. interval start', -1),
+                ('Conf. interval end', -1),
+                ('Remarks', 40),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_spots')
+            for attr,items in statistics:
+                yield "%14s  %20.6f  %18.6f  %s\n" % \
+                    (attr['n_positive_spots'],
+                    float(items['conf_int_start']),
+                    float(items['conf_int_end']),
+                    make_remarks(items,attr)
+                    )
+            yield t_footer
+
+        # Add the results for the Wilcoxon signed-rank tests.
+        if 'wilcoxon_ratios' in report_elements:
+            yield self.section("Results for Wilcoxon signed-rank tests")
+
+            t_header, t_footer = self.table(
+                [('Ratios Group', -1),
+                ('n (plates)', -1),
+                ('n (distances)', -1),
+                ('P-value', -1),
+                ('Mean Observed', -1),
+                ('Mean Expected', -1),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_ratios')
+            for attr,items in statistics:
+                yield "%12s  %10s  %13s  %7.4f  %13.4f  %13.4f\n" % \
+                    (attr['ratio_group'],
+                    attr['n_plates'],
+                    attr['n'],
+                    float(items['p_value']),
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_footer = self.table(
+                [('Ratios Group', -1),
+                ('Conf. interval start', -1),
+                ('Conf. interval end', -1),
+                ('Remarks', 40),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_ratios')
+            for attr,items in statistics:
+                yield "%12s  %20.6f  %18.6f  %s\n" % \
+                    (attr['ratio_group'],
+                    float(items['conf_int_start']),
+                    float(items['conf_int_end']),
+                    make_remarks(items,attr)
+                    )
+            yield t_footer
+
+        # Add the results for the Chi-squared tests.
+        if 'chi_squared_spots' in report_elements:
+            yield self.section("Results for Pearson's Chi-squared Tests for Count Data")
+
+            t_header, t_footer = self.table(
+                [('Positive Spots', -1),
+                ('n (plates)', -1),
+                ('n (distances)', -1),
+                ('P-value', -1),
+                ('Chi squared', -1),
+                ('df', 6),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_spots')
+            for attr,items in statistics:
+                yield "%14s  %10s  %13s  %7.4f  %11.4f  %6s\n" % \
+                    (attr['n_positive_spots'],
+                    attr['n_plates'],
+                    attr['n'],
+                    float(items['p_value']),
+                    float(items['chi_squared']),
+                    items['df'],)
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_footer = self.table(
+                [('Positive Spots', -1),
+                ('Mean Observed', -1),
+                ('Mean Expected', -1),
+                ('Remarks', 40),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_spots')
+            for attr,items in statistics:
+                yield "%14s  %13.4f  %13.4f  %s\n" % \
+                    (attr['n_positive_spots'],
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    make_remarks(items,attr))
+            yield t_footer
+
+        # Add the results for the Chi-squared tests.
+        if 'chi_squared_ratios' in report_elements:
+            yield self.section("Results for Pearson's Chi-squared Tests for Count Data")
+
+            t_header, t_footer = self.table(
+                [('Ratios Group', -1),
+                ('n (plates)', -1),
+                ('n (distances)', -1),
+                ('P-value', -1),
+                ('Chi squared', -1),
+                ('df', 6),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_ratios')
+            for attr,items in statistics:
+                yield "%12s  %10s  %13s  %7.4f  %11.4f  %6s\n" % \
+                    (attr['ratio_group'],
+                    attr['n_plates'],
+                    attr['n'],
+                    float(items['p_value']),
+                    float(items['chi_squared']),
+                    items['df'],)
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_footer = self.table(
+                [('Ratios Group', -1),
+                ('Mean Observed', -1),
+                ('Mean Expected', -1),
+                ('Remarks', 40),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_ratios')
+            for attr,items in statistics:
+                yield "%12s  %13.4f  %13.4f  %s\n" % \
+                    (attr['ratio_group'],
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    make_remarks(items,attr))
+            yield t_footer
+
+    def export(self, path, elements=None):
+        f = open(path, 'w')
+        f.writelines(self.generate(elements))
         f.close()
 
 # Register the Sender class as an official GType.

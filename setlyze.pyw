@@ -236,10 +236,6 @@ class SelectAnalysis(object):
             self.frame_descr.set_label("Analysis 3")
             self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
 
-    def on_info(self, button):
-        h = setlyze.gui.Help()
-        h.set_text("Hello World!")
-
     def destroy_handler_connections(self):
         """
         Disconnect all signal connections with signal handlers created
@@ -247,8 +243,8 @@ class SelectAnalysis(object):
         """
 
         # This handler is only needed once. We don't want
-        # self.on_continue to be called each time a progress dialog is
-        # closed.
+        # self.on_continue to be called each time the local database
+        # is recreated.
         if self.handler3:
             setlyze.std.sender.disconnect(self.handler3)
             self.handler3 = None
@@ -281,7 +277,7 @@ class SelectAnalysis(object):
             # Once the database was created, a signal will be sent, and
             # self.on_continue will be called again, running the code
             # below. Hence the 'return'.
-            return
+            return False
 
         # Then begin with the selected analysis.
         if self.radio_ana1.get_active():
@@ -295,6 +291,8 @@ class SelectAnalysis(object):
 
         elif self.radio_ana3.get_active():
             setlyze.analysis.relations.Begin()
+
+        return False
 
     def on_quit(self, widget, data=None):
         """Close the application."""

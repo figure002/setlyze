@@ -233,10 +233,7 @@ class Start(threading.Thread):
         # Path to the local database file.
         self.dbfile = setlyze.config.cfg.get('db-file')
         # Dictionary for the statistic test results.
-        self.statistics = {'normality':[], # Design Part: 2.36
-            'wilcoxon':[], # Design Part: 2.37
-            'chi_squared':[],
-            }
+        self.statistics = {'wilcoxon':[], 'chi_squared':[]}
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis2.2'))
@@ -611,7 +608,9 @@ class Start(threading.Thread):
             count_observed = len(observed)
             count_expected = len(expected)
             if count_observed != count_expected:
-                raise ValueError("Number of observed and expected distances are not equal.")
+                raise ValueError("Number of observed and expected "
+                    "distances are not equal. This indicates a bug "
+                    "in the application.")
 
             # A minimum of 2 observed distances is required for the
             # significance test. So skip this ratio group if it's less.
