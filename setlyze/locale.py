@@ -91,152 +91,24 @@ ENGLISH = [
         "a single plate area. Please change your setting so that there "
         "are at least two plate areas."),
     ('change-data-source',
-        "Select one of the tabs below to change to a different data "
-        "source for your analysis."),
+        "Click on one of the tabs below to change to a different data "
+        "source."),
     ('change-data-source-csv',
-        "Load SETL data from comma separated files (CSV). These data "
-        "files must be exported from the MS Access SETL database in CSV "
+        "Load SETL data from CSV files. These data files must "
+        "be exported from the Microsoft Access SETL database in CSV "
         "format. The user manual describes how to export these files."),
     ('change-data-source-db',
-        "Load SETL data from the main SETL database. This requires a "
-        "direct connection with the SETL database server. Please enter "
-        "the host name and port number of the SETL database server "
-        "below, then press Connect."),
+        "Load SETL data from the remote SETL database. This requires a "
+        "direct connection with the SETL database server. This feature "
+        "has not been implemented yet."),
     ('analysis-running',
         "Please stand by while the analysis is running. This may take "
         "a while..."),
     ]
 
-HTML = [
-    ('help-loc-selection', "<body xmlns='http://www.w3.org/1999/xhtml'> \
-        <div id='content'> \
-            <h1>Locations Selection</h1> \
-            <p>The <b>locations selection dialog</b> shows a list of all \
-            SETL localities. This dialog allows you to select locations \
-            from which you want to select species. The <b>species \
-            selection dialog</b> which will be displayed after \
-            clicking the Continue button, will <i>only</i> \
-            display the species that are recorded in the selected \
-            locations. Subsequently this means that <i>only</i> \
-            the SETL records that match both the locations \
-            and species selection will be used for the analysis. \
-            </p> \
-            <h2>Making a selection</h2> \
-            <p>Just click on one of the locations to select it. To \
-            select multiple locations, hold Ctrl or Shift. To select \
-            all locations, click on a location and press Ctrl+A.</p> \
-        </div> \
-        </body>"),
-    ('help-spe-selection', "<body xmlns='http://www.w3.org/1999/xhtml'> \
-        <div id='content'> \
-            <h1>Species Selection</h1> \
-            <p>The <b>species selection \
-            dialog</b> shows a list of all SETL species that \
-            were found in the selected SETL localities. This dialog \
-            allows you to select the species to be included in the \
-            analysis. Only the SETL records that match both the the \
-            locations and species selection will be used for the analysis. \
-            </p> \
-            <p>It is possible to select more than one specie (see below). \
-            Selecting more than one specie means the selected species are \
-            threated as one specie for the analysis. However, if the \
-            selected analysis requires two or more separate \
-            specie(s) selections (i.e. two species are compared), it \
-            will display the selection dialog multiple times. In \
-            this case, the header of the selection dialog will say \
-            \"First Selection\", \"Second Selection\", etc.</p> \
-            <h2>Making a selection</h2> \
-            <p>Just click on one of the species to select it. To select \
-            multiple species, hold Ctrl or Shift. To select all species, \
-            click on a specie and press Ctrl+A.</p> \
-        </div> \
-        </body>"),
-    ('help-define-plate-areas', "<body xmlns='http://www.w3.org/1999/xhtml'> \
-        <div id='content'> \
-            <h1>Define Plate Areas</h1>\
-            <p>TODO</p>\
-        </div> \
-        </body>"),
-    ('help-analysis-report', "<body xmlns='http://www.w3.org/1999/xhtml'>\
-        <div id='content'>\
-            <h1>Analysis Report</h1>\
-            <p>The <b>analysis report dialog</b> shows the results for\
-                the anaylysis. The report is divided into sub elements. Each\
-                analysis element is described below.</p>\
-                <h2>Locations and Species Selections</h2>\
-                <p>Displays the locations and species selections. If\
-                multiple selections were made, each element is suffixed by\
-                a number. For example \"Species selection (2)\" stands\
-                for the second species selection.</p>\
-                <h2>Spot Distances</h2>\
-                <p>Displays the observed and expected spot distances.</p>\
-                <h2>Results for Wilcoxon signed-rank test</h2>\
-                <p>Shows the results for the Wilcoxon signed-rank test.\
-                First the records are grouped by positive spots numbers.\
-                Then the test is performed on each group. Each row contains\
-                the result of one test. Each row contains the following\
-                elements:\
-                <dl>\
-                    <dt>Positive Spots</dt>\
-                    <dd>A number representing the number of positive\
-                    spots. For this test only records matching that\
-                    number of positive spots (spots on which the selected\
-                    specie was found) were used. The test is first performed\
-                    on records with 2 to 24 positive spots. 1 is not excluded\
-                    because we can't calculate spot distances with just one\
-                    positive spot. 25 is excluded because the results\
-                    based on these records will never be significant.\
-                    A negative number actually means 'up to that number\
-                    of positive spots excluding 1'</dd>\
-                    <dt>n (plates)</dt>\
-                    <dd>The number of plates that match the number of\
-                    positive spots.</dd>\
-                    <dt>n (distances)</dt>\
-                    <dd>The number of spot distances derived from the\
-                    records matching the positive spots number.</dd>\
-                    <dt>P-value</dt>\
-                    <dd>The P-value for the test.</dd>\
-                    <dt>Mean Observed</dt>\
-                    <dd>The mean of the observed spot distances.</dd>\
-                    <dt>Mean Expected</dt>\
-                    <dd>The mean of the expected spot distances.</dd>\
-                    <dt>Conf. interval start</dt>\
-                    <dd>The start of the confidence interval for the test.</dd>\
-                    <dt>Conf. interval end</dt>\
-                    <dd>The end of the confidence interval for the test.</dd>\
-                    <dt>Remarks</dt>\
-                    <dd>A summary of the results. Shows whether the p-value\
-                    is significant, and if so, decides based on the mean\
-                    if species attract or repel.</dd>\
-                </dl>\
-            </p>\
-            <h2>Results for Pearson's Chi-squared Test for Count Data</h2>\
-            <p></p>\
-        </div>\
-        </body>"),
-    ]
-
-HTML_SUBSTITUTIONS = [
-    ("<div id='content'>","<div id='content' style='margin-left:5px; margin-right:5px; font-size:110%; font-family:sans-serif,verdana'>"),
-    ("<h1>","<p style='font-size:150%; text-decoration:underline; font-weight:bold'>"),
-    ("</h1>","</p>"),
-    ("<h2>","<p style='font-size:120%; font-weight:bold'>"),
-    ("</h2>","</p>"),
-    ("<b>","<span style='font-weight:bold'>"),
-    ("</b>","</span>"),
-    ("<i>","<span style='font-style:italic'>"),
-    ("</i>","</span>"),
-    ("<dl>","<div style='margin-left:15px'>"),
-    ("</dl>","</div>"),
-    ("<dt>","<p style='font-weight:bold'>"),
-    ("</dt>","</p>"),
-    ("<dd>","<p>"),
-    ("</dd>","</p>"),
-    ]
-
-# Turn the lists into a dictionaries. This provides easier access to items.
+# Turn the list into a dictionary. This provides easier access to its
+# items.
 ENGLISH = dict(ENGLISH)
-HTML = dict(HTML)
 
 def text(key, *args):
     """Return the text string from the ``ENGLISH`` dictionary where key
@@ -262,23 +134,3 @@ def text(key, *args):
         text = ENGLISH[key]
 
     return text
-
-def html(key, *args):
-    """Return the XHTML code from the ``HTML`` dictionary where key is
-    `key`.
-
-    Usage is the same as :meth:`text`.
-    """
-    if key not in HTML:
-        raise ValueError("Unknown key '%s'" % key)
-    if args:
-        html_code = HTML[key] % (args)
-    else:
-        html_code = HTML[key]
-
-    # Replace some HTML tags by alternative tags, as not all HTML tags
-    # are supported by the third party HTML module we're using.
-    for old,new in HTML_SUBSTITUTIONS:
-        html_code = html_code.replace(old,new)
-
-    return html_code

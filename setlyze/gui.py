@@ -97,7 +97,7 @@ def on_help(button, section):
 def on_quit(button, data=None):
     """Quit the application."""
     dialog = gtk.MessageDialog(parent=None, flags=0,
-        type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_YES_NO,
+        type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO,
         message_format="Are you sure you want to quit SETLyze?")
 
     response = dialog.run()
@@ -178,19 +178,19 @@ class SelectionWindow(gtk.Window):
         # Create buttons for the toolbar.
         button_home = gtk.ToolButton(gtk.STOCK_HOME)
         sep = gtk.SeparatorToolItem()
-        button_info = gtk.ToolButton(gtk.STOCK_INFO)
+        button_help = gtk.ToolButton(gtk.STOCK_HELP)
 
         # Add the buttons to the toolbar.
         toolbar.insert(button_home, 0)
         toolbar.insert(sep, 1)
-        toolbar.insert(button_info, 2)
+        toolbar.insert(button_help, 2)
 
         # Handle button signals.
         button_home.connect("clicked", self.on_close_dialog)
         if isinstance(self, SelectLocations):
-            button_info.connect("clicked", on_help, 'locations-selection-dialog')
+            button_help.connect("clicked", on_help, 'locations-selection-dialog')
         elif isinstance(self, SelectSpecies):
-            button_info.connect("clicked", on_help, 'species-selection-dialog')
+            button_help.connect("clicked", on_help, 'species-selection-dialog')
 
         # Add the toolbar to the vertical box.
         table.attach(toolbar, left_attach=0, right_attach=2,
@@ -244,40 +244,40 @@ class SelectionWindow(gtk.Window):
             yoptions=gtk.FILL|gtk.EXPAND, xpadding=10, ypadding=0)
 
         # User Data File button
-        self.button_chg_source = gtk.Button(" Change Data Source ")
+        self.button_chg_source = gtk.Button(" Change _Data Source ")
         self.button_chg_source.set_size_request(-1, -1)
         self.button_chg_source.connect("clicked", self.on_select_data_files)
 
-        # Align the about button to the left.
-        button_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
-        button_align.add(self.button_chg_source)
+        # But the button in a horizontal button box.
+        button_box_l = gtk.HButtonBox()
+        button_box_l.set_layout(gtk.BUTTONBOX_START)
+        button_box_l.pack_start(self.button_chg_source, expand=True, fill=True, padding=0)
 
-        # Add the about button to the table.
-        table.attach(button_align, left_attach=0, right_attach=1,
+        # Add the button box to the table.
+        table.attach(button_box_l, left_attach=0, right_attach=1,
             top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=10, ypadding=0)
 
         # Continue button
-        button_ok = gtk.Button("Continue")
-        button_ok.set_size_request(70, -1)
-        button_ok.connect("clicked", self.on_continue)
+        button_continue = gtk.Button(stock=gtk.STOCK_GO_FORWARD)
+        button_continue.set_size_request(-1, -1)
+        button_continue.connect("clicked", self.on_continue)
+        button_continue.set_label("_Continue")
 
         # Back button
-        button_back = gtk.Button("Back")
-        button_back.set_size_request(70, -1)
+        button_back = gtk.Button(stock=gtk.STOCK_GO_BACK)
+        button_back.set_size_request(-1, -1)
         button_back.connect("clicked", self.on_back)
 
-        # Put the buttons in a horizontal box.
-        button_box = gtk.HBox(homogeneous=True, spacing=5)
-        button_box.add(button_back)
-        button_box.add(button_ok)
-
-        # Align the button box to the right.
-        buttons_align = gtk.Alignment(xalign=1.0, yalign=0, xscale=0, yscale=0)
-        buttons_align.add(button_box)
+        # But the button in a horizontal button box.
+        button_box_r = gtk.HButtonBox()
+        button_box_r.set_layout(gtk.BUTTONBOX_END)
+        button_box_r.set_spacing(5)
+        button_box_r.pack_start(button_back, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_continue, expand=True, fill=True, padding=0)
 
         # Add the aligned button box to the table.
-        table.attach(child=buttons_align, left_attach=1, right_attach=2,
+        table.attach(button_box_r, left_attach=1, right_attach=2,
             top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=10, ypadding=5)
 
@@ -672,16 +672,16 @@ class DefinePlateAreas(gtk.Window):
         # Create buttons for the toolbar.
         button_home = gtk.ToolButton(gtk.STOCK_HOME)
         sep = gtk.SeparatorToolItem()
-        button_info = gtk.ToolButton(gtk.STOCK_INFO)
+        button_help = gtk.ToolButton(gtk.STOCK_HELP)
 
         # Add the buttons to the toolbar.
         toolbar.insert(button_home, 0)
         toolbar.insert(sep, 1)
-        toolbar.insert(button_info, 2)
+        toolbar.insert(button_help, 2)
 
         # Handle button signals.
         button_home.connect("clicked", self.on_close_dialog)
-        button_info.connect("clicked", on_help, 'define-plate-areas-dialog')
+        button_help.connect("clicked", on_help, 'define-plate-areas-dialog')
 
         # Add the toolbar to the vertical box.
         table.attach(toolbar, left_attach=0, right_attach=2,
@@ -730,26 +730,25 @@ class DefinePlateAreas(gtk.Window):
             yoptions=gtk.SHRINK, xpadding=10, ypadding=0)
 
         # Continue button
-        button_ok = gtk.Button("Continue")
-        button_ok.set_size_request(70, -1)
-        button_ok.connect("clicked", self.on_continue)
+        button_continue = gtk.Button(stock=gtk.STOCK_GO_FORWARD)
+        button_continue.set_label("_Continue")
+        button_continue.set_size_request(-1, -1)
+        button_continue.connect("clicked", self.on_continue)
 
         # Back button
-        button_back = gtk.Button("Back")
-        button_back.set_size_request(70, -1)
+        button_back = gtk.Button(stock=gtk.STOCK_GO_BACK)
+        button_back.set_size_request(-1, -1)
         button_back.connect("clicked", self.on_back)
 
-        # Put the buttons in a box.
-        button_box = gtk.HBox(homogeneous=True, spacing=5)
-        button_box.add(button_back)
-        button_box.add(button_ok)
-
-        # Center the button box.
-        buttons_align = gtk.Alignment(xalign=1, yalign=0, xscale=0, yscale=0)
-        buttons_align.add(button_box)
+        # But the button in a horizontal button box.
+        button_box_r = gtk.HButtonBox()
+        button_box_r.set_layout(gtk.BUTTONBOX_END)
+        button_box_r.set_spacing(5)
+        button_box_r.pack_start(button_back, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_continue, expand=True, fill=True, padding=0)
 
         # Add the aligned box to the table
-        table.attach(child=buttons_align, left_attach=1, right_attach=2,
+        table.attach(button_box_r, left_attach=1, right_attach=2,
             top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=10, ypadding=5)
 
@@ -1129,10 +1128,10 @@ class ChangeDataSource(gtk.Window):
         page_db = self.create_page_db()
 
         # Add the pages to the notebook.
-        label_csv = gtk.Label("CSV from MS Access SETL")
+        label_csv = gtk.Label("CSV Files From Access DB")
         notebook.append_page(page_csv, label_csv)
 
-        label_db = gtk.Label("SETL database server")
+        label_db = gtk.Label("Remote SETL DB")
         notebook.append_page(page_db, label_db)
 
         # Add a header to the dialog.
@@ -1264,25 +1263,23 @@ class ChangeDataSource(gtk.Window):
 
         # OK button
         button_ok = gtk.Button(stock=gtk.STOCK_OK)
-        button_ok.set_size_request(70, -1)
+        button_ok.set_size_request(-1, -1)
         button_ok.connect("clicked", self.on_csv_ok)
 
         # Cancel button
         button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
-        button_cancel.set_size_request(70, -1)
+        button_cancel.set_size_request(-1, -1)
         button_cancel.connect("clicked", self.on_cancel)
 
-        # Put the buttons in a box
-        button_box = gtk.HBox(homogeneous=True, spacing=5)
-        button_box.add(button_cancel)
-        button_box.add(button_ok)
-
-        # Align the button box
-        buttons_align = gtk.Alignment(xalign=1.0, yalign=0, xscale=0, yscale=0)
-        buttons_align.add(button_box)
+        # But the button in a horizontal button box.
+        button_box_r = gtk.HButtonBox()
+        button_box_r.set_layout(gtk.BUTTONBOX_END)
+        button_box_r.set_spacing(5)
+        button_box_r.pack_start(button_cancel, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
 
         # Add the aligned box to the table
-        table.attach(child=buttons_align, left_attach=1, right_attach=2,
+        table.attach(button_box_r, left_attach=1, right_attach=2,
             top_attach=5, bottom_attach=6, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
@@ -1427,7 +1424,7 @@ class ProgressDialog(gtk.Window):
 
         # Close button
         self.button_close = gtk.Button(stock=gtk.STOCK_CLOSE)
-        self.button_close.set_size_request(70, -1)
+        self.button_close.set_size_request(-1, -1)
         self.button_close.connect("clicked", self.on_close)
         # Disable this button by default, because we don't want the user
         # to press this button while a process is running.
@@ -1519,18 +1516,18 @@ class DisplayReport(gtk.Window):
         button_save = gtk.ToolButton(gtk.STOCK_SAVE_AS)
         button_save.set_label("Save Report")
         sep = gtk.SeparatorToolItem()
-        button_info = gtk.ToolButton(gtk.STOCK_INFO)
+        button_help = gtk.ToolButton(gtk.STOCK_HELP)
 
         # Add the buttons to the toolbar.
         toolbar.insert(button_home, 0)
         toolbar.insert(button_save, 1)
         toolbar.insert(sep, 2)
-        toolbar.insert(button_info, 3)
+        toolbar.insert(button_help, 3)
 
         # Handle button signals.
         button_home.connect("clicked", self.on_close)
         button_save.connect("clicked", self.on_save)
-        button_info.connect("clicked", on_help, 'analysis-report-dialog')
+        button_help.connect("clicked", on_help, 'analysis-report-dialog')
 
         # Add the toolbar to the vertical box.
         table.attach(toolbar, left_attach=0, right_attach=2,
@@ -2242,7 +2239,7 @@ class DisplayReport(gtk.Window):
 
         column_names = ['Positive Spots','n (plates)',
             'n (distances)','P-value','Chi squared','df',
-            'Mean Expected','Mean Observed','Remarks']
+            'Mean Observed','Mean Expected','Remarks']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -2317,7 +2314,7 @@ class DisplayReport(gtk.Window):
 
         column_names = ['Ratios Group','n (plates)',
             'n (distances)','P-value','Chi squared','df',
-            'Mean Expected','Mean Observed','Remarks']
+            'Mean Observed','Mean Expected','Remarks']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)

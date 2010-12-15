@@ -3,7 +3,8 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement
+#  of species on SETL plates.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,7 +19,6 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Standard library imports
 import sys
 import os
 import logging
@@ -181,16 +181,13 @@ class SelectAnalysis(object):
         button_about.set_size_request(70, -1)
         button_about.connect("clicked", self.on_about)
 
-        # Put the buttons in a horizontal box.
-        button_box_l = gtk.HBox(homogeneous=False, spacing=5)
-        button_box_l.add(button_about)
-
-        # Align the about button to the left.
-        button_box_l_align = gtk.Alignment(xalign=0, yalign=0, xscale=0, yscale=0)
-        button_box_l_align.add(button_box_l)
+        # Put the buttons in a horizontal button box.
+        button_box_l = gtk.HButtonBox()
+        button_box_l.set_layout(gtk.BUTTONBOX_START)
+        button_box_l.pack_start(button_about, expand=True, fill=True, padding=0)
 
         # Add the about button to the table.
-        table.attach(button_box_l_align, left_attach=0, right_attach=1,
+        table.attach(button_box_l, left_attach=0, right_attach=1,
             top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
@@ -205,16 +202,14 @@ class SelectAnalysis(object):
         button_quit.connect("clicked", self.on_quit)
 
         # Put the buttons in a horizontal box.
-        button_box_r = gtk.HBox(homogeneous=True, spacing=5)
-        button_box_r.add(button_quit)
-        button_box_r.add(button_ok)
-
-        # Align the button box to the right.
-        buttons_align = gtk.Alignment(xalign=1.0, yalign=0, xscale=0, yscale=0)
-        buttons_align.add(button_box_r)
+        button_box_r = gtk.HButtonBox()
+        button_box_r.set_layout(gtk.BUTTONBOX_END)
+        button_box_r.set_spacing(5)
+        button_box_r.pack_start(button_quit, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
 
         # Add the aligned button box to the table.
-        table.attach(child=buttons_align, left_attach=1, right_attach=2,
+        table.attach(button_box_r, left_attach=1, right_attach=2,
             top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
@@ -317,6 +312,7 @@ class SelectAnalysis(object):
         logo = gtk.gdk.pixbuf_new_from_file(logo_path)
 
         about = gtk.AboutDialog()
+        about.set_position(gtk.WIN_POS_CENTER)
         about.set_program_name("SETLyze")
         about.set_version(__version__)
         about.set_copyright("Copyright 2010, GiMaRIS")

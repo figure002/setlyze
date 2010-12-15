@@ -266,7 +266,10 @@ class Start(threading.Thread):
 
             yield group
 
-        yield list(setlyze.std.combinations_with_replacement(xrange(1,26), 2))
+        all_ratios = list(setlyze.std.combinations_with_replacement(xrange(1,26), 2))
+        all_ratios.remove((25,25))
+
+        yield all_ratios
 
     def run(self):
         """Call the necessary methods for the analysis in the right order:
