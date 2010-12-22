@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Technical Design for the Databases &mdash; SETLyze v1.0 documentation</title>
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v1.0 documentation" href="index.html" />
+    <link rel="up" title="SETLyze Developer Guide" href="developer_guide.html" />
+    <link rel="next" title="SETLyze Standard Modules" href="setlyze_modules.html" />
+    <link rel="prev" title="Design Parts Data" href="design_parts_data.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="setlyze_modules.html" title="SETLyze Standard Modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="design_parts_data.html" title="Design Parts Data"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="developer_guide.html" accesskey="U">SETLyze Developer Guide</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="technical-design-for-the-databases">
+<h1>Technical Design for the Databases<a class="headerlink" href="#technical-design-for-the-databases" title="Permalink to this headline">¶</a></h1>
+<p>Technical design for the SETL database and the local SQLite database
+used created by SETLyze.</p>
+<div class="section" id="setlyze-database-microsoft-access">
+<span id="db-access"></span><h2>SETLyze Database (Microsoft Access)<a class="headerlink" href="#setlyze-database-microsoft-access" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="setlyze-database-postgresql">
+<span id="db-pg"></span><h2>SETLyze Database (PostgreSQL)<a class="headerlink" href="#setlyze-database-postgresql" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="setl-localities">
+<span id="db-pg-setl-localities"></span><h3>setl_localities<a class="headerlink" href="#setl-localities" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>CREATE TABLE setl_localities
+ (
+        loc_id                          SERIAL,
+        loc_name                        VARCHAR(100) NOT NULL UNIQUE,
+        loc_nr                          INTEGER,
+        loc_coordinates         VARCHAR(100),
+        loc_description         VARCHAR(300),
+
+        CONSTRAINT loc_id_pk PRIMARY KEY (loc_id)
+);</pre>
+</div>
+</div>
+<div class="section" id="setl-species">
+<span id="db-pg-setl-species"></span><h3>setl_species<a class="headerlink" href="#setl-species" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>CREATE TABLE setl_species
+ (
+        spe_id                                  SERIAL,
+        spe_name_venacular              VARCHAR(100) UNIQUE,
+        spe_name_latin                  VARCHAR(100) NOT NULL UNIQUE,
+        spe_invasive_in_nl              BOOLEAN,
+        spe_description                 VARCHAR(300),
+        spe_remarks                             VARCHAR(160),
+        spe_picture                             OID,
+
+        CONSTRAINT spe_id_pk PRIMARY KEY (spe_id)
+);</pre>
+</div>
+</div>
+<div class="section" id="setl-plates">
+<span id="db-pg-setl-plates"></span><h3>setl_plates<a class="headerlink" href="#setl-plates" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>CREATE TABLE setl_plates
+ (
+        pla_id                                  SERIAL,
+        pla_loc_id                              INTEGER NOT NULL,
+        pla_setl_coordinator    VARCHAR(100),
+        pla_nr                                  VARCHAR(100),
+        pla_deployment_date             TIMESTAMP,
+        pla_retrieval_date              TIMESTAMP,
+        pla_water_temperature   VARCHAR(100),
+        pla_salinity                    VARCHAR(100),
+        pla_visibility                  VARCHAR(100),
+        pla_remarks                             VARCHAR(300),
+
+        CONSTRAINT pla_id_pk PRIMARY KEY (pla_id),
+        CONSTRAINT pla_loc_id_fk FOREIGN KEY (pla_loc_id)
+                REFERENCES setl_localities (loc_id)
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION
+);</pre>
+</div>
+</div>
+<div class="section" id="setl-records">
+<span id="db-pg-setl-records"></span><h3>setl_records<a class="headerlink" href="#setl-records" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>CREATE TABLE setl_records
+ (
+        rec_id                          SERIAL,
+        rec_pla_id                      INTEGER NOT NULL,
+        rec_spe_id                      INTEGER NOT NULL,
+        rec_unknown                     BOOLEAN,
+        rec_o                           BOOLEAN,
+        rec_r                           BOOLEAN,
+        rec_c                           BOOLEAN,
+        rec_a                           BOOLEAN,
+        rec_e                           BOOLEAN,
+        rec_sur_unknown         BOOLEAN,
+        rec_sur1                        BOOLEAN,
+        rec_sur2                        BOOLEAN,
+        rec_sur3                        BOOLEAN,
+        rec_sur4                        BOOLEAN,
+        rec_sur5                        BOOLEAN,
+        rec_sur6                        BOOLEAN,
+        rec_sur7                        BOOLEAN,
+        rec_sur8                        BOOLEAN,
+        rec_sur9                        BOOLEAN,
+        rec_sur10                       BOOLEAN,
+        rec_sur11                       BOOLEAN,
+        rec_sur12                       BOOLEAN,
+        rec_sur13                       BOOLEAN,
+        rec_sur14                       BOOLEAN,
+        rec_sur15                       BOOLEAN,
+        rec_sur16                       BOOLEAN,
+        rec_sur17                       BOOLEAN,
+        rec_sur18                       BOOLEAN,
+        rec_sur19                       BOOLEAN,
+        rec_sur20                       BOOLEAN,
+        rec_sur21                       BOOLEAN,
+        rec_sur22                       BOOLEAN,
+        rec_sur23                       BOOLEAN,
+        rec_sur24                       BOOLEAN,
+        rec_sur25                       BOOLEAN,
+        rec_1st                         BOOLEAN,
+        rec_2nd                         BOOLEAN,
+        rec_v                           BOOLEAN,
+        rec_photo_nrs           VARCHAR(100),
+        rec_remarks                     VARCHAR(100),
+
+        CONSTRAINT rec_id_pk PRIMARY KEY (rec_id),
+        CONSTRAINT rec_pla_id_fk FOREIGN KEY (rec_pla_id)
+                REFERENCES setl_plates (pla_id)
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION,
+        CONSTRAINT rec_spe_id_fk FOREIGN KEY (rec_spe_id)
+                REFERENCES setl_species (spe_id)
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION
+);</pre>
+</div>
+</div>
+</div>
+<div class="section" id="local-sqlite-database-for-setlyze">
+<span id="db-local"></span><h2>Local SQLite Database for SETLyze<a class="headerlink" href="#local-sqlite-database-for-setlyze" title="Permalink to this headline">¶</a></h2>
+<p>The local database is created by <a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.create_new_db" title="setlyze.database.MakeLocalDB.create_new_db"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_new_db()</span></tt></a>.</p>
+<div class="section" id="info">
+<span id="db-local-info"></span><h3>info<a class="headerlink" href="#info" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre>CREATE TABLE info (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR,
+        value VARCHAR
+)</pre>
+</div>
+</div>
+<div class="section" id="localities">
+<span id="db-local-localities"></span><h3>localities<a class="headerlink" href="#localities" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># Design Part: 2.4
+CREATE TABLE localities (
+        loc_id INTEGER PRIMARY KEY,
+        loc_name VARCHAR,
+        loc_nr VARCHAR,
+        loc_coordinates VARCHAR,
+        loc_description VARCHAR
+)</pre>
+</div>
+</div>
+<div class="section" id="species">
+<span id="db-local-species"></span><h3>species<a class="headerlink" href="#species" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># Design Part: 2.3
+CREATE TABLE species (
+        spe_id INTEGER PRIMARY KEY,
+        spe_name_venacular VARCHAR,
+        spe_name_latin VARCHAR,
+        spe_invasive_in_nl INTEGER,
+        spe_description VARCHAR,
+        spe_remarks VARCHAR
+)</pre>
+</div>
+</div>
+<div class="section" id="plates">
+<span id="db-local-plates"></span><h3>plates<a class="headerlink" href="#plates" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># Design Part: 2.16
+CREATE TABLE plates (
+        pla_id INTEGER PRIMARY KEY,
+        pla_loc_id INTEGER,
+        pla_setl_coordinator VARCHAR,
+        pla_nr VARCHAR,
+        pla_deployment_date TEXT,
+        pla_retrieval_date TEXT,
+        pla_water_temperature VARCHAR,
+        pla_salinity VARCHAR,
+        pla_visibility VARCHAR,
+        pla_remarks VARCHAR
+)</pre>
+</div>
+</div>
+<div class="section" id="records">
+<span id="db-local-records"></span><h3>records<a class="headerlink" href="#records" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># Design Part: 2.5
+CREATE TABLE records (
+        rec_id INTEGER PRIMARY KEY,
+        rec_pla_id INTEGER,
+        rec_spe_id INTEGER,
+        rec_unknown INTEGER,
+        rec_o INTEGER,
+        rec_r INTEGER,
+        rec_c INTEGER,
+        rec_a INTEGER,
+        rec_e INTEGER,
+        rec_sur_unknown INTEGER,
+        rec_sur1 INTEGER,
+        rec_sur2 INTEGER,
+        rec_sur3 INTEGER,
+        rec_sur4 INTEGER,
+        rec_sur5 INTEGER,
+        rec_sur6 INTEGER,
+        rec_sur7 INTEGER,
+        rec_sur8 INTEGER,
+        rec_sur9 INTEGER,
+        rec_sur10 INTEGER,
+        rec_sur11 INTEGER,
+        rec_sur12 INTEGER,
+        rec_sur13 INTEGER,
+        rec_sur14 INTEGER,
+        rec_sur15 INTEGER,
+        rec_sur16 INTEGER,
+        rec_sur17 INTEGER,
+        rec_sur18 INTEGER,
+        rec_sur19 INTEGER,
+        rec_sur20 INTEGER,
+        rec_sur21 INTEGER,
+        rec_sur22 INTEGER,
+        rec_sur23 INTEGER,
+        rec_sur24 INTEGER,
+        rec_sur25 INTEGER,
+        rec_1st INTEGER,
+        rec_2nd INTEGER,
+        rec_v INTEGER
+)</pre>
+</div>
+</div>
+<div class="section" id="species-spots-1">
+<span id="db-local-species-spots-1"></span><h3>species_spots_1<a class="headerlink" href="#species-spots-1" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># Note that rec_pla_id doesn't have to be unique, so we're
+# creating a separate primary key "id".
+# Design Part: 2.9.1
+# Design Part: 2.10.1
+# Design Part: 2.11.1
+CREATE TABLE species_spots_1 (
+        id INTEGER PRIMARY KEY,
+        rec_pla_id INTEGER,
+        rec_sur1 INTEGER,
+        rec_sur2 INTEGER,
+        rec_sur3 INTEGER,
+        rec_sur4 INTEGER,
+        rec_sur5 INTEGER,
+        rec_sur6 INTEGER,
+        rec_sur7 INTEGER,
+        rec_sur8 INTEGER,
+        rec_sur9 INTEGER,
+        rec_sur10 INTEGER,
+        rec_sur11 INTEGER,
+        rec_sur12 INTEGER,
+        rec_sur13 INTEGER,
+        rec_sur14 INTEGER,
+        rec_sur15 INTEGER,
+        rec_sur16 INTEGER,
+        rec_sur17 INTEGER,
+        rec_sur18 INTEGER,
+        rec_sur19 INTEGER,
+        rec_sur20 INTEGER,
+        rec_sur21 INTEGER,
+        rec_sur22 INTEGER,
+        rec_sur23 INTEGER,
+        rec_sur24 INTEGER,
+        rec_sur25 INTEGER
+)</pre>
+</div>
+</div>
+<div class="section" id="species-spots-2">
+<span id="db-local-species-spots-2"></span><h3>species_spots_2<a class="headerlink" href="#species-spots-2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># Note that rec_pla_id doesn't have to be unique, so we're
+# creating a separate unique key "id".
+# Design Part: 2.9.2
+# Design Part: 2.10.2
+# Design Part: 2.11.2
+CREATE TABLE species_spots_2 (
+        id INTEGER PRIMARY KEY,
+        rec_pla_id INTEGER,
+        rec_sur1 INTEGER,
+        rec_sur2 INTEGER,
+        rec_sur3 INTEGER,
+        rec_sur4 INTEGER,
+        rec_sur5 INTEGER,
+        rec_sur6 INTEGER,
+        rec_sur7 INTEGER,
+        rec_sur8 INTEGER,
+        rec_sur9 INTEGER,
+        rec_sur10 INTEGER,
+        rec_sur11 INTEGER,
+        rec_sur12 INTEGER,
+        rec_sur13 INTEGER,
+        rec_sur14 INTEGER,
+        rec_sur15 INTEGER,
+        rec_sur16 INTEGER,
+        rec_sur17 INTEGER,
+        rec_sur18 INTEGER,
+        rec_sur19 INTEGER,
+        rec_sur20 INTEGER,
+        rec_sur21 INTEGER,
+        rec_sur22 INTEGER,
+        rec_sur23 INTEGER,
+        rec_sur24 INTEGER,
+        rec_sur25 INTEGER
+)</pre>
+</div>
+</div>
+<div class="section" id="spot-distances">
+<span id="db-local-spot-distances"></span><h3>spot_distances<a class="headerlink" href="#spot-distances" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># Create the table that will contain all the pre-calculated
+# spot distances.
+# Design Part: 2.23
+CREATE TABLE spot_distances (
+        id INTEGER PRIMARY KEY,
+        delta_x INTEGER,
+        delta_y INTEGER,
+        distance REAL
+)</pre>
+</div>
+</div>
+<div class="section" id="spot-distances-observed">
+<span id="db-local-spot-distances-observed"></span><h3>spot_distances_observed<a class="headerlink" href="#spot-distances-observed" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># The table for the found spot distances.
+# Design Part: 2.12
+CREATE TABLE spot_distances_observed (
+        id INTEGER PRIMARY KEY,
+        rec_pla_id INTEGER,
+        distance REAL
+)</pre>
+</div>
+</div>
+<div class="section" id="spot-distances-expected">
+<span id="db-local-spot-distances-expected"></span><h3>spot_distances_expected<a class="headerlink" href="#spot-distances-expected" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># The table for the expected spot distances.
+# Design Part: 2.13
+CREATE TABLE spot_distances_expected (
+        id INTEGER PRIMARY KEY,
+        rec_pla_id INTEGER,
+        distance REAL
+)</pre>
+</div>
+</div>
+<div class="section" id="plate-spot-totals">
+<span id="db-local-plate-spot-totals"></span><h3>plate_spot_totals<a class="headerlink" href="#plate-spot-totals" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><pre># The table for the total of spots per plate in the distance
+# tables.
+# Design Part: 2.39
+CREATE TABLE plate_spot_totals (
+        pla_id INTEGER PRIMARY KEY,
+        n_spots_a INTEGER,
+        n_spots_b INTEGER
+)</pre>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/setl-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Technical Design for the Databases</a><ul>
+<li><a class="reference internal" href="#setlyze-database-microsoft-access">SETLyze Database (Microsoft Access)</a></li>
+<li><a class="reference internal" href="#setlyze-database-postgresql">SETLyze Database (PostgreSQL)</a><ul>
+<li><a class="reference internal" href="#setl-localities">setl_localities</a></li>
+<li><a class="reference internal" href="#setl-species">setl_species</a></li>
+<li><a class="reference internal" href="#setl-plates">setl_plates</a></li>
+<li><a class="reference internal" href="#setl-records">setl_records</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#local-sqlite-database-for-setlyze">Local SQLite Database for SETLyze</a><ul>
+<li><a class="reference internal" href="#info">info</a></li>
+<li><a class="reference internal" href="#localities">localities</a></li>
+<li><a class="reference internal" href="#species">species</a></li>
+<li><a class="reference internal" href="#plates">plates</a></li>
+<li><a class="reference internal" href="#records">records</a></li>
+<li><a class="reference internal" href="#species-spots-1">species_spots_1</a></li>
+<li><a class="reference internal" href="#species-spots-2">species_spots_2</a></li>
+<li><a class="reference internal" href="#spot-distances">spot_distances</a></li>
+<li><a class="reference internal" href="#spot-distances-observed">spot_distances_observed</a></li>
+<li><a class="reference internal" href="#spot-distances-expected">spot_distances_expected</a></li>
+<li><a class="reference internal" href="#plate-spot-totals">plate_spot_totals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="design_parts_data.html"
+                        title="previous chapter">Design Parts Data</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="setlyze_modules.html"
+                        title="next chapter">SETLyze Standard Modules</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/technical_design_databases.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="setlyze_modules.html" title="SETLyze Standard Modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="design_parts_data.html" title="Design Parts Data"
+             >previous</a> |</li>
+        <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>

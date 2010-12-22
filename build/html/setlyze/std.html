@@ -1,0 +1,1304 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.std — Standard functions and classes &mdash; SETLyze v1.0 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v1.0 documentation" href="../index.html" />
+    <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
+    <link rel="next" title="Analysis Modules" href="../setlyze_modules_analysis.html" />
+    <link rel="prev" title="setlyze.locale — English text retrieval" href="locale.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../setlyze_modules_analysis.html" title="Analysis Modules"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="locale.html" title="setlyze.locale — English text retrieval"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setlyze-std-standard-functions-and-classes">
+<h1><a class="reference internal" href="#module-setlyze.std" title="setlyze.std"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.std</span></tt></a> &#8212; Standard functions and classes<a class="headerlink" href="#setlyze-std-standard-functions-and-classes" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira</td>
+</tr>
+<tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 22, 2010</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="module-setlyze.std">
+<span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.std" title="Permalink to this headline">¶</a></h2>
+<p>This module provides standard functions and classes. All functions
+and classes that don&#8217;t belong in any of the other modules are placed
+here.</p>
+<dl class="class">
+<dt id="setlyze.std.ExportLatexReport">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ExportLatexReport</tt><big>(</big><em>reader=None</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportLatexReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an analysis report in LaTeX format.</p>
+<p>Design Part:</p>
+<dl class="method">
+<dt id="setlyze.std.ExportLatexReport.set_report_reader">
+<tt class="descname">set_report_reader</tt><big>(</big><em>reader</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportLatexReport.set_report_reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the report reader.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.std.ExportTextReport">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ExportTextReport</tt><big>(</big><em>reader=None</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an analysis report in text format.</p>
+<p>Design Part:</p>
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.chapter">
+<tt class="descname">chapter</tt><big>(</big><em>header</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.chapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for parts in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.part">
+<tt class="descname">part</tt><big>(</big><em>header</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.part" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for parts in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.section">
+<tt class="descname">section</tt><big>(</big><em>header</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for sections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.set_report_reader">
+<tt class="descname">set_report_reader</tt><big>(</big><em>reader</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.set_report_reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the report reader.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.subsection">
+<tt class="descname">subsection</tt><big>(</big><em>header</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.subsection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for subsections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.subsubsection">
+<tt class="descname">subsubsection</tt><big>(</big><em>header</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.subsubsection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for subsubsections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.table">
+<tt class="descname">table</tt><big>(</big><em>headers</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a table header with column names from <cite>headers</cite> in
+reStructuredText format.</p>
+<p><cite>headers</cite> is a list/tuple containing two-item tuples
+<tt class="docutils literal"><span class="pre">(&lt;column</span> <span class="pre">name&gt;,</span> <span class="pre">&lt;column</span> <span class="pre">width&gt;)</span></tt>. The column name is a string,
+and the column width is an integer defining the character width
+of the column. A value of -1 for column with means that the
+column will have the same width as the column name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.table_rule">
+<tt class="descname">table_rule</tt><big>(</big><em>col_widths</em><big>)</big><a class="headerlink" href="#setlyze.std.ExportTextReport.table_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a rule for a table with column widths <cite>col_widths</cite>.</p>
+<p><cite>col_widths</cite> is a list/tuple containing column widths (integers).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.std.ReportGenerator">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ReportGenerator</tt><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a XML DOM (Document Object Model) object of the analysis
+settings, data and results. The DOM can then be exported to an XML
+file containing all data for the analysis.</p>
+<p>Using XML DOM objects for storing analysis data has great
+advantages. Because the object can contain all analysis data, it&#8217;s
+easy to use Python&#8217;s XML parser to generate analysis reports. We can
+allow the user to choose which elements of the XML DOM object to
+export to say a LaTeX document. Also, <a class="reference external" href="http://docs.python.org/library/xml.dom.minidom.html#module-xml.dom.minidom" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">xml.dom.minidom</span></tt></a>
+provides methods for exporting this object to an XML file. This file
+by default contains all analysis data. This file can be easily
+loaded in SETLyze so we can display a dialog showing the analysis
+data and results present in that XML file. The XML file can be used
+as a backup file of the analysis data.</p>
+<p>So too the class <a class="reference internal" href="#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">ReportReader</span></tt></a> uses this XML DOM object
+to access the analysis data.</p>
+<p>Design Part: 1.48</p>
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.create_element">
+<tt class="descname">create_element</tt><big>(</big><em>parent</em>, <em>name</em>, <em>child_elements={}</em>, <em>attributes={}</em>, <em>text=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.create_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.create_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a new child element with name <cite>name</cite> to the element
+<cite>parent</cite> for the XML DOM object.</p>
+<p>Usually you&#8217;ll start by adding child elements to the
+root element <tt class="docutils literal"><span class="pre">self.report</span></tt>. In this case <cite>parent</cite> would be
+<tt class="docutils literal"><span class="pre">self.report</span></tt>. It&#8217;s then possible to add child elements for
+for those by setting <cite>parent</cite> to the newly created child
+elements.</p>
+<p>Optionally you can easily add child elements by setting
+<cite>child_elements</cite> to a dictionary. The dictionary keys will be
+the names of the child elements, and the corresponding
+dictionary values will be the values for the elements.</p>
+<p>This method also allows you to easily add attributes. To add
+attributes, set <cite>attributes</cite> to a dictionary. The dictionary
+keys will be the names of attributes, and the corresponding
+dictionary values will be the values for the attributes.</p>
+<p>The <cite>text</cite> argument gives the element a value. The value of
+<cite>text</cite> can be anything.</p>
+<p>This method returns the newly created element. This allows you
+to set the returned element object as the parent element
+for other elements.</p>
+<p>We shall clarify with some usage examples. First we add an
+empty child element to the root element:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">location_selections_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_element</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">report</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">&quot;location_selections&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Then we add some child elements to the just created element:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">create_element</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">location_selections_element</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">&quot;location&quot;</span><span class="p">,</span>
+    <span class="n">child_elements</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;nr&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&quot;Aquadome, Grevelingen&quot;</span><span class="p">},</span>
+    <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;id&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+    <span class="p">)</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">create_element</span><span class="p">(</span>
+    <span class="n">parent</span><span class="o">=</span><span class="n">location_selections_element</span><span class="p">,</span>
+    <span class="n">name</span><span class="o">=</span><span class="s">&quot;location&quot;</span><span class="p">,</span>
+    <span class="n">child_elements</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;nr&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="s">&#39;name&#39;</span><span class="p">:</span><span class="s">&quot;Colijnsplaat, floating dock, Oosterschelde&quot;</span><span class="p">},</span>
+    <span class="n">attributes</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;id&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">}</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>Would this be exported to an XML file, the contents of the file
+would look like this:</p>
+<div class="highlight-python"><pre>&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;setlyze:report xmlns:setlyze="http://www.gimaris.com/setlyze/"&gt;
+    &lt;location_selections&gt;
+        &lt;location id="1"&gt;
+            &lt;nr&gt;
+                1
+            &lt;/nr&gt;
+            &lt;name&gt;
+                Aquadome, Grevelingen
+            &lt;/name&gt;
+        &lt;/location&gt;
+        &lt;location id="2"&gt;
+            &lt;nr&gt;
+                2
+            &lt;/nr&gt;
+            &lt;name&gt;
+                Colijnsplaat, floating dock, Oosterschelde
+            &lt;/name&gt;
+        &lt;/location&gt;
+    &lt;/location_selections&gt;
+&lt;/setlyze:report&gt;</pre>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.export_xml">
+<tt class="descname">export_xml</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.export_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.export_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the XML source of the XML DOM report to a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.get_element">
+<tt class="descname">get_element</tt><big>(</big><em>parent</em>, <em>name</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportGenerator.get_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the element object with name <cite>name</cite> from a parent
+element <cite>parent</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.get_report">
+<tt class="descname">get_report</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.get_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.get_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the XML DOM report object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_analysis">
+<tt class="descname">set_analysis</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">analysis</span></tt> with value <cite>name</cite> to the XML DOM
+report.</p>
+<p>This element describes to which analysis this report belongs. So
+<cite>name</cite> is just a string with the title of an analysis. However,
+if the value of <cite>name</cite> exists as a key in the <tt class="docutils literal"><span class="pre">analysis_names</span></tt>
+dictionary, the corresponding value from that dictionary will
+be used as the value for the element instead.</p>
+<p>Design Part: 1.72</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_area_totals_expected">
+<tt class="descname">set_area_totals_expected</tt><big>(</big><em>totals_observed</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_area_totals_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">area_totals_expected</span></tt> to the XML DOM
+report.</p>
+<p>This element will be filled with the expected species totals per
+plate area.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;area_totals_expected&gt;
+    &lt;area id="area1"&gt;
+        24.64
+    &lt;/area&gt;
+    &lt;area id="area2"&gt;
+        73.92
+    &lt;/area&gt;
+    &lt;area id="area3"&gt;
+        55.44
+    &lt;/area&gt;
+&lt;/area_totals_expected&gt;</pre>
+</div>
+<p>Design Part: 1.56</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_area_totals_observed">
+<tt class="descname">set_area_totals_observed</tt><big>(</big><em>totals_observed</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_area_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">area_totals_observed</span></tt> to the XML DOM
+report.</p>
+<p>This element will be filled with the observed species totals per
+plate area.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;area_totals_observed&gt;
+    &lt;area id="area1"&gt;
+        27
+    &lt;/area&gt;
+    &lt;area id="area2"&gt;
+        75
+    &lt;/area&gt;
+    &lt;area id="area3"&gt;
+        52
+    &lt;/area&gt;
+&lt;/area_totals_observed&gt;</pre>
+</div>
+<p>Design Part: 1.55</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_location_selections">
+<tt class="descname">set_location_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_location_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_location_selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">location_selections</span></tt> to the XML DOM
+report.</p>
+<p>This element will be filled with the locations selections. If
+two locations selections were made, both will be added to the
+element.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;location_selections&gt;
+    &lt;selection slot="0"&gt;
+        &lt;location id="1"&gt;
+            &lt;nr&gt;
+                1
+            &lt;/nr&gt;
+            &lt;name&gt;
+                Aquadome, Grevelingen
+            &lt;/name&gt;
+        &lt;/location&gt;
+    &lt;/selection&gt;
+    &lt;selection slot="1"&gt;
+        &lt;location id="2"&gt;
+            &lt;nr&gt;
+                2
+            &lt;/nr&gt;
+            &lt;name&gt;
+                Colijnsplaat, floating dock, Oosterschelde
+            &lt;/name&gt;
+        &lt;/location&gt;
+    &lt;/selection&gt;
+&lt;/location_selections&gt;</pre>
+</div>
+<p>Design Part: 1.50</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_plate_areas_definition">
+<tt class="descname">set_plate_areas_definition</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_plate_areas_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_plate_areas_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">plate_areas_definition</span></tt> to the XML DOM
+report.</p>
+<p>This element will be filled with the user defined spot areas
+definition.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;plate_areas_definition&gt;
+    &lt;area id="area1"&gt;
+        &lt;spot&gt;
+            A
+        &lt;/spot&gt;
+    &lt;/area&gt;
+    &lt;area id="area2"&gt;
+        &lt;spot&gt;
+            B
+        &lt;/spot&gt;
+    &lt;/area&gt;
+    &lt;area id="area3"&gt;
+        &lt;spot&gt;
+            C
+        &lt;/spot&gt;
+        &lt;spot&gt;
+            D
+        &lt;/spot&gt;
+    &lt;/area&gt;
+&lt;/plate_areas_definition&gt;</pre>
+</div>
+<p>Design Part: 1.54</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_specie_selections">
+<tt class="descname">set_specie_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_specie_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_specie_selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">specie_selections</span></tt> to the XML DOM
+report.</p>
+<p>This element will be filled with the species selections. If
+two species selections were made, both will be added to the
+element.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;specie_selections&gt;
+    &lt;selection slot="0"&gt;
+        &lt;specie id="2"&gt;
+            &lt;name_latin&gt;
+                Ectopleura larynx
+            &lt;/name_latin&gt;
+            &lt;name_venacular&gt;
+                Gorgelpijp
+            &lt;/name_venacular&gt;
+        &lt;/specie&gt;
+    &lt;/selection&gt;
+    &lt;selection slot="1"&gt;
+        &lt;specie id="6"&gt;
+            &lt;name_latin&gt;
+                Metridium senile
+            &lt;/name_latin&gt;
+            &lt;name_venacular&gt;
+                Zeeanjelier
+            &lt;/name_venacular&gt;
+        &lt;/specie&gt;
+    &lt;/selection&gt;
+&lt;/specie_selections&gt;</pre>
+</div>
+<p>Design Part: 1.51</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_spot_distances_expected">
+<tt class="descname">set_spot_distances_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_spot_distances_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_spot_distances_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">spot_distances_expected</span></tt> to the XML DOM
+report.</p>
+<p>This element will be filled with the expected spot distances.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;spot_distances_expected&gt;
+    &lt;distance plate_id="62"&gt;
+        1.0
+    &lt;/distance&gt;
+    &lt;distance plate_id="62"&gt;
+        3.16
+    &lt;/distance&gt;
+    &lt;distance plate_id="228"&gt;
+        4.47
+    &lt;/distance&gt;
+&lt;/spot_distances_expected&gt;</pre>
+</div>
+<p>Design Part: 1.53</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_spot_distances_observed">
+<tt class="descname">set_spot_distances_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_spot_distances_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_spot_distances_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">spot_distances_observed</span></tt> to the XML DOM
+report.</p>
+<p>This element will be filled with the observed spot distances.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;spot_distances_observed&gt;
+    &lt;distance plate_id="63"&gt;
+        1.0
+    &lt;/distance&gt;
+    &lt;distance plate_id="63"&gt;
+        2.0
+    &lt;/distance&gt;
+    &lt;distance plate_id="229"&gt;
+        3.16
+    &lt;/distance&gt;
+&lt;/spot_distances_observed&gt;</pre>
+</div>
+<p>Design Part: 1.52</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_statistics">
+<tt class="descname">set_statistics</tt><big>(</big><em>name</em>, <em>data</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportGenerator.set_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">statistics</span></tt> with child element
+<tt class="docutils literal"><span class="pre">name</span></tt> to the XML DOM report.</p>
+<p>This element will be filled with the results of the performed
+statistical tests. The results must be supplied with the
+<cite>data</cite> argument. The <cite>data</cite> argument is a list containing
+dictionaries in the format {&#8216;attr&#8217;: {&#8216;&lt;name&gt;&#8217;: &lt;value&gt;, ...},
+&#8216;results&#8217;: {&#8216;&lt;name&gt;&#8217;: &lt;value&gt;, ...}} where the value for &#8216;attr&#8217; is
+a dictionary with the attributes and &#8216;results&#8217; is a dictionary
+with child elements for the <tt class="docutils literal"><span class="pre">statistics</span></tt> element.</p>
+<p>An XML representation:</p>
+<div class="highlight-python"><pre>&lt;statistics&gt;
+    &lt;wilcoxon alternative="two.sided" conf_level="0.95" method="Wilcoxon rank sum test with continuity correction" n="3" n_plates="1" n_positive_spots="3" paired="False"&gt;
+        &lt;conf_int_start&gt;
+            -2.16
+        &lt;/conf_int_start&gt;
+        &lt;p_value&gt;
+            0.353678517318
+        &lt;/p_value&gt;
+        &lt;mean_expected&gt;
+            2.13333333333
+        &lt;/mean_expected&gt;
+        &lt;conf_int_end&gt;
+            1.0
+        &lt;/conf_int_end&gt;
+        &lt;mean_observed&gt;
+            1.33333333333
+        &lt;/mean_observed&gt;
+    &lt;/wilcoxon&gt;
+&lt;/statistics&gt;</pre>
+</div>
+<p>Design Part: 1.71</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.std.ReportReader">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ReportReader</tt><big>(</big><em>report=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide standard methods for extracting data from the XML
+DOM object containing analysis data.</p>
+<p>This class can also export the XML DOM object to an XML document.</p>
+<p>Design Part: 1.49</p>
+<dl class="method">
+<dt id="setlyze.std.ReportReader.export_xml">
+<tt class="descname">export_xml</tt><big>(</big><em>filename</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.export_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.export_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the XML source of the XML DOM report to a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_analysis_name">
+<tt class="descname">get_analysis_name</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_analysis_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_analysis_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value of the <cite>analysis</cite> element. This element
+contains the name of the analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_area_totals_expected">
+<tt class="descname">get_area_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_area_totals_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the expected specie totals per area from the XML DOM
+report.</p>
+<p>This method returns a dictionary. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mf">23.12</span><span class="p">,</span>
+<span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mf">60.10</span><span class="p">,</span>
+<span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mf">40.44</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_area_totals_observed">
+<tt class="descname">get_area_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_area_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observed specie totals per plate area from the
+XML DOM report.</p>
+<p>This method returns a dictionary. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mf">24.64</span><span class="p">,</span>
+<span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mf">73.92</span><span class="p">,</span>
+<span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mf">55.44</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_child_names">
+<tt class="descname">get_child_names</tt><big>(</big><em>parent=None</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportReader.get_child_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list with all child element names from the XML DOM
+object. The child elements for the report elements are excluded.</p>
+<p>Use this as a quick way to find out which elements are present
+in a XML DOM report object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_element">
+<tt class="descname">get_element</tt><big>(</big><em>parent</em>, <em>name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_element" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the element object with name <cite>name</cite> from a parent
+element <cite>parent</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_locations_selection">
+<tt class="descname">get_locations_selection</tt><big>(</big><em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_locations_selection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_locations_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the locations selection from the selection slot with
+number <cite>slot</cite> from the XML DOM report. Possible values for
+<cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt>.</p>
+<p>This is a generator, meaning that this function returns an
+iterator. This iterator returns dictionaries in the format
+<tt class="docutils literal"><span class="pre">{'nr':</span> <span class="pre">&lt;value&gt;,</span> <span class="pre">'name':</span> <span class="pre">&lt;value&gt;}</span></tt>.</p>
+<p>Usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">locations_selection</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_locations_selection</span><span class="p">(</span><span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">locations_selection</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">loc</span><span class="p">[</span><span class="s">&#39;nr&#39;</span><span class="p">],</span> <span class="n">loc</span><span class="p">[</span><span class="s">&#39;name&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_plate_areas_definition">
+<tt class="descname">get_plate_areas_definition</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_plate_areas_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_plate_areas_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the spot areas definition from the XML DOM report.
+This method returns a dictionary. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">],</span>
+<span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">],</span>
+<span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>or:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">],</span>
+<span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">],</span>
+<span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;C&#39;</span><span class="p">],</span>
+<span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;D&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_species_selection">
+<tt class="descname">get_species_selection</tt><big>(</big><em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_species_selection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_species_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the species selection from the selection slot with
+number <cite>slot</cite> from the XML DOM report. Possible values for
+<cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt>.</p>
+<p>This is a generator, meaning that this function returns an
+iterator. This iterator returns dictionaries in the format
+<tt class="docutils literal"><span class="pre">{'name_latin':</span> <span class="pre">&lt;value&gt;,</span> <span class="pre">'name_venacular':</span> <span class="pre">&lt;value&gt;}</span></tt>.</p>
+<p>Usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">species_selection</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_species_selection</span><span class="p">(</span><span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">spe</span> <span class="ow">in</span> <span class="n">species_selection</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">spe</span><span class="p">[</span><span class="s">&#39;name_latin&#39;</span><span class="p">],</span> <span class="n">spe</span><span class="p">[</span><span class="s">&#39;name_venacular&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_spot_distances_expected">
+<tt class="descname">get_spot_distances_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_spot_distances_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_spot_distances_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the expected spot distances from the XML DOM report.</p>
+<p>This is a generator, meaning that this function returns an
+iterator. The iterator returns the distances.</p>
+<p>Usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">expected_distances</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_spot_distances_expected</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">expected_distances</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">dist</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_spot_distances_observed">
+<tt class="descname">get_spot_distances_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_spot_distances_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_spot_distances_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the observed spot distances from the XML DOM report.</p>
+<p>This is a generator, meaning that this function returns an
+iterator. The iterator returns the distances.</p>
+<p>Usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">observed_distances</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">get_spot_distances_observed</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">observed_distances</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">dist</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_statistics">
+<tt class="descname">get_statistics</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportReader.get_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the statistics elements with name <cite>name</cite> from the
+XML DOM report.</p>
+<p>This is a generator, meaning that this function returns an
+iterator. This iterator returns tuples in the format
+<tt class="docutils literal"><span class="pre">({'&lt;name&gt;':</span> <span class="pre">&lt;value&gt;,</span> <span class="pre">...},</span> <span class="pre">{'&lt;name&gt;':</span> <span class="pre">&lt;value&gt;,</span> <span class="pre">...})</span></tt> where
+the first dictionary contains the attributes and the second
+the results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_xml">
+<tt class="descname">get_xml</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_xml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the XML source for the XML DOM report.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.set_report">
+<tt class="descname">set_report</tt><big>(</big><em>report</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.set_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.set_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the XML DOM report object <cite>report</cite> generated by
+<a class="reference internal" href="#setlyze.std.ReportGenerator" title="setlyze.std.ReportGenerator"><tt class="xref py py-class docutils literal"><span class="pre">ReportGenerator</span></tt></a>. <cite>report</cite> can also be the path to an
+XML file containing an analysis report.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.std.Sender">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">Sender</tt><a class="reference internal" href="../_modules/setlyze/std.html#Sender"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.Sender" title="Permalink to this definition">¶</a></dt>
+<dd><p>Custom GObject for emitting SETLyze specific application signals.</p>
+<p>This module creates a single instance of this class. Subsequent
+imports of this module gives access to the same instance. Thus only
+one instance is created for each run.</p>
+<p>The <tt class="docutils literal"><span class="pre">__gsignals__</span></tt> class attribute is a dictionary containing all
+custom signals an instance of this class can emit. To emit a signal,
+use the <tt class="xref py py-meth docutils literal"><span class="pre">emit()</span></tt> method. To signal
+that an analysis has started for example, use:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-finished&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you want to emit a signal from a separate thread, you must use
+<tt class="xref py py-meth docutils literal"><span class="pre">gobject.idle_add()</span></tt> as only the main thread is allowed to touch
+the GUI. Emitting a signal from a separate thread looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;analysis-finished&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Anywhere in your application you can add a function to be called
+when this signal is emitted. This function is called a callback
+method. To add a callback method for a specific signal, use the
+<tt class="xref py py-meth docutils literal"><span class="pre">connect()</span></tt> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">handler_id</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-finished&#39;</span><span class="p">,</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_finished</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When you are done using that handler, be sure to destroy it as
+the handler will continue to exist if the callback function does not
+return <tt class="xref docutils literal"><span class="pre">False</span></tt>. To destroy a signal handler, use
+the <tt class="xref py py-meth docutils literal"><span class="pre">disconnect()</span></tt> method:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler_id</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Remember to use <tt class="xref py py-meth docutils literal"><span class="pre">gobject.idle_add()</span></tt> if you decide to emit
+signals from separate threads. If you don&#8217;t do this, the
+application becomes unstable resulting in crashes.</p>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt><a class="reference external" href="http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html">Theory of Signals and Callbacks</a></dt>
+<dd>It&#8217;s recommended to study this subject of the PyGTK
+documentation to get a better understanding of signals and
+callbacks.</dd>
+<dt><a class="reference external" href="http://www.pygtk.org/pygtk2tutorial/ch-AdvancedEventAndSignalHandling.html">Advanced Event and Signal Handling</a></dt>
+<dd>It&#8217;s recommended to study this subject of the PyGTK
+documentation to get a better understanding of event and
+signal handling.</dd>
+<dt><a class="reference external" href="http://www.pygtk.org/pygtk2reference/gobject-functions.html#function-gobject--idle-add">gobject.idle_add</a></dt>
+<dd>PyGTK documentation for <tt class="xref py py-meth docutils literal"><span class="pre">gobject.idle_add()</span></tt>.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.chisq_test">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">chisq_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>correct=True</em>, <em>p=None</em>, <em>rescale_p=False</em>, <em>simulate_p_value=False</em>, <em>b=2000</em><big>)</big><a class="headerlink" href="#setlyze.std.chisq_test" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Performs chi-squared contingency table tests and</dt>
+<dd>goodness-of-fit tests.</dd>
+</dl>
+<p>This is a wrapper function for the <tt class="docutils literal"><span class="pre">chisq.test</span></tt> function from R. It
+depends on R and RPy. The latter provides an interface to the R
+Programming Language.</p>
+<p>This function returns a dictionary containing the results. Below
+is the format of the dictionary with example results</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;null.value&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;difference in means&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;Welch Two Sample t-test&#39;</span><span class="p">,</span>
+<span class="s">&#39;p.value&#39;</span><span class="p">:</span> <span class="mf">0.97053139295765201</span><span class="p">,</span>
+<span class="s">&#39;statistic&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;t&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.037113583386291726</span><span class="p">},</span>
+<span class="s">&#39;estimate&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;mean of y&#39;</span><span class="p">:</span> <span class="mf">2.552142857142857</span><span class="p">,</span> <span class="s">&#39;mean of x&#39;</span><span class="p">:</span> <span class="mf">2.5417857142857141</span><span class="p">},</span>
+<span class="s">&#39;conf.int&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.56985924418141154</span><span class="p">,</span> <span class="mf">0.54914495846712563</span><span class="p">],</span>
+<span class="s">&#39;parameter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;df&#39;</span><span class="p">:</span> <span class="mf">53.965197921982607</span><span class="p">},</span>
+<span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="s">&#39;two.sided&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt>R Documentation for Pearson&#8217;s Chi-squared Test for Count Data</dt>
+<dd>The R Documentation gives a more extensive documentation of
+this function, its arguments, usage, etc. To view the
+documentation, type <tt class="docutils literal"><span class="pre">help(chisq.test)</span></tt> from the R prompt.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.combinations_with_replacement">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">combinations_with_replacement</tt><big>(</big><em>iterable</em>, <em>r</em><big>)</big><a class="headerlink" href="#setlyze.std.combinations_with_replacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return r length subsequences of elements from the input iterable
+allowing individual elements to be repeated more than once.</p>
+<p>Combinations are emitted in lexicographic sort order. So, if the
+input iterable is sorted, the combination tuples will be produced
+in sorted order.</p>
+<p>Elements are treated as unique based on their position, not on their
+value. So if the input elements are unique, the generated
+combinations will also be unique.</p>
+<p>This function was taken from the Python documentation for
+<a class="reference external" href="http://docs.python.org/library/itertools.html#module-itertools" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">itertools</span></tt></a>.</p>
+<p>A simple example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">i</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">combinations_with_replacement</span><span class="p">(</span><span class="s">&#39;ABCD&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+<span class="go">[(&#39;A&#39;, &#39;A&#39;), (&#39;A&#39;, &#39;B&#39;), (&#39;A&#39;, &#39;C&#39;), (&#39;A&#39;, &#39;D&#39;), (&#39;B&#39;, &#39;B&#39;), (&#39;B&#39;, &#39;C&#39;), (&#39;B&#39;, &#39;D&#39;), (&#39;C&#39;, &#39;C&#39;), (&#39;C&#39;, &#39;D&#39;), (&#39;D&#39;, &#39;D&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.combine_records">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">combine_records</tt><big>(</big><em>records</em><big>)</big><a class="headerlink" href="#setlyze.std.combine_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a combined SETL records from a list of multiple SETL
+records with the same plate ID.</p>
+<p><cite>records</cite> is a list containing multiple SETL records where each
+record is a sequence with the plate ID as the first item followed by
+25 spot booleans. As this function is used for combining records
+from different species found on the same plate, the plate ID of all
+records must be equal.</p>
+<p>A basic usage example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rec1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4567</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rec2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4567</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">rec3</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4567</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">records</span> <span class="o">=</span> <span class="p">[</span><span class="n">rec1</span><span class="p">,</span><span class="n">rec2</span><span class="p">,</span><span class="n">rec3</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">combine_records</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+<span class="go">[4567, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.distance">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">distance</tt><big>(</big><em>p1</em>, <em>p2</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.distance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the Pythagorean theorem to calculate the distance between
+two spots.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.export_report">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">export_report</tt><big>(</big><em>reader</em>, <em>path</em>, <em>type</em>, <em>elements=None</em><big>)</big><a class="headerlink" href="#setlyze.std.export_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the data from the XML DOM report to a data file or an
+analysis report document. The file is saved to <cite>path</cite> in a
+format specified by <cite>type</cite>. Possible values for <cite>type</cite> are
+<tt class="docutils literal"><span class="pre">xml</span></tt>, <tt class="docutils literal"><span class="pre">txt</span></tt> or <tt class="docutils literal"><span class="pre">latex</span></tt>.</p>
+<p>If <cite>type</cite> is <tt class="docutils literal"><span class="pre">xml</span></tt>, all data from the DOM object is
+saved to an XML file. If <cite>type</cite> is <tt class="docutils literal"><span class="pre">txt</span></tt> or <tt class="docutils literal"><span class="pre">latex</span></tt>,
+the report elements specified by the user will be saved to a
+human readable document.</p>
+<p>Design Part: 1.17</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.get_random_for_plate">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">get_random_for_plate</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#get_random_for_plate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.get_random_for_plate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a <cite>n</cite> length list of random integers with a range from 1
+to 25. So naturally <cite>n</cite> can have a value from 0 to 25. The list of
+integers returned represents random selected spots from a 25 spots
+SETL plate.</p>
+<p>We make use of the <tt class="xref py py-meth docutils literal"><span class="pre">random.sample()</span></tt> function from the Python
+standard library. As described in the Python documentation, this
+function is bound to an instance of <tt class="xref py py-class docutils literal"><span class="pre">random.Random</span></tt> which
+uses the <tt class="xref py py-meth docutils literal"><span class="pre">random.random()</span></tt> method. In turn this method uses
+the Mersenne Twister (<a class="reference internal" href="../references.html#ref-mersenne-twister"><em>M. Matsumoto and T. Nishimura</em></a>)
+as the core generator. The Mersenne Twister is one of the most
+extensively tested random number generators in existence.</p>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt>Module <a class="reference external" href="http://docs.python.org/library/random.html#module-random" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">random</span></tt></a></dt>
+<dd>Documentation of the <a class="reference external" href="http://docs.python.org/library/random.html#module-random" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">random</span></tt></a> standard module.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.get_spot_combinations_from_record">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">get_spot_combinations_from_record</tt><big>(</big><em>record1</em>, <em>record2=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#get_spot_combinations_from_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.get_spot_combinations_from_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return all possible positive spot combinations for <cite>record1</cite> or
+if both are provided, between <cite>record1</cite> and <cite>record2</cite>. Each record
+must be a sequence of 25 spot booleans.</p>
+<p>This function returns an iterable object, which returns the
+combinations as tuples with two items. Each item in the tuple is the
+spot number of a positive spot.</p>
+<p>If just <cite>record1</cite> was provided, return all possible positive spot
+combinations within this record. If both <cite>record1</cite> and <cite>record2</cite> are
+given, return all possible positive spot combinations between the
+the two records. If no combinations are possible (i.e. not enough
+positive spots), the iterable object returns nothing.</p>
+<p>An example with one record</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4567</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">combos</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_combinations_from_record</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span> <span class="ow">in</span> <span class="n">combos</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span>
+<span class="gp">...</span>
+<span class="go">1 2</span>
+<span class="go">1 5</span>
+<span class="go">1 15</span>
+<span class="go">2 5</span>
+<span class="go">2 15</span>
+<span class="go">5 15</span>
+</pre></div>
+</div>
+<p>An example with two records</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record1</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4567</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4538</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">combos</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_combinations_from_record</span><span class="p">(</span><span class="n">record1</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">record2</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span> <span class="ow">in</span> <span class="n">combos</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="k">print</span> <span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span>
+<span class="gp">...</span>
+<span class="go">1 3</span>
+<span class="go">1 25</span>
+<span class="go">2 3</span>
+<span class="go">2 25</span>
+<span class="go">5 3</span>
+<span class="go">5 25</span>
+<span class="go">15 3</span>
+<span class="go">15 25</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.get_spot_coordinate">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">get_spot_coordinate</tt><big>(</big><em>spot_num</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#get_spot_coordinate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.get_spot_coordinate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tuple <tt class="docutils literal"><span class="pre">(row,col)</span></tt> representing on which row and column
+a spot with number <cite>spot_num</cite> is located on a 5x5 SETL plate.
+The possible values for <cite>spot_num</cite> are integers from 1 to 25.</p>
+<p>If this is not clear, picture this 5x5 SETL plate and compare it
+with the examples below:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+<tr><td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+<td>10</td>
+</tr>
+<tr><td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+<td>15</td>
+</tr>
+<tr><td>16</td>
+<td>17</td>
+<td>18</td>
+<td>19</td>
+<td>20</td>
+</tr>
+<tr><td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+<td>25</td>
+</tr>
+</tbody>
+</table>
+<p>Some examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_coordinate</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">(1, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_coordinate</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">(1, 5)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_coordinate</span><span class="p">(</span><span class="mi">14</span><span class="p">)</span>
+<span class="go">(3, 4)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_coordinate</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span>
+<span class="go">(5, 4)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.get_spot_position_difference">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">get_spot_position_difference</tt><big>(</big><em>s1</em>, <em>s2</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#get_spot_position_difference"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.get_spot_position_difference" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tuple <tt class="docutils literal"><span class="pre">(h,v)</span></tt> containing the horizontal and vertical
+difference (delta x and y) between spots <cite>s1</cite> and <cite>s2</cite>. <cite>s1</cite> and
+<cite>s2</cite> are spot numbers with possible values from 1 to 25.</p>
+<p>Picture a 5x5 grid with spots numbered from 1 to 25:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+<col width="20%" />
+</colgroup>
+<tbody valign="top">
+<tr><td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+<tr><td>6</td>
+<td>7</td>
+<td>8</td>
+<td>9</td>
+<td>10</td>
+</tr>
+<tr><td>11</td>
+<td>12</td>
+<td>13</td>
+<td>14</td>
+<td>15</td>
+</tr>
+<tr><td>16</td>
+<td>17</td>
+<td>18</td>
+<td>19</td>
+<td>20</td>
+</tr>
+<tr><td>21</td>
+<td>22</td>
+<td>23</td>
+<td>24</td>
+<td>25</td>
+</tr>
+</tbody>
+</table>
+<p>If you got two spot numbers that are right next to eachother (say 1
+and 2), the horizontal difference would be 1, and the vertical
+difference 0. A few more examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span>
+<span class="go">(0, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">(1, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">(2, 0)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">11</span><span class="p">)</span>
+<span class="go">(0, 1)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="mi">25</span><span class="p">)</span>
+<span class="go">(1, 3)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">25</span><span class="p">)</span>
+<span class="go">(4, 4)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.get_spots_from_record">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">get_spots_from_record</tt><big>(</big><em>record</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#get_spots_from_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.get_spots_from_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list containing all spot numbers of the positive spots
+from <cite>record</cite>, a sequence of 25 spot booleans.</p>
+<p>A simple usage example</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">record</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spots_from_record</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+<span class="go">[1, 2, 5, 15]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.make_remarks">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">make_remarks</tt><big>(</big><em>results</em>, <em>attributes</em><big>)</big><a class="headerlink" href="#setlyze.std.make_remarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a remarks string that contains a summary of the results
+and attributes of a statistical test.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.mean">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">mean</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#setlyze.std.mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the arithmetic mean of a sequence of numbers <cite>x</cite>.</p>
+<p>A simple example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="mf">5.91</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mf">22.1</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mf">3.3</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mf">18.5</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="go">12.654</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.median">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">median</tt><big>(</big><em>values</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#median"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.median" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the median of a series of numbers.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.on_close_progress_dialog">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">on_close_progress_dialog</tt><big>(</big><em>delay=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#on_close_progress_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.on_close_progress_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the progress dialog. Optionally set a delay of <cite>delay</cite>
+seconds before it&#8217;s being closed.</p>
+<p>There&#8217;s no need to call this function manually, as it is called
+by <a class="reference internal" href="#setlyze.std.on_update_progress_dialog" title="setlyze.std.on_update_progress_dialog"><tt class="xref py py-meth docutils literal"><span class="pre">on_update_progress_dialog()</span></tt></a> when it&#8217;s needed.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.on_update_progress_dialog">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">on_update_progress_dialog</tt><big>(</big><em>fraction</em>, <em>action=None</em>, <em>autoclose=True</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#on_update_progress_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.on_update_progress_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the progress dialog&#8217;s progressbar fraction to <tt class="docutils literal"><span class="pre">fraction</span></tt>.
+The value of <cite>fraction</cite> should be between 0.0 and 1.0. Optionally set
+the current action to <cite>action</cite>, a short string explaining the current
+action. Optionally set <cite>autoclose</cite> to automatically close the
+progress dialog if <cite>fraction</cite> equals <tt class="docutils literal"><span class="pre">1.0</span></tt>.</p>
+<p>Don&#8217;t call this function manually; use <a class="reference internal" href="#setlyze.std.update_progress_dialog" title="setlyze.std.update_progress_dialog"><tt class="xref py py-meth docutils literal"><span class="pre">update_progress_dialog()</span></tt></a>
+instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.remove_items_from_list">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">remove_items_from_list</tt><big>(</big><em>a</em>, <em>b</em><big>)</big><a class="headerlink" href="#setlyze.std.remove_items_from_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the items in list <cite>b</cite> from list <cite>a</cite>.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.shapiro_test">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">shapiro_test</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#shapiro_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.shapiro_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs the Shapiro-Wilk test of normality.</p>
+<p>This is a wrapper function for the <tt class="docutils literal"><span class="pre">shapiro.test</span></tt> function from R.
+It depends on R and RPy. The latter provides an interface to the R
+Programming Language.</p>
+<p>The data sequence <cite>x</cite> passed to the <tt class="docutils literal"><span class="pre">shapiro.test</span></tt> function must
+contain between 3 and 5000 numberic values. If the length of <cite>x</cite> is
+below 3, a ValueError is raised. If the length of <cite>x</cite> is above
+5000, <tt class="xref py py-meth docutils literal"><span class="pre">random.sample()</span></tt> is used to get 5000 random values
+from <cite>x</cite>.</p>
+<p>This function returns a dictionary containing the results. Below
+is the format of the dictionary with example results</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;Shapiro-Wilk normality test&#39;</span><span class="p">,</span>
+<span class="s">&#39;p.value&#39;</span><span class="p">:</span> <span class="mf">6.862712394148655e-08</span><span class="p">,</span>
+<span class="s">&#39;statistic&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;W&#39;</span><span class="p">:</span> <span class="mf">0.75000003111895985</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt>R Documentation for Shapiro-Wilk Normality Test</dt>
+<dd>The R Documentation gives a more extensive documentation of
+this function, its arguments, usage, etc. To view the
+documentation, type <tt class="docutils literal"><span class="pre">help(shapiro.test)</span></tt> from the R prompt.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.t_test">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">t_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>alternative='two.sided'</em>, <em>mu=0</em>, <em>paired=False</em>, <em>var_equal=False</em>, <em>conf_level=0.94999999999999996</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#t_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.t_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs one and two sample t-tests on sequences of data.</p>
+<p>This is a wrapper function for the <tt class="docutils literal"><span class="pre">t.test</span></tt> function from R. It
+depends on R and RPy. The latter provides an interface to the R
+Programming Language.</p>
+<p>This function returns a dictionary containing the results. Below
+is the format of the dictionary with example results</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;null.value&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;difference in means&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;Welch Two Sample t-test&#39;</span><span class="p">,</span>
+<span class="s">&#39;p.value&#39;</span><span class="p">:</span> <span class="mf">0.97053139295765201</span><span class="p">,</span>
+<span class="s">&#39;statistic&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;t&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">0.037113583386291726</span><span class="p">},</span>
+<span class="s">&#39;estimate&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;mean of y&#39;</span><span class="p">:</span> <span class="mf">2.552142857142857</span><span class="p">,</span> <span class="s">&#39;mean of x&#39;</span><span class="p">:</span> <span class="mf">2.5417857142857141</span><span class="p">},</span>
+<span class="s">&#39;conf.int&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.56985924418141154</span><span class="p">,</span> <span class="mf">0.54914495846712563</span><span class="p">],</span>
+<span class="s">&#39;parameter&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;df&#39;</span><span class="p">:</span> <span class="mf">53.965197921982607</span><span class="p">},</span>
+<span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="s">&#39;two.sided&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt>R Documentation for Student&#8217;s t-Test</dt>
+<dd>The R Documentation gives a more extensive documentation of
+this function, its arguments, usage, etc. To view the
+documentation, type <tt class="docutils literal"><span class="pre">help(t.test)</span></tt> from the R prompt.</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.uniqify">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">uniqify</tt><big>(</big><em>seq</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#uniqify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.uniqify" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all duplicates from a list.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.update_progress_dialog">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">update_progress_dialog</tt><big>(</big><em>fraction</em>, <em>action=None</em>, <em>autoclose=True</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#update_progress_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.update_progress_dialog" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the progress dialog&#8217;s progressbar fraction to <tt class="docutils literal"><span class="pre">fraction</span></tt>.
+The value of <cite>fraction</cite> should be between 0.0 and 1.0. Optionally set
+the current action to <cite>action</cite>, a short string explaining the current
+action. Optionally set <cite>autoclose</cite> to automatically close the
+progress dialog if <cite>fraction</cite> equals <tt class="docutils literal"><span class="pre">1.0</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">progress-dialog</span></tt> configuration must be set to an instance of
+gtk.ProgressBar for this to work. If no progress dialog is set,
+nothing will happen.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.wilcox_test">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">wilcox_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>alternative='two.sided'</em>, <em>mu=0</em>, <em>paired=False</em>, <em>exact=None</em>, <em>correct=True</em>, <em>conf_int=False</em>, <em>conf_level=0.94999999999999996</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#wilcox_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.wilcox_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Performs one and two sample Wilcoxon tests on sequences of data;
+the latter is also known as ‘Mann-Whitney’ test.</p>
+<p>This is a wrapper function for the <tt class="docutils literal"><span class="pre">wilcox.test</span></tt> function from R.
+It depends on R and RPy. The latter provides an interface to the R
+Programming Language.</p>
+<p>This function returns a dictionary containing the results. Below
+is the format of the dictionary with example results</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<span class="s">&#39;estimate&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;difference in location&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mf">2.0000005809455006</span><span class="p">},</span>
+<span class="s">&#39;null.value&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;location shift&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+<span class="s">&#39;p.value&#39;</span><span class="p">:</span> <span class="mf">0.000810583642587086</span><span class="p">,</span>
+<span class="s">&#39;statistic&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;W&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span>
+<span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="s">&#39;two.sided&#39;</span><span class="p">,</span>
+<span class="s">&#39;conf.int&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">-</span><span class="mf">3.1200287512799796</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.2399735289828238</span><span class="p">],</span>
+<span class="s">&#39;parameter&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span>
+<span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&#39;Wilcoxon rank sum test with continuity correction&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition-see-also admonition seealso">
+<p class="first admonition-title">See also</p>
+<dl class="last docutils">
+<dt>R Documentation for Wilcoxon Rank Sum and Signed Rank Tests</dt>
+<dd>The R Documentation gives a more extensive documentation of
+this function, its arguments, usage, etc. To view the
+documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.test)</span></tt> from the R prompt.</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/setl-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">setlyze.std</span></tt> &#8212; Standard functions and classes</a><ul>
+<li><a class="reference internal" href="#module-setlyze.std">Module Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="locale.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../setlyze_modules_analysis.html"
+                        title="next chapter">Analysis Modules</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/setlyze/std.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../setlyze_modules_analysis.html" title="Analysis Modules"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="locale.html" title="setlyze.locale — English text retrieval"
+             >previous</a> |</li>
+        <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+    </div>
+  </body>
+</html>
