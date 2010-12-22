@@ -250,7 +250,7 @@ def on_close_progress_dialog(delay=0):
     # If a delay is set, sleep 'delay' seconds.
     if delay: time.sleep(delay)
 
-    # Close the dialog along with emitting the signal.
+    # Close the dialog.
     pdialog.on_close()
 
     # This callback function must return False, so it is

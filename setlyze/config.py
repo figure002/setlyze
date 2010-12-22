@@ -62,8 +62,9 @@ DATA_PATH = os.path.expanduser(os.path.join('~','.setlyze'))
 # Path to the local database file.
 DB_FILE = os.path.join(DATA_PATH, 'setl_local.db')
 
-# The probabilities for each spot distance on a 5x5 SETL plate.
-# Format: {distance: probability, ...}
+# The probability for each spot distance on a 5x5 SETL plate
+# (intra-specific).
+# Format of the dictionary: {distance: probability, ...}
 SPOT_DIST_TO_PROB_INTRA = {
     1: 40/300.0,
     1.41: 32/300.0,
@@ -81,6 +82,9 @@ SPOT_DIST_TO_PROB_INTRA = {
     5.66: 2/300.0,
     }
 
+# The probability for each spot distance on a 5x5 SETL plate
+# (inter-specific).
+# Format of the dictionary: {distance: probability, ...}
 SPOT_DIST_TO_PROB_INTER = {
     0: 25/625.0,
     1: 80/625.0,

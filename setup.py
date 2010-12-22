@@ -9,7 +9,7 @@ setup (name='setlyze',
       license='GPL3',
       platforms=['GNU/Linux','Windows'],
       scripts=['setlyze.pyw'],
-      url='http://www.gimaris.com/setlyze/',
+      url='http://www.gimaris.com/',
       packages=['setlyze', 'setlyze.analysis'],
       package_data={'setlyze': ['images/*.png']},
 )

@@ -382,6 +382,7 @@ class SelectAnalysis(object):
                 type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO,
                 message_format="Use saved data?")
             dialog.format_secondary_text(message)
+            dialog.set_position(gtk.WIN_POS_CENTER)
             response = dialog.run()
 
             # Check the user's response.

@@ -99,6 +99,7 @@ def on_quit(button, data=None):
     dialog = gtk.MessageDialog(parent=None, flags=0,
         type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO,
         message_format="Are you sure you want to quit SETLyze?")
+    dialog.set_position(gtk.WIN_POS_CENTER)
 
     response = dialog.run()
     if response == gtk.RESPONSE_YES:
@@ -118,6 +119,7 @@ def on_not_implemented():
         message_format="Not yet implemented")
     dialog.format_secondary_text("Sorry, the feature you're trying to "
         "access is not yet implemented.")
+    dialog.set_position(gtk.WIN_POS_CENTER)
 
     response = dialog.run()
     dialog.destroy()
@@ -328,6 +330,7 @@ class SelectionWindow(gtk.Window):
                 "select at least one item from the list.\n\n"
                 "Tip: Hold Ctrl or Shift to select multiple items. To "
                 "select all items, press Ctrl+A.")
+            dialog.set_position(gtk.WIN_POS_CENTER)
             response = dialog.run()
 
             if response == gtk.RESPONSE_OK:
@@ -661,7 +664,7 @@ class DefinePlateAreas(gtk.Window):
         # Create a table to organize the widgets.
         table = gtk.Table(rows=5, columns=2, homogeneous=False)
         table.set_col_spacings(0)
-        table.set_row_spacings(5)
+        table.set_row_spacings(10)
 
         # Create a toolbar.
         toolbar = gtk.Toolbar()
@@ -1003,6 +1006,7 @@ class DefinePlateAreas(gtk.Window):
                     type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                     message_format="Invalid spot definition")
                 dialog.format_secondary_text( setlyze.locale.text('error-single-plate-area') )
+                dialog.set_position(gtk.WIN_POS_CENTER)
                 response = dialog.run()
 
                 if response == gtk.RESPONSE_OK:
@@ -1361,7 +1365,7 @@ class ProgressDialog(gtk.Window):
         ...
         setlyze.std.update_progress_dialog(0.5, "Calculating that...")
         ...
-        setlyze.std.update_progress_dialog(1.0, "Finished!")
+        setlyze.std.update_progress_dialog(1.0, "")
 
     4) Then start your worker process in a separate thread (if you're
        new to threading, start with the
@@ -1430,33 +1434,23 @@ class ProgressDialog(gtk.Window):
         # to press this button while a process is running.
         self.button_close.set_sensitive(False)
 
-        # Put the buttons in a box.
-        button_box = gtk.HBox(homogeneous=True, spacing=5)
-        button_box.add(self.button_close)
-        # Align the box to the right.
-        buttons_align = gtk.Alignment(xalign=1.0, yalign=0, xscale=0, yscale=0)
-        buttons_align.add(button_box)
+        # But the button in a horizontal button box.
+        button_box_r = gtk.HButtonBox()
+        button_box_r.set_layout(gtk.BUTTONBOX_END)
+        button_box_r.set_spacing(5)
+        button_box_r.pack_start(self.button_close, expand=True, fill=True, padding=0)
 
         # Add the alignment objects to the vertical container.
         vbox.pack_start(self.descr_label, expand=False, fill=False, padding=5)
         vbox.pack_start(pbar_align, expand=False, fill=False, padding=5)
         vbox.pack_start(self.action, expand=False, fill=True, padding=0)
-        vbox.pack_start(buttons_align, expand=False, fill=False, padding=0)
+        vbox.pack_start(button_box_r, expand=False, fill=False, padding=0)
 
         self.add(vbox)
 
-    def destroy_silent(self):
-        """Destroy the dialog without sending the
-        ``progress-dialog-closed`` signal.
-        """
-        self.destroy()
-
     def on_close(self, widget=None):
-        """Destroy the dialog and send the ``progress-dialog-closed``
-        signal.
-        """
+        """Destroy the dialog."""
         self.destroy()
-        setlyze.std.sender.emit('progress-dialog-closed')
 
 class DisplayReport(gtk.Window):
     """Display a dialog visualizing the elements in the XML DOM analysis
