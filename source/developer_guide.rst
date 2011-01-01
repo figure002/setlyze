@@ -19,9 +19,11 @@ Navigating the SETLyze folder
 
 Some of the key files in SETLyze's root folder are:
 
-doc
+docs
     This folder contains the documentation for SETLyze. This includes
-    the User Manual and the Developer Guide.
+    the User Manual and the Developer Guide. You can view the manual
+    by (double) clicking index.html. This should show the documentation
+    in your web browser.
 
 setlyze
     This is the main code base for SETLyze. This package folder contains
@@ -61,12 +63,13 @@ Technical Design. If the developer is interested in a specific part of
 the source-code, he or she can easily navigate to that part of the
 source-code by the reference numbers used in the Technical Design.
 
-This documentation allows for easy navigation through SETLyze's code base.
-To start, use the links below that will guide you to the different design
-parts present in the Technical Design.
-
 Design Parts
 ------------
+
+The links below will guide you to the different design parts present
+in the Technical Design. Clicking on a design part will show you its
+description. Next to the description is a link "[source]" which links
+the the corresponding source-code.
 
 .. toctree::
    :maxdepth: 2

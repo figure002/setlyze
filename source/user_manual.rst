@@ -8,7 +8,7 @@ end user and explains how to use SETLyze.
 Introduction to SETLyze
 #######################
 
-SETLyze is a part of the `SETL-project <http://www.anemoon.org/setl/>`_,
+SETLyze is a part of the SETL-project,
 a fouling community study focussing on marine invasive species. The
 website describes the SETL-project as follows:
 
@@ -25,7 +25,7 @@ website describes the SETL-project as follows:
     Smithsonian Environmental Research Centre. In this project 14x14
     cm PVC-plates are hung 1 meter below the water surface, and refreshed
     and checked for species at least every three months." ---
-    `ANEMOON foundation - SETL <http://www.anemoon.org/setl/>`_
+    `ANEMOON foundation <http://www.anemoon.org/>`_
 
 Data collected from these SETL plates are being collected in
 the SETL database. This database contains over 25000 records containing
@@ -48,7 +48,7 @@ The following analysis will be implemented in the next version:
 
 *Analysis 3 "Relation between Species"*
     Determine if there is a relation between two (groups of) species on
-    SETL plates in a location. Plates per location are compared. And
+    SETL plates in a location. Plates per location are compared. Also
     instead of looking at different plate spots, only the presence or
     absence of a specie on a plate is taken into account.
 
@@ -92,6 +92,73 @@ With 25 spots x 2500 records = 625000+ booleans for the presence/absence of spec
 automatic methods of analyzing this data are required. Hence SETLyze
 was developed, a tool for analyzing the settlement of species
 on SETL plates.
+
+Requirements
+############
+
+Because SETLyze is written in the Python programming language, it has
+a fair amount of requirements. These requirements need
+to be satisfied for SETLyze to run on your system. The exact
+requirements are described below.
+
+System Requirements
+===================
+
+* Operating System: Microsoft® Windows®, GNU/Linux
+* Disk space: 2 MB (excl. dependencies), ~50 MB (incl. dependencies)
+
+
+Dependencies
+============
+
+* Python 2.6
+* GTK+ 2
+* PyGTK
+* PyCairo
+* PyGObject
+* R
+* RPy
+* Python Win32 Extensions (on Windows only)
+
+
+Installation
+############
+
+Microsoft® Windows®
+===================
+
+For Windows® users, an installer is available that includes the SETLyze
+core package together with the necessary pre-requisites. The installer
+takes care of installing all dependencies so the user does not have to
+worry about this.
+
+GNU/Linux
+=========
+
+For GNU/Linux users, a source package is available. The source package
+doesn't contain the dependencies. GNU/Linux user can use their
+package manager to install the dependencies.
+
+On Ubuntu or other Debian derivatives, installing the dependencies
+can be done with the following command: ::
+
+    sudo apt-get install python python-gtk2 python-rpy
+
+Answer "yes" when asked to install the dependencies as well. Once all
+dependencies are installed, you can start SETLyze by running
+"setlyze.pyw".
+
+If you want to install SETLyze system wide, you can do so with the
+provided setup script. The following command will install
+SETLyze's modules to an existing Python installation and copies
+SETLyze's executable "setlyze.pyw" to the system's "bin" folder. ::
+
+    sudo python setup.py install
+
+Once installed, SETLyze can be started from the command-line with, ::
+
+    setlyze.pyw
+
 
 Using SETLyze
 #############
@@ -441,9 +508,9 @@ spot distances (*a*, *b* and *c*). The distance from one spot to the next
 by moving horizontally or vertically is defined as 1. The distances from
 the figure are calculated as follows:
 
-| :math:`spot\_distance(a) = \sqrt{3^2 + 2^2} = 3.61`.
-| :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`.
-| :math:`spot\_distance(c) = \sqrt{0^2 + 3^2} = 3`.
+| :math:`spot\_distance(a) = \sqrt{3^2 + 2^2} = 3.61`
+| :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`
+| :math:`spot\_distance(c) = \sqrt{0^2 + 3^2} = 3`
 
 This is done for all possible spot distances on each plate. Note that
 there can be no distance 0 (in contrast to inter-specific spot
@@ -482,9 +549,9 @@ possible to have a distance of 0 as visualized in the next figure.
 
 The distances for this figure are calculated as follows:
 
-| :math:`spot\_distance(a) = \sqrt{0^2 + 0^2} = 0`.
-| :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`.
-| :math:`spot\_distance(c) = \sqrt{0^2 + 2^2} = 2`.
+| :math:`spot\_distance(a) = \sqrt{0^2 + 0^2} = 0`
+| :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`
+| :math:`spot\_distance(c) = \sqrt{0^2 + 2^2} = 2`
 
 Expected spot distances
 ^^^^^^^^^^^^^^^^^^^^^^^

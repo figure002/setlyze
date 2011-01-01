@@ -6,7 +6,7 @@ About SETLyze
 =========================================
 
 The purpose of SETLyze is to provide the people involved with the SETL
-project (mostly biologists) an easy and fast way of getting useful information from
+project (mainly biologists) an easy and fast way of getting useful information from
 the data stored in the SETL database. The database was created so certain
 analysis could be done which would provide more insight in a set of
 biological questions. The application should be capable of giving answer

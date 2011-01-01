@@ -15,9 +15,9 @@ Reference List
 
 .. _ref-millar:
 
-2. N. Millar, Biology statistics made simple using Excel, School Science
+2. N. Millar, "Biology statistics made simple using Excel", School Science
    Review, December 2001, 83(303).
 
 .. _ref-dalgaard:
 
-3. \P. Dalgaard, Introductory Statistics with R, DOI: 10.1007 / 978-0-387-79054-1_1.
+3. \P. Dalgaard, "Introductory Statistics with R", DOI: 10.1007 / 978-0-387-79054-1_1.
