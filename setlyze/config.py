@@ -24,7 +24,7 @@ configuration and data variables.
 This module provides an object ``cfg`` for handling a fixed set of
 configuration and data variables for SETLyze. The big advantage is that
 this makes the variables available across all modules. Here is a small
-usage example, ::
+usage example,
 
     >>> import setlyze.config
     >>> setlyze.config.cfg.set('significance-alpha', 0.01)
@@ -183,8 +183,7 @@ class ConfigManager(object):
                 as the second selection.
         """
         if key not in self._conf:
-            logging.error("ConfigManager: unknown key '%s'" % key)
-            sys.exit(1)
+            raise ValueError("ConfigManager: unknown key '%s'" % key)
 
         if key == 'data-source':
             self.set_data_source(value)
@@ -205,10 +204,9 @@ class ConfigManager(object):
                 slot = kwargs.get('slot', 0)
                 self._conf[key][slot] = value
             else:
-                logging.error( "ConfigManager: invalid type %s for '%s'. \
+                raise TypeError( "ConfigManager: invalid type %s for '%s'. \
                                 Must be either of type 'list' or 'None'." %
                     (type(value), key) )
-                sys.exit(1)
             return
 
         # Set the new value for the configuration key.
@@ -236,8 +234,7 @@ class ConfigManager(object):
             # changed.
             self.set('make-new-db', True)
         else:
-            logging.error("Encountered unknown data source of type '%s'" % source)
-            sys.exit(1)
+            raise ValueError("Encountered unknown data source '%s'" % source)
 
     def get(self, key, **kwargs):
         """Return the value for the configuration with name `key`.
@@ -252,8 +249,7 @@ class ConfigManager(object):
                 selection is returned.
         """
         if key not in self._conf:
-            logging.error("ConfigManager: unknown key '%s'" % key)
-            sys.exit(1)
+            raise ValueError("Unknown key '%s'" % key)
 
         if key in ('locations-selection', 'species-selection'):
             slot = kwargs.get('slot', 0)

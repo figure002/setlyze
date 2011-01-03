@@ -46,7 +46,7 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/10/01 13:42:16"
 
-def make_remarks(results,attributes):
+def make_remarks(results, attributes):
     """Return a remarks string that contains a summary of the results
     and attributes of a statistical test.
     """
@@ -150,8 +150,9 @@ def combinations_with_replacement(iterable, r):
     This function was taken from the Python documentation for
     :mod:`itertools`.
 
-    A simple example: ::
+    A simple example:
 
+        >>> import setlyze.std
         >>> i = setlyze.std.combinations_with_replacement('ABCD', 2)
         >>> [x for x in i]
         [('A', 'A'), ('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'B'), ('B', 'C'), ('B', 'D'), ('C', 'C'), ('C', 'D'), ('D', 'D')]
@@ -341,7 +342,7 @@ def get_spot_combinations_from_record(record1, record2=None):
     the two records. If no combinations are possible (i.e. not enough
     positive spots), the iterable object returns nothing.
 
-    An example with one record ::
+    An example with one record
 
         >>> import setlyze.std
         >>> record = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
@@ -356,7 +357,7 @@ def get_spot_combinations_from_record(record1, record2=None):
         2 15
         5 15
 
-    An example with two records ::
+    An example with two records
 
         >>> import setlyze.std
         >>> record1 = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
@@ -394,7 +395,7 @@ def get_spots_from_record(record):
     """Return a list containing all spot numbers of the positive spots
     from `record`, a sequence of 25 spot booleans.
 
-    A simple usage example ::
+    A simple usage example
 
         >>> import setlyze.std
         >>> record = (1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)
@@ -427,7 +428,7 @@ def get_spot_coordinate(spot_num):
     | 21| 22| 23| 24| 25|
     +---+---+---+---+---+
 
-    Some examples: ::
+    Some examples:
 
         >>> import setlyze.std
         >>> setlyze.std.get_spot_coordinate(1)
@@ -489,7 +490,7 @@ def get_spot_position_difference(s1, s2):
 
     If you got two spot numbers that are right next to eachother (say 1
     and 2), the horizontal difference would be 1, and the vertical
-    difference 0. A few more examples: ::
+    difference 0. A few more examples:
 
         >>> print setlyze.std.get_spot_position_difference(3,3)
         (0, 0)
@@ -731,7 +732,7 @@ def chisq_test(x, y = None, correct = True, p = None,
 def mean(x):
     """Return the arithmetic mean of a sequence of numbers `x`.
 
-    A simple example: ::
+    A simple example:
 
         >>> import setlyze.std
         >>> x = [5.91, 1, 10, 19, 22.1, 16, 3.3, 25, 12, 8, 18.5, 17, 23, 2, 7]

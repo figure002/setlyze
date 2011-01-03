@@ -18,6 +18,33 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""This module performs analysis 1 "Spot preference". This analysis
+can be broken down in the following steps:
+
+1. Show a list of all localities and let the user perform a localities
+   selection.
+
+2. Show a list of all species that match the locations selection and
+   let the user perform a species selection.
+
+3. Show the Define Plate Areas dialog and let the user define the plate
+   areas.
+
+4. Calculate the observed species frequencies for the plate areas.
+
+5. Check if all plate area frequencies are zero. If so, abort.
+
+6. Calculate the expected species frequencies for the plate areas.
+
+7. Calculate the significance in difference between the observed and
+   expected area totals. The Chi-squared test is used for this.
+
+8. Generate the anayslis report.
+
+9. Show the analysis report to the user.
+
+"""
+
 import logging
 import math
 import threading
@@ -43,12 +70,20 @@ __status__ = "Production"
 __date__ = "2010/09/22"
 
 class Begin(object):
-    """Make all the preparations for analysis 1:
-        * Let the user select the locations.
-        * Let the user select the species.
-        * Let the user define the plate areas.
+    """Make the preparations for analysis 1:
 
-    When done, start the analysis.
+    1. Show a list of all localities and let the user perform a localities
+       selection.
+
+    2. Show a list of all species that match the locations selection and
+       let the user perform a species selection.
+
+    3. Show the Define Plate Areas dialog and let the user define the plate
+       areas.
+
+    4. Start the analysis.
+
+    5. Show the analysis report to the user.
 
     Design Part: 1.3.1
     """
@@ -213,7 +248,18 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """Perform the calculations for analysis 1 "Spot Preference".
+    """Perform the calculations for analysis 2.1.
+
+    1. Calculate the observed species frequencies for the plate areas.
+
+    2. Check if all plate area frequencies are zero. If so, abort.
+
+    3. Calculate the expected species frequencies for the plate areas.
+
+    4. Calculate the significance in difference between the observed and
+       expected area totals. The Chi-squared test is used for this.
+
+    5. Generate the anayslis report.
 
     Design Part: 1.3.2
     """
@@ -256,11 +302,12 @@ class Start(threading.Thread):
         # dialog.
         total_steps = 5.0
 
+        # Update progress dialog.
         setlyze.std.update_progress_dialog(1/total_steps,
             "Calculating observed species totals per plate area...")
-
         # Calculate the species totals.
         self.areas_totals_observed = self.get_areas_totals_observed()
+        # Create log message.
         logging.info("\tObserved species totals: %s" % self.areas_totals_observed)
 
         # Make sure that spot area totals are not all zero. If so, abort
@@ -271,29 +318,33 @@ class Start(threading.Thread):
             areas_total += area_total
 
         if areas_total == 0:
+            # Create log message.
             logging.info("\tAll plate areas totals are zero. Aborting.")
+            # Send signal the analysis was aborted.
             setlyze.std.sender.emit('analysis-aborted')
             return
 
+        # Update progress dialog.
         setlyze.std.update_progress_dialog(2/total_steps,
             "Calculating expected species totals per plate area...")
-
         # Calculate the expected totals.
         self.areas_totals_expected = self.get_areas_totals_expected()
+        # Create log message.
         logging.info("\tExpected species totals: %s" % self.areas_totals_expected)
 
+        # Update progress dialog.
         setlyze.std.update_progress_dialog(3/total_steps,
             "Performing Chi-square test...")
-
         # Perform Chi-square test.
         self.chi_square_tester(self.areas_totals_observed, self.areas_totals_expected)
 
+        # Update progress dialog.
         setlyze.std.update_progress_dialog(4/total_steps,
             "Generating the analysis report...")
-
         # Generate the report.
         self.generate_report()
 
+        # Update progress dialog.
         setlyze.std.update_progress_dialog(5/total_steps,
             "")
 
@@ -482,7 +533,7 @@ class Start(threading.Thread):
         logging.info("\tChi-square: %s" % self.chisquare)
 
     def generate_report(self):
-        """Generate the analysis report and display the report in a dialog.
+        """Generate the analysis report.
 
         Design Part: 1.13
         """

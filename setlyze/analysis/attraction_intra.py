@@ -18,6 +18,39 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""This module performs analysis 2.1 "Attraction of species (intra-
+specific)". This analysis can be broken down in the following steps:
+
+1. Show a list of all localities and let the user perform a localities
+   selection.
+
+2. Show a list of all species that match the locations selection and
+   let the user perform a species selection.
+
+3. Get all SETL records that match the localities+species selection and
+   save these to table "species_spots_1" in the local database.
+
+4. Merge records with the same plate ID in the species spots table to
+   make the plate IDs unique.
+
+5. Calculate the intra-specific spot distances from the records in the
+   species spots table and save the distances to table
+   "spot_distances_observed" in the local database.
+
+6. Calculate expected intra-specific spot distances by generating
+   random spots and save the distances to table
+   "spot_distances_expected" in the local database.
+
+7. Calculate the significance in difference between the observed and
+   expected spot distances. Two tests of significance are performed:
+   the Wilcoxon signed-rank test and the Chi-squared test.
+
+8. Generate the anayslis report.
+
+9. Show the analysis report to the user.
+
+"""
+
 import os
 import logging
 import math
@@ -42,11 +75,17 @@ __status__ = "Production"
 __date__ = "2010/09/22"
 
 class Begin(object):
-    """Make all the preparations for analysis 2.1:
-        * Let the user select the locations.
-        * Let the user select the species.
+    """Make the preparations for analysis 2.1:
 
-    When done, start the analysis.
+    1. Show a list of all localities and let the user perform a localities
+       selection.
+
+    2. Show a list of all species that match the locations selection and
+       let the user perform a species selection.
+
+    3. Start the analysis.
+
+    4. Show the analysis report to the user.
 
     Design Part: 1.4.1
     """
@@ -167,7 +206,25 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """Perform all the calculations for analysis 2.1.
+    """Perform the calculations for analysis 2.1.
+
+    1. Get all SETL records that match the localities+species selection and
+       save these to a separate "species spots table" in the local database.
+
+    2. Merge records with the same plate ID in the species spots table to
+       make the plate IDs unique.
+
+    3. Calculate the intra-specific spot distances from the records in the
+       species spots table.
+
+    4. Calculate expected intra-specific spot distances by generating
+       random spots.
+
+    5. Calculate the significance in difference between the observed and
+       expected spot distances. Two tests of significance are performed:
+       the Wilcoxon signed-rank test and the Chi-squared test.
+
+    6. Generate the anayslis report.
 
     Design Part: 1.4.2
     """
@@ -215,7 +272,7 @@ class Start(threading.Thread):
         # Make an object that facilitates access to the database.
         self.db = setlyze.database.get_database_accessor()
 
-        # Get the record IDs that match the selections.
+        # Get the record IDs that match the localities+species selection.
         locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
         species_selection = setlyze.config.cfg.get('species-selection', slot=0)
         rec_ids = self.db.get_record_ids(locations_selection, species_selection)
@@ -285,9 +342,9 @@ class Start(threading.Thread):
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
     def calculate_distances_intra(self):
-        """Calculate the intra-specific distances for each plate in the
-        species_spots table and save the distances to a table in
-        the local database.
+        """Calculate the intra-specific spot distances for each plate
+        in the species_spots table and save the distances to the
+        spot_distances_observed table in the local database.
 
         Design Part: 1.22
         """
@@ -326,15 +383,9 @@ class Start(threading.Thread):
                 # v = vertical difference.
                 h,v = setlyze.std.get_spot_position_difference(spot1,spot2)
 
-                # Use the differences to get the corresponding spot
-                # distance from the spot_distances table.
-                cursor2.execute( "SELECT distance "
-                                 "FROM spot_distances "
-                                 "WHERE delta_x = ? "
-                                 "AND delta_y = ?",
-                                 (h,v))
-                distance = cursor2.fetchone()
-                distance = distance[0]
+                # Use the h/v differences to calculate the corresponding spot
+                # distance.
+                distance = setlyze.std.distance(h,v)
 
                 # Save the observed spot distances to the database.
                 cursor2.execute( "INSERT INTO spot_distances_observed "
@@ -351,8 +402,9 @@ class Start(threading.Thread):
         connection.close()
 
     def calculate_distances_intra_expected(self):
-        """Calculate the expected distances based on the observed
-        distances and save these to a table in the local database.
+        """Calculate the expected spot distances based on the observed
+        spot distances and save these to the spot_distances_expected
+        table in the local database.
 
         Design Part: 1.23
         """
@@ -389,16 +441,9 @@ class Start(threading.Thread):
                 # v = vertical difference.
                 h,v = setlyze.std.get_spot_position_difference(spot1,spot2)
 
-                # Use the differences to get the corresponding spot
-                # distance from the spot_distances table.
-                cursor2.execute( "SELECT distance "
-                                 "FROM spot_distances "
-                                 "WHERE delta_x = ? "
-                                 "AND delta_y = ?",
-                                 (h,v)
-                                 )
-                distance = cursor2.fetchone()
-                distance = distance[0]
+                # Use the h/v differences to calculate the corresponding spot
+                # distance.
+                distance = setlyze.std.distance(h,v)
 
                 # Save the observed spot distances to the database.
                 cursor2.execute( "INSERT INTO spot_distances_expected "
@@ -419,38 +464,62 @@ class Start(threading.Thread):
         the means of the two sets of distances are statistically
         significant.
 
-        We perform an unpaired Wilcoxon signed-rank test. We use unpaired
-        because the two sets of distances are unrelated. In other words,
-        a distance n in 'observed' is unrelated to distance n in
-        'expected' (where n is an item number in the lists).
+        We perform two statistical tests:
 
-        Null hypothesis:
-            The means of the two sets of distances are
-            equal. The specie in question doesn't attract or repel itself.
-        Alternative hypothesis:
-            The means of the two sets of distances
-            are not equal. The specie in question attracts (mean
-            observed < mean expected) or repels (mean observed >
-            mean expected) itself.
+        1. The unpaired Wilcoxon rank sum test. We use unpaired
+           because the two sets of distances are unrelated
+           (:ref:`P. Dalgaard <ref-dalgaard>`). In other words,
+           a distance n in 'observed' is unrelated to distance n in
+           'expected' (where n is an item number in the lists).
 
-        The decision is based on the P-value calculated by the test:
-        P >= alpha level: Null hypothesis.
-        P < alpha level: Alternative hypothesis.
+        2. The Chi-squared test for given probabilities
+           (:ref:`N. Millar <ref-dalgaard>`,
+           :ref:`P. Dalgaard <ref-millar>`). The probabilities
+           for all spot distances have been pre-calcualted. So the
+           observed probabilities are compared with the pre-calculated
+           probabilities.
 
-        The default value for the alpha level is 0.05 (5%).
-        The default value for the confidence level is 0.95 (95%).
+        Based on the results of the tests we can decide which
+        hypothesis we can assume to be true.
 
-        A high number of positive spots on a plate will of course lead
-        to a high P-value. These plates will negatively affect the
-        result of statistical test. To account for this, the tests
-        are performed multiple times. Instead of doing one test on all
-        plates, we group the plates based on the number of positive spots
-        they contain. This results in 24 groups (2 to 25 spots). And we
-        perform the test on each of these groups.
+        Null hypothesis
+            The species in question doesn't attract or repel itself.
 
-        References:
-        1. N. Millar, Biology statistics made simple using Excel, School Science Review, December 2001, 83(303).
-        2. P. Dalgaard, Introductory Statistics with R, DOI: 10.1007 / 978-0-387-79054-1_1.
+        Alternative hypothesis
+            The species in question attracts (mean observed < mean
+            expected) or repels (mean observed > mean expected) itself.
+
+        The decision is based on the p-value calculated by the test:
+
+        P >= alpha level
+            Assume that the null hypothesis is true.
+
+        P < alpha level
+            Assume that the alternative hypothesis is true.
+
+        The default value for the alpha level is 0.05 (5%). In biology
+        we usually assume that differences are significant if P has
+        a value less than 5% (:ref:`N. Millar <ref-dalgaard>`).
+
+        The default value for the confidence level is 0.95 (95%). So
+        there is a 95% probability that the true mean lies within the
+        range of the confidence interval.
+
+        A high number of positive spots on a plate will naturally lead
+        to a high p-value (not significant). These plates will
+        negatively affect the result of statistical test. To account
+        for this, the tests are performed on groups of plates. Instead of
+        doing one test on all plates, we group the plates based on the
+        number of positive spots they contain.
+
+        Both tests are performed on each group. Plates of group 1 and 25
+        are not tested. We skip group 1 because it is not possible to
+        calculate spot distances for plates with just one positive spot.
+        Plates of group 25 are ignored because this will always result
+        in a p-value of 1 as a result of equal observed and expected
+        spot distances.
+
+        Both tests are also performed on groups 2-24 taken together.
 
         Design Part: 1.24
         """
@@ -568,8 +637,7 @@ class Start(threading.Thread):
         connection.close()
 
     def generate_report(self):
-        """Generate the analysis report and display the report in a
-        dialog.
+        """Generate the analysis report.
 
         Design Part: 1.14
         """
@@ -593,7 +661,3 @@ class Start(threading.Thread):
 
         # Create a global link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())
-
-
-
-

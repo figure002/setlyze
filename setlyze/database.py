@@ -113,6 +113,7 @@ def get_plates_total_matching_spots_total(n_spots, slot=0):
 
     return n_plates
 
+
 class MakeLocalDB(threading.Thread):
     """Create a local SQLite database with default tables and fill some
     tables based on the data source.
@@ -477,7 +478,6 @@ class MakeLocalDB(threading.Thread):
         self.create_table_records()
         self.create_table_species_spots_1()
         self.create_table_species_spots_2()
-        self.create_table_spot_distances()
         self.create_table_spot_distances_observed()
         self.create_table_spot_distances_expected()
         self.create_table_plate_spot_totals()
@@ -488,9 +488,6 @@ class MakeLocalDB(threading.Thread):
         # Close connection with the local database.
         self.cursor.close()
         self.connection.close()
-
-        # Fill the spot_distances table.
-        self.fill_distance_table()
 
         # No need to make a new database, as we just created one.
         setlyze.config.cfg.set('make-new-db', False)
@@ -738,21 +735,6 @@ class MakeLocalDB(threading.Thread):
             rec_sur25 INTEGER \
         )")
 
-    def create_table_spot_distances(self):
-        """Create a table that will contain all the pre-calculated
-        spot distances that are possible on a SETL plate.
-
-        Design Part: 1.82
-        """
-
-        # Design Part: 2.23
-        self.cursor.execute("CREATE TABLE spot_distances (\
-            id INTEGER PRIMARY KEY, \
-            delta_x INTEGER, \
-            delta_y INTEGER, \
-            distance REAL \
-        )")
-
     def create_table_spot_distances_observed(self):
         """Create a table for the observed spot distances.
 
@@ -793,42 +775,6 @@ class MakeLocalDB(threading.Thread):
             n_spots_b INTEGER \
         )")
 
-    def fill_distance_table(self):
-        """Calculate all possible spot distances for a SETL plate and put
-        them in a table in the local database.
-
-        Design Part: 1.47
-        """
-
-        # Make log message.
-        logging.info("Populating distances table...")
-
-        # Possible spot distances for a SETL plate. Moving horizontally
-        # or vertically from one spot to the next is defined as
-        # distance=1. Not moving means distance 0.
-        distances = (0,1,2,3,4)
-
-        # Create a Cartesian product for the possible distances.
-        products = itertools.product(distances, distances)
-
-        # Connect to the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
-
-        # Now calculate the distance for each combination in the
-        # Cartesian product and put each distance in the table.
-        for p1,p2 in products:
-            cursor.execute( "INSERT INTO spot_distances "
-                            "VALUES (null,?,?,?)",
-                            (p1, p2, setlyze.std.distance(p1,p2))
-                            )
-
-        # Commit the transaction.
-        connection.commit()
-
-        # Close connection with the local database.
-        cursor.close()
-        connection.close()
 
 class AccessDBGeneric(object):
     """Super class for AccessLocalDB and AccessRemoteDB.

@@ -35,14 +35,14 @@ Each class in this module represents a graphical dialog or window.
 Displaying one of these dialogs is as easy as instantiating the class.
 You can easily test this from the interactive Python shell:
 
->>> import setlyze.gui
->>> g = setlyze.gui.SelectLocations()
+    >>> import setlyze.gui
+    >>> g = setlyze.gui.SelectLocations()
 
 The above would display a nice localities selection dialog. You could
 then do the following to get a list of the selected locations.
 
->>> import setlyze.config
->>> setlyze.config.cfg.get('locations-selection')
+    >>> import setlyze.config
+    >>> setlyze.config.cfg.get('locations-selection')
 """
 
 import sys
