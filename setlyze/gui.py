@@ -48,13 +48,13 @@ then do the following to get a list of the selected locations.
 import sys
 import os
 import logging
-import pkg_resources
 import webbrowser
 
 import pygtk
 pygtk.require('2.0')
 import gtk
 import gobject
+import pkg_resources
 
 import setlyze.locale
 import setlyze.config
@@ -118,7 +118,8 @@ def on_not_implemented():
         type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
         message_format="Not yet implemented")
     dialog.format_secondary_text("Sorry, the feature you're trying to "
-        "access is not yet implemented.")
+        "access is not implemented yet. It will be implemented in the next "
+        "version of SETLyze.")
     dialog.set_position(gtk.WIN_POS_CENTER)
 
     response = dialog.run()
@@ -128,6 +129,358 @@ def markup_header(text):
     """Apply Pango markup to `text` to make it look like a header."""
     text = "<span size='large' weight='bold'>%s</span>" % (text)
     return text
+
+
+class SelectAnalysis(gtk.Window):
+    """Display a window that allows the user to select an analysis.
+
+    Design Part: 1.86
+    """
+
+    def __init__(self):
+        super(SelectAnalysis, self).__init__(gtk.WINDOW_TOPLEVEL)
+
+        self.set_title("Welcome to SETLyze")
+        self.set_size_request(-1, -1)
+        self.set_border_width(10)
+        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_resizable(False)
+
+        # Handle window signals.
+        self.connect('destroy', gtk.main_quit)
+
+        # Handle application signals.
+        self.handler1 = setlyze.std.sender.connect('beginning-analysis', self.on_analysis_started)
+        self.handler2 = setlyze.std.sender.connect('analysis-closed', self.on_analysis_closed)
+        self.handler3 = setlyze.std.sender.connect('local-db-created', self.on_continue)
+
+        # Add widgets to the GTK window.
+        self.create_layout()
+
+        # Display all widgets.
+        self.show_all()
+
+    def create_layout(self):
+        """Construct the layout."""
+
+        # Create a table to organize the widgets.
+        table = gtk.Table(rows=5, columns=2, homogeneous=False)
+        table.set_col_spacings(5)
+        table.set_row_spacings(5)
+
+        # Create a label.
+        label_welcome = gtk.Label("Please select the desired SETL analysis:")
+        label_welcome.set_line_wrap(True)
+        label_welcome.set_justify(gtk.JUSTIFY_FILL)
+        label_welcome.set_alignment(xalign=0, yalign=0)
+        # Add the label to the table.
+        table.attach(label_welcome, left_attach=0, right_attach=1,
+            top_attach=0, bottom_attach=1, xoptions=gtk.FILL|gtk.EXPAND,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=5)
+
+        # Create a vertical box to place the widgets in.
+        vbox = gtk.VBox(homogeneous=True, spacing=5)
+
+        # Create radio buttons.
+        self.radio_ana1 = gtk.RadioButton(None, setlyze.locale.text('analysis1'))
+        self.radio_ana1.set_tooltip_text(setlyze.locale.text('analysis1-descr'))
+        self.radio_ana1.connect('clicked', self.on_toggled)
+        vbox.pack_start(self.radio_ana1)
+
+        self.radio_ana2_1 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis2.1'))
+        self.radio_ana2_1.set_tooltip_text(setlyze.locale.text('analysis2.1-descr'))
+        self.radio_ana2_1.connect('clicked', self.on_toggled)
+        vbox.pack_start(self.radio_ana2_1)
+
+        self.radio_ana2_2 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis2.2'))
+        self.radio_ana2_2.set_tooltip_text(setlyze.locale.text('analysis2.2-descr'))
+        self.radio_ana2_2.connect('clicked', self.on_toggled)
+        vbox.pack_start(self.radio_ana2_2)
+
+        self.radio_ana3 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis3'))
+        self.radio_ana3.set_tooltip_text(setlyze.locale.text('analysis3-descr'))
+        self.radio_ana3.connect('clicked', self.on_toggled)
+        vbox.pack_start(self.radio_ana3)
+
+        # Add the alignment widget to the table.
+        table.attach(vbox, left_attach=0, right_attach=1,
+            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.EXPAND,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Load an image for the logo.
+        setl_logo = gtk.Image()
+        setl_logo.set_from_file(pkg_resources.resource_filename('setlyze', 'images/setl-logo.png'))
+        setl_logo_align = gtk.Alignment(xalign=1, yalign=0, xscale=0, yscale=1)
+        setl_logo_align.add(setl_logo)
+        # Add the logo to the table.
+        table.attach(setl_logo_align, left_attach=1, right_attach=2,
+            top_attach=0, bottom_attach=2, xoptions=gtk.FILL,
+            yoptions=gtk.FILL, xpadding=0, ypadding=0)
+
+        # Create a description label.
+        self.label_descr = gtk.Label(setlyze.locale.text('analysis1-descr'))
+        self.label_descr.set_width_chars(40)
+        self.label_descr.set_line_wrap(True)
+        self.label_descr.set_justify(gtk.JUSTIFY_FILL)
+        self.label_descr.set_alignment(xalign=0, yalign=0)
+        self.label_descr.set_padding(2, 2)
+
+        # Create a frame for the analysis description.
+        self.frame_descr = gtk.Frame()
+        self.frame_descr.set_size_request(-1, -1)
+        self.frame_descr.add(self.label_descr)
+        self.on_toggled()
+        # Add the frame to the table.
+        table.attach(self.frame_descr, left_attach=0, right_attach=2,
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            yoptions=gtk.FILL, xpadding=0, ypadding=0)
+
+        # Put a separator above the buttons.
+        separator = gtk.HSeparator()
+        table.attach(separator, left_attach=0, right_attach=2,
+            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create an about button.
+        button_about = gtk.Button(stock=gtk.STOCK_ABOUT)
+        button_about.set_size_request(70, -1)
+        button_about.connect("clicked", self.on_about)
+
+        # Put the buttons in a horizontal button box.
+        button_box_l = gtk.HButtonBox()
+        button_box_l.set_layout(gtk.BUTTONBOX_START)
+        button_box_l.pack_start(button_about, expand=True, fill=True, padding=0)
+
+        # Add the about button to the table.
+        table.attach(button_box_l, left_attach=0, right_attach=1,
+            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Continue button.
+        button_ok = gtk.Button(stock=gtk.STOCK_OK)
+        button_ok.set_size_request(70, -1)
+        button_ok.connect("clicked", self.on_continue)
+
+        # Quit button.
+        button_quit = gtk.Button(stock=gtk.STOCK_QUIT)
+        button_quit.set_size_request(70, -1)
+        button_quit.connect("clicked", self.on_quit)
+
+        # Put the buttons in a horizontal box.
+        button_box_r = gtk.HButtonBox()
+        button_box_r.set_layout(gtk.BUTTONBOX_END)
+        button_box_r.set_spacing(5)
+        button_box_r.pack_start(button_quit, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
+
+        # Add the aligned button box to the table.
+        table.attach(button_box_r, left_attach=1, right_attach=2,
+            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Add the alignment widget to the main window.
+        self.add(table)
+
+    def on_toggled(self, radiobutton=None):
+        """Update the description frame."""
+        if self.radio_ana1.get_active():
+            self.frame_descr.set_label("Analysis 1")
+            self.label_descr.set_text(setlyze.locale.text('analysis1-descr'))
+        elif self.radio_ana2_1.get_active():
+            self.frame_descr.set_label("Analysis 2.1")
+            self.label_descr.set_text(setlyze.locale.text('analysis2.1-descr'))
+        elif self.radio_ana2_2.get_active():
+            self.frame_descr.set_label("Analysis 2.2")
+            self.label_descr.set_text(setlyze.locale.text('analysis2.2-descr'))
+        elif self.radio_ana3.get_active():
+            self.frame_descr.set_label("Analysis 3")
+            self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
+
+    def destroy_handler_connections(self):
+        """Disconnect all signal connections with signal handlers created
+        by this object.
+        """
+
+        # This handler is only needed once. We don't want
+        # self.on_continue to be called each time the local database
+        # is recreated.
+        if self.handler3:
+            setlyze.std.sender.disconnect(self.handler3)
+            self.handler3 = None
+
+    def on_analysis_started(self, sender):
+        """Destroy this object's signal handlers and hide the dialog."""
+
+        # Some handler are only needed once. Block subsequent execution
+        # of these handler, as the signals will be emitted again from
+        # different parts.
+        self.destroy_handler_connections()
+
+        # Hide this window when an analysis is running.
+        self.hide()
+
+    def on_analysis_closed(self, sender):
+        """Show the dialog."""
+        self.show()
+
+    def on_continue(self, widget=None, data=None):
+        """Check if a local database is set. If not, create one if necessary
+        and set the database. Once a database has been set, begin with the
+        selected analysis.
+        """
+
+        # Check if a local database is set.
+        if not setlyze.config.cfg.get('has-local-db'):
+            # If not, create one.
+            self.make_local_database()
+
+            # The code below isn't supposed to continue while a local
+            # database is being created in the background. The code
+            # below is only supposed to run AFTER the local database was
+            # created.
+            # Once the database was created, a signal will be sent, and
+            # self.on_continue will be called again, running the code
+            # below. Hence the 'return'.
+            return False
+
+        # Then begin with the selected analysis.
+        if self.radio_ana1.get_active():
+            setlyze.std.sender.emit('on-start-analysis', 'spot_preference')
+
+        elif self.radio_ana2_1.get_active():
+            setlyze.std.sender.emit('on-start-analysis', 'attraction_intra')
+
+        elif self.radio_ana2_2.get_active():
+            setlyze.std.sender.emit('on-start-analysis', 'attraction_inter')
+
+        elif self.radio_ana3.get_active():
+            setlyze.std.sender.emit('on-start-analysis', 'relations')
+
+        return False
+
+    def on_quit(self, widget, data=None):
+        """Close the application."""
+        gtk.main_quit()
+
+    def on_about(self, widget, data=None):
+        license = ("This program is free software: you can redistribute it and/or modify\n"
+            "it under the terms of the GNU General Public License as published by\n"
+            "the Free Software Foundation, either version 3 of the License, or\n"
+            "(at your option) any later version.\n\n"
+
+            "This program is distributed in the hope that it will be useful,\n"
+            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+            "GNU General Public License for more details.\n\n"
+
+            "You should have received a copy of the GNU General Public License\n"
+            "along with this program.  If not, see http://www.gnu.org/licenses/")
+
+        logo_path = pkg_resources.resource_filename('setlyze',
+            '/images/setl-logo.png')
+        logo = gtk.gdk.pixbuf_new_from_file(logo_path)
+
+        about = gtk.AboutDialog()
+        about.set_position(gtk.WIN_POS_CENTER)
+        about.set_program_name("SETLyze")
+        about.set_version(__version__)
+        about.set_copyright("Copyright 2010, GiMaRIS")
+        about.set_authors(["Project Leader/Contact Person:\n"
+            "\tArjan Gittenberger <gittenberger@gimaris.com>",
+            "Application Developers:\n"
+            "\tJonathan den Boer",
+            "\tSerrano Pereira <serrano.pereira@gmail.com>"])
+        about.set_artists(["Serrano Pereira <serrano.pereira@gmail.com>"])
+        about.set_comments("A tool for analyzing SETL data.")
+        about.set_license(license)
+        about.set_website("http://www.gimaris.com/")
+        about.set_logo(logo)
+        about.run()
+        about.destroy()
+
+    def make_local_database(self):
+        """Set a local database. If there's already a local database file
+        on the user's computer, ask the user if he/she wants to use that
+        database. If Yes is answered, that local database file
+        will be set as the data source. If No is answered, a
+        new local database is created and filled with data from the remote
+        SETL database (that last part is not implemented yet).
+        """
+        dbfile = setlyze.config.cfg.get('db-file')
+
+        # Check if there already is a local database file.
+        if os.path.isfile(dbfile):
+            # If there is, ask the user if he/she/it want's to use
+            # the current local database.
+
+            db = setlyze.database.get_database_accessor()
+            db_info = db.get_database_info()
+
+            # Check if we got any results.
+            if not db_info['source'] or not db_info['date']:
+                # No row was returned, just create a new local database.
+                self.on_make_local_db()
+                return
+
+            # The first item in the list is the value.
+            source = db_info['source']
+            date = db_info['date']
+
+            # Construct a message for the user.
+            if source == "setl-database":
+                source_str = "the SETL database"
+            elif source == "csv-msaccess":
+                source_str = "MS Access exported CSV files"
+            else:
+                raise ValueError("Unknown data source '%s'." % source)
+
+            message = setlyze.locale.text('use-saved-data', date, source_str)
+
+            # Show a dialog with the message.
+            dialog = gtk.MessageDialog(parent=None, flags=0,
+                type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO,
+                message_format="Use saved data?")
+            dialog.format_secondary_text(message)
+            dialog.set_position(gtk.WIN_POS_CENTER)
+            response = dialog.run()
+
+            # Check the user's response.
+            if response == gtk.RESPONSE_YES:
+                logging.info("Using the local database from the last run.")
+
+                # Prevent a new database from being created.
+                setlyze.config.cfg.set('data-source', source)
+                setlyze.config.cfg.set('make-new-db', False)
+                setlyze.config.cfg.set('has-local-db', True)
+
+                # Destroy the dialog.
+                dialog.destroy()
+
+                # Try again...
+                self.on_continue()
+            else:
+                # User pressed No
+
+                # Destroy the dialog.
+                dialog.destroy()
+
+                # Create a new database.
+                self.on_make_local_db()
+        else:
+            # No database file was found. Create a new local database file.
+            self.on_make_local_db()
+
+    def on_make_local_db(self):
+        """Make a new local database."""
+
+        # Show a progress dialog.
+        pd = setlyze.gui.ProgressDialog(title="Loading SETL Data",
+            description="Please wait while the data from the SETL database is being loaded...")
+        setlyze.config.cfg.set('progress-dialog', pd)
+
+        # Make the local database.
+        t = setlyze.database.MakeLocalDB()
+        t.start()
 
 class SelectionWindow(gtk.Window):
     """Super class for :class:`SelectLocations` and :class:`SelectSpecies`."""
@@ -1454,9 +1807,10 @@ class ProgressDialog(gtk.Window):
 
 class DisplayReport(gtk.Window):
     """Display a dialog visualizing the elements in the XML DOM analysis
-    data object.
+    data object. The argument `reader` is an instance of
+    :class:`setlyze.std.ReportReader`.
 
-    This class uses :class:`setlyze.std.ReportReader` to read the data
+    This class uses :class:`~setlyze.std.ReportReader` to read the data
     from the XML DOM analysis data object.
 
     Design Part: 1.89
@@ -1597,7 +1951,6 @@ class DisplayReport(gtk.Window):
 
         txt_filter = gtk.FileFilter()
         txt_filter.set_name("Plain Text Document (*.txt)")
-        #txt_filter.add_mime_type("text/plain")
         txt_filter.add_pattern("*.txt")
 
         tex_filter = gtk.FileFilter()
@@ -1608,7 +1961,7 @@ class DisplayReport(gtk.Window):
         tex_filter.add_pattern("*.latex")
 
         chooser.add_filter(txt_filter)
-        chooser.add_filter(tex_filter)
+        #chooser.add_filter(tex_filter)
         chooser.add_filter(xml_filter)
 
         response = chooser.run()
@@ -2426,7 +2779,8 @@ class DisplayReport(gtk.Window):
 
 class SelectExportElements(gtk.Dialog):
     """Display a dialog for allowing the user to select which report
-    elements to export.
+    elements to export. The argument `reader` is an instance of
+    :class:`setlyze.std.ReportReader`.
     """
 
     def __init__(self, reader):

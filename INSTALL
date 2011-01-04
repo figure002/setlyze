@@ -1,0 +1,65 @@
+Requirements
+############
+
+Because SETLyze is written in the Python programming language, it has
+a fair amount of requirements. These requirements need
+to be satisfied for SETLyze to run on your system. The exact
+requirements are described below.
+
+System Requirements
+===================
+
+* Operating System: Microsoft® Windows®, GNU/Linux
+* Disk space: 2 MB (excl. dependencies), 70+ MB (incl. dependencies)
+
+
+Dependencies
+============
+
+* Python 2.6
+* GTK+ 2
+* R (v2.9.1 on Windows)
+* setuptools for Python 2.6
+* PyGTK for Python 2.6
+* PyCairo for Python 2.6
+* PyGObject for Python 2.6
+* RPy 1 for Python 2.6
+* Python Win32 Extensions for Python 2.6 (Windows only)
+
+Installation
+############
+
+Microsoft® Windows®
+===================
+
+For Windows® users, an installer is available that includes the SETLyze
+core package together with the necessary pre-requisites. The installer
+takes care of installing all dependencies so the user does not have to
+worry about this.
+
+GNU/Linux
+=========
+
+For GNU/Linux users, a source package is available. The source package
+doesn't contain the dependencies. GNU/Linux user can use their
+package manager to install the dependencies.
+
+On Ubuntu or other Debian derivatives, installing the dependencies
+can be done with the following command: ::
+
+    sudo apt-get install python python-gtk2 python-rpy python-setuptools
+
+Answer "yes" when asked to install the dependencies as well. Once all
+dependencies are installed, you can start SETLyze by running
+"setlyze.pyw" from the extracted archive.
+
+If you want to install SETLyze system wide, you can do so with the
+provided setup script. The following command will install
+SETLyze's modules to an existing Python installation and copies
+SETLyze's executable "setlyze.pyw" to the system's "bin" folder. ::
+
+    sudo python setup.py install
+
+Once installed, SETLyze can be started from the command-line with, ::
+
+    setlyze.pyw

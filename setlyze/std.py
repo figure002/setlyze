@@ -796,6 +796,9 @@ class Sender(gobject.GObject):
           documentation to get a better understanding of event and
           signal handling.
 
+       `Sub-classing GObject in Python <http://www.pygtk.org/articles/subclassing-gobject/sub-classing-gobject-in-python.htm>`_
+          Or how to create custom properties and signals with PyGTK.
+
        `gobject.idle_add <http://www.pygtk.org/pygtk2reference/gobject-functions.html#function-gobject--idle-add>`_
           PyGTK documentation for :meth:`gobject.idle_add`.
 
@@ -809,10 +812,17 @@ class Sender(gobject.GObject):
             1, # maximum value
             0, # default value
             gobject.PARAM_READWRITE), # flags
+        'analysis' : (gobject.TYPE_STRING, # type
+            'The analysis to be started.', # nick name
+            'The analysis to be started. Possible values are spot_preference, ...', # description
+            '', # default value
+            gobject.PARAM_READWRITE), # flags
     }
 
     # Create custom application signals.
     __gsignals__ = {
+        'on-start-analysis': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+
         'beginning-analysis': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'analysis-started': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'analysis-finished': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -825,7 +835,6 @@ class Sender(gobject.GObject):
         'locations-selection-saved': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'species-selection-saved': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
         'plate-areas-defined': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'save-analysis-report-as': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,gobject.TYPE_STRING)),
 
         'analysis-aborted': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'analysis-closed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -838,18 +847,23 @@ class Sender(gobject.GObject):
     def __init__(self):
         gobject.GObject.__init__(self)
         self.save_slot = 0
+        self.analysis = ''
 
     def do_get_property(self, property):
         if property.name == 'save-slot':
             return self.save_slot
+        elif property.name == 'analysis':
+            return self.analysis
         else:
-            raise AttributeError, 'unknown property %s' % property.name
+            raise AttributeError('Unknown property %s' % property.name)
 
     def do_set_property(self, property, value):
         if property.name == 'save-slot':
             self.save_slot = value
+        elif property.name == 'analysis':
+            self.analysis = value
         else:
-            raise AttributeError, 'unknown property %s' % property.name
+            raise AttributeError('Unknown property %s' % property.name)
 
 class ReportGenerator(object):
     """Create a XML DOM (Document Object Model) object of the analysis
@@ -1927,7 +1941,7 @@ class ExportTextReport(object):
         """
         text = "\n<h>\n<hr>\n\n"
         text = text.replace('<h>', header)
-        text = text.replace('<hr>', "="*len(header))
+        text = text.replace('<hr>', "#"*len(header))
         return text
 
     def subsection(self, header):
@@ -1936,7 +1950,7 @@ class ExportTextReport(object):
         """
         text = "\n<h>\n<hr>\n\n"
         text = text.replace('<h>', header)
-        text = text.replace('<hr>', "-"*len(header))
+        text = text.replace('<hr>', "="*len(header))
         return text
 
     def subsubsection(self, header):

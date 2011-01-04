@@ -120,7 +120,6 @@ class Begin(object):
         setlyze.std.sender.set_property('save-slot', 0)
 
         # Emit the signal that an analysis has started.
-        #setlyze.std.sender.set_property('save_slot', 0)
         setlyze.std.sender.emit('beginning-analysis')
 
     def handle_application_signals(self):

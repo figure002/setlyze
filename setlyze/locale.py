@@ -45,7 +45,7 @@ ENGLISH = [
     ('use-saved-data',
         "The SETL data from the last run is still on your computer. The "
         "data was loaded on %s from %s.\n\nSelect Yes to use this (old) "
-        "data, or select No to load up-to-date data from the SETL database "
+        "data, or select No to load up-to-date data from the remote SETL database "
         "(requires a direct connection with the SETL database server)."),
     ('select-locations',
         "Below are the available locations. Please select the locations "

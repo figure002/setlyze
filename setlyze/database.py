@@ -777,7 +777,7 @@ class MakeLocalDB(threading.Thread):
 
 
 class AccessDBGeneric(object):
-    """Super class for AccessLocalDB and AccessRemoteDB.
+    """Super class for :class:`AccessLocalDB` and :class:`AccessRemoteDB`.
 
     This class contains methods that are generic for both sub-classes.
     It provides both sub classes with methods for data that is always
@@ -787,6 +787,30 @@ class AccessDBGeneric(object):
     def __init__(self):
         self.progress_dialog = None
         self.dbfile = setlyze.config.cfg.get('db-file')
+
+    def get_database_info(self):
+        """Return info (creation date, data source) stored in the local
+        database file.
+        """
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT value FROM info WHERE name='source'")
+        source = cursor.fetchone()
+
+        cursor.execute("SELECT value FROM info WHERE name='date'")
+        date = cursor.fetchone()
+
+        cursor.close()
+        connection.close()
+
+        info = {}
+        if source:
+            info['source'] = source[0]
+        if date:
+            info['date'] = date[0]
+
+        return info
 
     def get_locations(self):
         """Return a list of all locations from the local database.
@@ -881,7 +905,7 @@ class AccessDBGeneric(object):
         """Remove records that have just one positive spot. Intra-specific
         distance can’t be calculated for those.
 
-        .. note::
+        .. deprecated:: 0.1
            Use of this function is discouraged. You can easily check for
            a minimum number of spots in your functions. Also the function
            :meth:`~setlyze.std.get_spot_combinations_from_record` will
