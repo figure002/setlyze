@@ -3,7 +3,7 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement of species.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -37,6 +37,6 @@ __date__ = "2010/09/22"
 class Begin(object):
     def __init__(self):
         # Create log message.
-        logging.info("Beginning Analysis 3 \"Relation between species\"")
+        logging.info("Beginning Analysis 4 \"Relation between species\"")
 
         setlyze.gui.on_not_implemented()

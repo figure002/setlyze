@@ -3,7 +3,7 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement of species.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -23,24 +23,16 @@ can be broken down in the following steps:
 
 1. Show a list of all localities and let the user perform a localities
    selection.
-
 2. Show a list of all species that match the locations selection and
    let the user perform a species selection.
-
 3. Show the Define Plate Areas dialog and let the user define the plate
    areas.
-
 4. Calculate the observed species frequencies for the plate areas.
-
 5. Check if all plate area frequencies are zero. If so, abort.
-
 6. Calculate the expected species frequencies for the plate areas.
-
 7. Calculate the significance in difference between the observed and
    expected area totals. The Chi-squared test is used for this.
-
 8. Generate the anayslis report.
-
 9. Show the analysis report to the user.
 
 """
@@ -64,6 +56,7 @@ import setlyze.std
 __author__ = "Jonathan den Boer, Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
+__version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
@@ -173,7 +166,7 @@ class Begin(object):
         setlyze.std.sender.disconnect(self.handler12)
 
     def on_analysis_aborted(self, sender):
-        setlyze.config.cfg.get('progress-dialog').destroy_silent()
+        setlyze.config.cfg.get('progress-dialog').destroy()
 
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
@@ -248,7 +241,7 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """Perform the calculations for analysis 2.1.
+    """Perform the calculations for analysis 1.
 
     1. Calculate the observed species frequencies for the plate areas.
 
@@ -416,10 +409,10 @@ class Start(threading.Thread):
             % len(records))
 
         # Dictionary which will contain the species total for each area.
-        areas_totals_observed = {   'area1': 0,
-                            'area2': 0,
-                            'area3': 0,
-                            'area4': 0 }
+        areas_totals_observed = {'area1': 0,
+            'area2': 0,
+            'area3': 0,
+            'area4': 0,}
 
         # Fill the totals table.
         for record in records:

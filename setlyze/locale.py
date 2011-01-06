@@ -3,7 +3,7 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement of species.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import logging
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
+__version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
@@ -65,18 +66,18 @@ ENGLISH = [
     ('analysis1-descr',
         "Determine if a specie has preference for a specific spot on "
         "SETL plates."),
-    ('analysis2.1',
-        'Analysis 2.1 "Attraction of species (intra-specific)"'),
-    ('analysis2.1-descr',
+    ('analysis2',
+        'Analysis 2 "Attraction of species (intra-specific)"'),
+    ('analysis2-descr',
         "Determine if a specie attracts or repels individuals of its "
         "own kind."),
-    ('analysis2.2',
-        'Analysis 2.2 "Attraction of species (inter-specific)"'),
-    ('analysis2.2-descr',
-        'Determine if two different species attract or repel each other.'),
     ('analysis3',
-        'Analysis 3 "Relation between species"'),
+        'Analysis 3 "Attraction of species (inter-specific)"'),
     ('analysis3-descr',
+        'Determine if two different species attract or repel each other.'),
+    ('analysis4',
+        'Analysis 4 "Relation between species"'),
+    ('analysis4-descr',
         'Determine if one specie is somehow related to another specie.'),
     ('define-plate-areas',
         "Please define the plate areas for the analysis. You can keep "

@@ -3,7 +3,7 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement of species.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ import setlyze.std
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
+__version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
@@ -62,6 +63,8 @@ def get_database_accessor():
     return an instance of AccessLocalDB or AccessRemoteDB. This instance
     provides methods that are specific to the data source currently in
     use.
+
+    Design Part: 1.93
     """
     data_source = setlyze.config.cfg.get('data-source')
     if data_source == "csv-msaccess":
@@ -816,6 +819,8 @@ class AccessDBGeneric(object):
         """Return a list of all locations from the local database.
 
         Returns a list of tuples ``(loc_id, 'loc_name')``.
+
+        Design Part: 1.95
         """
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
@@ -833,7 +838,7 @@ class AccessDBGeneric(object):
         ``species_spots_1`` and ``1`` for ``species_spots_2``.
 
         We're doing this so we can threat multiple species selected by
-        the user as a single specie.
+        the user as a single species.
 
         Design Part: 1.20
         """
@@ -1064,7 +1069,7 @@ class AccessDBGeneric(object):
             for record in cursor:
                 plate_id = record[1]
 
-                # Get the positive spots for this plate.
+                # Get the positive spots for this record.
                 spots = setlyze.std.get_spots_from_record(record[2:])
 
                 # We're only interested in the number of spots.
@@ -1218,6 +1223,8 @@ class AccessLocalDB(AccessDBGeneric):
 
         The values for `loc_slot` are ``0`` for the first localities
         selection and ``1`` for the second localities selection.
+
+        Design Part: 1.96
         """
 
         # Get one of the location selections.

@@ -3,7 +3,7 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement of species.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ import setlyze.config
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
+__version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"

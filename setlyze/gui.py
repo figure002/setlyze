@@ -3,7 +3,7 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement of species.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -64,6 +64,7 @@ from setlyze.std import make_remarks
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
+__version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
@@ -187,18 +188,18 @@ class SelectAnalysis(gtk.Window):
         self.radio_ana1.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana1)
 
-        self.radio_ana2_1 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis2.1'))
-        self.radio_ana2_1.set_tooltip_text(setlyze.locale.text('analysis2.1-descr'))
+        self.radio_ana2_1 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis2'))
+        self.radio_ana2_1.set_tooltip_text(setlyze.locale.text('analysis2-descr'))
         self.radio_ana2_1.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana2_1)
 
-        self.radio_ana2_2 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis2.2'))
-        self.radio_ana2_2.set_tooltip_text(setlyze.locale.text('analysis2.2-descr'))
+        self.radio_ana2_2 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis3'))
+        self.radio_ana2_2.set_tooltip_text(setlyze.locale.text('analysis3-descr'))
         self.radio_ana2_2.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana2_2)
 
-        self.radio_ana3 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis3'))
-        self.radio_ana3.set_tooltip_text(setlyze.locale.text('analysis3-descr'))
+        self.radio_ana3 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis4'))
+        self.radio_ana3.set_tooltip_text(setlyze.locale.text('analysis4-descr'))
         self.radio_ana3.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana3)
 
@@ -287,14 +288,14 @@ class SelectAnalysis(gtk.Window):
             self.frame_descr.set_label("Analysis 1")
             self.label_descr.set_text(setlyze.locale.text('analysis1-descr'))
         elif self.radio_ana2_1.get_active():
-            self.frame_descr.set_label("Analysis 2.1")
-            self.label_descr.set_text(setlyze.locale.text('analysis2.1-descr'))
+            self.frame_descr.set_label("Analysis 2")
+            self.label_descr.set_text(setlyze.locale.text('analysis2-descr'))
         elif self.radio_ana2_2.get_active():
-            self.frame_descr.set_label("Analysis 2.2")
-            self.label_descr.set_text(setlyze.locale.text('analysis2.2-descr'))
-        elif self.radio_ana3.get_active():
             self.frame_descr.set_label("Analysis 3")
             self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
+        elif self.radio_ana3.get_active():
+            self.frame_descr.set_label("Analysis 4")
+            self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
 
     def destroy_handler_connections(self):
         """Disconnect all signal connections with signal handlers created
@@ -363,6 +364,7 @@ class SelectAnalysis(gtk.Window):
         gtk.main_quit()
 
     def on_about(self, widget, data=None):
+        """Display SETLyze's about dialog."""
         license = ("This program is free software: you can redistribute it and/or modify\n"
             "it under the terms of the GNU General Public License as published by\n"
             "the Free Software Foundation, either version 3 of the License, or\n"
@@ -391,7 +393,7 @@ class SelectAnalysis(gtk.Window):
             "\tJonathan den Boer",
             "\tSerrano Pereira <serrano.pereira@gmail.com>"])
         about.set_artists(["Serrano Pereira <serrano.pereira@gmail.com>"])
-        about.set_comments("A tool for analyzing SETL data.")
+        about.set_comments("A tool for analyzing the settlement of species.")
         about.set_license(license)
         about.set_website("http://www.gimaris.com/")
         about.set_logo(logo)
@@ -601,7 +603,7 @@ class SelectionWindow(gtk.Window):
         # User Data File button
         self.button_chg_source = gtk.Button(" Change _Data Source ")
         self.button_chg_source.set_size_request(-1, -1)
-        self.button_chg_source.connect("clicked", self.on_select_data_files)
+        self.button_chg_source.connect("clicked", self.on_change_data_source)
 
         # But the button in a horizontal button box.
         button_box_l = gtk.HButtonBox()
@@ -655,7 +657,7 @@ class SelectionWindow(gtk.Window):
         """Set the localities/species selection save slot to `slot`.
 
         The selection variable has two slots available for saving
-        selections (in analysis 2.2, two selections need to be saved,
+        selections (in analysis 3, two selections need to be saved,
         hence two slots were created).
 
         The possible values of `slot` are ``0`` for the first selection,
@@ -748,8 +750,8 @@ class SelectionWindow(gtk.Window):
         # Emit the signal that a selection dialog was closed.
         setlyze.std.sender.emit('selection-dialog-closed')
 
-    def on_select_data_files(self, button):
-        """Display the ChangeDataSource window.
+    def on_change_data_source(self, button):
+        """Display the ChangeDataSource dialog.
 
         Design Part: 1.11
         """

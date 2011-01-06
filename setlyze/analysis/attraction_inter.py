@@ -3,7 +3,7 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing SETL data.
+#  This file is part of SETLyze - A tool for analyzing the settlement of species.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module performs analysis 2.2 "Attraction of species (inter-
+"""This module performs analysis 3 "Attraction of species (inter-
 specific)". This analysis can be broken down in the following steps:
 
 1. Show a list of all localities and let the user perform a localities
@@ -78,13 +78,14 @@ import setlyze.locale
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
+__version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/09/22"
 
 class Begin(object):
-    """Make the preparations for analysis 2.2:
+    """Make the preparations for analysis 3:
 
     1. Show a list of all localities and let the user perform a localities
        selection.
@@ -107,7 +108,7 @@ class Begin(object):
         self.previous_window = None
 
         # Create log message.
-        logging.info("Beginning Analysis 2.2 \"Attraction of species (inter-specific)\"")
+        logging.info("Beginning Analysis 3 \"Attraction of species (inter-specific)\"")
 
         # Bind handles to application signals.
         self.handle_application_signals()
@@ -219,7 +220,7 @@ class Begin(object):
 
         # Display the species selection window.
         select = setlyze.gui.SelectLocations(width=370, slot=0)
-        select.set_title(setlyze.locale.text('analysis2.2'))
+        select.set_title(setlyze.locale.text('analysis3'))
 
         # Change the header text.
         select.set_header("Locations Selection")
@@ -237,7 +238,7 @@ class Begin(object):
 
         # Display the species selection window.
         select = setlyze.gui.SelectSpecies(width=500, slot=save_slot)
-        select.set_title(setlyze.locale.text('analysis2.2'))
+        select.set_title(setlyze.locale.text('analysis3'))
         select.set_description( setlyze.locale.text('select-locations') + "\n\n" +
             setlyze.locale.text('selection-tips')
             )
@@ -272,7 +273,7 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """Perform the calculations for analysis 2.2.
+    """Perform the calculations for analysis 3.
 
     1. Get all SETL records that match the localities + first species
        selection and save these to table "species_spots_1" in the local
@@ -314,13 +315,13 @@ class Start(threading.Thread):
         self.statistics = {'wilcoxon':[], 'chi_squared':[]}
 
         # Create log message.
-        logging.info("Performing %s" % setlyze.locale.text('analysis2.2'))
+        logging.info("Performing %s" % setlyze.locale.text('analysis3'))
 
         # Emit the signal that an analysis has started.
         setlyze.std.sender.emit('analysis-started')
 
     def __del__(self):
-        logging.info("%s was completed!" % setlyze.locale.text('analysis2.2'))
+        logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
 
     def generate_spot_ratio_groups(self):
         """Return an iterator that returns the ratio groups.
@@ -706,12 +707,12 @@ class Start(threading.Thread):
             observed = [x[0] for x in cursor]
             expected = [x[0] for x in cursor2]
 
-            # Perform a consistency test. The number of observed and
-            # expected distances must always be the same.
+            # Perform a consistency check. The number of observed and
+            # expected spot distances must always be the same.
             count_observed = len(observed)
             count_expected = len(expected)
             if count_observed != count_expected:
-                raise ValueError("Number of observed and expected "
+                raise ValueError("Number of observed and expected spot "
                     "distances are not equal. This indicates a bug "
                     "in the application.")
 

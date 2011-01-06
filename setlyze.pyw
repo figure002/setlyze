@@ -22,12 +22,9 @@
 """This is the executable for SETLyze. Run this script to start SETLyze."""
 
 import sys
-import os
 import logging
-import getopt
 from sqlite3 import dbapi2 as sqlite
 
-import pkg_resources
 import pygtk
 pygtk.require('2.0')
 import gtk
