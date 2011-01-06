@@ -8,8 +8,8 @@ SETLyze Design Parts
 ==================  =================================
 Design Part #       Reference
 ==================  =================================
-1.0                 :mod:`__main__`
-1.1                 :meth:`__main__.main`
+1.0                 The executable for SETLyze.
+1.1                 The initial function for SETLyze.
 1.2					:class:`setlyze.database.MakeLocalDB`
 1.3					:mod:`setlyze.analysis.spot_preference`
 1.3.1 				:class:`setlyze.analysis.spot_preference.Begin`
@@ -25,13 +25,13 @@ Design Part #       Reference
 1.6.2 				:class:`setlyze.analysis.relations.Start`
 1.7 				:meth:`setlyze.gui.SelectLocations.save_selection`
 1.8 				:meth:`setlyze.gui.SelectSpecies.save_selection`
-1.11 				:meth:`setlyze.gui.SelectionWindow.on_select_data_files`
+1.11 				:meth:`setlyze.gui.SelectionWindow.on_change_data_source`
 1.12 				:class:`setlyze.std.ReportGenerator`
 1.13 				:meth:`setlyze.analysis.spot_preference.Start.generate_report`
 1.14 				:meth:`setlyze.analysis.attraction_intra.Start.generate_report`
 1.15 				:meth:`setlyze.analysis.attraction_inter.Start.generate_report`
 1.16 				:meth:`setlyze.analysis.relations.Start.generate_report`
-1.17 				:meth:`setlyze.std.ReportReader.save_report`
+1.17 				:meth:`setlyze.std.export_report`
 1.19.1 				:meth:`setlyze.database.AccessLocalDB.set_species_spots`
 1.19.2 				:meth:`setlyze.database.AccessRemoteDB.set_species_spots`
 1.20 				:meth:`setlyze.database.AccessDBGeneric.make_plates_unique`
@@ -66,7 +66,7 @@ Design Part #       Reference
 1.51 				:meth:`setlyze.std.ReportGenerator.set_specie_selections`
 1.52 				:meth:`setlyze.std.ReportGenerator.set_spot_distances_observed`
 1.53 				:meth:`setlyze.std.ReportGenerator.set_spot_distances_expected`
-1.54 				:meth:`setlyze.std.ReportGenerator.set_spot_areas_definition`
+1.54 				:meth:`setlyze.std.ReportGenerator.set_plate_areas_definition`
 1.55 				:meth:`setlyze.std.ReportGenerator.set_area_totals_observed`
 1.56 				:meth:`setlyze.std.ReportGenerator.set_area_totals_expected`
 1.57 				:class:`setlyze.config.ConfigManager`
@@ -100,13 +100,18 @@ Design Part #       Reference
 1.83 				:meth:`setlyze.database.MakeLocalDB.create_table_spot_distances_observed`
 1.84 				:meth:`setlyze.database.MakeLocalDB.create_table_spot_distances_expected`
 1.85 				:meth:`setlyze.database.MakeLocalDB.create_table_plate_spot_totals`
-1.86                :class:`SelectAnalysis`
+1.86                :class:`setlyze.gui.SelectAnalysis`
 1.87                :class:`setlyze.gui.SelectLocations`
 1.88                :class:`setlyze.gui.SelectSpecies`
 1.89                :class:`setlyze.gui.DisplayReport`
 1.90                :class:`setlyze.gui.ChangeDataSource`
 1.91                :class:`setlyze.gui.DefinePlateAreas`
 1.92                :class:`setlyze.gui.ProgressDialog`
+1.93 				:meth:`setlyze.database.get_database_accessor`
+1.94                :class:`setlyze.std.Sender`
+1.95                :meth:`setlyze.database.AccessDBGeneric.get_locations`
+1.96                :meth:`setlyze.database.AccessLocalDB.get_species`
+1.97                :meth:`setlyze.database.AccessRemoteDB.get_species`
 ==================  =================================
 
 2.x Data Storage Places
@@ -123,13 +128,13 @@ Design Part #       Reference
 ==================  =================================
 Design Part #       Reference
 ==================  =================================
-3.0                 `Select Analysis`
-3.1                 `Select Locations`
-3.2                 `Select Species`
-3.3                 `Analysis Report`
-3.4                 `Change Data Source`
-3.5                 `Define Plate Areas`
-3.6                 `Progress Dialog`
+3.0                 :ref:`Select Analysis <dialog-analysis-selection>`
+3.1                 :ref:`Select Locations <dialog-loc-selection>`
+3.2                 :ref:`Select Species <dialog-spe-selection>`
+3.3                 :ref:`Analysis Report <dialog-analysis-report>`
+3.4                 :ref:`Change Data Source <dialog-change-data-source>`
+3.5                 :ref:`Define Plate Areas <dialog-define-plate-areas>`
+3.6                 :ref:`Progress Dialog <dialog-progress-dialog>`
 ==================  =================================
 
 4.x Documents

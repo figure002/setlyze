@@ -64,7 +64,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 26, 2010</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 06, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -82,7 +82,7 @@ database.</p>
 <dl class="class">
 <dt id="setlyze.database.AccessDBGeneric">
 <em class="property">class </em><tt class="descclassname">setlyze.database.</tt><tt class="descname">AccessDBGeneric</tt><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Super class for AccessLocalDB and AccessRemoteDB.</p>
+<dd><p>Super class for <a class="reference internal" href="#setlyze.database.AccessLocalDB" title="setlyze.database.AccessLocalDB"><tt class="xref py py-class docutils literal"><span class="pre">AccessLocalDB</span></tt></a> and <a class="reference internal" href="#setlyze.database.AccessRemoteDB" title="setlyze.database.AccessRemoteDB"><tt class="xref py py-class docutils literal"><span class="pre">AccessRemoteDB</span></tt></a>.</p>
 <p>This class contains methods that are generic for both sub-classes.
 It provides both sub classes with methods for data that is always
 present in the local database.</p>
@@ -112,6 +112,13 @@ from <cite>spots_table1</cite>, and <tt class="docutils literal"><span class="pr
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.database.AccessDBGeneric.get_database_info">
+<tt class="descname">get_database_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_database_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_database_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return info (creation date, data source) stored in the local
+database file.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.database.AccessDBGeneric.get_distances_matching_ratios">
 <tt class="descname">get_distances_matching_ratios</tt><big>(</big><em>cursor</em>, <em>distance_table</em>, <em>ratios</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_ratios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the spot distances from distance table <cite>distance_table</cite> where
@@ -134,6 +141,7 @@ are from plates having <cite>spots_n</cite> positive spot numbers.</p>
 <tt class="descname">get_locations</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_locations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of all locations from the local database.</p>
 <p>Returns a list of tuples <tt class="docutils literal"><span class="pre">(loc_id,</span> <span class="pre">'loc_name')</span></tt>.</p>
+<p>Design Part: 1.95</p>
 </dd></dl>
 
 <dl class="method">
@@ -144,7 +152,7 @@ The value for <cite>slot</cite> defines which spots table is used.
 The possible values of <cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for table
 <tt class="docutils literal"><span class="pre">species_spots_1</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt> for <tt class="docutils literal"><span class="pre">species_spots_2</span></tt>.</p>
 <p>We&#8217;re doing this so we can threat multiple species selected by
-the user as a single specie.</p>
+the user as a single species.</p>
 <p>Design Part: 1.20</p>
 </dd></dl>
 
@@ -153,14 +161,12 @@ the user as a single specie.</p>
 <tt class="descname">remove_single_spot_plates</tt><big>(</big><em>table</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.remove_single_spot_plates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.remove_single_spot_plates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove records that have just one positive spot. Intra-specific
 distance can’t be calculated for those.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Use of this function is discouraged. You can easily check for
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 0.1: </span>Use of this function is discouraged. You can easily check for
 a minimum number of spots in your functions. Also the function
 <a class="reference internal" href="std.html#setlyze.std.get_spot_combinations_from_record" title="setlyze.std.get_spot_combinations_from_record"><tt class="xref py py-meth docutils literal"><span class="pre">get_spot_combinations_from_record()</span></tt></a> will
 return an empty list if no combinations are possibe (e.g. the
 record contains less than 2 positive spots).</p>
-</div>
 <p>Design Part: 1.21</p>
 </dd></dl>
 
@@ -191,6 +197,7 @@ in the list <cite>loc_ids</cite> and the species IDs in the list <cite>spe_ids</
 database that match the localities selection.</p>
 <p>The values for <cite>loc_slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for the first localities
 selection and <tt class="docutils literal"><span class="pre">1</span></tt> for the second localities selection.</p>
+<p>Design Part: 1.96</p>
 </dd></dl>
 
 <dl class="method">
@@ -337,14 +344,6 @@ creating a separate column <tt class="docutils literal"><span class="pre">id</sp
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.database.MakeLocalDB.create_table_spot_distances">
-<tt class="descname">create_table_spot_distances</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_spot_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table that will contain all the pre-calculated
-spot distances that are possible on a SETL plate.</p>
-<p>Design Part: 1.82</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_spot_distances_expected">
 <tt class="descname">create_table_spot_distances_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_spot_distances_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances_expected" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the expected spot distances.</p>
@@ -356,14 +355,6 @@ spot distances that are possible on a SETL plate.</p>
 <tt class="descname">create_table_spot_distances_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_spot_distances_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances_observed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the observed spot distances.</p>
 <p>Design Part: 1.83</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.database.MakeLocalDB.fill_distance_table">
-<tt class="descname">fill_distance_table</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.fill_distance_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.fill_distance_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate all possible spot distances for a SETL plate and put
-them in a table in the local database.</p>
-<p>Design Part: 1.47</p>
 </dd></dl>
 
 <dl class="method">
@@ -503,6 +494,7 @@ the remote database.</p>
 return an instance of AccessLocalDB or AccessRemoteDB. This instance
 provides methods that are specific to the data source currently in
 use.</p>
+<p>Design Part: 1.93</p>
 </dd></dl>
 
 <dl class="function">

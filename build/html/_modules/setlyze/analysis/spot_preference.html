@@ -51,7 +51,7 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -65,6 +65,25 @@
 <span class="c">#</span>
 <span class="c">#  You should have received a copy of the GNU General Public License</span>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;This module performs analysis 1 &quot;Spot preference&quot;. This analysis</span>
+<span class="sd">can be broken down in the following steps:</span>
+
+<span class="sd">1. Show a list of all localities and let the user perform a localities</span>
+<span class="sd">   selection.</span>
+<span class="sd">2. Show a list of all species that match the locations selection and</span>
+<span class="sd">   let the user perform a species selection.</span>
+<span class="sd">3. Show the Define Plate Areas dialog and let the user define the plate</span>
+<span class="sd">   areas.</span>
+<span class="sd">4. Calculate the observed species frequencies for the plate areas.</span>
+<span class="sd">5. Check if all plate area frequencies are zero. If so, abort.</span>
+<span class="sd">6. Calculate the expected species frequencies for the plate areas.</span>
+<span class="sd">7. Calculate the significance in difference between the observed and</span>
+<span class="sd">   expected area totals. The Chi-squared test is used for this.</span>
+<span class="sd">8. Generate the anayslis report.</span>
+<span class="sd">9. Show the analysis report to the user.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -85,18 +104,27 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Jonathan den Boer, Serrano Pereira&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/09/22&quot;</span>
 
 <div class="viewcode-block" id="Begin"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin">[docs]</a><span class="k">class</span> <span class="nc">Begin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make all the preparations for analysis 1:</span>
-<span class="sd">        * Let the user select the locations.</span>
-<span class="sd">        * Let the user select the species.</span>
-<span class="sd">        * Let the user define the plate areas.</span>
+    <span class="sd">&quot;&quot;&quot;Make the preparations for analysis 1:</span>
 
-<span class="sd">    When done, start the analysis.</span>
+<span class="sd">    1. Show a list of all localities and let the user perform a localities</span>
+<span class="sd">       selection.</span>
+
+<span class="sd">    2. Show a list of all species that match the locations selection and</span>
+<span class="sd">       let the user perform a species selection.</span>
+
+<span class="sd">    3. Show the Define Plate Areas dialog and let the user define the plate</span>
+<span class="sd">       areas.</span>
+
+<span class="sd">    4. Start the analysis.</span>
+
+<span class="sd">    5. Show the analysis report to the user.</span>
 
 <span class="sd">    Design Part: 1.3.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -186,7 +214,7 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler12</span><span class="p">)</span>
 </div>
     <span class="k">def</span> <span class="nf">on_analysis_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">destroy_silent</span><span class="p">()</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
 
         <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
@@ -261,7 +289,18 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">DisplayReport</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="Start"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start">[docs]</a><span class="k">class</span> <span class="nc">Start</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Perform the calculations for analysis 1 &quot;Spot Preference&quot;.</span>
+    <span class="sd">&quot;&quot;&quot;Perform the calculations for analysis 1.</span>
+
+<span class="sd">    1. Calculate the observed species frequencies for the plate areas.</span>
+
+<span class="sd">    2. Check if all plate area frequencies are zero. If so, abort.</span>
+
+<span class="sd">    3. Calculate the expected species frequencies for the plate areas.</span>
+
+<span class="sd">    4. Calculate the significance in difference between the observed and</span>
+<span class="sd">       expected area totals. The Chi-squared test is used for this.</span>
+
+<span class="sd">    5. Generate the anayslis report.</span>
 
 <span class="sd">    Design Part: 1.3.2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -304,11 +343,12 @@
         <span class="c"># dialog.</span>
         <span class="n">total_steps</span> <span class="o">=</span> <span class="mf">5.0</span>
 
+        <span class="c"># Update progress dialog.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
             <span class="s">&quot;Calculating observed species totals per plate area...&quot;</span><span class="p">)</span>
-
         <span class="c"># Calculate the species totals.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas_totals_observed</span><span class="p">()</span>
+        <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Observed species totals: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="p">)</span>
 
         <span class="c"># Make sure that spot area totals are not all zero. If so, abort</span>
@@ -319,29 +359,33 @@
             <span class="n">areas_total</span> <span class="o">+=</span> <span class="n">area_total</span>
 
         <span class="k">if</span> <span class="n">areas_total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># Create log message.</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">All plate areas totals are zero. Aborting.&quot;</span><span class="p">)</span>
+            <span class="c"># Send signal the analysis was aborted.</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-aborted&#39;</span><span class="p">)</span>
             <span class="k">return</span>
 
+        <span class="c"># Update progress dialog.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
             <span class="s">&quot;Calculating expected species totals per plate area...&quot;</span><span class="p">)</span>
-
         <span class="c"># Calculate the expected totals.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_areas_totals_expected</span><span class="p">()</span>
+        <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Expected species totals: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span><span class="p">)</span>
 
+        <span class="c"># Update progress dialog.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
             <span class="s">&quot;Performing Chi-square test...&quot;</span><span class="p">)</span>
-
         <span class="c"># Perform Chi-square test.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">chi_square_tester</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_observed</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas_totals_expected</span><span class="p">)</span>
 
+        <span class="c"># Update progress dialog.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
             <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
-
         <span class="c"># Generate the report.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
 
+        <span class="c"># Update progress dialog.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">5</span><span class="o">/</span><span class="n">total_steps</span><span class="p">,</span>
             <span class="s">&quot;&quot;</span><span class="p">)</span>
 
@@ -413,10 +457,10 @@
             <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">))</span>
 
         <span class="c"># Dictionary which will contain the species total for each area.</span>
-        <span class="n">areas_totals_observed</span> <span class="o">=</span> <span class="p">{</span>   <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                            <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                            <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-                            <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mi">0</span> <span class="p">}</span>
+        <span class="n">areas_totals_observed</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,}</span>
 
         <span class="c"># Fill the totals table.</span>
         <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
@@ -530,7 +574,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Chi-square: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">chisquare</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Start.generate_report"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.generate_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate the analysis report and display the report in a dialog.</span>
+        <span class="sd">&quot;&quot;&quot;Generate the analysis report.</span>
 
 <span class="sd">        Design Part: 1.13</span>
 <span class="sd">        &quot;&quot;&quot;</span>

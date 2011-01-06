@@ -51,7 +51,7 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -83,26 +83,26 @@
 <span class="sd">Displaying one of these dialogs is as easy as instantiating the class.</span>
 <span class="sd">You can easily test this from the interactive Python shell:</span>
 
-<span class="sd">&gt;&gt;&gt; import setlyze.gui</span>
-<span class="sd">&gt;&gt;&gt; g = setlyze.gui.SelectLocations()</span>
+<span class="sd">    &gt;&gt;&gt; import setlyze.gui</span>
+<span class="sd">    &gt;&gt;&gt; g = setlyze.gui.SelectLocations()</span>
 
 <span class="sd">The above would display a nice localities selection dialog. You could</span>
 <span class="sd">then do the following to get a list of the selected locations.</span>
 
-<span class="sd">&gt;&gt;&gt; import setlyze.config</span>
-<span class="sd">&gt;&gt;&gt; setlyze.config.cfg.get(&#39;locations-selection&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; import setlyze.config</span>
+<span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.get(&#39;locations-selection&#39;)</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">pkg_resources</span>
 <span class="kn">import</span> <span class="nn">webbrowser</span>
 
 <span class="kn">import</span> <span class="nn">pygtk</span>
 <span class="n">pygtk</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s">&#39;2.0&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">gtk</span>
 <span class="kn">import</span> <span class="nn">gobject</span>
+<span class="kn">import</span> <span class="nn">pkg_resources</span>
 
 <span class="kn">import</span> <span class="nn">setlyze.locale</span>
 <span class="kn">import</span> <span class="nn">setlyze.config</span>
@@ -112,6 +112,7 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
@@ -166,7 +167,8 @@
         <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
         <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Not yet implemented&quot;</span><span class="p">)</span>
     <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="s">&quot;Sorry, the feature you&#39;re trying to &quot;</span>
-        <span class="s">&quot;access is not yet implemented.&quot;</span><span class="p">)</span>
+        <span class="s">&quot;access is not implemented yet. It will be implemented in the next &quot;</span>
+        <span class="s">&quot;version of SETLyze.&quot;</span><span class="p">)</span>
     <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
 
     <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -176,7 +178,360 @@
     <span class="sd">&quot;&quot;&quot;Apply Pango markup to `text` to make it look like a header.&quot;&quot;&quot;</span>
     <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;&lt;span size=&#39;large&#39; weight=&#39;bold&#39;&gt;</span><span class="si">%s</span><span class="s">&lt;/span&gt;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">text</span>
+
 </div>
+<div class="viewcode-block" id="SelectAnalysis"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis">[docs]</a><span class="k">class</span> <span class="nc">SelectAnalysis</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Window</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Display a window that allows the user to select an analysis.</span>
+
+<span class="sd">    Design Part: 1.86</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SelectAnalysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WINDOW_TOPLEVEL</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Welcome to SETLyze&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_border_width</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_resizable</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+
+        <span class="c"># Handle window signals.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;destroy&#39;</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">main_quit</span><span class="p">)</span>
+
+        <span class="c"># Handle application signals.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_started</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler2</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-closed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler3</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;local-db-created&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_continue</span><span class="p">)</span>
+
+        <span class="c"># Add widgets to the GTK window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_layout</span><span class="p">()</span>
+
+        <span class="c"># Display all widgets.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_all</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SelectAnalysis.create_layout"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.create_layout">[docs]</a>    <span class="k">def</span> <span class="nf">create_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct the layout.&quot;&quot;&quot;</span>
+
+        <span class="c"># Create a table to organize the widgets.</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">homogeneous</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">set_col_spacings</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">set_row_spacings</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="c"># Create a label.</span>
+        <span class="n">label_welcome</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Please select the desired SETL analysis:&quot;</span><span class="p">)</span>
+        <span class="n">label_welcome</span><span class="o">.</span><span class="n">set_line_wrap</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">label_welcome</span><span class="o">.</span><span class="n">set_justify</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">JUSTIFY_FILL</span><span class="p">)</span>
+        <span class="n">label_welcome</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="c"># Add the label to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">label_welcome</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="o">|</span><span class="n">gtk</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="c"># Create a vertical box to place the widgets in.</span>
+        <span class="n">vbox</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">VBox</span><span class="p">(</span><span class="n">homogeneous</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="c"># Create radio buttons.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1-descr&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2-descr&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3-descr&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis4&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis4-descr&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
+        <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="p">)</span>
+
+        <span class="c"># Add the alignment widget to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">vbox</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="o">|</span><span class="n">gtk</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Load an image for the logo.</span>
+        <span class="n">setl_logo</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">()</span>
+        <span class="n">setl_logo</span><span class="o">.</span><span class="n">set_from_file</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setl-logo.png&#39;</span><span class="p">))</span>
+        <span class="n">setl_logo_align</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">setl_logo_align</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">setl_logo</span><span class="p">)</span>
+        <span class="c"># Add the logo to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">setl_logo_align</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Create a description label.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1-descr&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_width_chars</span><span class="p">(</span><span class="mi">40</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_line_wrap</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_justify</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">JUSTIFY_FILL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_padding</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c"># Create a frame for the analysis description.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Frame</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">()</span>
+        <span class="c"># Add the frame to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Put a separator above the buttons.</span>
+        <span class="n">separator</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HSeparator</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">separator</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Create an about button.</span>
+        <span class="n">button_about</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_ABOUT</span><span class="p">)</span>
+        <span class="n">button_about</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">button_about</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_about</span><span class="p">)</span>
+
+        <span class="c"># Put the buttons in a horizontal button box.</span>
+        <span class="n">button_box_l</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
+        <span class="n">button_box_l</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_START</span><span class="p">)</span>
+        <span class="n">button_box_l</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_about</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the about button to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_l</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Continue button.</span>
+        <span class="n">button_ok</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_OK</span><span class="p">)</span>
+        <span class="n">button_ok</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">button_ok</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_continue</span><span class="p">)</span>
+
+        <span class="c"># Quit button.</span>
+        <span class="n">button_quit</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_QUIT</span><span class="p">)</span>
+        <span class="n">button_quit</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">button_quit</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_quit</span><span class="p">)</span>
+
+        <span class="c"># Put the buttons in a horizontal box.</span>
+        <span class="n">button_box_r</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_END</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_quit</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_ok</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the aligned button box to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_r</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the alignment widget to the main window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.on_toggled"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_toggled">[docs]</a>    <span class="k">def</span> <span class="nf">on_toggled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">radiobutton</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the description frame.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&quot;Analysis 1&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1-descr&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&quot;Analysis 2&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2-descr&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&quot;Analysis 3&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3-descr&#39;</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">frame_descr</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s">&quot;Analysis 4&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">label_descr</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis4-descr&#39;</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.destroy_handler_connections"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.destroy_handler_connections">[docs]</a>    <span class="k">def</span> <span class="nf">destroy_handler_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Disconnect all signal connections with signal handlers created</span>
+<span class="sd">        by this object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># This handler is only needed once. We don&#39;t want</span>
+        <span class="c"># self.on_continue to be called each time the local database</span>
+        <span class="c"># is recreated.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">handler3</span><span class="p">:</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler3</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handler3</span> <span class="o">=</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.on_analysis_started"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_analysis_started">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_started</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Destroy this object&#39;s signal handlers and hide the dialog.&quot;&quot;&quot;</span>
+
+        <span class="c"># Some handler are only needed once. Block subsequent execution</span>
+        <span class="c"># of these handler, as the signals will be emitted again from</span>
+        <span class="c"># different parts.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy_handler_connections</span><span class="p">()</span>
+
+        <span class="c"># Hide this window when an analysis is running.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.on_analysis_closed"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_analysis_closed">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the dialog.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.on_continue"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_continue">[docs]</a>    <span class="k">def</span> <span class="nf">on_continue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if a local database is set. If not, create one if necessary</span>
+<span class="sd">        and set the database. Once a database has been set, begin with the</span>
+<span class="sd">        selected analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Check if a local database is set.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;has-local-db&#39;</span><span class="p">):</span>
+            <span class="c"># If not, create one.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">make_local_database</span><span class="p">()</span>
+
+            <span class="c"># The code below isn&#39;t supposed to continue while a local</span>
+            <span class="c"># database is being created in the background. The code</span>
+            <span class="c"># below is only supposed to run AFTER the local database was</span>
+            <span class="c"># created.</span>
+            <span class="c"># Once the database was created, a signal will be sent, and</span>
+            <span class="c"># self.on_continue will be called again, running the code</span>
+            <span class="c"># below. Hence the &#39;return&#39;.</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="c"># Then begin with the selected analysis.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;on-start-analysis&#39;</span><span class="p">,</span> <span class="s">&#39;spot_preference&#39;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;on-start-analysis&#39;</span><span class="p">,</span> <span class="s">&#39;attraction_intra&#39;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;on-start-analysis&#39;</span><span class="p">,</span> <span class="s">&#39;attraction_inter&#39;</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="o">.</span><span class="n">get_active</span><span class="p">():</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;on-start-analysis&#39;</span><span class="p">,</span> <span class="s">&#39;relations&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.on_quit"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_quit">[docs]</a>    <span class="k">def</span> <span class="nf">on_quit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the application.&quot;&quot;&quot;</span>
+        <span class="n">gtk</span><span class="o">.</span><span class="n">main_quit</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.on_about"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_about">[docs]</a>    <span class="k">def</span> <span class="nf">on_about</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display SETLyze&#39;s about dialog.&quot;&quot;&quot;</span>
+        <span class="n">license</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;This program is free software: you can redistribute it and/or modify</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;it under the terms of the GNU General Public License as published by</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;the Free Software Foundation, either version 3 of the License, or</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;(at your option) any later version.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+
+            <span class="s">&quot;This program is distributed in the hope that it will be useful,</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;but WITHOUT ANY WARRANTY; without even the implied warranty of</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;GNU General Public License for more details.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+
+            <span class="s">&quot;You should have received a copy of the GNU General Public License</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;along with this program.  If not, see http://www.gnu.org/licenses/&quot;</span><span class="p">)</span>
+
+        <span class="n">logo_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
+            <span class="s">&#39;/images/setl-logo.png&#39;</span><span class="p">)</span>
+        <span class="n">logo</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">gdk</span><span class="o">.</span><span class="n">pixbuf_new_from_file</span><span class="p">(</span><span class="n">logo_path</span><span class="p">)</span>
+
+        <span class="n">about</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">AboutDialog</span><span class="p">()</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_program_name</span><span class="p">(</span><span class="s">&quot;SETLyze&quot;</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_version</span><span class="p">(</span><span class="n">__version__</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_copyright</span><span class="p">(</span><span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_authors</span><span class="p">([</span><span class="s">&quot;Project Leader/Contact Person:</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Arjan Gittenberger &lt;gittenberger@gimaris.com&gt;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;Application Developers:</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Jonathan den Boer&quot;</span><span class="p">,</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_artists</span><span class="p">([</span><span class="s">&quot;Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_comments</span><span class="p">(</span><span class="s">&quot;A tool for analyzing the settlement of species.&quot;</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_license</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_website</span><span class="p">(</span><span class="s">&quot;http://www.gimaris.com/&quot;</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">set_logo</span><span class="p">(</span><span class="n">logo</span><span class="p">)</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">about</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.make_local_database"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.make_local_database">[docs]</a>    <span class="k">def</span> <span class="nf">make_local_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a local database. If there&#39;s already a local database file</span>
+<span class="sd">        on the user&#39;s computer, ask the user if he/she wants to use that</span>
+<span class="sd">        database. If Yes is answered, that local database file</span>
+<span class="sd">        will be set as the data source. If No is answered, a</span>
+<span class="sd">        new local database is created and filled with data from the remote</span>
+<span class="sd">        SETL database (that last part is not implemented yet).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dbfile</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">)</span>
+
+        <span class="c"># Check if there already is a local database file.</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">dbfile</span><span class="p">):</span>
+            <span class="c"># If there is, ask the user if he/she/it want&#39;s to use</span>
+            <span class="c"># the current local database.</span>
+
+            <span class="n">db</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">get_database_accessor</span><span class="p">()</span>
+            <span class="n">db_info</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_database_info</span><span class="p">()</span>
+
+            <span class="c"># Check if we got any results.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">db_info</span><span class="p">[</span><span class="s">&#39;source&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">db_info</span><span class="p">[</span><span class="s">&#39;date&#39;</span><span class="p">]:</span>
+                <span class="c"># No row was returned, just create a new local database.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_make_local_db</span><span class="p">()</span>
+                <span class="k">return</span>
+
+            <span class="c"># The first item in the list is the value.</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">db_info</span><span class="p">[</span><span class="s">&#39;source&#39;</span><span class="p">]</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">db_info</span><span class="p">[</span><span class="s">&#39;date&#39;</span><span class="p">]</span>
+
+            <span class="c"># Construct a message for the user.</span>
+            <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s">&quot;setl-database&quot;</span><span class="p">:</span>
+                <span class="n">source_str</span> <span class="o">=</span> <span class="s">&quot;the SETL database&quot;</span>
+            <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s">&quot;csv-msaccess&quot;</span><span class="p">:</span>
+                <span class="n">source_str</span> <span class="o">=</span> <span class="s">&quot;MS Access exported CSV files&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unknown data source &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">source</span><span class="p">)</span>
+
+            <span class="n">message</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;use-saved-data&#39;</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">source_str</span><span class="p">)</span>
+
+            <span class="c"># Show a dialog with the message.</span>
+            <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_QUESTION</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_YES_NO</span><span class="p">,</span>
+                <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Use saved data?&quot;</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+            <span class="c"># Check the user&#39;s response.</span>
+            <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RESPONSE_YES</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Using the local database from the last run.&quot;</span><span class="p">)</span>
+
+                <span class="c"># Prevent a new database from being created.</span>
+                <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">,</span> <span class="n">source</span><span class="p">)</span>
+                <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;make-new-db&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
+                <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;has-local-db&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+
+                <span class="c"># Destroy the dialog.</span>
+                <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+                <span class="c"># Try again...</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_continue</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c"># User pressed No</span>
+
+                <span class="c"># Destroy the dialog.</span>
+                <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+                <span class="c"># Create a new database.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_make_local_db</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># No database file was found. Create a new local database file.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_make_local_db</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SelectAnalysis.on_make_local_db"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_make_local_db">[docs]</a>    <span class="k">def</span> <span class="nf">on_make_local_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Make a new local database.&quot;&quot;&quot;</span>
+
+        <span class="c"># Show a progress dialog.</span>
+        <span class="n">pd</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Loading SETL Data&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s">&quot;Please wait while the data from the SETL database is being loaded...&quot;</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="p">)</span>
+
+        <span class="c"># Make the local database.</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">MakeLocalDB</span><span class="p">()</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</div></div>
 <div class="viewcode-block" id="SelectionWindow"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectionWindow">[docs]</a><span class="k">class</span> <span class="nc">SelectionWindow</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Window</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Super class for :class:`SelectLocations` and :class:`SelectSpecies`.&quot;&quot;&quot;</span>
 
@@ -296,7 +651,7 @@
         <span class="c"># User Data File button</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">button_chg_source</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="s">&quot; Change _Data Source &quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_select_data_files</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_change_data_source</span><span class="p">)</span>
 
         <span class="c"># But the button in a horizontal button box.</span>
         <span class="n">button_box_l</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
@@ -350,7 +705,7 @@
         <span class="sd">&quot;&quot;&quot;Set the localities/species selection save slot to `slot`.</span>
 
 <span class="sd">        The selection variable has two slots available for saving</span>
-<span class="sd">        selections (in analysis 2.2, two selections need to be saved,</span>
+<span class="sd">        selections (in analysis 3, two selections need to be saved,</span>
 <span class="sd">        hence two slots were created).</span>
 
 <span class="sd">        The possible values of `slot` are ``0`` for the first selection,</span>
@@ -443,8 +798,8 @@
         <span class="c"># Emit the signal that a selection dialog was closed.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;selection-dialog-closed&#39;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="SelectionWindow.on_select_data_files"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectionWindow.on_select_data_files">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_data_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Display the ChangeDataSource window.</span>
+<div class="viewcode-block" id="SelectionWindow.on_change_data_source"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectionWindow.on_change_data_source">[docs]</a>    <span class="k">def</span> <span class="nf">on_change_data_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">button</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the ChangeDataSource dialog.</span>
 
 <span class="sd">        Design Part: 1.11</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1502,9 +1857,10 @@
 </div></div>
 <div class="viewcode-block" id="DisplayReport"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport">[docs]</a><span class="k">class</span> <span class="nc">DisplayReport</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Window</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display a dialog visualizing the elements in the XML DOM analysis</span>
-<span class="sd">    data object.</span>
+<span class="sd">    data object. The argument `reader` is an instance of</span>
+<span class="sd">    :class:`setlyze.std.ReportReader`.</span>
 
-<span class="sd">    This class uses :class:`setlyze.std.ReportReader` to read the data</span>
+<span class="sd">    This class uses :class:`~setlyze.std.ReportReader` to read the data</span>
 <span class="sd">    from the XML DOM analysis data object.</span>
 
 <span class="sd">    Design Part: 1.89</span>
@@ -1645,7 +2001,6 @@
 
         <span class="n">txt_filter</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileFilter</span><span class="p">()</span>
         <span class="n">txt_filter</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s">&quot;Plain Text Document (*.txt)&quot;</span><span class="p">)</span>
-        <span class="c">#txt_filter.add_mime_type(&quot;text/plain&quot;)</span>
         <span class="n">txt_filter</span><span class="o">.</span><span class="n">add_pattern</span><span class="p">(</span><span class="s">&quot;*.txt&quot;</span><span class="p">)</span>
 
         <span class="n">tex_filter</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileFilter</span><span class="p">()</span>
@@ -1656,7 +2011,7 @@
         <span class="n">tex_filter</span><span class="o">.</span><span class="n">add_pattern</span><span class="p">(</span><span class="s">&quot;*.latex&quot;</span><span class="p">)</span>
 
         <span class="n">chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">txt_filter</span><span class="p">)</span>
-        <span class="n">chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">tex_filter</span><span class="p">)</span>
+        <span class="c">#chooser.add_filter(tex_filter)</span>
         <span class="n">chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">xml_filter</span><span class="p">)</span>
 
         <span class="n">response</span> <span class="o">=</span> <span class="n">chooser</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -2474,7 +2829,8 @@
 </div></div>
 <div class="viewcode-block" id="SelectExportElements"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectExportElements">[docs]</a><span class="k">class</span> <span class="nc">SelectExportElements</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Dialog</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display a dialog for allowing the user to select which report</span>
-<span class="sd">    elements to export.</span>
+<span class="sd">    elements to export. The argument `reader` is an instance of</span>
+<span class="sd">    :class:`setlyze.std.ReportReader`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reader</span><span class="p">):</span>

@@ -1,5 +1,5 @@
 =================================================================================================
-:mod:`setlyze.analysis.attraction_intra` --- Analysis 2.1, Attraction of species (intra-specific)
+:mod:`setlyze.analysis.attraction_intra` --- Analysis 2, Attraction of species (intra-specific)
 =================================================================================================
 
 :Author: Serrano Pereira

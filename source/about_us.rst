@@ -26,8 +26,8 @@ Internship bioinformatics student at GiMaRIS.
 
 * Complete rewrite of the application (renamed "SETLyze").
 
-* Implemented analysis 2.1 "Attraction of species (intra)" and
-  analysis 2.2 "Attraction of species (inter)".
+* Implemented analysis 2 "Attraction of species (intra)" and
+  analysis 3 "Attraction of species (inter)".
 
 * Rewrote analysis 1 "Spot preference".
 

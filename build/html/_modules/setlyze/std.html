@@ -51,7 +51,7 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -89,12 +89,13 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/10/01 13:42:16&quot;</span>
 
-<div class="viewcode-block" id="make_remarks"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.make_remarks">[docs]</a><span class="k">def</span> <span class="nf">make_remarks</span><span class="p">(</span><span class="n">results</span><span class="p">,</span><span class="n">attributes</span><span class="p">):</span>
+<div class="viewcode-block" id="make_remarks"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.make_remarks">[docs]</a><span class="k">def</span> <span class="nf">make_remarks</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">attributes</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return a remarks string that contains a summary of the results</span>
 <span class="sd">    and attributes of a statistical test.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -198,8 +199,9 @@
 <span class="sd">    This function was taken from the Python documentation for</span>
 <span class="sd">    :mod:`itertools`.</span>
 
-<span class="sd">    A simple example: ::</span>
+<span class="sd">    A simple example:</span>
 
+<span class="sd">        &gt;&gt;&gt; import setlyze.std</span>
 <span class="sd">        &gt;&gt;&gt; i = setlyze.std.combinations_with_replacement(&#39;ABCD&#39;, 2)</span>
 <span class="sd">        &gt;&gt;&gt; [x for x in i]</span>
 <span class="sd">        [(&#39;A&#39;, &#39;A&#39;), (&#39;A&#39;, &#39;B&#39;), (&#39;A&#39;, &#39;C&#39;), (&#39;A&#39;, &#39;D&#39;), (&#39;B&#39;, &#39;B&#39;), (&#39;B&#39;, &#39;C&#39;), (&#39;B&#39;, &#39;D&#39;), (&#39;C&#39;, &#39;C&#39;), (&#39;C&#39;, &#39;D&#39;), (&#39;D&#39;, &#39;D&#39;)]</span>
@@ -389,7 +391,7 @@
 <span class="sd">    the two records. If no combinations are possible (i.e. not enough</span>
 <span class="sd">    positive spots), the iterable object returns nothing.</span>
 
-<span class="sd">    An example with one record ::</span>
+<span class="sd">    An example with one record</span>
 
 <span class="sd">        &gt;&gt;&gt; import setlyze.std</span>
 <span class="sd">        &gt;&gt;&gt; record = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)</span>
@@ -404,7 +406,7 @@
 <span class="sd">        2 15</span>
 <span class="sd">        5 15</span>
 
-<span class="sd">    An example with two records ::</span>
+<span class="sd">    An example with two records</span>
 
 <span class="sd">        &gt;&gt;&gt; import setlyze.std</span>
 <span class="sd">        &gt;&gt;&gt; record1 = (4567,1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)</span>
@@ -442,7 +444,7 @@
     <span class="sd">&quot;&quot;&quot;Return a list containing all spot numbers of the positive spots</span>
 <span class="sd">    from `record`, a sequence of 25 spot booleans.</span>
 
-<span class="sd">    A simple usage example ::</span>
+<span class="sd">    A simple usage example</span>
 
 <span class="sd">        &gt;&gt;&gt; import setlyze.std</span>
 <span class="sd">        &gt;&gt;&gt; record = (1,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0)</span>
@@ -475,7 +477,7 @@
 <span class="sd">    | 21| 22| 23| 24| 25|</span>
 <span class="sd">    +---+---+---+---+---+</span>
 
-<span class="sd">    Some examples: ::</span>
+<span class="sd">    Some examples:</span>
 
 <span class="sd">        &gt;&gt;&gt; import setlyze.std</span>
 <span class="sd">        &gt;&gt;&gt; setlyze.std.get_spot_coordinate(1)</span>
@@ -537,7 +539,7 @@
 
 <span class="sd">    If you got two spot numbers that are right next to eachother (say 1</span>
 <span class="sd">    and 2), the horizontal difference would be 1, and the vertical</span>
-<span class="sd">    difference 0. A few more examples: ::</span>
+<span class="sd">    difference 0. A few more examples:</span>
 
 <span class="sd">        &gt;&gt;&gt; print setlyze.std.get_spot_position_difference(3,3)</span>
 <span class="sd">        (0, 0)</span>
@@ -779,7 +781,7 @@
 <div class="viewcode-block" id="mean"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.mean">[docs]</a><span class="k">def</span> <span class="nf">mean</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return the arithmetic mean of a sequence of numbers `x`.</span>
 
-<span class="sd">    A simple example: ::</span>
+<span class="sd">    A simple example:</span>
 
 <span class="sd">        &gt;&gt;&gt; import setlyze.std</span>
 <span class="sd">        &gt;&gt;&gt; x = [5.91, 1, 10, 19, 22.1, 16, 3.3, 25, 12, 8, 18.5, 17, 23, 2, 7]</span>
@@ -843,6 +845,9 @@
 <span class="sd">          documentation to get a better understanding of event and</span>
 <span class="sd">          signal handling.</span>
 
+<span class="sd">       `Sub-classing GObject in Python &lt;http://www.pygtk.org/articles/subclassing-gobject/sub-classing-gobject-in-python.htm&gt;`_</span>
+<span class="sd">          Or how to create custom properties and signals with PyGTK.</span>
+
 <span class="sd">       `gobject.idle_add &lt;http://www.pygtk.org/pygtk2reference/gobject-functions.html#function-gobject--idle-add&gt;`_</span>
 <span class="sd">          PyGTK documentation for :meth:`gobject.idle_add`.</span>
 
@@ -856,10 +861,17 @@
             <span class="mi">1</span><span class="p">,</span> <span class="c"># maximum value</span>
             <span class="mi">0</span><span class="p">,</span> <span class="c"># default value</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">PARAM_READWRITE</span><span class="p">),</span> <span class="c"># flags</span>
+        <span class="s">&#39;analysis&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span> <span class="c"># type</span>
+            <span class="s">&#39;The analysis to be started.&#39;</span><span class="p">,</span> <span class="c"># nick name</span>
+            <span class="s">&#39;The analysis to be started. Possible values are spot_preference, ...&#39;</span><span class="p">,</span> <span class="c"># description</span>
+            <span class="s">&#39;&#39;</span><span class="p">,</span> <span class="c"># default value</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">PARAM_READWRITE</span><span class="p">),</span> <span class="c"># flags</span>
     <span class="p">}</span>
 
     <span class="c"># Create custom application signals.</span>
     <span class="n">__gsignals__</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s">&#39;on-start-analysis&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,)),</span>
+
         <span class="s">&#39;beginning-analysis&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>
         <span class="s">&#39;analysis-started&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>
         <span class="s">&#39;analysis-finished&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>
@@ -872,7 +884,6 @@
         <span class="s">&#39;locations-selection-saved&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,)),</span>
         <span class="s">&#39;species-selection-saved&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,)),</span>
         <span class="s">&#39;plate-areas-defined&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>
-        <span class="s">&#39;save-analysis-report-as&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">)),</span>
 
         <span class="s">&#39;analysis-aborted&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>
         <span class="s">&#39;analysis-closed&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>
@@ -885,18 +896,23 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">gobject</span><span class="o">.</span><span class="n">GObject</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">save_slot</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">do_get_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;save-slot&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_slot</span>
+        <span class="k">elif</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;analysis&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="s">&#39;unknown property </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;Unknown property </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">do_set_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">property</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;save-slot&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">save_slot</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">elif</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;analysis&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">analysis</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="s">&#39;unknown property </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s">&#39;Unknown property </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="nb">property</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ReportGenerator"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.ReportGenerator">[docs]</a><span class="k">class</span> <span class="nc">ReportGenerator</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create a XML DOM (Document Object Model) object of the analysis</span>
@@ -1974,7 +1990,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&lt;h&gt;</span><span class="se">\n</span><span class="s">&lt;hr&gt;</span><span class="se">\n\n</span><span class="s">&quot;</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;h&gt;&#39;</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;hr&gt;&#39;</span><span class="p">,</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;hr&gt;&#39;</span><span class="p">,</span> <span class="s">&quot;#&quot;</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">text</span>
 </div>
 <div class="viewcode-block" id="ExportTextReport.subsection"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.ExportTextReport.subsection">[docs]</a>    <span class="k">def</span> <span class="nf">subsection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
@@ -1983,7 +1999,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&lt;h&gt;</span><span class="se">\n</span><span class="s">&lt;hr&gt;</span><span class="se">\n\n</span><span class="s">&quot;</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;h&gt;&#39;</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
-        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;hr&gt;&#39;</span><span class="p">,</span> <span class="s">&quot;-&quot;</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s">&#39;&lt;hr&gt;&#39;</span><span class="p">,</span> <span class="s">&quot;=&quot;</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">header</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">text</span>
 </div>
 <div class="viewcode-block" id="ExportTextReport.subsubsection"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.ExportTextReport.subsubsection">[docs]</a>    <span class="k">def</span> <span class="nf">subsubsection</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>

@@ -663,6 +663,12 @@ and we know the horizontal difference (Δx) and the vertical
 difference (Δy), we can look up the corresponding distance in the
 ``spot_distances`` table.
 
+.. deprecated:: 0.1
+   A :ref:`performance test <optimization_spot_dist_calc>` showed that retrieving
+   pre-calculated spot distances from the database is much slower than
+   calculating them on run time.
+
+
 .. _design-part-data-2.24:
 
 2.24

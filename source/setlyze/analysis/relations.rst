@@ -1,5 +1,5 @@
 ===========================================================================
-:mod:`setlyze.analysis.relations` --- Analysis 3, Relations between species
+:mod:`setlyze.analysis.relations` --- Analysis 4, Relations between species
 ===========================================================================
 
 :Author: Serrano Pereira

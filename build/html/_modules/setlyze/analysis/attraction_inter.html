@@ -51,7 +51,7 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -65,6 +65,50 @@
 <span class="c">#</span>
 <span class="c">#  You should have received a copy of the GNU General Public License</span>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;This module performs analysis 3 &quot;Attraction of species (inter-</span>
+<span class="sd">specific)&quot;. This analysis can be broken down in the following steps:</span>
+
+<span class="sd">1. Show a list of all localities and let the user perform a localities</span>
+<span class="sd">   selection.</span>
+
+<span class="sd">2. Show a list of all species that match the locations selection and</span>
+<span class="sd">   let the user perform the first species selection.</span>
+
+<span class="sd">3. Show a list of all species that match the locations selection and</span>
+<span class="sd">   let the user perform the second species selection.</span>
+
+<span class="sd">4. Get all SETL records that match the localities + first species</span>
+<span class="sd">   selection and save these to table &quot;species_spots_1&quot; in the local</span>
+<span class="sd">   database.</span>
+
+<span class="sd">5. Merge records with the same plate ID in table &quot;species_spots_1&quot; to</span>
+<span class="sd">   make the plate IDs unique.</span>
+
+<span class="sd">6. Get all SETL records that match the localities + second species</span>
+<span class="sd">   selection and save these to table &quot;species_spots_2&quot; in the local</span>
+<span class="sd">   database.</span>
+
+<span class="sd">7. Merge records with the same plate ID in table &quot;species_spots_2&quot; to</span>
+<span class="sd">   make the plate IDs unique.</span>
+
+<span class="sd">8. Calculate the inter-specific spot distances from the records in both</span>
+<span class="sd">   species spots tables and save the distances to table</span>
+<span class="sd">   &quot;spot_distances_observed&quot; in the local database.</span>
+
+<span class="sd">9. Calculate expected inter-specific spot distances by generating</span>
+<span class="sd">   random spots and save the distances to table</span>
+<span class="sd">   &quot;spot_distances_expected&quot; in the local database.</span>
+
+<span class="sd">10. Calculate the significance in difference between the observed and</span>
+<span class="sd">    expected spot distances. Two tests of significance are performed:</span>
+<span class="sd">    the Wilcoxon signed-rank test and the Chi-squared test.</span>
+
+<span class="sd">11. Generate the anayslis report.</span>
+
+<span class="sd">12. Show the analysis report to the user.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">threading</span>
@@ -82,19 +126,27 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/09/22&quot;</span>
 
 <div class="viewcode-block" id="Begin"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin">[docs]</a><span class="k">class</span> <span class="nc">Begin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make all the preparations for analysis 2.2:</span>
-<span class="sd">        * Let the user make the first locations selection.</span>
-<span class="sd">        * Let the user make the first species selection.</span>
-<span class="sd">        * Let the user make the second locations selection.</span>
-<span class="sd">        * Let the user make the second species selection.</span>
+    <span class="sd">&quot;&quot;&quot;Make the preparations for analysis 3:</span>
 
-<span class="sd">    When done, start the analysis.</span>
+<span class="sd">    1. Show a list of all localities and let the user perform a localities</span>
+<span class="sd">       selection.</span>
+
+<span class="sd">    2. Show a list of all species that match the locations selection and</span>
+<span class="sd">       let the user perform the first species selection.</span>
+
+<span class="sd">    3. Show a list of all species that match the locations selection and</span>
+<span class="sd">       let the user perform the second species selection.</span>
+
+<span class="sd">    4. Start the analysis.</span>
+
+<span class="sd">    5. Show the analysis report to the user.</span>
 
 <span class="sd">    Design Part: 1.5.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -104,7 +156,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">previous_window</span> <span class="o">=</span> <span class="bp">None</span>
 
         <span class="c"># Create log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Beginning Analysis 2.2 </span><span class="se">\&quot;</span><span class="s">Attraction of species (inter-specific)</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Beginning Analysis 3 </span><span class="se">\&quot;</span><span class="s">Attraction of species (inter-specific)</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">)</span>
 
         <span class="c"># Bind handles to application signals.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handle_application_signals</span><span class="p">()</span>
@@ -117,7 +169,6 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
         <span class="c"># Emit the signal that an analysis has started.</span>
-        <span class="c">#setlyze.std.sender.set_property(&#39;save_slot&#39;, 0)</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Begin.handle_application_signals"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.handle_application_signals">[docs]</a>    <span class="k">def</span> <span class="nf">handle_application_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -217,7 +268,7 @@
 
         <span class="c"># Display the species selection window.</span>
         <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectLocations</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">370</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.2&#39;</span><span class="p">))</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
 
         <span class="c"># Change the header text.</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Locations Selection&quot;</span><span class="p">)</span>
@@ -235,7 +286,7 @@
 
         <span class="c"># Display the species selection window.</span>
         <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="n">save_slot</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.2&#39;</span><span class="p">))</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-locations&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
             <span class="p">)</span>
@@ -270,7 +321,35 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">DisplayReport</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="Start"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start">[docs]</a><span class="k">class</span> <span class="nc">Start</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Perform all the calculations for analysis 2.2.</span>
+    <span class="sd">&quot;&quot;&quot;Perform the calculations for analysis 3.</span>
+
+<span class="sd">    1. Get all SETL records that match the localities + first species</span>
+<span class="sd">       selection and save these to table &quot;species_spots_1&quot; in the local</span>
+<span class="sd">       database.</span>
+
+<span class="sd">    2. Merge records with the same plate ID in table &quot;species_spots_1&quot; to</span>
+<span class="sd">       make the plate IDs unique.</span>
+
+<span class="sd">    3. Get all SETL records that match the localities + second species</span>
+<span class="sd">       selection and save these to table &quot;species_spots_2&quot; in the local</span>
+<span class="sd">       database.</span>
+
+<span class="sd">    4. Merge records with the same plate ID in table &quot;species_spots_2&quot; to</span>
+<span class="sd">       make the plate IDs unique.</span>
+
+<span class="sd">    5. Calculate the inter-specific spot distances from the records in both</span>
+<span class="sd">       species spots tables and save the distances to table</span>
+<span class="sd">       &quot;spot_distances_observed&quot; in the local database.</span>
+
+<span class="sd">    6. Calculate expected inter-specific spot distances by generating</span>
+<span class="sd">       random spots and save the distances to table</span>
+<span class="sd">       &quot;spot_distances_expected&quot; in the local database.</span>
+
+<span class="sd">    7. Calculate the significance in difference between the observed and</span>
+<span class="sd">       expected spot distances. Two tests of significance are performed:</span>
+<span class="sd">       the Wilcoxon signed-rank test and the Chi-squared test.</span>
+
+<span class="sd">    8. Generate the anayslis report.</span>
 
 <span class="sd">    Design Part: 1.5.2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -284,13 +363,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;wilcoxon&#39;</span><span class="p">:[],</span> <span class="s">&#39;chi_squared&#39;</span><span class="p">:[]}</span>
 
         <span class="c"># Create log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.2&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
 
         <span class="c"># Emit the signal that an analysis has started.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-started&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.2&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Start.generate_spot_ratio_groups"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.generate_spot_ratio_groups">[docs]</a>    <span class="k">def</span> <span class="nf">generate_spot_ratio_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return an iterator that returns the ratio groups.</span>
@@ -448,9 +527,9 @@
         <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;analysis-finished&#39;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Start.calculate_distances_inter"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.calculate_distances_inter">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_distances_inter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate the inter-specific distances for each plate (present</span>
-<span class="sd">        in two tables) and save the distances to</span>
-<span class="sd">        local_database.spot_distances_observed.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the inter-specific spot distances for each plate</span>
+<span class="sd">        and save the distances to table &quot;spot_distances_observed&quot; in</span>
+<span class="sd">        the local database.</span>
 
 <span class="sd">        Design Part: 1.27</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -467,7 +546,15 @@
         <span class="c"># Get all records from both spots tables where the plate IDs</span>
         <span class="c"># match.</span>
         <span class="c"># Each returned record has this format:</span>
-        <span class="c"># id|rec_pla_id|rec_sur1|rec_sur2|rec_sur3|rec_sur4|rec_sur5|rec_sur6|rec_sur7|rec_sur8|rec_sur9|rec_sur10|rec_sur11|rec_sur12|rec_sur13|rec_sur14|rec_sur15|rec_sur16|rec_sur17|rec_sur18|rec_sur19|rec_sur20|rec_sur21|rec_sur22|rec_sur23|rec_sur24|rec_sur25|id|rec_pla_id|rec_sur1|rec_sur2|rec_sur3|rec_sur4|rec_sur5|rec_sur6|rec_sur7|rec_sur8|rec_sur9|rec_sur10|rec_sur11|rec_sur12|rec_sur13|rec_sur14|rec_sur15|rec_sur16|rec_sur17|rec_sur18|rec_sur19|rec_sur20|rec_sur21|rec_sur22|rec_sur23|rec_sur24|rec_sur25</span>
+        <span class="c"># id|rec_pla_id|rec_sur1|rec_sur2|rec_sur3|rec_sur4|rec_sur5|</span>
+        <span class="c"># rec_sur6|rec_sur7|rec_sur8|rec_sur9|rec_sur10|rec_sur11|</span>
+        <span class="c"># rec_sur12|rec_sur13|rec_sur14|rec_sur15|rec_sur16|rec_sur17|</span>
+        <span class="c"># rec_sur18|rec_sur19|rec_sur20|rec_sur21|rec_sur22|rec_sur23|</span>
+        <span class="c"># rec_sur24|rec_sur25|id|rec_pla_id|rec_sur1|rec_sur2|rec_sur3|</span>
+        <span class="c"># rec_sur4|rec_sur5|rec_sur6|rec_sur7|rec_sur8|rec_sur9|</span>
+        <span class="c"># rec_sur10|rec_sur11|rec_sur12|rec_sur13|rec_sur14|rec_sur15|</span>
+        <span class="c"># rec_sur16|rec_sur17|rec_sur18|rec_sur19|rec_sur20|rec_sur21|</span>
+        <span class="c"># rec_sur22|rec_sur23|rec_sur24|rec_sur25</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT s1.*, s2.* FROM species_spots_1 as s1 &quot;</span>
                         <span class="s">&quot;INNER JOIN species_spots_2 as s2 &quot;</span>
                         <span class="s">&quot;ON s1.rec_pla_id=s2.rec_pla_id&quot;</span>
@@ -493,15 +580,9 @@
                 <span class="c"># v = vertical difference.</span>
                 <span class="n">h</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span><span class="p">)</span>
 
-                <span class="c"># Use the differences to get the corresponding spot</span>
-                <span class="c"># distance from the spot_distances table.</span>
-                <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT distance &quot;</span>
-                                 <span class="s">&quot;FROM spot_distances &quot;</span>
-                                 <span class="s">&quot;WHERE delta_x = ? &quot;</span>
-                                 <span class="s">&quot;AND delta_y = ?&quot;</span><span class="p">,</span>
-                                 <span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">))</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">cursor2</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c"># Use the h/v differences to calculate the corresponding spot</span>
+                <span class="c"># distance.</span>
+                <span class="n">distance</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
 
                 <span class="c"># Save the observed spot distances to the database.</span>
                 <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO spot_distances_observed &quot;</span>
@@ -519,8 +600,8 @@
 </div>
 <div class="viewcode-block" id="Start.calculate_distances_inter_expected"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_distances_inter_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate the expected distances based on the observed</span>
-<span class="sd">        inter-specific distances (2.12) and save these to a table in the</span>
-<span class="sd">        local database (2.13).</span>
+<span class="sd">        inter-specific distances and save these to table</span>
+<span class="sd">        &quot;spot_distances_expected&quot; in the local database.</span>
 
 <span class="sd">        Design Part: 1.69</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -559,16 +640,9 @@
                 <span class="c"># v = vertical difference.</span>
                 <span class="n">h</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span><span class="p">)</span>
 
-                <span class="c"># Use the differences to get the corresponding spot</span>
-                <span class="c"># distance from the spot_distances table.</span>
-                <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT distance &quot;</span>
-                                 <span class="s">&quot;FROM spot_distances &quot;</span>
-                                 <span class="s">&quot;WHERE delta_x = ? &quot;</span>
-                                 <span class="s">&quot;AND delta_y = ?&quot;</span><span class="p">,</span>
-                                 <span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
-                                 <span class="p">)</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">cursor2</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c"># Use the h/v differences to calculate the corresponding spot</span>
+                <span class="c"># distance.</span>
+                <span class="n">distance</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
 
                 <span class="c"># Save the observed spot distances to the database.</span>
                 <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO spot_distances_expected &quot;</span>
@@ -589,38 +663,65 @@
 <span class="sd">        the means of the two sets of distances are statistically</span>
 <span class="sd">        significant.</span>
 
-<span class="sd">        We perform an unpaired Wilcoxon signed-rank test. We use unpaired</span>
-<span class="sd">        because the two sets of distances are unrelated. In other words,</span>
-<span class="sd">        a distance n in &#39;observed&#39; is unrelated to distance n in</span>
-<span class="sd">        &#39;expected&#39; (where n is an item number in the lists).</span>
+<span class="sd">        We perform two statistical tests:</span>
 
-<span class="sd">        Null hypothesis:</span>
-<span class="sd">            The means of the two sets of distances are</span>
-<span class="sd">            equal. The specie in question doesn&#39;t attract or repel itself.</span>
-<span class="sd">        Alternative hypothesis:</span>
-<span class="sd">            The means of the two sets of distances</span>
-<span class="sd">            are not equal. The specie in question attracts (mean</span>
-<span class="sd">            observed &lt; mean expected) or repels (mean observed &gt;</span>
-<span class="sd">            mean expected) itself.</span>
+<span class="sd">        1. The unpaired Wilcoxon rank sum test. We use unpaired</span>
+<span class="sd">           because the two sets of distances are unrelated</span>
+<span class="sd">           (:ref:`P. Dalgaard &lt;ref-dalgaard&gt;`). In other words,</span>
+<span class="sd">           a distance n in &#39;observed&#39; is unrelated to distance n in</span>
+<span class="sd">           &#39;expected&#39; (where n is an item number in the lists).</span>
 
-<span class="sd">        The decision is based on the P-value calculated by the test:</span>
-<span class="sd">        P &gt;= alpha level: Null hypothesis.</span>
-<span class="sd">        P &lt; alpha level: Alternative hypothesis.</span>
+<span class="sd">        2. The Chi-squared test for given probabilities</span>
+<span class="sd">           (:ref:`N. Millar &lt;ref-dalgaard&gt;`,</span>
+<span class="sd">           :ref:`P. Dalgaard &lt;ref-millar&gt;`). The probabilities</span>
+<span class="sd">           for all spot distances have been pre-calcualted. So the</span>
+<span class="sd">           observed probabilities are compared with the pre-calculated</span>
+<span class="sd">           probabilities.</span>
 
-<span class="sd">        The default value for the alpha level is 0.05 (5%).</span>
-<span class="sd">        The default value for the confidence level is 0.95 (95%).</span>
+<span class="sd">        Based on the results of the tests we can decide which</span>
+<span class="sd">        hypothesis we can assume to be true.</span>
 
-<span class="sd">        A high number of positive spots on a plate will of course lead</span>
-<span class="sd">        to a high P-value. These plates will negatively affect the</span>
-<span class="sd">        result of statistical test. To account for this, the tests</span>
-<span class="sd">        are performed multiple times. Instead of doing one test on all</span>
-<span class="sd">        plates, we group the plates based on the number of positive spots</span>
-<span class="sd">        they contain. This results in 24 groups (2 to 25 spots). And we</span>
-<span class="sd">        perform the test on each of these groups.</span>
+<span class="sd">        Null hypothesis</span>
+<span class="sd">            The species in question doesn&#39;t attract or repel itself.</span>
 
-<span class="sd">        References:</span>
-<span class="sd">        1. N. Millar, Biology statistics made simple using Excel, School Science Review, December 2001, 83(303).</span>
-<span class="sd">        2. P. Dalgaard, Introductory Statistics with R, DOI: 10.1007 / 978-0-387-79054-1_1.</span>
+<span class="sd">        Alternative hypothesis</span>
+<span class="sd">            The species in question attracts (mean observed &lt; mean</span>
+<span class="sd">            expected) or repels (mean observed &gt; mean expected) itself.</span>
+
+<span class="sd">        The decision is based on the p-value calculated by the test:</span>
+
+<span class="sd">        P &gt;= alpha level</span>
+<span class="sd">            Assume that the null hypothesis is true.</span>
+
+<span class="sd">        P &lt; alpha level</span>
+<span class="sd">            Assume that the alternative hypothesis is true.</span>
+
+<span class="sd">        The default value for the alpha level is 0.05 (5%). In biology</span>
+<span class="sd">        we usually assume that differences are significant if P has</span>
+<span class="sd">        a value less than 5% (:ref:`N. Millar &lt;ref-dalgaard&gt;`).</span>
+
+<span class="sd">        The default value for the confidence level is 0.95 (95%). So</span>
+<span class="sd">        there is a 95% probability that the true mean lies within the</span>
+<span class="sd">        range of the confidence interval.</span>
+
+<span class="sd">        A high number of positive spots on a plate will naturally lead</span>
+<span class="sd">        to a high p-value (not significant). These plates will</span>
+<span class="sd">        negatively affect the result of statistical test. To account</span>
+<span class="sd">        for this, the tests are performed on groups of plates. Instead of</span>
+<span class="sd">        doing one test on all plates, we group the plates based on the</span>
+<span class="sd">        positive spots ratios.</span>
+
+<span class="sd">        Because we match plates that contain both species selection, we</span>
+<span class="sd">        can calculate a ratio of positive spots for each plate. So a</span>
+<span class="sd">        plate with 3 positive spots for species A and 2 positive spots</span>
+<span class="sd">        for species B, would result in a ratio of 3:2 (or 2:3). We consider</span>
+<span class="sd">        a ratio of A:B to be the same as ratio B:A.</span>
+
+<span class="sd">        We&#39;ve grouped all possible ratio&#39;s in 5 ratios groups. See</span>
+<span class="sd">        :ref:`record grouping &lt;record-grouping&gt;` in the user manual for</span>
+<span class="sd">        more details. Both tests are performed on each ratios group.</span>
+
+<span class="sd">        Both tests are also performed on ratios groups 1-5 taken together.</span>
 
 <span class="sd">        Design Part: 1.24</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -737,7 +838,7 @@
         <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Start.generate_report"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.generate_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate the analysis report and display the report in a dialog.</span>
+        <span class="sd">&quot;&quot;&quot;Generate the analysis report.</span>
 
 <span class="sd">        Design Part: 1.15</span>
 <span class="sd">        &quot;&quot;&quot;</span>

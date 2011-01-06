@@ -8,9 +8,8 @@ end user and explains how to use SETLyze.
 Introduction to SETLyze
 #######################
 
-SETLyze is a part of the SETL-project,
-a fouling community study focussing on marine invasive species. The
-website describes the SETL-project as follows:
+SETLyze is a part of the SETL-project, a fouling community study focussing on
+marine invasive species. The website describes the SETL-project as follows:
 
     "Over the last ten years, marine invaders have had a dramatically
     increasing impact on temperate water ecosystems around the world.
@@ -32,21 +31,21 @@ the SETL database. This database contains over 25000 records containing
 information of over 200 species in different localities throughout the
 Netherlands. SETLyze is an application which is capable of performing
 a set of analysis on the data from the SETL database. SETLyze is
-capable of performing the following analysis:
+capable of performing the following analyses:
 
 *Analysis 1 "Spot Preference"*
     Determine a species’ preference for a specific location on a SETL
     plate.
 
-*Analysis 2.1 "Attraction of Species (intra-specific)"*
+*Analysis 2 "Attraction of Species (intra-specific)"*
     Determine if a specie attracts or repels individuals of its own kind.
 
-*Analysis 2.2 "Attraction of Species (inter-specific)"*
+*Analysis 3 "Attraction of Species (inter-specific)"*
     Determine if two different species attract or repel each other.
 
 The following analysis will be implemented in the next version:
 
-*Analysis 3 "Relation between Species"*
+*Analysis 4 "Relation between Species"*
     Determine if there is a relation between two (groups of) species on
     SETL plates in a location. Plates per location are compared. Also
     instead of looking at different plate spots, only the presence or
@@ -96,29 +95,17 @@ on SETL plates.
 Requirements
 ############
 
-Because SETLyze is written in the Python programming language, it has
-a fair amount of requirements. These requirements need
-to be satisfied for SETLyze to run on your system. The exact
-requirements are described below.
+To use SETLyze you will need:
 
-System Requirements
-===================
+Hardware
+    * Disk space: 2 MB (source) / 70+ MB (Windows® setup)
+    * 512 MB RAM
 
-* Operating System: Microsoft® Windows®, GNU/Linux
-* Disk space: 2 MB (excl. dependencies), ~50 MB (incl. dependencies)
+Software
+    * Microsoft® Windows® or GNU/Linux*
 
-
-Dependencies
-============
-
-* Python 2.6
-* GTK+ 2
-* PyGTK
-* PyCairo
-* PyGObject
-* R
-* RPy
-* Python Win32 Extensions (on Windows only)
+\* Linux users will need to manually install the software dependencies. See
+the "Installation" section below.
 
 
 Installation
@@ -128,25 +115,22 @@ Microsoft® Windows®
 ===================
 
 For Windows® users, an installer is available that includes the SETLyze
-core package together with the necessary pre-requisites. The installer
-takes care of installing all dependencies so the user does not have to
-worry about this.
+core package together with the necessary pre-requisites.
 
 GNU/Linux
 =========
 
 For GNU/Linux users, a source package is available. The source package
-doesn't contain the dependencies. GNU/Linux user can use their
+doesn't contain the software dependencies. GNU/Linux user can use their
 package manager to install the dependencies.
 
 On Ubuntu or other Debian derivatives, installing the dependencies
 can be done with the following command: ::
 
-    sudo apt-get install python python-gtk2 python-rpy
+    sudo apt-get install python python-gtk2 python-rpy python-setuptools
 
-Answer "yes" when asked to install the dependencies as well. Once all
-dependencies are installed, you can start SETLyze by running
-"setlyze.pyw".
+Once all dependencies are installed, extract the source package and start
+SETLyze by running "setlyze.pyw".
 
 If you want to install SETLyze system wide, you can do so with the
 provided setup script. The following command will install
@@ -165,7 +149,7 @@ Using SETLyze
 
 SETLyze comes with a graphical user interface (GUI). The GUI consists
 of dialogs which all have a specific task. These dialogs will guide
-you in performing the set of analysis it provides. Most of SETLyze's
+you in performing the set of analyses it provides. Most of SETLyze's
 dialogs have a Help button. Clicking this Help button should point you
 to the corresponding dialog description on this page. All dialog
 descriptions can be found in the :ref:`SETLyze dialogs <setlyze-dialogs>`
@@ -210,6 +194,31 @@ Definition List
 This part of the user manual describes some terminology often used
 throughout the application and this manual.
 
+Intra-specific
+    Within a single species.
+
+Inter-specific
+    Between two different species.
+
+Plate area
+    The defined area on a SETL-plate. By default the SETL-plate is divided in
+    four plate areas (A, B, C and D). See :ref:`figure 7 <fig_plate_areas_default>`.
+    Plate areas can be combined, see :ref:`Define Plate Areas dialog <dialog-define-plate-areas>`.
+
+Positive spot
+    Each record in the SETL database contains data for each of the 25
+    spots on a SETL plate. The spots are stored as booleans, meaning
+    they can have two values; 1 (True) means that the specie was present
+    on that spot, 0 (False) means that the species was absent on
+    that spot. A spot is "positive" if the spot value is 1 or True. Each
+    record can thus have up to 25 positive spots.
+
+SETL-plate
+    In the SETL-project standardized PVC-plates are used to detect invasive
+    species and other fouling community organisms. In this project 14x14
+    cm PVC-plates are hung 1 meter below the water surface, and refreshed
+    and checked for species at least every three months.
+
 Spot
     To analyze SETL plates, photographs of the plates are taken. The
     photographs are then analyzed on the computer by applying a 5x5
@@ -220,14 +229,6 @@ Spot
     data is stored in the SETL database in the form of records. So each
     SETL record in the database contains presence/absence data of one
     specie for all 25 spots on a SETL plate.
-
-Positive spot
-    Each record in the SETL database contains data for each of the 25
-    spots on a SETL plate. The spots are stored as booleans, meaning
-    they can have two values; 1 (True) means that the specie was present
-    on that spot, 0 (False) means that the species was absent on
-    that spot. A spot is "positive" if the spot value is 1 or True. Each
-    record can thus have up to 25 positive spots.
 
 .. _setlyze-dialogs:
 
@@ -251,7 +252,7 @@ Analysis Selection dialog
 
 The analysis selection dialog is the first dialog you see when SETLyze
 is started. It allows the user to select an analysis to perform on SETL
-data. The user can select one of the analysis in the list and click on
+data. The user can select one of the analyses in the list and click on
 the OK button to start the analysis. Clicking the Quit button closes
 the application.
 
@@ -418,6 +419,8 @@ the combined areas are treated as a single plate area.
 Below is a schematic SETL-plate with a grid. By default the plate is
 divided in four plate areas (A, B, C and D),
 
+.. _fig_plate_areas_default:
+
 .. figure:: plate_areas_default.png
    :scale: 100 %
    :alt: Figure 7. Default plate areas
@@ -475,6 +478,28 @@ Analysis Report dialog
 The analysis report dialog shows the results for the anaylysis. The
 report is divided into sub sections. Each sub section is described
 below.
+
+The analysis report dialog's toolbar holds three buttons. The Home button
+brings you back to the :ref:`select analysis dialog <dialog-analysis-selection>`.
+
+The Save Report button allows you to save the report to a file. Clicking
+this button first shows a File Save dialog which allows you to select the
+format in which to export the report and the filename. Two formats are
+currently supported:
+
+* Plain Text Document - This exports the analysis report to a plain text file.
+  This file can be openend with any text editor.
+
+* XML Document - This exports the analysis report along with all analysis data
+  to a XML document. The purpose of the XML document is to store all data of
+  an analysis. It contains extra data as the arguments used for the statistical
+  tests (alpha level, confidence level, etc.) and spot distances.
+
+After pressing the Save button in the File Save dialog, another dialog is shown
+which allows you to select the report elements to export. This dialog is not
+shown when exporting to a XML document.
+
+The Help button shows the description for the Analysis Report dialog.
 
 Locations and Species Selections
 --------------------------------
@@ -534,7 +559,7 @@ for two species (A and B) and all possible spot distnaces.
    Figure 12a. Spot distances on SETL plate (inter)
 
 In the above figure, the distances are calculated the same way as for
-analysis 2.1. Note however that only inter-specific distances are
+analysis 2. Note however that only inter-specific distances are
 calculated (distances between two different species). This also makes it
 possible to have a distance of 0 as visualized in the next figure.
 
@@ -614,8 +639,8 @@ differ significantly.
    resulting distributions are very similar to this figure.
 
 Depending on the analysis, the records matching the species selection
-are first grouped by positive spots number (analysis 2.1) or by ratios
-group (analysis 2.2). See section :ref:`record grouping <record-grouping>`.
+are first grouped by positive spots number (analysis 2) or by ratios
+group (analysis 3). See section :ref:`record grouping <record-grouping>`.
 
 Each row for the results of the Wicoxon test contains the results
 of a single test on a spots/ratios group. Each row can have the
@@ -656,6 +681,10 @@ Remarks
     and if so, how significant and decides based on the means if the
     species attract (observed mean < expected mean) or repel
     (observed mean > expected mean).
+
+Some spots/ratios groups might me missing from the list of results. This is
+because spots/ratios groups that don't have matching records are skipped,
+so they are not displayed in the list of results.
 
 Results for Pearson's Chi-squared Test for Count Data
 -----------------------------------------------------
@@ -720,8 +749,8 @@ have been hard coded into the application: ::
         }
 
 Depending on the analysis, the records matching the species selection
-are first grouped by positive spots number (analysis 2.1) or by ratios
-group (analysis 2.2). See section :ref:`record grouping <record-grouping>`.
+are first grouped by positive spots number (analysis 2) or by ratios
+group (analysis 3). See section :ref:`record grouping <record-grouping>`.
 
 Each row for the results of the Chi-squared tests contains the results
 of a single test on a spots/ratios group. Each row can have the
@@ -763,6 +792,10 @@ Remarks
     and if so, how significant and decides based on the means if the
     species attract (observed mean < expected mean) or repel
     (observed mean > expected mean).
+
+Some spots/ratios groups might me missing from the list of results. This is
+because spots/ratios groups that don't have matching records are skipped,
+so they are not displayed in the list of results.
 
 Plate Areas Definition
 ----------------------
@@ -807,7 +840,7 @@ Record grouping by number of positive spots
 
 This type of grouping is done in the case of calculated spot distances
 for a single specie (or multiple species grouped together) on SETL
-plates (analysis 2.1).
+plates (analysis 2).
 
 A record has a maximum of 25 positive spots, so this results in a
 maximum of 25 record groups. Group 1 contains records with just one
@@ -836,7 +869,7 @@ Record grouping by ratios groups
 --------------------------------
 
 This type of grouping is done in the case of calculated spot distances
-between two different (groups of) species (analysis 2.2).
+between two different (groups of) species (analysis 3).
 
 When dealing with two species, plate records are matched that contain
 both species. This means we can get a ratio for the positive spots for

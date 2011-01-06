@@ -601,6 +601,10 @@ spot difference. The distances are pre-calculated by
 and we know the horizontal difference (Δx) and the vertical
 difference (Δy), we can look up the corresponding distance in the
 <tt class="docutils literal"><span class="pre">spot_distances</span></tt> table.</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 0.1: </span>A <a class="reference internal" href="testing_optimization.html#optimization-spot-dist-calc"><em>performance test</em></a> showed that retrieving
+pre-calculated spot distances from the database is much slower than
+calculating them on run time.</p>
 </div>
 <div class="section" id="design-part-data-2-24">
 <span id="id31"></span><h3>2.24<a class="headerlink" href="#design-part-data-2-24" title="Permalink to this headline">¶</a></h3>

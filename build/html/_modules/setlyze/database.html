@@ -51,7 +51,7 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -96,6 +96,7 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
@@ -110,6 +111,8 @@
 <span class="sd">    return an instance of AccessLocalDB or AccessRemoteDB. This instance</span>
 <span class="sd">    provides methods that are specific to the data source currently in</span>
 <span class="sd">    use.</span>
+
+<span class="sd">    Design Part: 1.93</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">data_source</span> <span class="o">==</span> <span class="s">&quot;csv-msaccess&quot;</span><span class="p">:</span>
@@ -526,7 +529,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">create_table_records</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_table_species_spots_1</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_table_species_spots_2</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_table_spot_distances</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_table_spot_distances_observed</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_table_spot_distances_expected</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_table_plate_spot_totals</span><span class="p">()</span>
@@ -537,9 +539,6 @@
         <span class="c"># Close connection with the local database.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="c"># Fill the spot_distances table.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fill_distance_table</span><span class="p">()</span>
 
         <span class="c"># No need to make a new database, as we just created one.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;make-new-db&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">)</span>
@@ -787,21 +786,6 @@
 <span class="s">            rec_sur25 INTEGER </span><span class="se">\</span>
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.create_table_spot_distances"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_table_spot_distances">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_spot_distances</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table that will contain all the pre-calculated</span>
-<span class="sd">        spot distances that are possible on a SETL plate.</span>
-
-<span class="sd">        Design Part: 1.82</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Design Part: 2.23</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TABLE spot_distances (</span><span class="se">\</span>
-<span class="s">            id INTEGER PRIMARY KEY, </span><span class="se">\</span>
-<span class="s">            delta_x INTEGER, </span><span class="se">\</span>
-<span class="s">            delta_y INTEGER, </span><span class="se">\</span>
-<span class="s">            distance REAL </span><span class="se">\</span>
-<span class="s">        )&quot;</span><span class="p">)</span>
-</div>
 <div class="viewcode-block" id="MakeLocalDB.create_table_spot_distances_observed"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_table_spot_distances_observed">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_spot_distances_observed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a table for the observed spot distances.</span>
 
@@ -841,46 +825,10 @@
 <span class="s">            n_spots_a INTEGER, </span><span class="se">\</span>
 <span class="s">            n_spots_b INTEGER </span><span class="se">\</span>
 <span class="s">        )&quot;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="MakeLocalDB.fill_distance_table"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.fill_distance_table">[docs]</a>    <span class="k">def</span> <span class="nf">fill_distance_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate all possible spot distances for a SETL plate and put</span>
-<span class="sd">        them in a table in the local database.</span>
 
-<span class="sd">        Design Part: 1.47</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Make log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Populating distances table...&quot;</span><span class="p">)</span>
-
-        <span class="c"># Possible spot distances for a SETL plate. Moving horizontally</span>
-        <span class="c"># or vertically from one spot to the next is defined as</span>
-        <span class="c"># distance=1. Not moving means distance 0.</span>
-        <span class="n">distances</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>
-
-        <span class="c"># Create a Cartesian product for the possible distances.</span>
-        <span class="n">products</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">distances</span><span class="p">)</span>
-
-        <span class="c"># Connect to the local database.</span>
-        <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span><span class="p">)</span>
-        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
-        <span class="c"># Now calculate the distance for each combination in the</span>
-        <span class="c"># Cartesian product and put each distance in the table.</span>
-        <span class="k">for</span> <span class="n">p1</span><span class="p">,</span><span class="n">p2</span> <span class="ow">in</span> <span class="n">products</span><span class="p">:</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO spot_distances &quot;</span>
-                            <span class="s">&quot;VALUES (null,?,?,?)&quot;</span><span class="p">,</span>
-                            <span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span><span class="n">p2</span><span class="p">))</span>
-                            <span class="p">)</span>
-
-        <span class="c"># Commit the transaction.</span>
-        <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
-        <span class="c"># Close connection with the local database.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div></div>
 <div class="viewcode-block" id="AccessDBGeneric"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric">[docs]</a><span class="k">class</span> <span class="nc">AccessDBGeneric</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Super class for AccessLocalDB and AccessRemoteDB.</span>
+    <span class="sd">&quot;&quot;&quot;Super class for :class:`AccessLocalDB` and :class:`AccessRemoteDB`.</span>
 
 <span class="sd">    This class contains methods that are generic for both sub-classes.</span>
 <span class="sd">    It provides both sub classes with methods for data that is always</span>
@@ -891,10 +839,36 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">progress_dialog</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="AccessDBGeneric.get_database_info"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric.get_database_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_database_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return info (creation date, data source) stored in the local</span>
+<span class="sd">        database file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span><span class="p">)</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT value FROM info WHERE name=&#39;source&#39;&quot;</span><span class="p">)</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT value FROM info WHERE name=&#39;date&#39;&quot;</span><span class="p">)</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s">&#39;source&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="s">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">info</span>
+</div>
 <div class="viewcode-block" id="AccessDBGeneric.get_locations"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric.get_locations">[docs]</a>    <span class="k">def</span> <span class="nf">get_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of all locations from the local database.</span>
 
 <span class="sd">        Returns a list of tuples ``(loc_id, &#39;loc_name&#39;)``.</span>
+
+<span class="sd">        Design Part: 1.95</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span><span class="p">)</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
@@ -912,7 +886,7 @@
 <span class="sd">        ``species_spots_1`` and ``1`` for ``species_spots_2``.</span>
 
 <span class="sd">        We&#39;re doing this so we can threat multiple species selected by</span>
-<span class="sd">        the user as a single specie.</span>
+<span class="sd">        the user as a single species.</span>
 
 <span class="sd">        Design Part: 1.20</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -984,7 +958,7 @@
         <span class="sd">&quot;&quot;&quot;Remove records that have just one positive spot. Intra-specific</span>
 <span class="sd">        distance can’t be calculated for those.</span>
 
-<span class="sd">        .. note::</span>
+<span class="sd">        .. deprecated:: 0.1</span>
 <span class="sd">           Use of this function is discouraged. You can easily check for</span>
 <span class="sd">           a minimum number of spots in your functions. Also the function</span>
 <span class="sd">           :meth:`~setlyze.std.get_spot_combinations_from_record` will</span>
@@ -1143,7 +1117,7 @@
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span>
                 <span class="n">plate_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-                <span class="c"># Get the positive spots for this plate.</span>
+                <span class="c"># Get the positive spots for this record.</span>
                 <span class="n">spots</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spots_from_record</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
 
                 <span class="c"># We&#39;re only interested in the number of spots.</span>
@@ -1297,6 +1271,8 @@
 
 <span class="sd">        The values for `loc_slot` are ``0`` for the first localities</span>
 <span class="sd">        selection and ``1`` for the second localities selection.</span>
+
+<span class="sd">        Design Part: 1.96</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c"># Get one of the location selections.</span>

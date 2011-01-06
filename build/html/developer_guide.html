@@ -63,7 +63,7 @@ internals, its programming style, what&#8217;s unfinished, et cetera.</p>
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="navigating-the-setlyze-folder">
 <h3>Navigating the SETLyze folder<a class="headerlink" href="#navigating-the-setlyze-folder" title="Permalink to this headline">¶</a></h3>
-<p>Some of the key files in SETLyze&#8217;s root folder are:</p>
+<p>The key files in SETLyze&#8217;s root folder are:</p>
 <dl class="docutils">
 <dt>docs</dt>
 <dd>This folder contains the documentation for SETLyze. This includes
@@ -72,7 +72,7 @@ by (double) clicking index.html. This should show the documentation
 in your web browser.</dd>
 <dt>setlyze</dt>
 <dd>This is the main code base for SETLyze. This package folder contains
-all the modules for SETLyze. This is the folder where you&#8217;ll be
+all of SETLyze&#8217;s modules. This is the folder where you&#8217;ll be
 editing most Python source files for SETLyze.</dd>
 <dt>COPYING</dt>
 <dd>This text file contains the license for SETLyze. SETLyze is released
@@ -155,15 +155,15 @@ the <em>[source]</em> link on the right side of the description.</p>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="setlyze_modules_analysis.html">Analysis Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_inter.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt> &#8212; Analysis 2.2, Attraction of species (inter-specific)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_inter.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt> &#8212; Analysis 3, Attraction of species (inter-specific)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/attraction_inter.html#module-setlyze.analysis.attraction_inter">Module Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_intra.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis 2.1, Attraction of species (intra-specific)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_intra.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis 2, Attraction of species (intra-specific)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/attraction_intra.html#module-setlyze.analysis.attraction_intra">Module Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/relations.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.relations</span></tt> &#8212; Analysis 3, Relations between species</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/relations.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.relations</span></tt> &#8212; Analysis 4, Relations between species</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/relations.html#module-setlyze.analysis.relations">Module Contents</a></li>
 </ul>
 </li>
@@ -253,12 +253,21 @@ function runs. Import statements have a cost, so try to make sure
 they don&#8217;t run inside hot functions.</p>
 </li>
 <li><p class="first">Preserved namespaces when importing modules, e.g.:</p>
-<blockquote>
-<ul class="simple">
-<li>Yes: <tt class="docutils literal"><span class="pre">import</span> <span class="pre">setlyze.config</span></tt></li>
-<li>No: <tt class="docutils literal"><span class="pre">import</span> <span class="pre">setlyze.config</span> <span class="pre">as</span> <span class="pre">config</span></tt></li>
-</ul>
-</blockquote>
+<p>Correct:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">setlyze.config</span>
+</pre></div>
+</div>
+<p>But avoid this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">setlyze.config</span> <span class="kn">as</span> <span class="nn">config</span>
+</pre></div>
+</div>
+<p>Preserving the namespaces makes it easier for the developers to understand
+where a specific class, method, function or variable originates from.</p>
+<p>Sometimes it&#8217;s OK to maken an exception if this makes things easier (it
+shouldn&#8217;t create any confusion), for example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlite3</span> <span class="kn">import</span> <span class="n">dbapi2</span> <span class="k">as</span> <span class="n">sqlite</span>
+</pre></div>
+</div>
 </li>
 </ul>
 </div>
@@ -292,7 +301,8 @@ the encoding declaration. So the top of each file should look like this:</p>
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of</span>
+<span class="c">#  species.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -308,6 +318,19 @@ the encoding declaration. So the top of each file should look like this:</p>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 </pre></div>
 </div>
+</div>
+</div>
+<div class="section" id="testing-and-optimization">
+<h2>Testing and Optimization<a class="headerlink" href="#testing-and-optimization" title="Permalink to this headline">¶</a></h2>
+<p>The following document describes the steps taken to test and optimize SETLyze.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="testing_optimization.html">Testing and Optimization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="testing_optimization.html#testing">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="testing_optimization.html#optimization">Optimization</a></li>
+</ul>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -346,6 +369,9 @@ the encoding declaration. So the top of each file should look like this:</p>
 <li><a class="reference internal" href="#naming">Naming</a></li>
 <li><a class="reference internal" href="#standard-names">Standard Names</a></li>
 <li><a class="reference internal" href="#license-statement">License Statement</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#testing-and-optimization">Testing and Optimization</a><ul>
 </ul>
 </li>
 </ul>

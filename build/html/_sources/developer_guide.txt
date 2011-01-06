@@ -17,7 +17,7 @@ Getting Started
 Navigating the SETLyze folder
 =============================
 
-Some of the key files in SETLyze's root folder are:
+The key files in SETLyze's root folder are:
 
 docs
     This folder contains the documentation for SETLyze. This includes
@@ -27,7 +27,7 @@ docs
 
 setlyze
     This is the main code base for SETLyze. This package folder contains
-    all the modules for SETLyze. This is the folder where you'll be
+    all of SETLyze's modules. This is the folder where you'll be
     editing most Python source files for SETLyze.
 
 COPYING
@@ -180,9 +180,21 @@ Module Imports
 
 * Preserved namespaces when importing modules, e.g.:
 
-    - Yes: ``import setlyze.config``
+  Correct: ::
 
-    - No: ``import setlyze.config as config``
+    import setlyze.config
+
+  But avoid this: ::
+
+    import setlyze.config as config
+
+  Preserving the namespaces makes it easier for the developers to understand
+  where a specific class, method, function or variable originates from.
+
+  Sometimes it's OK to maken an exception if this makes things easier (it
+  shouldn't create any confusion), for example: ::
+
+    from sqlite3 import dbapi2 as sqlite
 
 Naming
 ======
@@ -225,7 +237,8 @@ the encoding declaration. So the top of each file should look like this: ::
     #
     #  Copyright 2010, GiMaRIS <info@gimaris.com>
     #
-    #  This file is part of SETLyze - A tool for analyzing SETL data.
+    #  This file is part of SETLyze - A tool for analyzing the settlement of
+    #  species.
     #
     #  SETLyze is free software: you can redistribute it and/or modify
     #  it under the terms of the GNU General Public License as published by
@@ -239,3 +252,14 @@ the encoding declaration. So the top of each file should look like this: ::
     #
     #  You should have received a copy of the GNU General Public License
     #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+Testing and Optimization
+########################
+
+The following document describes the steps taken to test and optimize SETLyze.
+
+.. toctree::
+   :maxdepth: 2
+
+   testing_optimization

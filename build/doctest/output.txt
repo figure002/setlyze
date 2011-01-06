@@ -1,4 +1,4 @@
-Results of doctest builder run on 2010-12-26 15:52:25
+Results of doctest builder run on 2011-01-04 11:20:13
 =====================================================
 
 Document: setlyze/locale
