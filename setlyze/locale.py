@@ -64,12 +64,12 @@ ENGLISH = [
     ('analysis1',
         'Analysis 1 "Spot preference"'),
     ('analysis1-descr',
-        "Determine if a specie has preference for a specific spot on "
+        "Determine if a species has preference for a specific spot on "
         "SETL plates."),
     ('analysis2',
         'Analysis 2 "Attraction of species (intra-specific)"'),
     ('analysis2-descr',
-        "Determine if a specie attracts or repels individuals of its "
+        "Determine if a species attracts or repels individuals of its "
         "own kind."),
     ('analysis3',
         'Analysis 3 "Attraction of species (inter-specific)"'),
@@ -78,7 +78,7 @@ ENGLISH = [
     ('analysis4',
         'Analysis 4 "Relation between species"'),
     ('analysis4-descr',
-        'Determine if one specie is somehow related to another specie.'),
+        'Determine if one species is somehow related to another species.'),
     ('define-plate-areas',
         "Please define the plate areas for the analysis. You can keep "
         "the default setting, meaning that A, B, C and D are treated as "

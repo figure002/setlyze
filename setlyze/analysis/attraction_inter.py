@@ -54,7 +54,7 @@ specific)". This analysis can be broken down in the following steps:
 
 10. Calculate the significance in difference between the observed and
     expected spot distances. Two tests of significance are performed:
-    the Wilcoxon signed-rank test and the Chi-squared test.
+    the Wilcoxon rank-sum test and the Chi-squared test.
 
 11. Generate the anayslis report.
 
@@ -299,7 +299,7 @@ class Start(threading.Thread):
 
     7. Calculate the significance in difference between the observed and
        expected spot distances. Two tests of significance are performed:
-       the Wilcoxon signed-rank test and the Chi-squared test.
+       the Wilcoxon rank-sum test and the Chi-squared test.
 
     8. Generate the anayslis report.
 
@@ -364,6 +364,7 @@ class Start(threading.Thread):
                 * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
                   :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
                 * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
+            * :meth:`~setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table`
             * :meth:`calculate_distances_inter`
             * :meth:`calculate_distances_inter_expected`
             * :meth:`calculate_significance`
@@ -619,13 +620,13 @@ class Start(threading.Thread):
 
         1. The unpaired Wilcoxon rank sum test. We use unpaired
            because the two sets of distances are unrelated
-           (:ref:`P. Dalgaard <ref-dalgaard>`). In other words,
+           (:ref:`Dalgaard <ref-dalgaard>`). In other words,
            a distance n in 'observed' is unrelated to distance n in
            'expected' (where n is an item number in the lists).
 
         2. The Chi-squared test for given probabilities
-           (:ref:`N. Millar <ref-dalgaard>`,
-           :ref:`P. Dalgaard <ref-millar>`). The probabilities
+           (:ref:`Millar <ref-dalgaard>`,
+           :ref:`Dalgaard <ref-millar>`). The probabilities
            for all spot distances have been pre-calcualted. So the
            observed probabilities are compared with the pre-calculated
            probabilities.
@@ -650,7 +651,7 @@ class Start(threading.Thread):
 
         The default value for the alpha level is 0.05 (5%). In biology
         we usually assume that differences are significant if P has
-        a value less than 5% (:ref:`N. Millar <ref-dalgaard>`).
+        a value less than 5% (:ref:`Millar <ref-dalgaard>`).
 
         The default value for the confidence level is 0.95 (95%). So
         there is a 95% probability that the true mean lies within the
@@ -678,11 +679,6 @@ class Start(threading.Thread):
         Design Part: 1.24
         """
 
-        # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
-        cursor2 = connection.cursor()
-
         # Create an iterator returning the ratio groups.
         ratio_groups = self.generate_spot_ratio_groups()
 
@@ -694,18 +690,18 @@ class Start(threading.Thread):
                 n_group = -5
 
             # Get both sets of distances from plates per total spot numbers.
-            plates_o = self.db.get_distances_matching_ratios(cursor,
+            observed = self.db.get_distances_matching_ratios(
                 'spot_distances_observed', ratio_group)
-            plates_e = self.db.get_distances_matching_ratios(cursor2,
+            expected = self.db.get_distances_matching_ratios(
                 'spot_distances_expected', ratio_group)
 
-            # Get the plate totals.
-            n_plates = len(plates_o)
+            # Iterators cannot be used directly by RPy, so convert them to
+            # lists first.
+            observed = list(observed)
+            expected = list(expected)
 
-            # Create lists for the distances so we can use it for the R
-            # functions.
-            observed = [x[0] for x in cursor]
-            expected = [x[0] for x in cursor2]
+            # Get the number of matching plates.
+            n_plates = self.db.matching_plates_total
 
             # Perform a consistency check. The number of observed and
             # expected spot distances must always be the same.
@@ -729,7 +725,7 @@ class Start(threading.Thread):
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
                 conf_level = setlyze.config.cfg.get('significance-confidence'),
-                conf_int = True)
+                conf_int = False)
 
             # Save the significance result.
             data = {}
@@ -746,8 +742,8 @@ class Start(threading.Thread):
                 'p_value': sig_result['p.value'],
                 'mean_observed': mean_observed,
                 'mean_expected': mean_expected,
-                'conf_int_start': sig_result['conf.int'][0],
-                'conf_int_end': sig_result['conf.int'][1],
+                #'conf_int_start': sig_result['conf.int'][0],
+                #'conf_int_end': sig_result['conf.int'][1],
                 }
 
             # Append the result to the list of results.
@@ -784,11 +780,6 @@ class Start(threading.Thread):
             # Append the result to the list of results.
             self.statistics['chi_squared'].append(data)
 
-        # Close connection with the local database.
-        cursor.close()
-        cursor2.close()
-        connection.close()
-
     def generate_report(self):
         """Generate the analysis report.
 
@@ -797,7 +788,7 @@ class Start(threading.Thread):
         report = setlyze.std.ReportGenerator()
         report.set_analysis('attraction_inter')
         report.set_location_selections()
-        report.set_specie_selections()
+        report.set_species_selections()
 
         # Update progress dialog.
         setlyze.std.update_progress_dialog(10/self.total_steps, "Generating the analysis report...")

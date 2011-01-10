@@ -139,7 +139,7 @@ class SelectAnalysis(gtk.Window):
     """
 
     def __init__(self):
-        super(SelectAnalysis, self).__init__(gtk.WINDOW_TOPLEVEL)
+        super(SelectAnalysis, self).__init__()
 
         self.set_title("Welcome to SETLyze")
         self.set_size_request(-1, -1)
@@ -905,7 +905,7 @@ class SelectSpecies(SelectionWindow):
         setlyze.std.sender.emit('species-selection-saved', self.save_slot)
 
     def create_model(self):
-        """Create a model for the tree view from the specie IDs and
+        """Create a model for the tree view from the species IDs and
         names.
 
         Design Part: 1.43
@@ -934,7 +934,7 @@ class SelectSpecies(SelectionWindow):
         # Notice text=2, which means that we let the column display the
         # attribute values for the cell renderer from column 2 in the
         # TreeModel. Column 2 contains the species names (latin).
-        column = gtk.TreeViewColumn("Specie (latin)", renderer_text, text=2)
+        column = gtk.TreeViewColumn("Species (latin)", renderer_text, text=2)
         # Sort on column 2 from the model.
         column.set_sort_column_id(2)
         column.set_sort_order(gtk.SORT_ASCENDING)
@@ -946,7 +946,7 @@ class SelectSpecies(SelectionWindow):
         # Notice text=1, which means that we let the column display the
         # attribute values for the cell renderer from column 1 in the
         # TreeModel. Column 1 contains the species names (venacular).
-        column = gtk.TreeViewColumn("Specie (venacular)", renderer_text, text=1)
+        column = gtk.TreeViewColumn("Species (venacular)", renderer_text, text=1)
         # Sort on column 1 from the model.
         column.set_sort_column_id(1)
         column.set_resizable(True)
@@ -1742,6 +1742,7 @@ class ProgressDialog(gtk.Window):
         self.set_size_request(400, -1)
         self.set_title(title)
         self.set_border_width(0)
+        self.set_deletable(False)
         self.set_resizable(False)
         self.set_modal(True)
         self.set_keep_above(True)
@@ -2019,14 +2020,14 @@ class DisplayReport(gtk.Window):
         # Add a header with the analysis name.
         self.add_title_header()
 
-        #if 'specie_selections' in report_elements:
+        #if 'species_selections' in report_elements:
         #    self.add_species_selections()
 
         #if 'location_selections' in report_elements:
         #    self.add_locations_selections()
 
         if "location_selections" in report_elements and \
-                "specie_selections" in report_elements:
+                "species_selections" in report_elements:
             self.add_selections()
 
         if 'spot_distances_observed' in report_elements and \
@@ -2056,11 +2057,17 @@ class DisplayReport(gtk.Window):
             if 'wilcoxon_ratios' in elements:
                 self.add_statistics_wilcoxon_ratios()
 
+            if 'wilcoxon_areas' in elements:
+                self.add_statistics_wilcoxon_areas()
+
             if 'chi_squared_spots' in elements:
                 self.add_statistics_chisq_spots()
 
             if 'chi_squared_ratios' in elements:
                 self.add_statistics_chisq_ratios()
+
+        if 'significance_test_repeats_areas' in report_elements:
+            self.add_statistics_repeats_areas()
 
     def add_title_header(self):
         """Add a header text to the report dialog.
@@ -2422,7 +2429,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Wilcoxon signed-rank tests")
+        expander = gtk.Expander("Results for Wilcoxon rank-sum tests")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2438,7 +2445,7 @@ class DisplayReport(gtk.Window):
 
         column_names = ['Positive Spots','n (plates)',
             'n (distances)','P-value','Mean Observed','Mean Expected',
-            'Conf. interval start','Conf. interval end','Remarks']
+            'Remarks']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -2450,8 +2457,6 @@ class DisplayReport(gtk.Window):
             gobject.TYPE_INT,
             gobject.TYPE_INT,
             gobject.TYPE_INT,
-            gobject.TYPE_FLOAT,
-            gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
@@ -2474,8 +2479,8 @@ class DisplayReport(gtk.Window):
                 float(items['p_value']),
                 float(items['mean_observed']),
                 float(items['mean_expected']),
-                float(items['conf_int_start']),
-                float(items['conf_int_end']),
+                #float(items['conf_int_start']),
+                #float(items['conf_int_end']),
                 remarks,
                 ])
 
@@ -2497,7 +2502,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Wilcoxon signed-rank tests")
+        expander = gtk.Expander("Results for Wilcoxon rank-sum tests")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2513,7 +2518,7 @@ class DisplayReport(gtk.Window):
 
         column_names = ['Ratios Group','n (plates)',
             'n (distances)','P-value','Mean Observed','Mean Expected',
-            'Conf. interval start','Conf. interval end','Remarks']
+            'Remarks']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -2525,8 +2530,6 @@ class DisplayReport(gtk.Window):
             gobject.TYPE_INT,
             gobject.TYPE_INT,
             gobject.TYPE_INT,
-            gobject.TYPE_FLOAT,
-            gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
@@ -2549,8 +2552,76 @@ class DisplayReport(gtk.Window):
                 float(items['p_value']),
                 float(items['mean_observed']),
                 float(items['mean_expected']),
-                float(items['conf_int_start']),
-                float(items['conf_int_end']),
+                #float(items['conf_int_start']),
+                #float(items['conf_int_end']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_wilcoxon_areas(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Results for Wilcoxon rank-sum tests (non-repeated)")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 250)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Plate Area','n (sp. encounters)','P-value',
+            'Mean Observed','Mean Expected','Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('wilcoxon_areas')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = make_remarks(items,attr,conclusions=('Rejection','Preference'))
+
+            # Add all result items to the tree model.
+            liststore.append([
+                attr['area_group'],
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
                 remarks,
                 ])
 
@@ -2778,6 +2849,67 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
+    def add_statistics_repeats_areas(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Significance results for repeated Wilcoxon rank-sum tests")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 250)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Plate Area','n (sp. encounters)','n (significant)',
+            'n (non-significant)']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('wilcoxon_areas')
+        repeats_results = self.reader.get_significance_test_repeats_areas()
+
+        for attr,items in statistics:
+            # Add all result items to the tree model.
+            liststore.append([
+                attr['area_group'],
+                int(attr['n']),
+                int(repeats_results[attr['area_group']]),
+                int(int(repeats_results['repeats']) - int(repeats_results[attr['area_group']])),
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
 
 class SelectExportElements(gtk.Dialog):
     """Display a dialog for allowing the user to select which report
@@ -2833,15 +2965,17 @@ class SelectExportElements(gtk.Dialog):
         # name.
         element_names = {'spot_distances': "Spot Distances",
             'location_selections': "Locations Selection(s)",
-            'specie_selections': "Species Selection(s)",
-            'wilcoxon_spots': "Results for Wilcoxon signed-rank tests",
-            'wilcoxon_ratios': "Results for Wilcoxon signed-rank tests",
+            'species_selections': "Species Selection(s)",
+            'wilcoxon_spots': "Results for Wilcoxon rank-sum tests",
+            'wilcoxon_ratios': "Results for Wilcoxon rank-sum tests",
+            'wilcoxon_areas': "Results for Wilcoxon rank-sum tests (non-repeated)",
             'chi_squared_spots': "Results for Pearson's Chi-squared Tests for Count Data",
             'chi_squared_ratios': "Results for Pearson's Chi-squared Tests for Count Data",
             'plate_areas_definition': "Plate Areas Definition",
             'area_totals': "Species Totals per Plate Area",
             'normality': "Results for Shapiro-Wilk tests of normality",
             't_test': "Results for t-tests",
+            'significance_test_repeats_areas': "Significance results for repeated Wilcoxon rank-sum tests",
             }
 
         # Create check buttons.

@@ -484,6 +484,8 @@ class MakeLocalDB(threading.Thread):
         self.create_table_spot_distances_observed()
         self.create_table_spot_distances_expected()
         self.create_table_plate_spot_totals()
+        self.create_table_plate_area_totals_observed()
+        self.create_table_plate_area_totals_expected()
 
         # Commit the transaction.
         self.connection.commit()
@@ -776,6 +778,38 @@ class MakeLocalDB(threading.Thread):
             pla_id INTEGER PRIMARY KEY, \
             n_spots_a INTEGER, \
             n_spots_b INTEGER \
+        )")
+
+    def create_table_plate_area_totals_observed(self):
+        """Create a table for the total of positive spots per plate area per
+        plate ID.
+
+        Design Part:
+        """
+
+        # Design Part:
+        self.cursor.execute("CREATE TABLE plate_area_totals_observed (\
+            pla_id INTEGER PRIMARY KEY, \
+            area_a INTEGER, \
+            area_b INTEGER, \
+            area_c INTEGER, \
+            area_d INTEGER \
+        )")
+
+    def create_table_plate_area_totals_expected(self):
+        """Create a table for the total of positive spots per plate area per
+        plate ID.
+
+        Design Part:
+        """
+
+        # Design Part:
+        self.cursor.execute("CREATE TABLE plate_area_totals_expected (\
+            pla_id INTEGER PRIMARY KEY, \
+            area_a INTEGER, \
+            area_b INTEGER, \
+            area_c INTEGER, \
+            area_d INTEGER \
         )")
 
 
@@ -1100,12 +1134,16 @@ class AccessDBGeneric(object):
         # Return the number of records that were skipped.
         return skipped
 
-    def get_distances_matching_spots_total(self, cursor, distance_table, spots_n):
+    def get_distances_matching_spots_total(self, distance_table, spots_n):
         """Get the distances from distance table `distance_table` that
         are from plates having `spots_n` positive spot numbers.
 
-        `cursor` must be a SQLite cursor object.
+        This is a generator, meaning that this method returns an
+        iterator. This iterator returns the distances.
         """
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
         if spots_n < 0:
             # If spots_n is a negative number, get all distances
             # up to the absolute number. So if we find -5, get all
@@ -1120,13 +1158,13 @@ class AccessDBGeneric(object):
                             (abs(spots_n))
                             )
             plate_ids = cursor.fetchall()
-            plate_ids = ",".join([str(item[0]) for item in plate_ids])
+            plate_ids_str = ",".join([str(item[0]) for item in plate_ids])
 
             # Get the distances that match the plate IDs.
             cursor.execute( "SELECT distance "
                             "FROM %s "
                             "WHERE rec_pla_id IN (%s)" %
-                            (distance_table, plate_ids)
+                            (distance_table, plate_ids_str)
                             )
         else:
             # Get the plate IDs that match the provided total spots number.
@@ -1136,24 +1174,40 @@ class AccessDBGeneric(object):
                             (spots_n)
                             )
             plate_ids = cursor.fetchall()
-            plate_ids = ",".join([str(item[0]) for item in plate_ids])
+            plate_ids_str = ",".join([str(item[0]) for item in plate_ids])
 
             # Get the distances that match the plate IDs.
             cursor.execute( "SELECT distance "
                             "FROM %s "
                             "WHERE rec_pla_id IN (%s)" %
-                            (distance_table, plate_ids)
+                            (distance_table, plate_ids_str)
                             )
 
-    def get_distances_matching_ratios(self, cursor, distance_table, ratios):
+        # Save the number of matching plates. Note that this variable can only
+        # be called after the iter that this generator returns was used.
+        self.matching_plates_total = len(plate_ids)
+
+        # Return all matching distances.
+        for distance in cursor:
+            yield distance[0]
+
+        # Close connection with the local database.
+        cursor.close()
+        connection.close()
+
+    def get_distances_matching_ratios(self, distance_table, ratios):
         """Get the spot distances from distance table `distance_table` where
         positive spots numbers between species A and B have ratio
         matching the list of ratios `ratios`.
 
         The ratio A:B is considered the same as B:A.
 
-        `cursor` must be a SQLite cursor object.
+        This is a generator, meaning that this method returns an
+        iterator. This iterator returns the distances.
         """
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
         plate_ids = []
 
         for ratio in ratios:
@@ -1188,6 +1242,10 @@ class AccessDBGeneric(object):
             ids = [x[0] for x in cursor.fetchall()]
             plate_ids.extend(ids)
 
+        # Save the number of matching plates. Note that this variable can only
+        # be called after the iter that this generator returns was used.
+        self.matching_plates_total = len(plate_ids)
+
         # Turn the list of plate IDs into a string.
         plate_ids_str = ",".join([str(x) for x in plate_ids])
 
@@ -1198,7 +1256,56 @@ class AccessDBGeneric(object):
                         (distance_table, plate_ids_str)
                         )
 
-        return plate_ids
+        # Return all matching distances.
+        for distance in cursor:
+            yield distance[0]
+
+        # Close connection with the local database.
+        cursor.close()
+        connection.close()
+
+    def get_area_totals(self, plate_area_totals_table, area_group):
+        """TODO"""
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
+        # Compile a string containing the area fields for 'area_group'.
+        fields = []
+        for area in area_group:
+            if area == 'A':
+                fields.append('area_a')
+            elif area == 'B':
+                fields.append('area_b')
+            elif area == 'C':
+                fields.append('area_c')
+            elif area == 'D':
+                fields.append('area_d')
+        fields_str = ",".join(fields)
+
+        # Get the area totals for the areas in area group.
+        cursor.execute( "SELECT %s FROM %s" %
+                        (fields_str, plate_area_totals_table)
+                        )
+
+        # Return all matching distances. Two for-loops are created to make
+        # this function as fast as possible.
+        if len(fields) > 1:
+            # More then one total is returned at each iter, so we need to
+            # unpack all items per iter and yield those.
+            for totals in cursor:
+                for total in totals:
+                    #if total == 0: continue
+                    yield total
+        else:
+            # One field, so one total is returned at a time (no nested for-loop
+            # required here).
+            for total in cursor:
+                #if total[0] == 0: continue
+                yield total[0]
+
+        # Close connection with the local database.
+        cursor.close()
+        connection.close()
 
 class AccessLocalDB(AccessDBGeneric):
     """Provide standard methods for accessing data in the local
@@ -1247,7 +1354,7 @@ class AccessLocalDB(AccessDBGeneric):
         pla_ids_str = ",".join([str(id) for id in pla_ids])
         #print "pla_ids: ", pla_ids
 
-        # Select all specie IDs from records with those plate IDs.
+        # Select all species IDs from records with those plate IDs.
         cursor.execute("SELECT rec_spe_id FROM records WHERE rec_pla_id IN (%s) AND rec_spe_id != ''" % pla_ids_str)
         # Construct a list with the IDs
         spe_ids = [row[0] for row in cursor]
@@ -1310,7 +1417,12 @@ class AccessLocalDB(AccessDBGeneric):
 
     def get_spots(self, rec_ids):
         """Return all 25 spot booleans for the records with IDs matching
-        the record IDs in the list `rec_ids`."""
+        the list of record IDs `rec_ids`.
+
+        This is a generator, meaning that this method returns an
+        iterator. This iterator returns tuples with the 25 spot booleans for
+        all matching records.
+        """
 
         # Make a connection with the local database.
         connection = sqlite.connect(self.dbfile)
@@ -1330,13 +1442,12 @@ class AccessLocalDB(AccessDBGeneric):
                         "WHERE rec_id IN (%s)" % (rec_ids_str)
                         )
 
-        records = cursor.fetchall()
+        for record in cursor:
+            yield record
 
         # Close connection with the local database.
         cursor.close()
         connection.close()
-
-        return records
 
     def set_species_spots(self, rec_ids, slot):
         """Create a table in the local database containing the spots

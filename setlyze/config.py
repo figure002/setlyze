@@ -148,6 +148,8 @@ DEFAULT_CONFIG = [
     ('spot-dist-to-prob-intra', SPOT_DIST_TO_PROB_INTRA),
     # Probabilities for each spot distance.
     ('spot-dist-to-prob-inter', SPOT_DIST_TO_PROB_INTER),
+    # Number of repeats to perform for statistical tests.
+    ('test-repeats', 100),
 ]
 
 class ConfigManager(object):

@@ -230,7 +230,7 @@ class Begin(object):
 
         # Perform analysis...
         t = Start()
-        t.run()
+        t.start()
 
     def on_display_report(self, sender):
         """Display the report in a window.
@@ -258,6 +258,8 @@ class Start(threading.Thread):
     """
 
     def __init__(self):
+        super(Start, self).__init__()
+
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.total_species = None
         self.mean = None
@@ -265,6 +267,8 @@ class Start(threading.Thread):
         self.areas_totals_expected = None # Design Part: 2.26
         self.area2chisquare = None
         self.chisquare = None
+        # Dictionary for the statistic test results.
+        self.statistics = {'wilcoxon':[], 'chi_squared':[]}
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis1'))
@@ -293,13 +297,57 @@ class Start(threading.Thread):
 
         # The total number of times we decide to update the progress
         # dialog.
-        total_steps = 5.0
+        total_steps = 9.0
+
+        # Make an object that facilitates access to the database.
+        self.db = setlyze.database.get_database_accessor()
+
+        # Get the record IDs that match the localities+species selection.
+        locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
+        species_selection = setlyze.config.cfg.get('species-selection', slot=0)
+        rec_ids = self.db.get_record_ids(locations_selection, species_selection)
+        # Create log message.
+        logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
+
+        # Create log message.
+        logging.info("\tCreating table with species spots...")
+        # Update progress dialog.
+        setlyze.std.update_progress_dialog(1/total_steps, "Creating table with species spots...")
+        # Make a spots table for the selected species.
+        self.db.set_species_spots(rec_ids, slot=0)
+
+        # Create log message.
+        logging.info("\tMaking plate IDs in species spots table unique...")
+        # Update progress dialog.
+        setlyze.std.update_progress_dialog(2/total_steps, "Making plate IDs in species spots table unique...")
+        # Make the plate IDs unique.
+        n_plates_unique = self.db.make_plates_unique(slot=0)
+        # Create log message.
+        logging.info("\t  %d records remaining." % (n_plates_unique))
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(1/total_steps,
+        setlyze.std.update_progress_dialog(3/total_steps,
+            "Calculating the observed plate area totals for each plate...")
+        # Calculate the expected totals.
+        self.set_plate_area_totals_observed()
+
+        # Create log message.
+        logging.info("\tPerforming statistical tests with %d repeats..." %
+            setlyze.config.cfg.get('test-repeats'))
+        # Update progress dialog.
+        setlyze.std.update_progress_dialog(4/total_steps,
+            "Performing statistical tests with %s repeats..." %
+            setlyze.config.cfg.get('test-repeats'))
+        # Perform the repeats for the statistical tests. This will repatedly
+        # calculate the expected totals, so we'll use the expected totals
+        # of the last repeat as the results for the report dialog.
+        self.repeat_test(setlyze.config.cfg.get('test-repeats'))
+
+        # Update progress dialog.
+        setlyze.std.update_progress_dialog(5/total_steps,
             "Calculating observed species totals per plate area...")
         # Calculate the species totals.
-        self.areas_totals_observed = self.get_areas_totals_observed()
+        self.areas_totals_observed = self.get_defined_areas_totals_observed()
         # Create log message.
         logging.info("\tObserved species totals: %s" % self.areas_totals_observed)
 
@@ -318,95 +366,296 @@ class Start(threading.Thread):
             return
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(2/total_steps,
+        setlyze.std.update_progress_dialog(6/total_steps,
             "Calculating expected species totals per plate area...")
         # Calculate the expected totals.
-        self.areas_totals_expected = self.get_areas_totals_expected()
+        self.areas_totals_expected = self.get_defined_areas_totals_expected()
         # Create log message.
         logging.info("\tExpected species totals: %s" % self.areas_totals_expected)
 
+        # Create log message.
+        logging.info("\tPerforming statistical tests...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(3/total_steps,
-            "Performing Chi-square test...")
-        # Perform Chi-square test.
-        self.chi_square_tester(self.areas_totals_observed, self.areas_totals_expected)
+        setlyze.std.update_progress_dialog(7/total_steps,
+            "Performing statistical tests...")
+        # Performing the statistical tests.
+        self.calculate_significance()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(4/total_steps,
+        setlyze.std.update_progress_dialog(8/total_steps,
             "Generating the analysis report...")
         # Generate the report.
         self.generate_report()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(5/total_steps,
-            "")
+        setlyze.std.update_progress_dialog(9/total_steps, "")
 
         # Emit the signal that the analysis has finished.
         # Note that the signal will be sent from a separate thread,
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
-    def get_areas_totals_observed(self):
-        """Return the observed totals for a specie for each plate area.
+    def set_plate_area_totals_observed(self):
+        """Fill the 'plate_area_totals_observed' table."""
+        locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
+        species_selection = setlyze.config.cfg.get('species-selection', slot=0)
+
+        # From plate area to spot numbers.
+        area2spots = {'A': (1,5,21,25),
+            'B': (2,3,4,6,10,11,15,16,20,22,23,24),
+            'C': (7,8,9,12,14,17,18,19),
+            'D': (13,),
+            }
+
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+        cursor2 = connection.cursor()
+
+        # Empty the plate_area_totals table.
+        cursor.execute("DELETE FROM plate_area_totals_observed")
+        connection.commit()
+
+        # Get all records from the table.
+        cursor.execute( "SELECT rec_pla_id,"
+                        "rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,"
+                        "rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,"
+                        "rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,"
+                        "rec_sur16,rec_sur17,rec_sur18,rec_sur19,rec_sur20,"
+                        "rec_sur21,rec_sur22,rec_sur23,rec_sur24,rec_sur25 "
+                        "FROM species_spots_1")
+
+        # Fill the totals table.
+        for record in cursor:
+            # From plate area to total spots for a record.
+            area_totals = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
+
+            # Check for each spot in the record row if the species is
+            # present. 'precence' == 1 if the species is present on
+            # that spot.
+            for spot, precence in enumerate(record[1:], start=1):
+                # In case the 'precence' boolean is False, just continue
+                # with the next spot.
+                if not precence:
+                    continue
+
+                # If we pass here, the species is present on this spot.
+                # Walk through each area in the area2spots dictionary.
+                for area, area_spots in area2spots.iteritems():
+                    # Check if the current spot ID belongs to that area.
+                    if spot in area_spots:
+                        # If so, add 1 to the species total of that area.
+                        area_totals[area] += 1
+                        # Once a match was found, that same spot ID can't
+                        # belong to another area. So continue with the next
+                        # spot for this record.
+                        break
+
+            # Save the plate area totals for this record to the database.
+            cursor2.execute("INSERT INTO plate_area_totals_observed VALUES (?,?,?,?,?)",
+                            (record[0],
+                            area_totals['A'],
+                            area_totals['B'],
+                            area_totals['C'],
+                            area_totals['D'])
+                            )
+
+        # Commit the database transaction.
+        connection.commit()
+
+        # Close connection with the local database.
+        cursor.close()
+        cursor2.close()
+        connection.close()
+
+    def set_plate_area_totals_expected(self):
+        """Fill the 'plate_area_totals_expected' table."""
+
+        # From plate area to spot numbers.
+        area2spots = {'A': (1,5,21,25),
+            'B': (2,3,4,6,10,11,15,16,20,22,23,24),
+            'C': (7,8,9,12,14,17,18,19),
+            'D': (13,),
+            }
+
+        # Make a connection with the local database.
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+        cursor2 = connection.cursor()
+
+        # Empty the plate_area_totals_expected table before we use it
+        # again.
+        cursor.execute("DELETE FROM plate_area_totals_expected")
+        connection.commit()
+
+        # Get the number of positive spots for each plate. This
+        # will serve as a template for the random spots.
+        cursor.execute( "SELECT pla_id, area_a, area_b, area_c, area_d "
+                        "FROM plate_area_totals_observed"
+                        )
+
+        for pla_id, area_a, area_b, area_c, area_d in cursor:
+            # Calculate the number of positive spots by summing the spot totals
+            # of all plate areas for the current plate.
+            n_spots = area_a + area_b + area_c + area_d
+
+            # Use that number of spots to generate the same number of
+            # random spots.
+            random_spots = setlyze.std.get_random_for_plate(n_spots)
+
+            # From plate area to total spots for a record.
+            area_totals = {'A': 0, 'B': 0, 'C': 0, 'D': 0}
+
+            # Sort the random positive spots in the correct areas in
+            # 'area_totals'.
+            for spot in random_spots:
+                # Walk through each area in the area2spots dictionary.
+                for area, area_spots in area2spots.iteritems():
+                    # Check if the current spot ID belongs to that area.
+                    if spot in area_spots:
+                        # If so, add 1 to the species total of that area.
+                        area_totals[area] += 1
+                        # Once a match was found, that same spot ID can't
+                        # belong to another area. So continue with the next
+                        # spot for this record.
+                        break
+
+            # Save the plate area totals for this record to the database.
+            cursor2.execute("INSERT INTO plate_area_totals_expected VALUES (?,?,?,?,?)",
+                            (pla_id,
+                            area_totals['A'],
+                            area_totals['B'],
+                            area_totals['C'],
+                            area_totals['D'])
+                            )
+
+        # Commit the database transaction.
+        connection.commit()
+
+        # Close connection with the local database.
+        cursor.close()
+        cursor2.close()
+        connection.close()
+
+    def calculate_significance(self):
+        """TODO"""
+
+        # The area groups to perfom the test on.
+        area_groups = [('A'),('B'),('C'),('D'),('A','B'),('C','D'),
+            ('A','B','C'),('B','C','D')]
+
+        for area_group in area_groups:
+            # Get both sets of distances from plates per total spot numbers.
+            observed = self.db.get_area_totals(
+                'plate_area_totals_observed', area_group)
+            expected = self.db.get_area_totals(
+                'plate_area_totals_expected', area_group)
+
+            # Iterators cannot be used directly by RPy, so convert them to
+            # lists first.
+            observed = list(observed)
+            expected = list(expected)
+
+            # Perform a consistency check. The number of observed and
+            # expected spot distances must always be the same.
+            count_observed = len(observed)
+            count_expected = len(expected)
+
+            # A minimum of 2 observed distances is required for the
+            # significance test. So skip this spots number if it's less.
+            if count_observed < 2 or count_expected < 2:
+                continue
+
+            # Calculate the means.
+            mean_observed = setlyze.std.mean(observed)
+            mean_expected = setlyze.std.mean(expected)
+
+            # Create a human readable string with the areas in the area group.
+            area_group_str = "+".join(area_group)
+
+            # Perform two sample Wilcoxon tests.
+            sig_result = setlyze.std.wilcox_test(observed, expected,
+                alternative = "two.sided", paired = False,
+                conf_level = setlyze.config.cfg.get('significance-confidence'),
+                conf_int = False)
+
+            # Save the significance result.
+            data = {}
+            data['attr'] = {
+                'area_group': area_group_str,
+                'n': count_observed,
+                'method': sig_result['method'],
+                'alternative': sig_result['alternative'],
+                'conf_level': setlyze.config.cfg.get('significance-confidence'),
+                'paired': False,
+                }
+            data['results'] = {
+                'p_value': sig_result['p.value'],
+                'mean_observed': mean_observed,
+                'mean_expected': mean_expected,
+                }
+
+            # Append the result to the list of results.
+            self.statistics['wilcoxon'].append(data)
+
+    def calculate_significance_for_repeats(self):
+        """TODO"""
+
+        # The area groups to perfom the test on.
+        area_groups = [('A'),('B'),('C'),('D'),('A','B'),('C','D'),
+            ('A','B','C'),('B','C','D')]
+
+        for area_group in area_groups:
+            # Get both sets of distances from plates per total spot numbers.
+            observed = self.db.get_area_totals(
+                'plate_area_totals_observed', area_group)
+            expected = self.db.get_area_totals(
+                'plate_area_totals_expected', area_group)
+
+            # Iterators cannot be used directly by RPy, so convert them to
+            # lists first.
+            observed = list(observed)
+            expected = list(expected)
+
+            # Perform a consistency check. The number of observed and
+            # expected spot distances must always be the same.
+            count_observed = len(observed)
+            count_expected = len(expected)
+
+            # A minimum of 2 observed distances is required for the
+            # significance test. So skip this spots number if it's less.
+            if count_observed < 2 or count_expected < 2:
+                continue
+
+            # Create a human readable string with the areas in the area group.
+            area_group_str = "+".join(area_group)
+
+            # Perform two sample Wilcoxon tests.
+            sig_result = setlyze.std.wilcox_test(observed, expected,
+                alternative = "two.sided", paired = False,
+                conf_level = setlyze.config.cfg.get('significance-confidence'),
+                conf_int = False)
+
+            # Save the significance result.
+            p_value = float(sig_result['p.value'])
+            if p_value < 0.05 and p_value != 'nan':
+                self.repeat_results[area_group_str] += 1
+
+    def repeat_test(self, number):
+        self.repeat_results = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'A+B': 0, 'C+D': 0,
+            'A+B+C': 0, 'B+C+D': 0}
+
+        for i in range(number):
+            self.set_plate_area_totals_expected()
+            self.calculate_significance_for_repeats()
+
+        print self.repeat_results
+
+    def get_defined_areas_totals_observed(self):
+        """Return the observed totals for a species for each plate area.
 
         Design Part: 1.62
         """
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
-        locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
-        species_selection = setlyze.config.cfg.get('species-selection', slot=0)
-
-        # From spot name to spot surface IDs (used in the database).
-        spotname2surid = {  'A': (1,5,21,25),
-                            'B': (2,3,4,6,10,11,15,16,20,22,23,24),
-                            'C': (7,8,9,12,14,17,18,19),
-                            'D': (13) }
-
-        # Matrix of which surface IDs belong to which area.
-        area2surid = {  'area1': [],
-                        'area2': [],
-                        'area3': [],
-                        'area4': [] }
-
-        # Fill area2surid
-        for area, spot_names in areas_definition.iteritems():
-            # Get all spot names of an area.
-            for spot_name in spot_names:
-                # Get all surface IDs that belong to those spot names.
-                items = spotname2surid[spot_name]
-
-                # Combine all the surface IDs for an area.
-                if isinstance(items, tuple):
-                    area2surid[area].extend(items)
-                else:
-                    area2surid[area].append(items)
-
-        # Remove empty areas.
-        remove = []
-        for area, surids in area2surid.iteritems():
-            if len(surids) == 0:
-                remove.append(area)
-        for area in remove:
-            del area2surid[area]
-
-        # Make an object that facilitates access to the database.
-        db = setlyze.database.get_database_accessor()
-
-        # Get the record IDs that match the locations and species
-        # selection.
-        rec_ids = db.get_record_ids(locations_selection, species_selection)
-
-        # Get all 25 spot booleans from each record that matches the
-        # list of record IDs.
-        # TODO: Instead of loading all record spots in a variable, it's
-        # better to save the matching records to a new table
-        # in the local database (if data-source is SETL) and then select
-        # one row at a time from the local database. This way we can
-        # prevent large amounts of records from being saved in a variable.
-        records = db.get_spots(rec_ids)
-
-        # Make a log message.
-        logging.info("\tTotal records that match the species+locations selection: %d"
-            % len(records))
 
         # Dictionary which will contain the species total for each area.
         areas_totals_observed = {'area1': 0,
@@ -414,54 +663,26 @@ class Start(threading.Thread):
             'area3': 0,
             'area4': 0,}
 
-        # Fill the totals table.
-        for record in records:
-            # Begin with spot 1 (up to 25).
-            spot = 1
-            # A list of areas that should be skipped for this record.
-            #skip_areas = []
-            # Check for each spot in the record row if the specie is
-            # present. 'present' == True, if the specie is present on
-            # that spot.
-            for precence in record:
-                # In case the 'present' boolean is False, just continue
-                # with the next spot.
-                if not precence:
-                    continue
-                # If we pass here, the boolean is True.
-                # Walk through each area in the area2surid dictionary.
-                # And also get the surface IDs for that area.
-                for area, surids in area2surid.iteritems():
-                    # We don't want to count the same record more than
-                    # once for an area.
-                    #if area in skip_areas:
-                    #    continue
-                    # Check if the current spot ID belongs to that
-                    # area.
-                    if spot in surids:
-                        # If so, add 1 to the species total of that
-                        # area.
-                        areas_totals_observed[area] += 1
-                        # Next time we find a spot for this area, skip
-                        # it, as we don't want to count the same record
-                        # more than once for an area.
-                        #skip_areas.append(area)
-                        # Once a match was found, that same spot ID
-                        # can't belong to another area. So continue with
-                        # the next spot for this record row.
-                        break
-                spot += 1
+        for area_name, area_group in areas_definition.iteritems():
+            # Get both sets of distances from plates per total spot numbers.
+            observed = self.db.get_area_totals(
+                'plate_area_totals_observed', area_group)
+
+            # Sum all totals in the correct area name.
+            for total in observed:
+                areas_totals_observed[area_name] += total
 
         # Remove the areas that were earlier removed, as these areas
         # were empty, and shouldn't be included for the calculations
         # later on.
-        for area in remove:
-            del areas_totals_observed[area]
+        for area_name in areas_definition:
+            if len(area_name) == 0:
+                del areas_totals_observed[area_name]
 
         return areas_totals_observed
 
-    def get_areas_totals_expected(self):
-        """Return the expected totals for a specie for each plate area.
+    def get_defined_areas_totals_expected(self):
+        """Return the expected totals for a species for each plate area.
 
         Design Part: 1.63
         """
@@ -496,35 +717,6 @@ class Start(threading.Thread):
 
         return areas_totals_expected
 
-    def chi_square_tester(self, areas_totals_observed, areas_totals_expected):
-        """Perform the Chi-square test on the observed and expected values.
-
-        Design Part: 1.64
-        """
-
-        # Huh?
-        P1 = 11.34
-        P25 = 9.35
-        P5 = 7.81
-        DoF = 3
-
-        # Calculate Chi-square value for each spot area.
-        self.area2chisquare = {}
-        for area, observed in self.areas_totals_observed.iteritems():
-            expected = self.areas_totals_expected[area]
-            self.area2chisquare[area] = ( math.pow((observed-expected),2) ) / expected
-
-        # Make log message.
-        logging.info("\tChi-square per spot area: %s" % self.area2chisquare)
-
-        # Calculate Chi-square.
-        self.chisquare = 0
-        for area_chi in self.area2chisquare.itervalues():
-            self.chisquare += area_chi
-
-        # Make log message.
-        logging.info("\tChi-square: %s" % self.chisquare)
-
     def generate_report(self):
         """Generate the analysis report.
 
@@ -533,10 +725,12 @@ class Start(threading.Thread):
         report = setlyze.std.ReportGenerator()
         report.set_analysis('spot_preference')
         report.set_location_selections()
-        report.set_specie_selections()
+        report.set_species_selections()
         report.set_plate_areas_definition()
         report.set_area_totals_observed(self.areas_totals_observed)
         report.set_area_totals_expected(self.areas_totals_expected)
+        report.set_statistics('wilcoxon_areas', self.statistics['wilcoxon'])
+        report.set_significance_test_repeats_areas(self.repeat_results)
 
         # Create global a link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())

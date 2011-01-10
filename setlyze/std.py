@@ -47,25 +47,30 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/10/01 13:42:16"
 
-def make_remarks(results, attributes):
+def make_remarks(results, attributes, conclusions=('Attraction','Repulsion')):
     """Return a remarks string that contains a summary of the results
     and attributes of a statistical test.
     """
     remarks = []
 
     if 'p_value' in results:
-        if float(results['p_value']) > 0.05:
+        if results['p_value'] == 'nan':
+            remarks.append("Not significant")
+        elif float(results['p_value']) > 0.05:
             remarks.append("Not significant")
         else:
             remarks.append("Significant")
 
+            # If significant, also add attraction/repulsion.
             if 'mean_observed' in results and 'mean_expected' in results:
                 if float(results['mean_observed']) < float(results['mean_expected']):
-                    remarks.append("Attraction")
+                    remarks.append(conclusions[0])
                 else:
-                    remarks.append("Repulsion")
+                    remarks.append(conclusions[1])
 
-        if float(results['p_value']) < 0.001:
+        if results['p_value'] == 'nan':
+            pass
+        elif float(results['p_value']) < 0.001:
             remarks.append("P < 0.001")
         elif float(results['p_value']) < 0.01:
             remarks.append("P < 0.01")
@@ -528,7 +533,7 @@ def get_random_for_plate(n):
     standard library. As described in the Python documentation, this
     function is bound to an instance of :py:class:`random.Random` which
     uses the :py:meth:`random.random` method. In turn this method uses
-    the Mersenne Twister (:ref:`M. Matsumoto and T. Nishimura <ref-mersenne-twister>`)
+    the Mersenne Twister (:ref:`Matsumoto & Nishimura <ref-mersenne-twister>`)
     as the core generator. The Mersenne Twister is one of the most
     extensively tested random number generators in existence.
 
@@ -1129,8 +1134,8 @@ class ReportGenerator(object):
         cursor.close()
         connection.close()
 
-    def set_specie_selections(self):
-        """Add the element ``specie_selections`` to the XML DOM
+    def set_species_selections(self):
+        """Add the element ``species_selections`` to the XML DOM
         report.
 
         This element will be filled with the species selections. If
@@ -1139,36 +1144,36 @@ class ReportGenerator(object):
 
         The XML representation looks like this: ::
 
-            <specie_selections>
+            <species_selections>
                 <selection slot="0">
-                    <specie id="2">
+                    <species id="2">
                         <name_latin>
                             Ectopleura larynx
                         </name_latin>
                         <name_venacular>
                             Gorgelpijp
                         </name_venacular>
-                    </specie>
+                    </species>
                 </selection>
                 <selection slot="1">
-                    <specie id="6">
+                    <species id="6">
                         <name_latin>
                             Metridium senile
                         </name_latin>
                         <name_venacular>
                             Zeeanjelier
                         </name_venacular>
-                    </specie>
+                    </species>
                 </selection>
-            </specie_selections>
+            </species_selections>
 
         Design Part: 1.51
         """
 
-        # Create a new element to save the specie selections in.
-        specie_selections = self.create_element(
+        # Create a new element to save the species selections in.
+        species_selections = self.create_element(
             parent=self.report,
-            name="specie_selections"
+            name="species_selections"
             )
 
         # Connect to the local database.
@@ -1188,7 +1193,7 @@ class ReportGenerator(object):
             # selection. We give each selection element a 'slot'
             # attribute.
             spe_selection_element = self.create_element(
-                parent=specie_selections,
+                parent=species_selections,
                 name="selection",
                 attributes={'slot': slot}
                 )
@@ -1203,7 +1208,7 @@ class ReportGenerator(object):
 
             for row in cursor:
                 self.create_element(parent=spe_selection_element,
-                    name="specie",
+                    name="species",
                     child_elements={'name_venacular': row[1],'name_latin': row[2]},
                     attributes={'id':row[0]}
                     )
@@ -1492,6 +1497,59 @@ class ReportGenerator(object):
                 child_elements=x['results'],
                 )
 
+    def set_significance_test_repeats_areas(self, repeat_results):
+        """Add the element "significance_test_repeats_areas" to the XML DOM
+        report.
+
+        This element will be filled with the number of significant results
+        per plate area group.
+
+        The XML representation looks like this: ::
+
+            <significance_test_repeats_areas repeats="100">
+                <n_significant plate_area="A">
+                    100
+                </n_significant>
+                <n_significant plate_area="C+D">
+                    100
+                </n_significant>
+                <n_significant plate_area="C">
+                    100
+                </n_significant>
+                <n_significant plate_area="B">
+                    0
+                </n_significant>
+                <n_significant plate_area="B+C+D">
+                    100
+                </n_significant>
+                <n_significant plate_area="D">
+                    86
+                </n_significant>
+                <n_significant plate_area="A+B+C">
+                    0
+                </n_significant>
+                <n_significant plate_area="A+B">
+                    100
+                </n_significant>
+            </significance_test_repeats_areas>
+
+        Design Part:
+        """
+
+        # Create a new child element for the report.
+        significance_test_repeats_areas = self.create_element(
+            parent=self.report,
+            name="significance_test_repeats_areas",
+            attributes={'repeats': setlyze.config.cfg.get('test-repeats')},
+            )
+
+        for plate_area, significants in repeat_results.iteritems():
+            self.create_element(parent=significance_test_repeats_areas,
+                name="n_significant",
+                attributes={'plate_area': plate_area},
+                text=significants
+                )
+
     def get_report(self):
         """Return the XML DOM report object."""
         return self.doc
@@ -1573,11 +1631,11 @@ class ReportReader(object):
         """
         analysis_name = None
 
-        # Find the 'specie_selections' element in the XML DOM object.
+        # Find the 'species_selections' element in the XML DOM object.
         for e in self.doc.childNodes[0].childNodes:
             if e.nodeType == e.ELEMENT_NODE and \
                     e.localName == 'analysis':
-                # Found the 'specie_selections' element. Now get one
+                # Found the 'species_selections' element. Now get one
                 # of the 'selection' child elements that matches the
                 # slot number.
                 analysis_name = e.childNodes[0].nodeValue.strip()
@@ -1650,11 +1708,11 @@ class ReportReader(object):
         """
         species_selection = None
 
-        # Find the 'specie_selections' element in the XML DOM object.
+        # Find the 'species_selections' element in the XML DOM object.
         for e in self.doc.childNodes[0].childNodes:
             if e.nodeType == e.ELEMENT_NODE and \
-                    e.localName == "specie_selections":
-                # Found the 'specie_selections' element. Now get one
+                    e.localName == "species_selections":
+                # Found the 'species_selections' element. Now get one
                 # of the 'selection' child elements that matches the
                 # slot number.
                 for e2 in e.childNodes:
@@ -1669,17 +1727,17 @@ class ReportReader(object):
         if not species_selection:
             return
 
-        # Return each specie from the 'species_selection' node.
+        # Return each species from the 'species_selection' node.
         for e in species_selection.childNodes:
-            specie = {}
-            if e.nodeType == e.ELEMENT_NODE and e.localName == 'specie':
-                # Save each 'specie' element to the specie
-                # dictionary as: specie[node_name] = node_value
+            species = {}
+            if e.nodeType == e.ELEMENT_NODE and e.localName == 'species':
+                # Save each 'species' element to the species
+                # dictionary as: species[node_name] = node_value
                 for e2 in e.childNodes:
                     if e2.nodeType == e2.ELEMENT_NODE:
-                        specie[e2.localName] = e2.childNodes[0].nodeValue.strip()
+                        species[e2.localName] = e2.childNodes[0].nodeValue.strip()
 
-            yield specie
+            yield species
 
     def get_spot_distances_observed(self):
         """Return the observed spot distances from the XML DOM report.
@@ -1778,7 +1836,7 @@ class ReportReader(object):
         return definition
 
     def get_area_totals_observed(self):
-        """Return the observed specie totals per plate area from the
+        """Return the observed species totals per plate area from the
         XML DOM report.
 
         This method returns a dictionary. For example: ::
@@ -1808,7 +1866,7 @@ class ReportReader(object):
         return totals
 
     def get_area_totals_expected(self):
-        """Return the expected specie totals per area from the XML DOM
+        """Return the expected species totals per area from the XML DOM
         report.
 
         This method returns a dictionary. For example: ::
@@ -1875,6 +1933,39 @@ class ReportReader(object):
 
                 # Return a tuple.
                 yield (attributes,results)
+
+    def get_significance_test_repeats_areas(self):
+        """Return the observed species totals per plate area from the
+        XML DOM report.
+
+        This method returns a dictionary. For example: ::
+
+            {
+            'area1': 24.64,
+            'area2': 73.92,
+            'area3': 55.44
+            }
+        """
+
+        # Find the 'significance_test_repeats_areas' node in the XML DOM object.
+        test_repeats = self.get_element(self.doc, "significance_test_repeats_areas")
+
+        # Check if the 'significance_test_repeats_areas' node was found.
+        if not test_repeats:
+            return
+
+        # Add each area total to the 'test_repeats_results' dictionary.
+        test_repeats_results = {}
+        for e in test_repeats.childNodes:
+            if e.nodeType == e.ELEMENT_NODE and e.localName == "n_significant":
+                plate_area = e.getAttribute("plate_area")
+
+                test_repeats_results[plate_area] = e.childNodes[0].nodeValue.strip()
+
+        # Add the number of repeats as well.
+        test_repeats_results['repeats'] = test_repeats.getAttribute("repeats")
+
+        return test_repeats_results
 
     def get_xml(self):
         """Return the XML source for the XML DOM report."""
@@ -2042,7 +2133,7 @@ class ExportTextReport(object):
         yield self.part(header)
 
         # Add species selections.
-        if 'specie_selections' in report_elements:
+        if 'species_selections' in report_elements:
             yield self.section("Locations and Species Selections")
 
             species_selection = self.reader.get_species_selection(slot=0)
@@ -2112,7 +2203,7 @@ class ExportTextReport(object):
                 yield "%-7s  %s\n" % (area_id, spots)
             yield t_footer
 
-        # Add the specie totals per plate area.
+        # Add the species totals per plate area.
         if 'area_totals_observed' in report_elements and \
                 'area_totals_expected' in report_elements:
             yield self.section("Species Totals per Plate Area")
@@ -2163,9 +2254,9 @@ class ExportTextReport(object):
             yield self.section("Results for t-tests")
             # TODO
 
-        # Add the results for the Wilcoxon signed-rank tests.
+        # Add the results for the Wilcoxon rank-sum tests.
         if 'wilcoxon_spots' in report_elements:
-            yield self.section("Results for Wilcoxon signed-rank tests")
+            yield self.section("Results for Wilcoxon rank-sum tests")
 
             t_header, t_footer = self.table(
                 [('Positive Spots', -1),
@@ -2209,9 +2300,9 @@ class ExportTextReport(object):
                     )
             yield t_footer
 
-        # Add the results for the Wilcoxon signed-rank tests.
+        # Add the results for the Wilcoxon rank-sum tests.
         if 'wilcoxon_ratios' in report_elements:
-            yield self.section("Results for Wilcoxon signed-rank tests")
+            yield self.section("Results for Wilcoxon rank-sum tests")
 
             t_header, t_footer = self.table(
                 [('Ratios Group', -1),
@@ -2341,6 +2432,34 @@ class ExportTextReport(object):
                     float(items['mean_observed']),
                     float(items['mean_expected']),
                     make_remarks(items,attr))
+            yield t_footer
+
+
+        # Add the results for the Wilcoxon rank-sum tests.
+        if 'wilcoxon_areas' in report_elements:
+            yield self.section("Results for Wilcoxon rank-sum tests (non-repeated)")
+
+            t_header, t_footer = self.table(
+                [('Plate Area', -1),
+                ('n (sp. encounters)', -1),
+                ('P-value', -1),
+                ('Mean Observed', -1),
+                ('Mean Expected', -1),
+                ('Remarks', 40),]
+                )
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_areas')
+            for attr,items in statistics:
+                remarks = make_remarks(items,attr,conclusions=('Rejection','Preference'))
+                yield "%-10s  %18s  %7.4f  %13.4f  %13.4f  %s\n" % \
+                    (attr['area_group'],
+                    attr['n'],
+                    float(items['p_value']),
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    remarks,
+                    )
             yield t_footer
 
     def export(self, path, elements=None):
