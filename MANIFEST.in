@@ -1,0 +1,3 @@
+include INSTALL COPYING
+recursive-include setlyze/docs *
+recursive-include setlyze/images *
