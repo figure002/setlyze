@@ -1,3 +1,5 @@
 include INSTALL COPYING
 recursive-include setlyze/docs *
 recursive-include setlyze/images *
+recursive-include tests *
+recursive-include test-data *
