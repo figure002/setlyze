@@ -81,7 +81,7 @@ PostgreSQL query: ::
 
 Table ``setl_species`` in the SETL database. The SETL database can be
 either the MS Access database or the PostgreSQL database. This table
-contains the SETL specie records.
+contains the SETL species records.
 
 PostgreSQL query: ::
 
@@ -276,7 +276,7 @@ Set the value with :meth:`setlyze.config.ConfigManager.set` ::
 
 A list ``[<selection-1>,<selection-2>]`` for storing a maximum of two
 species selections. ``<selection-1>`` and ``<selection-2>`` are lists
-of integers representing specie IDs. These IDs are the same as the IDs
+of integers representing species IDs. These IDs are the same as the IDs
 in column ``spe_id`` in :ref:`design-part-data-2.1` and
 :ref:`design-part-data-2.3`.
 
@@ -582,7 +582,7 @@ the format ::
 2.19
 ------------------------------------------------------------------------
 
-CSV file containing the specie records exported from the MS Access
+CSV file containing the species records exported from the MS Access
 SETL database.
 
 If exported from the MS Access SETL database, the CSV file must have
@@ -663,6 +663,12 @@ and we know the horizontal difference (Δx) and the vertical
 difference (Δy), we can look up the corresponding distance in the
 ``spot_distances`` table.
 
+.. deprecated:: 0.1
+   A :ref:`performance test <optimization_spot_dist_calc>` showed that retrieving
+   pre-calculated spot distances from the database is much slower than
+   calculating them on run time.
+
+
 .. _design-part-data-2.24:
 
 2.24
@@ -723,7 +729,7 @@ Set the value with :meth:`setlyze.config.ConfigManager.set` ::
 An application variable that contains the actual species totals for each
 plate area. Keep in mind that this is not the number of individual
 organisms found on the plate area, as the records just tell the presence
-of a specie. So it tells how many times the presence of a specie was
+of a species. So it tells how many times the presence of a species was
 found on each plate area.
 
 This is what the value can look like ::
@@ -746,7 +752,7 @@ Namespace:
 An application variable that contains the expected species totals for
 each plate area. Keep in mind that this not the number of individuals
 found on the plate area, as the records just tell the presence of a
-specie.
+species.
 
 This is what the value can look like ::
 
@@ -773,7 +779,7 @@ the user selected locations.
 2.28
 ------------------------------------------------------------------------
 
-The element ``specie_selections`` in the XML DOM report that contains the
+The element ``species_selections`` in the XML DOM report that contains the
 user selected species.
 
 .. _design-part-data-2.29:

@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="design_parts_index.html" title="SETLyze Design Parts"
              accesskey="P">previous</a> |</li>
+    <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="design_parts_index.html" accesskey="U">SETLyze Design Parts</a> &raquo;</li> 
       </ul>
@@ -126,7 +129,7 @@ contains the SETL records.</p>
 <span id="id2"></span><h3>2.1<a class="headerlink" href="#design-part-data-2-1" title="Permalink to this headline">¶</a></h3>
 <p>Table <tt class="docutils literal"><span class="pre">setl_species</span></tt> in the SETL database. The SETL database can be
 either the MS Access database or the PostgreSQL database. This table
-contains the SETL specie records.</p>
+contains the SETL species records.</p>
 <p>PostgreSQL query:</p>
 <div class="highlight-python"><pre>CREATE TABLE setl_species
 (
@@ -285,7 +288,7 @@ in column <tt class="docutils literal"><span class="pre">loc_id</span></tt> in <
 <span id="id12"></span><h3>2.7<a class="headerlink" href="#design-part-data-2-7" title="Permalink to this headline">¶</a></h3>
 <p>A list <tt class="docutils literal"><span class="pre">[&lt;selection-1&gt;,&lt;selection-2&gt;]</span></tt> for storing a maximum of two
 species selections. <tt class="docutils literal"><span class="pre">&lt;selection-1&gt;</span></tt> and <tt class="docutils literal"><span class="pre">&lt;selection-2&gt;</span></tt> are lists
-of integers representing specie IDs. These IDs are the same as the IDs
+of integers representing species IDs. These IDs are the same as the IDs
 in column <tt class="docutils literal"><span class="pre">spe_id</span></tt> in <a class="reference internal" href="#design-part-data-2-1"><em>2.1</em></a> and
 <a class="reference internal" href="#design-part-data-2-3"><em>2.3</em></a>.</p>
 <p>Get the value with <a class="reference internal" href="setlyze/config.html#setlyze.config.ConfigManager.get" title="setlyze.config.ConfigManager.get"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.config.ConfigManager.get()</span></tt></a></p>
@@ -538,7 +541,7 @@ the format</p>
 </div>
 <div class="section" id="design-part-data-2-19">
 <span id="id26"></span><h3>2.19<a class="headerlink" href="#design-part-data-2-19" title="Permalink to this headline">¶</a></h3>
-<p>CSV file containing the specie records exported from the MS Access
+<p>CSV file containing the species records exported from the MS Access
 SETL database.</p>
 <p>If exported from the MS Access SETL database, the CSV file must have
 the format</p>
@@ -601,6 +604,10 @@ spot difference. The distances are pre-calculated by
 and we know the horizontal difference (Δx) and the vertical
 difference (Δy), we can look up the corresponding distance in the
 <tt class="docutils literal"><span class="pre">spot_distances</span></tt> table.</p>
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 0.1: </span>A <a class="reference internal" href="testing_optimization.html#optimization-spot-dist-calc"><em>performance test</em></a> showed that retrieving
+pre-calculated spot distances from the database is much slower than
+calculating them on run time.</p>
 </div>
 <div class="section" id="design-part-data-2-24">
 <span id="id31"></span><h3>2.24<a class="headerlink" href="#design-part-data-2-24" title="Permalink to this headline">¶</a></h3>
@@ -654,7 +661,7 @@ meaning. They just make it possible to destinct between the plate areas.</p>
 <p>An application variable that contains the actual species totals for each
 plate area. Keep in mind that this is not the number of individual
 organisms found on the plate area, as the records just tell the presence
-of a specie. So it tells how many times the presence of a specie was
+of a species. So it tells how many times the presence of a species was
 found on each plate area.</p>
 <p>This is what the value can look like</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
@@ -675,7 +682,7 @@ found on each plate area.</p>
 <p>An application variable that contains the expected species totals for
 each plate area. Keep in mind that this not the number of individuals
 found on the plate area, as the records just tell the presence of a
-specie.</p>
+species.</p>
 <p>This is what the value can look like</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
 <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mf">61.439999999999998</span><span class="p">,</span>
@@ -697,7 +704,7 @@ the user selected locations.</p>
 </div>
 <div class="section" id="design-part-data-2-28">
 <span id="id35"></span><h3>2.28<a class="headerlink" href="#design-part-data-2-28" title="Permalink to this headline">¶</a></h3>
-<p>The element <tt class="docutils literal"><span class="pre">specie_selections</span></tt> in the XML DOM report that contains the
+<p>The element <tt class="docutils literal"><span class="pre">species_selections</span></tt> in the XML DOM report that contains the
 user selected species.</p>
 </div>
 <div class="section" id="design-part-data-2-29">
@@ -898,7 +905,10 @@ column <tt class="docutils literal"><span class="pre">n_spots_b</span></tt> for 
         <li class="right" >
           <a href="design_parts_index.html" title="SETLyze Design Parts"
              >previous</a> |</li>
+    <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="design_parts_index.html" >SETLyze Design Parts</a> &raquo;</li> 
       </ul>

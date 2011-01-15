@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="developer_guide.html" title="SETLyze Developer Guide"
              accesskey="P">previous</a> |</li>
+    <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="developer_guide.html" accesskey="U">SETLyze Developer Guide</a> &raquo;</li> 
       </ul>
     </div>  
@@ -69,10 +72,10 @@
 </thead>
 <tbody valign="top">
 <tr><td>1.0</td>
-<td><a class="reference external" href="http://docs.python.org/library/__main__.html#module-__main__" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">__main__</span></tt></a></td>
+<td>The executable for SETLyze.</td>
 </tr>
 <tr><td>1.1</td>
-<td><tt class="xref py py-meth docutils literal"><span class="pre">__main__.main()</span></tt></td>
+<td>The initial function for SETLyze.</td>
 </tr>
 <tr><td>1.2</td>
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB" title="setlyze.database.MakeLocalDB"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.database.MakeLocalDB</span></tt></a></td>
@@ -120,7 +123,7 @@
 <td><a class="reference internal" href="setlyze/gui.html#setlyze.gui.SelectSpecies.save_selection" title="setlyze.gui.SelectSpecies.save_selection"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.gui.SelectSpecies.save_selection()</span></tt></a></td>
 </tr>
 <tr><td>1.11</td>
-<td><a class="reference internal" href="setlyze/gui.html#setlyze.gui.SelectionWindow.on_select_data_files" title="setlyze.gui.SelectionWindow.on_select_data_files"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.gui.SelectionWindow.on_select_data_files()</span></tt></a></td>
+<td><a class="reference internal" href="setlyze/gui.html#setlyze.gui.SelectionWindow.on_change_data_source" title="setlyze.gui.SelectionWindow.on_change_data_source"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.gui.SelectionWindow.on_change_data_source()</span></tt></a></td>
 </tr>
 <tr><td>1.12</td>
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator" title="setlyze.std.ReportGenerator"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.ReportGenerator</span></tt></a></td>
@@ -138,7 +141,7 @@
 <td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.relations.Start.generate_report()</span></tt></td>
 </tr>
 <tr><td>1.17</td>
-<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportReader.save_report" title="setlyze.std.ReportReader.save_report"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportReader.save_report()</span></tt></a></td>
+<td><a class="reference internal" href="setlyze/std.html#setlyze.std.export_report" title="setlyze.std.export_report"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.export_report()</span></tt></a></td>
 </tr>
 <tr><td>1.19.1</td>
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.AccessLocalDB.set_species_spots" title="setlyze.database.AccessLocalDB.set_species_spots"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.AccessLocalDB.set_species_spots()</span></tt></a></td>
@@ -222,7 +225,7 @@
 <td><a class="reference internal" href="setlyze/gui.html#setlyze.gui.SelectSpecies.on_back" title="setlyze.gui.SelectSpecies.on_back"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.gui.SelectSpecies.on_back()</span></tt></a></td>
 </tr>
 <tr><td>1.47</td>
-<td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.fill_distance_table" title="setlyze.database.MakeLocalDB.fill_distance_table"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.fill_distance_table()</span></tt></a></td>
+<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.fill_distance_table()</span></tt></td>
 </tr>
 <tr><td>1.48</td>
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator" title="setlyze.std.ReportGenerator"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.ReportGenerator</span></tt></a></td>
@@ -234,7 +237,7 @@
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_location_selections" title="setlyze.std.ReportGenerator.set_location_selections"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_location_selections()</span></tt></a></td>
 </tr>
 <tr><td>1.51</td>
-<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_specie_selections" title="setlyze.std.ReportGenerator.set_specie_selections"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_specie_selections()</span></tt></a></td>
+<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_species_selections" title="setlyze.std.ReportGenerator.set_species_selections"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_species_selections()</span></tt></a></td>
 </tr>
 <tr><td>1.52</td>
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_spot_distances_observed" title="setlyze.std.ReportGenerator.set_spot_distances_observed"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_spot_distances_observed()</span></tt></a></td>
@@ -243,7 +246,7 @@
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_spot_distances_expected" title="setlyze.std.ReportGenerator.set_spot_distances_expected"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_spot_distances_expected()</span></tt></a></td>
 </tr>
 <tr><td>1.54</td>
-<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_spot_areas_definition()</span></tt></td>
+<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_plate_areas_definition" title="setlyze.std.ReportGenerator.set_plate_areas_definition"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_plate_areas_definition()</span></tt></a></td>
 </tr>
 <tr><td>1.55</td>
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_area_totals_observed" title="setlyze.std.ReportGenerator.set_area_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_area_totals_observed()</span></tt></a></td>
@@ -291,16 +294,16 @@
 <td><a class="reference internal" href="setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_display_report" title="setlyze.analysis.attraction_inter.Begin.on_display_report"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_inter.Begin.on_display_report()</span></tt></a></td>
 </tr>
 <tr><td>1.68.4</td>
-<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction.Begin.on_display_report()</span></tt></td>
+<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.relations.Begin.on_display_report()</span></tt></td>
 </tr>
 <tr><td>1.69</td>
 <td><a class="reference internal" href="setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected" title="setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected()</span></tt></a></td>
 </tr>
 <tr><td>1.70</td>
-<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_statistics_normality" title="setlyze.std.ReportGenerator.set_statistics_normality"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics_normality()</span></tt></a></td>
+<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics_normality()</span></tt></td>
 </tr>
 <tr><td>1.71</td>
-<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_statistics_significance" title="setlyze.std.ReportGenerator.set_statistics_significance"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics_significance()</span></tt></a></td>
+<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics_significance()</span></tt></td>
 </tr>
 <tr><td>1.72</td>
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_analysis" title="setlyze.std.ReportGenerator.set_analysis"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_analysis()</span></tt></a></td>
@@ -309,7 +312,7 @@
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table" title="setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table()</span></tt></a></td>
 </tr>
 <tr><td>1.74</td>
-<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_inter.Start.calculate_significance()</span></tt></td>
+<td><a class="reference internal" href="setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.calculate_significance" title="setlyze.analysis.attraction_inter.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_inter.Start.calculate_significance()</span></tt></a></td>
 </tr>
 <tr><td>1.75</td>
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.create_table_info" title="setlyze.database.MakeLocalDB.create_table_info"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_table_info()</span></tt></a></td>
@@ -333,7 +336,7 @@
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.create_table_species_spots_2" title="setlyze.database.MakeLocalDB.create_table_species_spots_2"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_table_species_spots_2()</span></tt></a></td>
 </tr>
 <tr><td>1.82</td>
-<td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.create_table_spot_distances" title="setlyze.database.MakeLocalDB.create_table_spot_distances"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_table_spot_distances()</span></tt></a></td>
+<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_table_spot_distances()</span></tt></td>
 </tr>
 <tr><td>1.83</td>
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.create_table_spot_distances_observed" title="setlyze.database.MakeLocalDB.create_table_spot_distances_observed"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_table_spot_distances_observed()</span></tt></a></td>
@@ -345,7 +348,7 @@
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.create_table_plate_spot_totals" title="setlyze.database.MakeLocalDB.create_table_plate_spot_totals"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_table_plate_spot_totals()</span></tt></a></td>
 </tr>
 <tr><td>1.86</td>
-<td><tt class="xref py py-class docutils literal"><span class="pre">SelectAnalysis</span></tt></td>
+<td><a class="reference internal" href="setlyze/gui.html#setlyze.gui.SelectAnalysis" title="setlyze.gui.SelectAnalysis"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.gui.SelectAnalysis</span></tt></a></td>
 </tr>
 <tr><td>1.87</td>
 <td><a class="reference internal" href="setlyze/gui.html#setlyze.gui.SelectLocations" title="setlyze.gui.SelectLocations"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.gui.SelectLocations</span></tt></a></td>
@@ -364,6 +367,21 @@
 </tr>
 <tr><td>1.92</td>
 <td><a class="reference internal" href="setlyze/gui.html#setlyze.gui.ProgressDialog" title="setlyze.gui.ProgressDialog"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.gui.ProgressDialog</span></tt></a></td>
+</tr>
+<tr><td>1.93</td>
+<td><a class="reference internal" href="setlyze/database.html#setlyze.database.get_database_accessor" title="setlyze.database.get_database_accessor"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.get_database_accessor()</span></tt></a></td>
+</tr>
+<tr><td>1.94</td>
+<td><a class="reference internal" href="setlyze/std.html#setlyze.std.Sender" title="setlyze.std.Sender"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.Sender</span></tt></a></td>
+</tr>
+<tr><td>1.95</td>
+<td><a class="reference internal" href="setlyze/database.html#setlyze.database.AccessDBGeneric.get_locations" title="setlyze.database.AccessDBGeneric.get_locations"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.AccessDBGeneric.get_locations()</span></tt></a></td>
+</tr>
+<tr><td>1.96</td>
+<td><a class="reference internal" href="setlyze/database.html#setlyze.database.AccessLocalDB.get_species" title="setlyze.database.AccessLocalDB.get_species"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.AccessLocalDB.get_species()</span></tt></a></td>
+</tr>
+<tr><td>1.97</td>
+<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.AccessRemoteDB.get_species()</span></tt></td>
 </tr>
 </tbody>
 </table>
@@ -440,8 +458,8 @@
 <h2>3.x Graphical User Interfaces<a class="headerlink" href="#x-graphical-user-interfaces" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="docutils">
 <colgroup>
-<col width="35%" />
-<col width="65%" />
+<col width="25%" />
+<col width="75%" />
 </colgroup>
 <thead valign="bottom">
 <tr><th class="head">Design Part #</th>
@@ -450,25 +468,25 @@
 </thead>
 <tbody valign="top">
 <tr><td>3.0</td>
-<td><cite>Select Analysis</cite></td>
+<td><a class="reference internal" href="user_manual.html#dialog-analysis-selection"><em>Select Analysis</em></a></td>
 </tr>
 <tr><td>3.1</td>
-<td><cite>Select Locations</cite></td>
+<td><a class="reference internal" href="user_manual.html#dialog-loc-selection"><em>Select Locations</em></a></td>
 </tr>
 <tr><td>3.2</td>
-<td><cite>Select Species</cite></td>
+<td><a class="reference internal" href="user_manual.html#dialog-spe-selection"><em>Select Species</em></a></td>
 </tr>
 <tr><td>3.3</td>
-<td><cite>Analysis Report</cite></td>
+<td><a class="reference internal" href="user_manual.html#dialog-analysis-report"><em>Analysis Report</em></a></td>
 </tr>
 <tr><td>3.4</td>
-<td><cite>Change Data Source</cite></td>
+<td><a class="reference internal" href="user_manual.html#dialog-change-data-source"><em>Change Data Source</em></a></td>
 </tr>
 <tr><td>3.5</td>
-<td><cite>Define Plate Areas</cite></td>
+<td><a class="reference internal" href="user_manual.html#dialog-define-plate-areas"><em>Define Plate Areas</em></a></td>
 </tr>
 <tr><td>3.6</td>
-<td><cite>Progress Dialog</cite></td>
+<td><em class="xref std std-ref">Progress Dialog</em></td>
 </tr>
 </tbody>
 </table>
@@ -556,7 +574,10 @@
         <li class="right" >
           <a href="developer_guide.html" title="SETLyze Developer Guide"
              >previous</a> |</li>
+    <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li> 
       </ul>
     </div>

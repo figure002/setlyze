@@ -235,8 +235,10 @@ class Start(threading.Thread):
 
         # Path to the local database file.
         self.dbfile = setlyze.config.cfg.get('db-file')
+        # Create progress dialog handler.
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
         # Dictionary for the statistic test results.
-        self.statistics = {'wilcoxon':[], 'chi_squared':[]}
+        self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis2'))
@@ -267,9 +269,10 @@ class Start(threading.Thread):
         # display properly.
         time.sleep(0.5)
 
-        # The total number of times we update the progress dialog during
-        # the analysis.
-        self.total_steps = 10.0
+        # Set the total number of times we're going to update the progress
+        # dialog during the analysis.
+        total_steps = 10 + setlyze.config.cfg.get('test-repeats')
+        self.pdialog_handler.set_total_steps(total_steps)
 
         # Make an object that facilitates access to the database.
         self.db = setlyze.database.get_database_accessor()
@@ -284,14 +287,14 @@ class Start(threading.Thread):
         # Create log message.
         logging.info("\tCreating table with species spots...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(1/self.total_steps, "Creating table with species spots...")
+        self.pdialog_handler.increase("Creating table with species spots...")
         # Make a spots table for the selected species.
         self.db.set_species_spots(rec_ids, slot=0)
 
         # Create log message.
         logging.info("\tMaking plate IDs in species spots table unique...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(2/self.total_steps, "Making plate IDs in species spots table unique...")
+        self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
         # Make the plate IDs unique.
         n_plates_unique = self.db.make_plates_unique(slot=0)
         # Create log message.
@@ -300,7 +303,7 @@ class Start(threading.Thread):
         # Create log message.
         logging.info("\tSaving the positive spot totals for each plate...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(3/self.total_steps, "Saving the positive spot totals for each plate...")
+        self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
         # Save the positive spot totals for each plate to the database.
         skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
         # Create log message.
@@ -310,33 +313,37 @@ class Start(threading.Thread):
         # Create log message.
         logging.info("\tCalculating the intra-specific distances for the selected species...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(4/self.total_steps, "Calculating the intra-specific distances for the selected species...")
+        self.pdialog_handler.increase("Calculating the intra-specific distances for the selected species...")
         # Calculate the observed spot distances.
         self.calculate_distances_intra()
 
-        # Update progress dialog.
-        setlyze.std.update_progress_dialog(5/self.total_steps, "Calculating the expected distances for the selected species...")
         # Create log message.
-        logging.info("\tCalculating the expected distances for the selected species...")
-        # Generate random spots.
-        self.calculate_distances_intra_expected()
+        logging.info("\tPerforming statistical tests with %d repeats..." %
+            setlyze.config.cfg.get('test-repeats'))
+        # Update progress dialog.
+        self.pdialog_handler.increase("Performing statistical tests with %s repeats..." %
+            setlyze.config.cfg.get('test-repeats'))
+        # Perform the repeats for the statistical tests. This will repeatedly
+        # calculate the expected totals, so we'll use the expected totals
+        # of the last repeat as the results for the report dialog.
+        self.repeat_test(setlyze.config.cfg.get('test-repeats'))
 
         # Create log message.
         logging.info("\tPerforming statistical tests...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(6/self.total_steps, "Performing statistical tests...")
+        self.pdialog_handler.increase("Performing statistical tests...")
         # Performing the statistical tests.
         self.calculate_significance()
 
         # Create log message.
         logging.info("\tGenerating the analysis report...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(7/self.total_steps, "Generating the analysis report...")
+        self.pdialog_handler.increase("Generating the analysis report...")
         # Generate the report.
         self.generate_report()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(10/self.total_steps, "", autoclose=True)
+        self.pdialog_handler.increase("")
 
         # Emit the signal that the analysis has finished.
         # Note that the signal will be sent from a separate thread,
@@ -530,7 +537,8 @@ class Start(threading.Thread):
         # positive spots. The tests are performed separately for each
         # number in the list. Numbers starting with "-" means all records
         # with positive spots up to that number.
-        spot_totals = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,-24]
+        spot_totals = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+            23,24,-24]
 
         for n_spots in spot_totals:
             # Get both sets of distances from plates per total spot numbers.
@@ -569,7 +577,7 @@ class Start(threading.Thread):
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = setlyze.config.cfg.get('significance-confidence'),
+                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
                 conf_int = False)
 
             # Save the significance result.
@@ -580,7 +588,7 @@ class Start(threading.Thread):
                 'n': count_observed,
                 'method': sig_result['method'],
                 'alternative': sig_result['alternative'],
-                'conf_level': setlyze.config.cfg.get('significance-confidence'),
+                'conf_level': 1 - setlyze.config.cfg.get('alpha-level'),
                 'paired': False,
                 }
             data['results'] = {
@@ -626,6 +634,84 @@ class Start(threading.Thread):
             # Append the result to the list of results.
             self.statistics['chi_squared'].append(data)
 
+    def calculate_significance_for_repeats(self):
+        """TODO"""
+
+        spot_totals = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+            23,24,-24]
+
+        for n_spots in spot_totals:
+            # Check if this spots number is present in the statistics variable.
+            # If not, create it.
+            if n_spots not in self.statistics['repeats']:
+                self.statistics['repeats'][n_spots] = {'n_significant': 0,
+                    'n_attraction': 0, 'n_repulsion': 0}
+
+            # Get both sets of distances from plates per total spot numbers.
+            observed = self.db.get_distances_matching_spots_total(
+                'spot_distances_observed', n_spots)
+            expected = self.db.get_distances_matching_spots_total(
+                'spot_distances_expected', n_spots)
+
+            # Iterators cannot be used directly by RPy, so convert them to
+            # lists first.
+            observed = list(observed)
+            expected = list(expected)
+
+            # Perform a consistency check. The number of observed and
+            # expected spot distances must always be the same.
+            count_observed = len(observed)
+            count_expected = len(expected)
+            if count_observed != count_expected:
+                raise ValueError("Number of observed and expected spot "
+                    "distances are not equal. This indicates a bug "
+                    "in the application.")
+
+            # A minimum of 2 observed distances is required for the
+            # significance test. So skip this spots number if it's less.
+            if count_observed < 2:
+                continue
+
+            # Calculate the means.
+            mean_observed = setlyze.std.mean(observed)
+            mean_expected = setlyze.std.mean(expected)
+
+            # Perform two sample Wilcoxon tests.
+            sig_result = setlyze.std.wilcox_test(observed, expected,
+                alternative = "two.sided", paired = False,
+                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_int = False)
+
+            # Save basic results for this repeated test.
+            # Check if the result was significant (P-value < alpha-level).
+            p_value = float(sig_result['p.value'])
+            if p_value < setlyze.config.cfg.get('alpha-level') and p_value != 'nan':
+                # If so, increase significant counter with one.
+                self.statistics['repeats'][n_spots]['n_significant'] += 1
+
+                # If significant, also check if there is preference or
+                # rejection for this plate area.
+                if mean_observed < mean_expected:
+                    # Increase attracion counter with one.
+                    self.statistics['repeats'][n_spots]['n_attraction'] += 1
+                else:
+                    # Increase repulsion counter with one.
+                    self.statistics['repeats'][n_spots]['n_repulsion'] += 1
+
+    def repeat_test(self, number):
+        """Repeat the siginificance test `number` times."""
+
+        for i in range(number):
+            # Update the progess bar.
+            self.pdialog_handler.increase()
+
+            # The expected spot distances are random. So the expected values
+            # differ a little on each repeat.
+            self.calculate_distances_intra_expected()
+
+            # And then we calculate the siginificance for each repeat.
+            self.calculate_significance_for_repeats()
+
     def generate_report(self):
         """Generate the analysis report.
 
@@ -637,16 +723,17 @@ class Start(threading.Thread):
         report.set_species_selections()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(8/self.total_steps, "Generating the analysis report...")
+        self.pdialog_handler.increase("Generating the analysis report...")
 
         report.set_spot_distances_observed()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(9/self.total_steps, "Generating the analysis report...")
+        self.pdialog_handler.increase("Generating the analysis report...")
 
         report.set_spot_distances_expected()
 
         report.set_statistics('wilcoxon_spots', self.statistics['wilcoxon'])
+        report.set_statistics_repeats('wilcoxon_spots', self.statistics['repeats'])
         report.set_statistics('chi_squared_spots', self.statistics['chi_squared'])
 
         # Create a global link to the report.

@@ -144,6 +144,7 @@ class MakeLocalDB(threading.Thread):
         self.cursor = None
         self.connection = None
         self.dbfile = setlyze.config.cfg.get('db-file')
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
 
     def run(self):
         """Decide based on the configuration variables which functions
@@ -202,9 +203,9 @@ class MakeLocalDB(threading.Thread):
         # If data_source is not set to "csv-msaccess", the required data
         # files are probably not set by the user yet. ChangeDataSource
         # must be called first.
-        if setlyze.config.cfg.get('data-source') != "csv-msaccess":
-            logging.error("Cannot run database.MakeLocalDB.insert_from_csv() while 'data-source' is set to '%s'" % setlyze.config.cfg.get('data-source'))
-            sys.exit(1)
+        if setlyze.config.cfg.get('data-source') != 'csv-msaccess':
+            raise ValueError("Cannot run this function while 'data-source' is "
+                "set to '%s'." % setlyze.config.cfg.get('data-source'))
 
         # First, create a new database file.
         self.create_new_db()
@@ -216,37 +217,30 @@ class MakeLocalDB(threading.Thread):
         # Add some meta-data to a separate table in the local database.
         # Add the data source we can figure out what kind of data is
         # present.
-        self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)", ( setlyze.config.cfg.get('data-source'), ) )
+        self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)",
+            ( setlyze.config.cfg.get('data-source'), ) )
         # Also insert the data of creation, so we can give the user an
         # indication when this database was created.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
 
-        # Insert the data from the CSV files into the local database.
-        setlyze.std.update_progress_dialog(0.0,
-            "Importing %s" % os.path.split(setlyze.config.cfg.get('localities-file'))[1]
-            )
+        # Set the total number of times we're going to update the progress
+        # dialog.
+        self.pdialog_handler.set_total_steps(4)
 
+        # Insert the data from the CSV files into the local database.
+        self.pdialog_handler.set_action("Importing %s" % os.path.split(setlyze.config.cfg.get('localities-file'))[1])
         self.insert_localities_from_csv()
 
-        setlyze.std.update_progress_dialog(0.25,
-            "Importing %s" % os.path.split(setlyze.config.cfg.get('plates-file'))[1]
-            )
-
+        self.pdialog_handler.increase("Importing %s" % os.path.split(setlyze.config.cfg.get('plates-file'))[1])
         self.insert_plates_from_csv()
 
-        setlyze.std.update_progress_dialog(0.50,
-            "Importing %s" % os.path.split(setlyze.config.cfg.get('records-file'))[1]
-            )
-
+        self.pdialog_handler.increase("Importing %s" % os.path.split(setlyze.config.cfg.get('records-file'))[1])
         self.insert_records_from_csv()
 
-        setlyze.std.update_progress_dialog(0.75,
-            "Importing %s" % os.path.split(setlyze.config.cfg.get('species-file'))[1]
-            )
-
+        self.pdialog_handler.increase("Importing %s" % os.path.split(setlyze.config.cfg.get('species-file'))[1])
         self.insert_species_from_csv()
 
-        setlyze.std.update_progress_dialog(1.0)
+        self.pdialog_handler.increase("")
 
         # Close the connection with the database.
         self.cursor.close()
@@ -422,6 +416,10 @@ class MakeLocalDB(threading.Thread):
         """
         logging.info("Creating local database from SETL database...")
 
+        # Set the total number of times we're going to update the progress
+        # dialog.
+        self.pdialog_handler.set_total_steps(2)
+
         # First, create a new database file.
         self.create_new_db()
 
@@ -429,17 +427,19 @@ class MakeLocalDB(threading.Thread):
         self.connection = sqlite.connect(self.dbfile)
         self.cursor = self.connection.cursor()
 
-        setlyze.std.update_progress_dialog(0.0)
+        # Update progress dialog.
+        self.pdialog_handler.increase()
 
         # Next time we run the tool, we'll know what data is in the
         # database.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)", (setlyze.config.cfg.get('data-source'),) )
         self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
 
-        # TODO: Insert data from SETL database.
-        logging.info("Inserting data from the SETL database into local database...")
+        # TODO: Actually insert data from SETL database.
+        logging.info("Loading data from the remote SETL database...")
 
-        setlyze.std.update_progress_dialog(1.0)
+        # Update progress dialog.
+        self.pdialog_handler.increase()
 
         # Close the connection with the database.
         self.cursor.close()

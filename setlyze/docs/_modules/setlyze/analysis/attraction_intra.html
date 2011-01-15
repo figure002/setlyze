@@ -35,7 +35,10 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+    <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
@@ -51,7 +54,7 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing SETL data.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -66,6 +69,39 @@
 <span class="c">#  You should have received a copy of the GNU General Public License</span>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 
+<span class="sd">&quot;&quot;&quot;This module performs analysis 2 &quot;Attraction of species (intra-</span>
+<span class="sd">specific)&quot;. This analysis can be broken down in the following steps:</span>
+
+<span class="sd">1. Show a list of all localities and let the user perform a localities</span>
+<span class="sd">   selection.</span>
+
+<span class="sd">2. Show a list of all species that match the locations selection and</span>
+<span class="sd">   let the user perform a species selection.</span>
+
+<span class="sd">3. Get all SETL records that match the localities+species selection and</span>
+<span class="sd">   save these to table &quot;species_spots_1&quot; in the local database.</span>
+
+<span class="sd">4. Merge records with the same plate ID in the species spots table to</span>
+<span class="sd">   make the plate IDs unique.</span>
+
+<span class="sd">5. Calculate the intra-specific spot distances from the records in the</span>
+<span class="sd">   species spots table and save the distances to table</span>
+<span class="sd">   &quot;spot_distances_observed&quot; in the local database.</span>
+
+<span class="sd">6. Calculate expected intra-specific spot distances by generating</span>
+<span class="sd">   random spots and save the distances to table</span>
+<span class="sd">   &quot;spot_distances_expected&quot; in the local database.</span>
+
+<span class="sd">7. Calculate the significance in difference between the observed and</span>
+<span class="sd">   expected spot distances. Two tests of significance are performed:</span>
+<span class="sd">   the Wilcoxon signed-rank test and the Chi-squared test.</span>
+
+<span class="sd">8. Generate the anayslis report.</span>
+
+<span class="sd">9. Show the analysis report to the user.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">math</span>
@@ -74,7 +110,6 @@
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">from</span> <span class="nn">sqlite3</span> <span class="kn">import</span> <span class="n">dbapi2</span> <span class="k">as</span> <span class="n">sqlite</span>
 
-<span class="kn">import</span> <span class="nn">gtk</span>
 <span class="kn">import</span> <span class="nn">gobject</span>
 
 <span class="kn">import</span> <span class="nn">setlyze.locale</span>
@@ -85,25 +120,31 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Jonathan den Boer, Serrano Pereira&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/09/22&quot;</span>
 
 <div class="viewcode-block" id="Begin"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin">[docs]</a><span class="k">class</span> <span class="nc">Begin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Make all the preparations for analysis 2.1:</span>
-<span class="sd">    * Let the user select the locations.</span>
-<span class="sd">    * Let the user select the species.</span>
+    <span class="sd">&quot;&quot;&quot;Make the preparations for analysis 2:</span>
 
-<span class="sd">    When done, start the analysis.</span>
+<span class="sd">    1. Show a list of all localities and let the user perform a localities</span>
+<span class="sd">       selection.</span>
+
+<span class="sd">    2. Show a list of all species that match the locations selection and</span>
+<span class="sd">       let the user perform a species selection.</span>
+
+<span class="sd">    3. Start the analysis.</span>
+
+<span class="sd">    4. Show the analysis report to the user.</span>
 
 <span class="sd">    Design Part: 1.4.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c"># Create log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Beginning </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.1&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Beginning Analysis 2 </span><span class="se">\&quot;</span><span class="s">Attraction of species (intra-specific)</span><span class="se">\&quot;</span><span class="s">&quot;</span><span class="p">)</span>
 
         <span class="c"># Bind handles to application signals.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">handle_application_signals</span><span class="p">()</span>
@@ -114,9 +155,6 @@
 
         <span class="c"># Emit the signal that we are beginning with an analysis.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Leaving </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.1&#39;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Begin.handle_application_signals"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin.handle_application_signals">[docs]</a>    <span class="k">def</span> <span class="nf">handle_application_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Respond to signals emitted by the application.&quot;&quot;&quot;</span>
@@ -150,32 +188,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">handler7</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;report-dialog-closed&#39;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">)</span>
 
-        <span class="c"># Display the report after the progress dialog for the analysis</span>
-        <span class="c"># was closed. Warning: A progress dialog will also close when</span>
-        <span class="c"># the user decided to switch to a new data source in the</span>
-        <span class="c"># locations selection window, so disable this handler until the</span>
-        <span class="c"># analysis has started.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handler8</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;progress-dialog-closed&#39;</span><span class="p">,</span>
+        <span class="c"># Display the report after the analysis has finished.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler8</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-finished&#39;</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_display_report</span><span class="p">)</span>
-        <span class="c"># Block handler 8.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">handler_block</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler8</span><span class="p">)</span>
-
-        <span class="c"># Things to do when the analysis has started.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handler9</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-started&#39;</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_started</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Begin.on_analysis_started"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin.on_analysis_started">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_started</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Handle events that need to happen when the analysis has</span>
-<span class="sd">        started.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Unblock handler 8.</span>
-        <span class="n">sender</span><span class="o">.</span><span class="n">handler_unblock</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler8</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Begin.destroy_handler_connections"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin.destroy_handler_connections">[docs]</a>    <span class="k">def</span> <span class="nf">destroy_handler_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Disconnect all signal connections with signal handlers created</span>
+        <span class="sd">&quot;&quot;&quot;Disconnect all signal connections with signal handlers created</span>
 <span class="sd">        by this analysis.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler1</span><span class="p">)</span>
@@ -186,7 +204,6 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler6</span><span class="p">)</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler7</span><span class="p">)</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler8</span><span class="p">)</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler9</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Begin.on_analysis_closed"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin.on_analysis_closed">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Show the main window and destroy the handler connections.&quot;&quot;&quot;</span>
@@ -203,7 +220,7 @@
 <div class="viewcode-block" id="Begin.on_select_locations"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin.on_select_locations">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Display the window for selecting the locations.&quot;&quot;&quot;</span>
         <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectLocations</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">370</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.1&#39;</span><span class="p">))</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-locations&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;option-change-source&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
@@ -212,7 +229,7 @@
 <div class="viewcode-block" id="Begin.on_select_species"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin.on_select_species">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Display the window for selecting the species.&quot;&quot;&quot;</span>
         <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.1&#39;</span><span class="p">))</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
             <span class="p">)</span>
@@ -233,8 +250,7 @@
         <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Begin.on_display_report"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin.on_display_report">[docs]</a>    <span class="k">def</span> <span class="nf">on_display_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Display the report in a window.</span>
+        <span class="sd">&quot;&quot;&quot;Display the report in a window.</span>
 
 <span class="sd">        Design Part: 1.68</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -242,8 +258,25 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">DisplayReport</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="Start"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start">[docs]</a><span class="k">class</span> <span class="nc">Start</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Perform all the calculations for analysis 2.1.</span>
+    <span class="sd">&quot;&quot;&quot;Perform the calculations for analysis 2.</span>
+
+<span class="sd">    1. Get all SETL records that match the localities+species selection and</span>
+<span class="sd">       save these to a separate &quot;species spots table&quot; in the local database.</span>
+
+<span class="sd">    2. Merge records with the same plate ID in the species spots table to</span>
+<span class="sd">       make the plate IDs unique.</span>
+
+<span class="sd">    3. Calculate the intra-specific spot distances from the records in the</span>
+<span class="sd">       species spots table.</span>
+
+<span class="sd">    4. Calculate expected intra-specific spot distances by generating</span>
+<span class="sd">       random spots.</span>
+
+<span class="sd">    5. Calculate the significance in difference between the observed and</span>
+<span class="sd">       expected spot distances. Two tests of significance are performed:</span>
+<span class="sd">       the Wilcoxon signed-rank test and the Chi-squared test.</span>
+
+<span class="sd">    6. Generate the anayslis report.</span>
 
 <span class="sd">    Design Part: 1.4.2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -254,28 +287,28 @@
         <span class="c"># Path to the local database file.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">)</span>
         <span class="c"># Dictionary for the statistic test results.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;normality&#39;</span><span class="p">:[],</span> <span class="c"># Design Part: 2.36</span>
-                        <span class="s">&#39;significance&#39;</span><span class="p">:[]}</span> <span class="c"># Design Part: 2.37</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;wilcoxon&#39;</span><span class="p">:[],</span> <span class="s">&#39;chi_squared&#39;</span><span class="p">:[]}</span>
 
         <span class="c"># Create log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.1&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
 
         <span class="c"># Emit the signal that an analysis has started.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-started&#39;</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2.1&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
 
 <div class="viewcode-block" id="Start.run"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Call the necessary methods for the analysis in the right order:</span>
-<span class="sd">         * setlyze.database.AccessDB.get_record_ids</span>
-<span class="sd">         * setlyze.database.AccessDB.set_species_spots</span>
-<span class="sd">         * setlyze.database.AccessDB.make_plates_unique</span>
-<span class="sd">         * setlyze.database.AccessDB.remove_single_spot_plates</span>
-<span class="sd">         * self.calculate_distances_intra</span>
-<span class="sd">         * self.calculate_distances_expected</span>
-<span class="sd">         * self.generate_report</span>
+        <span class="sd">&quot;&quot;&quot;Call the necessary methods for the analysis in the right order:</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or</span>
+<span class="sd">              :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or</span>
+<span class="sd">              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`</span>
+<span class="sd">            * :meth:`calculate_distances_intra`</span>
+<span class="sd">            * :meth:`calculate_distances_intra_expected`</span>
+<span class="sd">            * :meth:`calculate_significance`</span>
+<span class="sd">            * :meth:`generate_report`</span>
 
 <span class="sd">        Design Part: 1.59</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -289,10 +322,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">=</span> <span class="mf">10.0</span>
 
         <span class="c"># Make an object that facilitates access to the database.</span>
-        <span class="n">accessdb</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">AccessDB</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">accessdb</span><span class="o">.</span><span class="n">db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">get_database_accessor</span><span class="p">()</span>
 
-        <span class="c"># Get the record IDs that match the selections.</span>
+        <span class="c"># Get the record IDs that match the localities+species selection.</span>
         <span class="n">locations_selection</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">species_selection</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">rec_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_record_ids</span><span class="p">(</span><span class="n">locations_selection</span><span class="p">,</span> <span class="n">species_selection</span><span class="p">)</span>
@@ -343,7 +375,7 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Performing statistical tests...&quot;</span><span class="p">)</span>
         <span class="c"># Update progress dialog.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">6</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Performing statistical tests...&quot;</span><span class="p">)</span>
-        <span class="c"># Performing the significance test.</span>
+        <span class="c"># Performing the statistical tests.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calculate_significance</span><span class="p">()</span>
 
         <span class="c"># Create log message.</span>
@@ -355,14 +387,16 @@
 
         <span class="c"># Update progress dialog.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">10</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">autoclose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
         <span class="c"># Emit the signal that the analysis has finished.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;analysis-finished&#39;</span><span class="p">)</span>
+        <span class="c"># Note that the signal will be sent from a separate thread,</span>
+        <span class="c"># so we must use gobject.idle_add.</span>
+        <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;analysis-finished&#39;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="Start.calculate_distances_intra"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.calculate_distances_intra">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_distances_intra</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the intra-specific distances for each plate in the</span>
-<span class="sd">        species_spots table and save the distances to a table in</span>
-<span class="sd">        the local database.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the intra-specific spot distances for each plate</span>
+<span class="sd">        in the species_spots table and save the distances to the</span>
+<span class="sd">        spot_distances_observed table in the local database.</span>
 
 <span class="sd">        Design Part: 1.22</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -401,15 +435,9 @@
                 <span class="c"># v = vertical difference.</span>
                 <span class="n">h</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span><span class="p">)</span>
 
-                <span class="c"># Use the differences to get the corresponding spot</span>
-                <span class="c"># distance from the spot_distances table.</span>
-                <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT distance &quot;</span>
-                                 <span class="s">&quot;FROM spot_distances &quot;</span>
-                                 <span class="s">&quot;WHERE delta_x = ? &quot;</span>
-                                 <span class="s">&quot;AND delta_y = ?&quot;</span><span class="p">,</span>
-                                 <span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">))</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">cursor2</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c"># Use the h/v differences to calculate the corresponding spot</span>
+                <span class="c"># distance.</span>
+                <span class="n">distance</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
 
                 <span class="c"># Save the observed spot distances to the database.</span>
                 <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO spot_distances_observed &quot;</span>
@@ -426,9 +454,9 @@
         <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Start.calculate_distances_intra_expected"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_distances_intra_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate the expected distances based on the observed distances</span>
-<span class="sd">        and save these to a table in the local database.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the expected spot distances based on the observed</span>
+<span class="sd">        spot distances and save these to the spot_distances_expected</span>
+<span class="sd">        table in the local database.</span>
 
 <span class="sd">        Design Part: 1.23</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -465,16 +493,9 @@
                 <span class="c"># v = vertical difference.</span>
                 <span class="n">h</span><span class="p">,</span><span class="n">v</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_spot_position_difference</span><span class="p">(</span><span class="n">spot1</span><span class="p">,</span><span class="n">spot2</span><span class="p">)</span>
 
-                <span class="c"># Use the differences to get the corresponding spot</span>
-                <span class="c"># distance from the spot_distances table.</span>
-                <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT distance &quot;</span>
-                                 <span class="s">&quot;FROM spot_distances &quot;</span>
-                                 <span class="s">&quot;WHERE delta_x = ? &quot;</span>
-                                 <span class="s">&quot;AND delta_y = ?&quot;</span><span class="p">,</span>
-                                 <span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
-                                 <span class="p">)</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">cursor2</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-                <span class="n">distance</span> <span class="o">=</span> <span class="n">distance</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="c"># Use the h/v differences to calculate the corresponding spot</span>
+                <span class="c"># distance.</span>
+                <span class="n">distance</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">v</span><span class="p">)</span>
 
                 <span class="c"># Save the observed spot distances to the database.</span>
                 <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO spot_distances_expected &quot;</span>
@@ -495,42 +516,62 @@
 <span class="sd">        the means of the two sets of distances are statistically</span>
 <span class="sd">        significant.</span>
 
-<span class="sd">        First we do a normality test on the observed distances. Based on</span>
-<span class="sd">        this result, we will either use the t-test (normality true) or</span>
-<span class="sd">        the Wilcoxon test (normality false).</span>
+<span class="sd">        We perform two statistical tests:</span>
 
-<span class="sd">        We perform an unpaired two-sample T-test. We use unpaired</span>
-<span class="sd">        because the two sets of distances are unrelated. In other words,</span>
-<span class="sd">        a distance n in &#39;observed&#39; is unrelated to distance n in</span>
-<span class="sd">        &#39;expected&#39; (where n is an item number in the lists).</span>
+<span class="sd">        1. The unpaired Wilcoxon rank sum test. We use unpaired</span>
+<span class="sd">           because the two sets of distances are unrelated</span>
+<span class="sd">           (:ref:`P. Dalgaard &lt;ref-dalgaard&gt;`). In other words,</span>
+<span class="sd">           a distance n in &#39;observed&#39; is unrelated to distance n in</span>
+<span class="sd">           &#39;expected&#39; (where n is an item number in the lists).</span>
 
-<span class="sd">        Null hypothesis:</span>
-<span class="sd">            The means of the two sets of distances are</span>
-<span class="sd">            equal. The specie in question doesn&#39;t attract or repel itself.</span>
-<span class="sd">        Alternative hypothesis:</span>
-<span class="sd">            The means of the two sets of distances</span>
-<span class="sd">            are not equal. The specie in question attracts (mean</span>
-<span class="sd">            observed &lt; mean expected) or repels (mean observed &gt;</span>
-<span class="sd">            mean expected) itself.</span>
+<span class="sd">        2. The Chi-squared test for given probabilities</span>
+<span class="sd">           (:ref:`N. Millar &lt;ref-dalgaard&gt;`,</span>
+<span class="sd">           :ref:`P. Dalgaard &lt;ref-millar&gt;`). The probabilities</span>
+<span class="sd">           for all spot distances have been pre-calcualted. So the</span>
+<span class="sd">           observed probabilities are compared with the pre-calculated</span>
+<span class="sd">           probabilities.</span>
 
-<span class="sd">        The decision is based on the P-value calculated by the test:</span>
-<span class="sd">        P &gt;= alpha level: Null hypothesis.</span>
-<span class="sd">        P &lt; alpha level: Alternative hypothesis.</span>
+<span class="sd">        Based on the results of the tests we can decide which</span>
+<span class="sd">        hypothesis we can assume to be true.</span>
 
-<span class="sd">        The default value for the alpha level is 0.05 (5%).</span>
-<span class="sd">        The default value for the confidence level is 0.95 (95%).</span>
+<span class="sd">        Null hypothesis</span>
+<span class="sd">            The species in question doesn&#39;t attract or repel itself.</span>
 
-<span class="sd">        A high number of positive spots on a plate will of course lead</span>
-<span class="sd">        to a high P-value. These plates will negatively affect the</span>
-<span class="sd">        result of statistical test. To account for this, the tests</span>
-<span class="sd">        are performed multiple times. Instead of doing one test on all</span>
-<span class="sd">        plates, we sort the plates based on the number of positive spots</span>
-<span class="sd">        they contain. This results in 24 groups (2 to 25 spots). And we</span>
-<span class="sd">        perform the test on each of these groups.</span>
+<span class="sd">        Alternative hypothesis</span>
+<span class="sd">            The species in question attracts (mean observed &lt; mean</span>
+<span class="sd">            expected) or repels (mean observed &gt; mean expected) itself.</span>
 
-<span class="sd">        References:</span>
-<span class="sd">        1. N. Millar, Biology statistics made simple using Excel, School Science Review, December 2001, 83(303).</span>
-<span class="sd">        2. P. Dalgaard, Introductory Statistics with R, DOI: 10.1007 / 978-0-387-79054-1_1.</span>
+<span class="sd">        The decision is based on the p-value calculated by the test:</span>
+
+<span class="sd">        P &gt;= alpha level</span>
+<span class="sd">            Assume that the null hypothesis is true.</span>
+
+<span class="sd">        P &lt; alpha level</span>
+<span class="sd">            Assume that the alternative hypothesis is true.</span>
+
+<span class="sd">        The default value for the alpha level is 0.05 (5%). In biology</span>
+<span class="sd">        we usually assume that differences are significant if P has</span>
+<span class="sd">        a value less than 5% (:ref:`N. Millar &lt;ref-dalgaard&gt;`).</span>
+
+<span class="sd">        The default value for the confidence level is 0.95 (95%). So</span>
+<span class="sd">        there is a 95% probability that the true mean lies within the</span>
+<span class="sd">        range of the confidence interval.</span>
+
+<span class="sd">        A high number of positive spots on a plate will naturally lead</span>
+<span class="sd">        to a high p-value (not significant). These plates will</span>
+<span class="sd">        negatively affect the result of statistical test. To account</span>
+<span class="sd">        for this, the tests are performed on groups of plates. Instead of</span>
+<span class="sd">        doing one test on all plates, we group the plates based on the</span>
+<span class="sd">        number of positive spots they contain.</span>
+
+<span class="sd">        Both tests are performed on each group. Plates of group 1 and 25</span>
+<span class="sd">        are not tested. We skip group 1 because it is not possible to</span>
+<span class="sd">        calculate spot distances for plates with just one positive spot.</span>
+<span class="sd">        Plates of group 25 are ignored because this will always result</span>
+<span class="sd">        in a p-value of 1 as a result of equal observed and expected</span>
+<span class="sd">        spot distances.</span>
+
+<span class="sd">        Both tests are also performed on groups 2-24 taken together.</span>
 
 <span class="sd">        Design Part: 1.24</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -540,113 +581,107 @@
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">cursor2</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
-        <span class="k">for</span> <span class="n">n_spots</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">27</span><span class="p">):</span>
-            <span class="c"># Of course, there are just 25 spots, so when we find</span>
-            <span class="c"># n_spots=-1, take all distances.</span>
-            <span class="k">if</span> <span class="n">n_spots</span> <span class="o">==</span> <span class="mi">26</span><span class="p">:</span>
-                <span class="n">n_spots</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c"># Perform the tests for records that have a specific number of</span>
+        <span class="c"># positive spots. The tests are performed separately for each</span>
+        <span class="c"># number in the list. Numbers starting with &quot;-&quot; means all records</span>
+        <span class="c"># with positive spots up to that number.</span>
+        <span class="n">spot_totals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">24</span><span class="p">,</span><span class="o">-</span><span class="mi">24</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">n_spots</span> <span class="ow">in</span> <span class="n">spot_totals</span><span class="p">:</span>
+            <span class="c"># As you can see</span>
 
             <span class="c"># Get both sets of distances from plates per total spot numbers.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span> <span class="s">&#39;spot_distances_observed&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span><span class="n">cursor2</span><span class="p">,</span> <span class="s">&#39;spot_distances_expected&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span>
+                <span class="s">&#39;spot_distances_observed&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span><span class="n">cursor2</span><span class="p">,</span>
+                <span class="s">&#39;spot_distances_expected&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
 
-            <span class="c"># Create vectors for the distances so we can use it in</span>
-            <span class="c"># a R object.</span>
+            <span class="c"># Create lists for the distances so we can use it for the R</span>
+            <span class="c"># functions.</span>
             <span class="n">observed</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">]</span>
             <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cursor2</span><span class="p">]</span>
 
-            <span class="c"># We can&#39;t continue if the total distances for this</span>
-            <span class="c"># positive spots number is less than 2. So skip this</span>
-            <span class="c"># spots number.</span>
+            <span class="c"># Perform a consistency test. The number of observed and</span>
+            <span class="c"># expected distances must always be the same.</span>
             <span class="n">count_observed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+            <span class="n">count_expected</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">count_observed</span> <span class="o">!=</span> <span class="n">count_expected</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Number of observed and expected &quot;</span>
+                    <span class="s">&quot;distances are not equal. This indicates a bug &quot;</span>
+                    <span class="s">&quot;in the application.&quot;</span><span class="p">)</span>
+
+            <span class="c"># A minimum of 2 observed distances is required for the</span>
+            <span class="c"># significance test. So skip this spots number if it&#39;s less.</span>
             <span class="k">if</span> <span class="n">count_observed</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="k">continue</span>
 
             <span class="c"># Calculate the means.</span>
-            <span class="n">mean_observed</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
-            <span class="n">mean_expected</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+            <span class="n">mean_observed</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+            <span class="n">mean_expected</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
 
             <span class="c"># Get the number of plates found that match the current</span>
             <span class="c"># number of positive spots.</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT COUNT(pla_id) &quot;</span>
-                            <span class="s">&quot;FROM plate_spot_totals &quot;</span>
-                            <span class="s">&quot;WHERE n_spots_a = ?&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">n_spots</span><span class="p">])</span>
-            <span class="n">n_plates</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">n_plates</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">get_plates_total_matching_spots_total</span><span class="p">(</span><span class="n">n_spots</span><span class="p">)</span>
 
-            <span class="c"># Perform the normality test.</span>
-            <span class="n">normality_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">shapiro_test</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+            <span class="c"># Perform two sample Wilcoxon tests.</span>
+            <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
+                <span class="n">alternative</span> <span class="o">=</span> <span class="s">&quot;two.sided&quot;</span><span class="p">,</span> <span class="n">paired</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+                <span class="n">conf_level</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">),</span>
+                <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
 
-            <span class="c"># Save the normality result.</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="n">result</span><span class="p">[</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="c"># Save the significance result.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">data</span><span class="p">[</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;n_positive_spots&#39;</span><span class="p">:</span> <span class="n">n_spots</span><span class="p">,</span>
-                <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">normality_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
+                <span class="s">&#39;n_plates&#39;</span><span class="p">:</span> <span class="n">n_plates</span><span class="p">,</span>
                 <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="n">count_observed</span><span class="p">,</span>
+                <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
+                <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
+                <span class="s">&#39;conf_level&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">),</span>
+                <span class="s">&#39;paired&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
                 <span class="p">}</span>
-            <span class="n">result</span><span class="p">[</span><span class="s">&#39;items&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">normality_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
-                <span class="s">&#39;w&#39;</span><span class="p">:</span> <span class="n">normality_result</span><span class="p">[</span><span class="s">&#39;statistic&#39;</span><span class="p">][</span><span class="s">&#39;W&#39;</span><span class="p">],</span>
+            <span class="n">data</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
+                <span class="s">&#39;mean_observed&#39;</span><span class="p">:</span> <span class="n">mean_observed</span><span class="p">,</span>
+                <span class="s">&#39;mean_expected&#39;</span><span class="p">:</span> <span class="n">mean_expected</span><span class="p">,</span>
+                <span class="s">&#39;conf_int_start&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s">&#39;conf_int_end&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
                 <span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;normality&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-
-            <span class="c"># Decide which significance test to use based on the</span>
-            <span class="c"># result of the normality test. If P-value &gt; alpha, then</span>
-            <span class="c"># normality is True.</span>
-            <span class="k">if</span> <span class="n">normality_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;normality-alpha&#39;</span><span class="p">):</span>
-                <span class="c"># Perform the Welch two sample T-test, which assumes</span>
-                <span class="c"># the data has a normal distribution.</span>
-                <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">t_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
-                    <span class="n">alternative</span><span class="o">=</span><span class="s">&quot;two.sided&quot;</span><span class="p">,</span> <span class="n">paired</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
-                    <span class="n">conf_level</span><span class="o">=</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">))</span>
-
-                <span class="c"># Save the significance result.</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">result</span><span class="p">[</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&#39;n_positive_spots&#39;</span><span class="p">:</span> <span class="n">n_spots</span><span class="p">,</span>
-                    <span class="s">&#39;n_plates&#39;</span><span class="p">:</span> <span class="n">n_plates</span><span class="p">,</span>
-                    <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="n">count_observed</span><span class="p">,</span>
-                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;conf_level&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">),</span>
-                    <span class="s">&#39;paired&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="n">result</span><span class="p">[</span><span class="s">&#39;items&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;t&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;statistic&#39;</span><span class="p">][</span><span class="s">&#39;t&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;mean_observed&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;estimate&#39;</span><span class="p">][</span><span class="s">&#39;mean of x&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;mean_expected&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;estimate&#39;</span><span class="p">][</span><span class="s">&#39;mean of y&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;df&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;parameter&#39;</span><span class="p">][</span><span class="s">&#39;df&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;conf_int_start&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="s">&#39;conf_int_end&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
-                    <span class="p">}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c"># Perform two sample Wilcoxon tests.</span>
-                <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
-                    <span class="n">alternative</span> <span class="o">=</span> <span class="s">&quot;two.sided&quot;</span><span class="p">,</span> <span class="n">paired</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
-                    <span class="n">conf_level</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">),</span>
-                    <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
-
-                <span class="c"># Save the significance result.</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
-                <span class="n">result</span><span class="p">[</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&#39;n_positive_spots&#39;</span><span class="p">:</span> <span class="n">n_spots</span><span class="p">,</span>
-                    <span class="s">&#39;n_plates&#39;</span><span class="p">:</span> <span class="n">n_plates</span><span class="p">,</span>
-                    <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="n">count_observed</span><span class="p">,</span>
-                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;conf_level&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">),</span>
-                    <span class="s">&#39;paired&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="n">result</span><span class="p">[</span><span class="s">&#39;items&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;mean_observed&#39;</span><span class="p">:</span> <span class="n">mean_observed</span><span class="p">,</span>
-                    <span class="s">&#39;mean_expected&#39;</span><span class="p">:</span> <span class="n">mean_expected</span><span class="p">,</span>
-                    <span class="s">&#39;conf_int_start&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-                    <span class="s">&#39;conf_int_end&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
-                    <span class="p">}</span>
 
             <span class="c"># Append the result to the list of results.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;significance&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+            <span class="c"># Get the probability for each spot distance. Required for</span>
+            <span class="c"># the Chi-squared test.</span>
+            <span class="n">spot_dist_to_prob</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;spot-dist-to-prob-intra&#39;</span><span class="p">)</span>
+
+            <span class="c"># Get the frequencies for the observed distances. These</span>
+            <span class="c"># are required for the Chi-squared test.</span>
+            <span class="n">observed_freq</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">distance_frequency</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="s">&#39;intra&#39;</span><span class="p">)</span>
+
+            <span class="c"># Also perform Chi-squared test.</span>
+            <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">chisq_test</span><span class="p">(</span><span class="n">observed_freq</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+                <span class="n">p</span> <span class="o">=</span> <span class="n">spot_dist_to_prob</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+            <span class="c"># Save the significance result.</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">data</span><span class="p">[</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;n_positive_spots&#39;</span><span class="p">:</span> <span class="n">n_spots</span><span class="p">,</span>
+                <span class="s">&#39;n_plates&#39;</span><span class="p">:</span> <span class="n">n_plates</span><span class="p">,</span>
+                <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="n">count_observed</span><span class="p">,</span>
+                <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
+                <span class="p">}</span>
+            <span class="n">data</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;chi_squared&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;statistic&#39;</span><span class="p">][</span><span class="s">&#39;X-squared&#39;</span><span class="p">],</span>
+                <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
+                <span class="s">&#39;df&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;parameter&#39;</span><span class="p">][</span><span class="s">&#39;df&#39;</span><span class="p">],</span>
+                <span class="s">&#39;mean_observed&#39;</span><span class="p">:</span> <span class="n">mean_observed</span><span class="p">,</span>
+                <span class="s">&#39;mean_expected&#39;</span><span class="p">:</span> <span class="n">mean_expected</span><span class="p">,</span>
+                <span class="p">}</span>
+
+            <span class="c"># Append the result to the list of results.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
         <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -654,8 +689,7 @@
         <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Start.generate_report"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.generate_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Generate the analysis report and display the report in a</span>
-<span class="sd">        dialog.</span>
+        <span class="sd">&quot;&quot;&quot;Generate the analysis report.</span>
 
 <span class="sd">        Design Part: 1.14</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -674,12 +708,12 @@
 
         <span class="n">report</span><span class="o">.</span><span class="n">set_spot_distances_expected</span><span class="p">()</span>
 
-        <span class="n">report</span><span class="o">.</span><span class="n">set_statistics_normality</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;normality&#39;</span><span class="p">])</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">set_statistics_significance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;significance&#39;</span><span class="p">])</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;wilcoxon_spots&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon&#39;</span><span class="p">])</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;chi_squared_spots&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared&#39;</span><span class="p">])</span>
 
         <span class="c"># Create a global link to the report.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;analysis-report&#39;</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">get_report</span><span class="p">())</span>
-</pre></div></div></div>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;analysis-report&#39;</span><span class="p">,</span> <span class="n">report</span><span class="o">.</span><span class="n">get_report</span><span class="p">())</span></div></div>
+</pre></div>
 
           </div>
         </div>
@@ -715,7 +749,10 @@
         <li class="right" >
           <a href="../../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+    <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>

@@ -244,13 +244,18 @@ class SelectAnalysis(gtk.Window):
 
         # Create an about button.
         button_about = gtk.Button(stock=gtk.STOCK_ABOUT)
-        button_about.set_size_request(70, -1)
         button_about.connect("clicked", self.on_about)
+
+        # Create a settings button.
+        button_prefs = gtk.Button(stock=gtk.STOCK_PREFERENCES)
+        button_prefs.connect("clicked", self.on_preferences)
 
         # Put the buttons in a horizontal button box.
         button_box_l = gtk.HButtonBox()
         button_box_l.set_layout(gtk.BUTTONBOX_START)
+        button_box_l.set_spacing(5)
         button_box_l.pack_start(button_about, expand=True, fill=True, padding=0)
+        button_box_l.pack_start(button_prefs, expand=True, fill=True, padding=0)
 
         # Add the about button to the table.
         table.attach(button_box_l, left_attach=0, right_attach=1,
@@ -363,42 +368,12 @@ class SelectAnalysis(gtk.Window):
         """Close the application."""
         gtk.main_quit()
 
+    def on_preferences(self, widget, data=None):
+        Preferences()
+
     def on_about(self, widget, data=None):
         """Display SETLyze's about dialog."""
-        license = ("This program is free software: you can redistribute it and/or modify\n"
-            "it under the terms of the GNU General Public License as published by\n"
-            "the Free Software Foundation, either version 3 of the License, or\n"
-            "(at your option) any later version.\n\n"
-
-            "This program is distributed in the hope that it will be useful,\n"
-            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
-            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
-            "GNU General Public License for more details.\n\n"
-
-            "You should have received a copy of the GNU General Public License\n"
-            "along with this program.  If not, see http://www.gnu.org/licenses/")
-
-        logo_path = pkg_resources.resource_filename('setlyze',
-            '/images/setl-logo.png')
-        logo = gtk.gdk.pixbuf_new_from_file(logo_path)
-
-        about = gtk.AboutDialog()
-        about.set_position(gtk.WIN_POS_CENTER)
-        about.set_program_name("SETLyze")
-        about.set_version(__version__)
-        about.set_copyright("Copyright 2010, GiMaRIS")
-        about.set_authors(["Project Leader/Contact Person:\n"
-            "\tArjan Gittenberger <gittenberger@gimaris.com>",
-            "Application Developers:\n"
-            "\tJonathan den Boer",
-            "\tSerrano Pereira <serrano.pereira@gmail.com>"])
-        about.set_artists(["Serrano Pereira <serrano.pereira@gmail.com>"])
-        about.set_comments("A tool for analyzing the settlement of species.")
-        about.set_license(license)
-        about.set_website("http://www.gimaris.com/")
-        about.set_logo(logo)
-        about.run()
-        about.destroy()
+        About()
 
     def make_local_database(self):
         """Set a local database. If there's already a local database file
@@ -934,7 +909,7 @@ class SelectSpecies(SelectionWindow):
         # Notice text=2, which means that we let the column display the
         # attribute values for the cell renderer from column 2 in the
         # TreeModel. Column 2 contains the species names (latin).
-        column = gtk.TreeViewColumn("Species (latin)", renderer_text, text=2)
+        column = gtk.TreeViewColumn("Species (Latin)", renderer_text, text=2)
         # Sort on column 2 from the model.
         column.set_sort_column_id(2)
         column.set_sort_order(gtk.SORT_ASCENDING)
@@ -991,7 +966,7 @@ class DefinePlateAreas(gtk.Window):
     Design Part: 1.91
     """
 
-    def __init__(self, title="Define SETL-plate Areas"):
+    def __init__(self, title="Define SETL-plate Areas for Chi-squared Test"):
         super(DefinePlateAreas, self).__init__()
 
         self.set_title(title)
@@ -1359,7 +1334,7 @@ class DefinePlateAreas(gtk.Window):
                 # is useless, so show a warning.
                 dialog = gtk.MessageDialog(parent=None, flags=0,
                     type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                    message_format="Invalid spot definition")
+                    message_format="Invalid plate areas definition")
                 dialog.format_secondary_text( setlyze.locale.text('error-single-plate-area') )
                 dialog.set_position(gtk.WIN_POS_CENTER)
                 response = dialog.run()
@@ -1713,23 +1688,42 @@ class ProgressDialog(gtk.Window):
         setlyze.config.cfg.set('progress-dialog', pd)
 
     3) Edit the worker process to automatically update the progress
-       dialog. This is as easy as calling the custom update method
-       between the lines of your code, ::
+       dialog. You'll need the progress dialog handler for that. In your worker
+       class, create one like this: ::
 
-        setlyze.std.update_progress_dialog(0.0, "Calculating this...")
-        ...
-        setlyze.std.update_progress_dialog(0.5, "Calculating that...")
-        ...
-        setlyze.std.update_progress_dialog(1.0, "")
+            self.pdialog_handler = setlyze.std.ProgressDialogHandler()
 
-    4) Then start your worker process in a separate thread (if you're
-       new to threading, start with the
-       `threading documentation <http://docs.python.org/library/threading.html>`_) ::
+       Then you need to tell the handler how many times you're going to update
+       the progress dialog (the number of times you'll call the increase()
+       method): ::
 
-        t = MyClass()
+            self.pdialog_handler.set_total_steps(8)
+
+       Then call the increase() method in you worker class to update the
+       progress dialog. Notice that increase() will be called 8 times in the
+       example below (hence total steps was set to 8): ::
+
+            self.pdialog_handler.increase("Calculating this...")
+            some_heavy_function()
+
+            for x in range(5):
+                calculate_this()
+                self.pdialog_handler.increase()
+
+            self.pdialog_handler.increase("Calculating that...")
+
+            more_heavy_calculations()
+
+            self.pdialog_handler.increase("Finished!")
+
+    4) Then start your worker process in a separate thread (if you're new to
+       threading, start with the `threading documentation
+       <http://docs.python.org/library/threading.html>`_) ::
+
+        t = WorkerClass()
         t.start()
 
-    Then run your application and watch the progress bar grow.
+    Then run your application and watch the progress bar increase.
 
     Design Part: 1.92
     """
@@ -1804,7 +1798,7 @@ class ProgressDialog(gtk.Window):
 
         self.add(vbox)
 
-    def on_close(self, widget=None):
+    def on_close(self, widget=None, data=None):
         """Destroy the dialog."""
         self.destroy()
 
@@ -2015,7 +2009,13 @@ class DisplayReport(gtk.Window):
         if not self.reader.doc:
             return
 
+        # Get the names of all root report elements.
         report_elements = self.reader.get_child_names()
+
+        # Add the names of all statistics elements to the list of root
+        # elements.
+        statistics = self.reader.get_element(self.reader.doc, 'statistics')
+        report_elements.extend(self.reader.get_child_names(statistics))
 
         # Add a header with the analysis name.
         self.add_title_header()
@@ -2041,33 +2041,40 @@ class DisplayReport(gtk.Window):
                 'area_totals_expected' in report_elements:
             self.add_area_totals()
 
-        if 'statistics' in report_elements:
-            stats = self.reader.get_element(self.reader.doc, 'statistics')
-            elements = self.reader.get_child_names(stats)
+        if 'chi_squared_areas' in report_elements:
+            self.add_statistics_chisq_areas()
 
-            if 'normality' in elements:
+        if 'statistics' in report_elements:
+            if 'normality' in report_elements:
                 self.add_statistics_normality()
 
-            if 't_test' in elements:
+            if 't_test' in report_elements:
                 self.add_statistics_ttest()
 
-            if 'wilcoxon_spots' in elements:
+            if 'wilcoxon_spots' in report_elements:
                 self.add_statistics_wilcoxon_spots()
 
-            if 'wilcoxon_ratios' in elements:
+            if 'wilcoxon_spots_repeats' in report_elements:
+                self.add_statistics_repeats_spots('wilcoxon_spots', 'Wilcoxon')
+
+            if 'wilcoxon_ratios' in report_elements:
                 self.add_statistics_wilcoxon_ratios()
 
-            if 'wilcoxon_areas' in elements:
+            if 'wilcoxon_ratios_repeats' in report_elements:
+                self.add_statistics_repeats_ratios('wilcoxon_ratios', 'Wilcoxon')
+
+            if 'wilcoxon_areas' in report_elements:
                 self.add_statistics_wilcoxon_areas()
 
-            if 'chi_squared_spots' in elements:
+            if 'wilcoxon_areas_repeats' in report_elements:
+                self.add_statistics_repeats_areas('wilcoxon_areas', 'Wilcoxon')
+
+            if 'chi_squared_spots' in report_elements:
                 self.add_statistics_chisq_spots()
 
-            if 'chi_squared_ratios' in elements:
+            if 'chi_squared_ratios' in report_elements:
                 self.add_statistics_chisq_ratios()
 
-        if 'significance_test_repeats_areas' in report_elements:
-            self.add_statistics_repeats_areas()
 
     def add_title_header(self):
         """Add a header text to the report dialog.
@@ -2334,7 +2341,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Plate Areas Definition")
+        expander = gtk.Expander(setlyze.locale.text('t-plate-areas-definition'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2349,7 +2356,7 @@ class DisplayReport(gtk.Window):
         column = gtk.TreeViewColumn("Area ID", cell, text=0)
         tree.append_column(column)
 
-        column = gtk.TreeViewColumn("Plate Area Spots", cell, text=1)
+        column = gtk.TreeViewColumn("Plate Area Surfaces", cell, text=1)
         tree.append_column(column)
 
         # To store the data, we use the ListStore object.
@@ -2380,7 +2387,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Species Totals per Plate Area")
+        expander = gtk.Expander(setlyze.locale.text('t-plate-area-totals'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2429,7 +2436,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Wilcoxon rank-sum tests")
+        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2479,8 +2486,6 @@ class DisplayReport(gtk.Window):
                 float(items['p_value']),
                 float(items['mean_observed']),
                 float(items['mean_expected']),
-                #float(items['conf_int_start']),
-                #float(items['conf_int_end']),
                 remarks,
                 ])
 
@@ -2502,7 +2507,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Wilcoxon rank-sum tests")
+        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2516,7 +2521,7 @@ class DisplayReport(gtk.Window):
         # Add columns to the tree view.
         cell = gtk.CellRendererText()
 
-        column_names = ['Ratios Group','n (plates)',
+        column_names = ['Ratio Group','n (plates)',
             'n (distances)','P-value','Mean Observed','Mean Expected',
             'Remarks']
 
@@ -2552,8 +2557,6 @@ class DisplayReport(gtk.Window):
                 float(items['p_value']),
                 float(items['mean_observed']),
                 float(items['mean_expected']),
-                #float(items['conf_int_start']),
-                #float(items['conf_int_end']),
                 remarks,
                 ])
 
@@ -2575,7 +2578,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Wilcoxon rank-sum tests (non-repeated)")
+        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2589,8 +2592,9 @@ class DisplayReport(gtk.Window):
         # Add columns to the tree view.
         cell = gtk.CellRendererText()
 
-        column_names = ['Plate Area','n (sp. encounters)','P-value',
-            'Mean Observed','Mean Expected','Remarks']
+        column_names = ['Plate Area','n (totals)','n (observed species)',
+            'n (expected species)', 'P-value','Mean Observed','Mean Expected',
+            'Remarks']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -2600,6 +2604,8 @@ class DisplayReport(gtk.Window):
         # To store the data, we use the ListStore object.
         liststore = gtk.ListStore(
             gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
             gobject.TYPE_INT,
             gobject.TYPE_FLOAT,
             gobject.TYPE_FLOAT,
@@ -2613,12 +2619,14 @@ class DisplayReport(gtk.Window):
         for attr,items in statistics:
             # Create a remarks string which allows for easy recognition
             # of interesting results.
-            remarks = make_remarks(items,attr,conclusions=('Rejection','Preference'))
+            remarks = make_remarks(items,attr)
 
             # Add all result items to the tree model.
             liststore.append([
-                attr['area_group'],
+                attr['plate_area'],
                 int(attr['n']),
+                int(attr['n_sp_observed']),
+                int(attr['n_sp_expected']),
                 float(items['p_value']),
                 float(items['mean_observed']),
                 float(items['mean_expected']),
@@ -2643,7 +2651,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Pearson's Chi-squared Tests for Count Data")
+        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2709,6 +2717,69 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
+    def add_statistics_chisq_areas(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 100)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['P-value','Chi squared','df','Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_INT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('chi_squared_areas')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = make_remarks(items,attr)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                float(items['p_value']),
+                float(items['chi_squared']),
+                float(items['df']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
     def add_statistics_chisq_ratios(self):
         """Add the statistic results to the report dialog."""
 
@@ -2718,7 +2789,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Pearson's Chi-squared Tests for Count Data")
+        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2732,9 +2803,9 @@ class DisplayReport(gtk.Window):
         # Add columns to the tree view.
         cell = gtk.CellRendererText()
 
-        column_names = ['Ratios Group','n (plates)',
+        column_names = ('Ratio Group','n (plates)',
             'n (distances)','P-value','Chi squared','df',
-            'Mean Observed','Mean Expected','Remarks']
+            'Mean Observed','Mean Expected','Remarks')
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -2793,7 +2864,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Results for Shapiro-Wilk tests of normality")
+        expander = gtk.Expander(setlyze.locale.text('t-results-shapiro-wilk'))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2849,7 +2920,7 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_repeats_areas(self):
+    def add_statistics_repeats_areas(self, element_name, testname):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2858,7 +2929,7 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Significance results for repeated Wilcoxon rank-sum tests")
+        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2872,8 +2943,9 @@ class DisplayReport(gtk.Window):
         # Add columns to the tree view.
         cell = gtk.CellRendererText()
 
-        column_names = ['Plate Area','n (sp. encounters)','n (significant)',
-            'n (non-significant)']
+        column_names = ['Plate Area','n (totals)','n (observed species)',
+            'n (significant)','n (non-significant)','n (preference)',
+            'n (rejection)']
 
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, cell, text=i)
@@ -2886,19 +2958,25 @@ class DisplayReport(gtk.Window):
             gobject.TYPE_INT,
             gobject.TYPE_INT,
             gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
             )
 
-        # Add the distances to the model.
-        statistics = self.reader.get_statistics('wilcoxon_areas')
-        repeats_results = self.reader.get_significance_test_repeats_areas()
+        # Add the results to the model.
+        statistics = self.reader.get_statistics(element_name)
+        statistics_repeats = self.reader.get_statistics_repeats(element_name)
 
         for attr,items in statistics:
-            # Add all result items to the tree model.
+            plate_area = attr['plate_area']
             liststore.append([
-                attr['area_group'],
+                plate_area,
                 int(attr['n']),
-                int(repeats_results[attr['area_group']]),
-                int(int(repeats_results['repeats']) - int(repeats_results[attr['area_group']])),
+                int(attr['n_sp_observed']),
+                int(statistics_repeats[plate_area]['n_significant']),
+                int(int(statistics_repeats['repeats']) - int(statistics_repeats[plate_area]['n_significant'])),
+                int(statistics_repeats[plate_area]['n_preference']),
+                int(statistics_repeats[plate_area]['n_rejection']),
                 ])
 
         # Set the tree model.
@@ -2910,6 +2988,143 @@ class DisplayReport(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
+    def add_statistics_repeats_spots(self, element_name, testname):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 250)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Positive Spots','n (plates)','n (distances)',
+            'n (significant)','n (non-significant)','n (attraction)',
+            'n (repulsion)']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            )
+
+        # Add the results to the model.
+        statistics = self.reader.get_statistics(element_name)
+        statistics_repeats = self.reader.get_statistics_repeats(element_name)
+
+        for attr,items in statistics:
+            n_spots = attr['n_positive_spots']
+
+            liststore.append([
+                n_spots,
+                int(attr['n_plates']),
+                int(attr['n']),
+                int(statistics_repeats[n_spots]['n_significant']),
+                int(int(statistics_repeats['repeats']) - int(statistics_repeats[n_spots]['n_significant'])),
+                int(statistics_repeats[n_spots]['n_attraction']),
+                int(statistics_repeats[n_spots]['n_repulsion']),
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_repeats_ratios(self, element_name, testname):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 250)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Ratio Group','n (plates)','n (distances)',
+            'n (significant)','n (non-significant)','n (attraction)',
+            'n (repulsion)']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            )
+
+        # Add the results to the model.
+        statistics = self.reader.get_statistics(element_name)
+        statistics_repeats = self.reader.get_statistics_repeats(element_name)
+
+        for attr,items in statistics:
+            ratio_group = attr['ratio_group']
+
+            liststore.append([
+                ratio_group,
+                int(attr['n_plates']),
+                int(attr['n']),
+                int(statistics_repeats[ratio_group]['n_significant']),
+                int(int(statistics_repeats['repeats']) - int(statistics_repeats[ratio_group]['n_significant'])),
+                int(statistics_repeats[ratio_group]['n_attraction']),
+                int(statistics_repeats[ratio_group]['n_repulsion']),
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
 class SelectExportElements(gtk.Dialog):
     """Display a dialog for allowing the user to select which report
@@ -2923,12 +3138,14 @@ class SelectExportElements(gtk.Dialog):
 
         self.set_size_request(400, -1)
         self.set_border_width(10)
-        self.set_title("Export Analysis Report - Select Elements")
+        self.set_keep_above(True)
+        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_title("Select Report Elements to Export")
         self.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
             gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
         self.set_has_separator(True)
 
-        # Add widgets to the GTK window.
+        # Add widgets to the GTK dialog.
         self.create_layout()
 
         # Display all widgets.
@@ -2966,16 +3183,17 @@ class SelectExportElements(gtk.Dialog):
         element_names = {'spot_distances': "Spot Distances",
             'location_selections': "Locations Selection(s)",
             'species_selections': "Species Selection(s)",
-            'wilcoxon_spots': "Results for Wilcoxon rank-sum tests",
-            'wilcoxon_ratios': "Results for Wilcoxon rank-sum tests",
-            'wilcoxon_areas': "Results for Wilcoxon rank-sum tests (non-repeated)",
-            'chi_squared_spots': "Results for Pearson's Chi-squared Tests for Count Data",
-            'chi_squared_ratios': "Results for Pearson's Chi-squared Tests for Count Data",
-            'plate_areas_definition': "Plate Areas Definition",
-            'area_totals': "Species Totals per Plate Area",
-            'normality': "Results for Shapiro-Wilk tests of normality",
-            't_test': "Results for t-tests",
-            'significance_test_repeats_areas': "Significance results for repeated Wilcoxon rank-sum tests",
+            'plate_areas_definition': setlyze.locale.text('t-plate-areas-definition'),
+            'area_totals': setlyze.locale.text('t-plate-area-totals'),
+            'wilcoxon_spots': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
+            'wilcoxon_ratios': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
+            'wilcoxon_areas': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
+            'wilcoxon_spots_repeats': setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'),
+            'wilcoxon_ratios_repeats': setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'),
+            'wilcoxon_areas_repeats': setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'),
+            'chi_squared_spots': setlyze.locale.text('t-results-pearson-chisq'),
+            'chi_squared_ratios': setlyze.locale.text('t-results-pearson-chisq'),
+            'chi_squared_areas': setlyze.locale.text('t-results-pearson-chisq'),
             }
 
         # Create check buttons.
@@ -3020,3 +3238,231 @@ class SelectExportElements(gtk.Dialog):
         for element, button in self.check_buttons.iteritems():
             if element in uncheck:
                 button.set_active(False)
+
+class Preferences(gtk.Window):
+    """Display a preferences dialog which allows the user to configure
+    the application.
+    """
+
+    def __init__(self):
+        super(Preferences, self).__init__()
+
+        self.set_title("Preferences")
+        self.set_size_request(-1, -1)
+        self.set_border_width(10)
+        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_resizable(True)
+        self.set_keep_above(True)
+
+        # Construct the layout.
+        self.create_layout()
+
+    def create_layout(self):
+        """Construct the layout."""
+
+        # Create table container
+        table = gtk.Table(rows=5, columns=2, homogeneous=False)
+        table.set_col_spacings(10)
+        table.set_row_spacings(5)
+
+        # Create a label
+        label_alpha_level = gtk.Label("Alpha level (α) for statistical tests:")
+        label_alpha_level.set_justify(gtk.JUSTIFY_FILL)
+        label_alpha_level.set_alignment(xalign=0, yalign=0)
+        table.attach(label_alpha_level, left_attach=0, right_attach=1,
+            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create an entry for the alpha level.
+        self.entry_alpha_level = gtk.Entry(max=5)
+        self.entry_alpha_level.set_text(str(setlyze.config.cfg.get('alpha-level')))
+        self.entry_alpha_level.set_width_chars(5)
+
+        align1 = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=0.0, yscale=0.0)
+        align1.add(self.entry_alpha_level)
+
+        table.attach(align1, left_attach=1, right_attach=2,
+            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create a label
+        label_test_repeats = gtk.Label("Number of repeats for statistical tests:")
+        label_test_repeats.set_justify(gtk.JUSTIFY_FILL)
+        label_test_repeats.set_alignment(xalign=0, yalign=0)
+        table.attach(label_test_repeats, left_attach=0, right_attach=1,
+            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create an entry for test repeats.
+        self.entry_test_repeats = gtk.Entry(max=0)
+        self.entry_test_repeats.set_text(str(setlyze.config.cfg.get('test-repeats')))
+        self.entry_test_repeats.set_width_chars(7)
+
+        align3 = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=0.0, yscale=0.0)
+        align3.add(self.entry_test_repeats)
+
+        table.attach(align3, left_attach=1, right_attach=2,
+            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.SHRINK,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Put a separator above the buttons.
+        separator = gtk.HSeparator()
+        table.attach(separator, left_attach=0, right_attach=2,
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create a help button.
+        button_help = gtk.Button(stock=gtk.STOCK_HELP)
+        button_help.connect("clicked", on_help, 'preferences-dialog')
+
+        # Put the buttons in a horizontal button box.
+        button_box_l = gtk.HButtonBox()
+        button_box_l.set_layout(gtk.BUTTONBOX_START)
+        button_box_l.pack_start(button_help, expand=True, fill=True, padding=0)
+
+        # Add the about button to the table.
+        table.attach(button_box_l, left_attach=0, right_attach=1,
+            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Continue button.
+        button_ok = gtk.Button(stock=gtk.STOCK_OK)
+        button_ok.set_size_request(70, -1)
+        button_ok.connect("clicked", self.on_ok)
+
+        # Quit button.
+        button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
+        button_cancel.set_size_request(70, -1)
+        button_cancel.connect("clicked", self.on_cancel)
+
+        # Put the buttons in a horizontal box.
+        button_box_r = gtk.HButtonBox()
+        button_box_r.set_layout(gtk.BUTTONBOX_END)
+        button_box_r.set_spacing(5)
+        button_box_r.pack_start(button_cancel, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
+
+        # Add the aligned button box to the table.
+        table.attach(button_box_r, left_attach=1, right_attach=2,
+            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Add the table to the main window.
+        self.add(table)
+
+        # Make it visible.
+        self.show_all()
+
+    def on_ok(self, widget, data=None):
+        """Save new settings and close the preferences dialog."""
+        if not self.set_alpha_level():
+            dialog = gtk.MessageDialog(parent=None, flags=0,
+                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                message_format="Invalid alpha level")
+            dialog.format_secondary_text( setlyze.locale.text('invalid-alpha-level') )
+            dialog.set_position(gtk.WIN_POS_CENTER)
+            response = dialog.run()
+            dialog.destroy()
+
+            # Don't destroy the dialog if saving setting failed.
+            return
+
+        if not self.set_test_repeats():
+            dialog = gtk.MessageDialog(parent=None, flags=0,
+                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                message_format="Invalid number of repeats")
+            dialog.format_secondary_text( setlyze.locale.text('invalid-repeats-number') )
+            dialog.set_position(gtk.WIN_POS_CENTER)
+            response = dialog.run()
+            dialog.destroy()
+
+            # Don't destroy the dialog if saving setting failed.
+            return
+
+        self.destroy()
+
+    def set_alpha_level(self):
+        """Set the new alpha level for statistical test. Return True if
+        succeeded, or False if failed."""
+        try:
+            alpha_level = float(self.entry_alpha_level.get_text())
+        except:
+            # Saving setting failed.
+            return False
+
+        if not 0.0 < alpha_level < 1.0:
+            # Saving setting failed.
+            return False
+
+        # Set the new value.
+        setlyze.config.cfg.set('alpha-level', alpha_level)
+
+        # Saving setting succeeded.
+        return True
+
+    def set_test_repeats(self):
+        """Set the new value for the number of repeats for statistical tests.
+        Return True if succeeded, or False if failed."""
+        try:
+            test_repeats = int(self.entry_test_repeats.get_text())
+        except:
+            # Saving setting failed.
+            return False
+
+        if not test_repeats > 1:
+            # Saving setting failed.
+            return False
+
+        # Set the new value.
+        setlyze.config.cfg.set('test-repeats', test_repeats)
+
+        # Saving setting succeeded.
+        return True
+
+    def on_cancel(self, widget, data=None):
+        """Close the preferences dialog."""
+        self.destroy()
+
+    def on_about(self, widget, data=None):
+        """Display SETLyze's about dialog."""
+        About()
+
+class About(gtk.AboutDialog):
+    """Display SETLyze's about dialog."""
+
+    def __init__(self):
+        super(About, self).__init__()
+
+        license = ("This program is free software: you can redistribute it and/or modify\n"
+            "it under the terms of the GNU General Public License as published by\n"
+            "the Free Software Foundation, either version 3 of the License, or\n"
+            "(at your option) any later version.\n\n"
+
+            "This program is distributed in the hope that it will be useful,\n"
+            "but WITHOUT ANY WARRANTY; without even the implied warranty of\n"
+            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n"
+            "GNU General Public License for more details.\n\n"
+
+            "You should have received a copy of the GNU General Public License\n"
+            "along with this program.  If not, see http://www.gnu.org/licenses/")
+
+        logo_path = pkg_resources.resource_filename('setlyze',
+            '/images/setl-logo.png')
+        logo = gtk.gdk.pixbuf_new_from_file(logo_path)
+
+        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_program_name("SETLyze")
+        self.set_version(__version__)
+        self.set_copyright("Copyright 2010, GiMaRIS")
+        self.set_authors(["Project Leader/Contact Person:\n"
+            "\tArjan Gittenberger <gittenberger@gimaris.com>",
+            "Application Developers:\n"
+            "\tJonathan den Boer",
+            "\tSerrano Pereira <serrano.pereira@gmail.com>"])
+        self.set_artists(["Serrano Pereira <serrano.pereira@gmail.com>"])
+        self.set_comments("A tool for analyzing the settlement of species.")
+        self.set_license(license)
+        self.set_website("http://www.gimaris.com/")
+        self.set_logo(logo)
+        self.run()
+        self.destroy()

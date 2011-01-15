@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="locale.html" title="setlyze.locale — English text retrieval"
              accesskey="P">previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
       </ul>
@@ -64,7 +67,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 03, 2010</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 10, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -73,6 +76,86 @@
 <p>This module provides standard functions and classes. All functions
 and classes that don&#8217;t belong in any of the other modules are placed
 here.</p>
+<dl class="class">
+<dt id="setlyze.std.ExportLatexReport">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ExportLatexReport</tt><big>(</big><em>reader=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportLatexReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportLatexReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an analysis report in LaTeX format.</p>
+<p>Design Part:</p>
+<dl class="method">
+<dt id="setlyze.std.ExportLatexReport.set_report_reader">
+<tt class="descname">set_report_reader</tt><big>(</big><em>reader</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportLatexReport.set_report_reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportLatexReport.set_report_reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the report reader.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.std.ExportTextReport">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ExportTextReport</tt><big>(</big><em>reader=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an analysis report in text format.</p>
+<p>Design Part:</p>
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.chapter">
+<tt class="descname">chapter</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.chapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.chapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for parts in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.part">
+<tt class="descname">part</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.part"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.part" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for parts in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.section">
+<tt class="descname">section</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for sections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.set_report_reader">
+<tt class="descname">set_report_reader</tt><big>(</big><em>reader</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.set_report_reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.set_report_reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the report reader.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.subsection">
+<tt class="descname">subsection</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.subsection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.subsection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for subsections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.subsubsection">
+<tt class="descname">subsubsection</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.subsubsection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.subsubsection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for subsubsections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.table">
+<tt class="descname">table</tt><big>(</big><em>headers</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a table header with column names from <cite>headers</cite> in
+reStructuredText format.</p>
+<p><cite>headers</cite> is a list/tuple containing two-item tuples
+<tt class="docutils literal"><span class="pre">(&lt;column</span> <span class="pre">name&gt;,</span> <span class="pre">&lt;column</span> <span class="pre">width&gt;)</span></tt>. The column name is a string,
+and the column width is an integer defining the character width
+of the column. A value of -1 for column with means that the
+column will have the same width as the column name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.table_rule">
+<tt class="descname">table_rule</tt><big>(</big><em>col_widths</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.table_rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.table_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a rule for a table with column widths <cite>col_widths</cite>.</p>
+<p><cite>col_widths</cite> is a list/tuple containing column widths (integers).</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="class">
 <dt id="setlyze.std.ReportGenerator">
 <em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ReportGenerator</tt><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator" title="Permalink to this definition">¶</a></dt>
@@ -173,7 +256,7 @@ would look like this:</p>
 
 <dl class="method">
 <dt id="setlyze.std.ReportGenerator.get_element">
-<tt class="descname">get_element</tt><big>(</big><em>parent</em>, <em>name</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportGenerator.get_element" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_element</tt><big>(</big><em>parent</em>, <em>name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.get_element"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.get_element" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the element object with name <cite>name</cite> from a parent
 element <cite>parent</cite>.</p>
 </dd></dl>
@@ -311,36 +394,36 @@ definition.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.std.ReportGenerator.set_specie_selections">
-<tt class="descname">set_specie_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_specie_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_specie_selections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the element <tt class="docutils literal"><span class="pre">specie_selections</span></tt> to the XML DOM
+<dt id="setlyze.std.ReportGenerator.set_species_selections">
+<tt class="descname">set_species_selections</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.std.ReportGenerator.set_species_selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">species_selections</span></tt> to the XML DOM
 report.</p>
 <p>This element will be filled with the species selections. If
 two species selections were made, both will be added to the
 element.</p>
 <p>The XML representation looks like this:</p>
-<div class="highlight-python"><pre>&lt;specie_selections&gt;
+<div class="highlight-python"><pre>&lt;species_selections&gt;
     &lt;selection slot="0"&gt;
-        &lt;specie id="2"&gt;
+        &lt;species id="2"&gt;
             &lt;name_latin&gt;
                 Ectopleura larynx
             &lt;/name_latin&gt;
             &lt;name_venacular&gt;
                 Gorgelpijp
             &lt;/name_venacular&gt;
-        &lt;/specie&gt;
+        &lt;/species&gt;
     &lt;/selection&gt;
     &lt;selection slot="1"&gt;
-        &lt;specie id="6"&gt;
+        &lt;species id="6"&gt;
             &lt;name_latin&gt;
                 Metridium senile
             &lt;/name_latin&gt;
             &lt;name_venacular&gt;
                 Zeeanjelier
             &lt;/name_venacular&gt;
-        &lt;/specie&gt;
+        &lt;/species&gt;
     &lt;/selection&gt;
-&lt;/specie_selections&gt;</pre>
+&lt;/species_selections&gt;</pre>
 </div>
 <p>Design Part: 1.51</p>
 </dd></dl>
@@ -391,7 +474,7 @@ report.</p>
 
 <dl class="method">
 <dt id="setlyze.std.ReportGenerator.set_statistics">
-<tt class="descname">set_statistics</tt><big>(</big><em>name</em>, <em>data</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportGenerator.set_statistics" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">set_statistics</tt><big>(</big><em>name</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the element <tt class="docutils literal"><span class="pre">statistics</span></tt> with child element
 <tt class="docutils literal"><span class="pre">name</span></tt> to the XML DOM report.</p>
 <p>This element will be filled with the results of the performed
@@ -450,7 +533,7 @@ contains the name of the analysis.</p>
 <dl class="method">
 <dt id="setlyze.std.ReportReader.get_area_totals_expected">
 <tt class="descname">get_area_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_area_totals_expected" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the expected specie totals per area from the XML DOM
+<dd><p>Return the expected species totals per area from the XML DOM
 report.</p>
 <p>This method returns a dictionary. For example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
@@ -465,7 +548,7 @@ report.</p>
 <dl class="method">
 <dt id="setlyze.std.ReportReader.get_area_totals_observed">
 <tt class="descname">get_area_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_area_totals_observed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the observed specie totals per plate area from the
+<dd><p>Return the observed species totals per plate area from the
 XML DOM report.</p>
 <p>This method returns a dictionary. For example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
@@ -479,7 +562,7 @@ XML DOM report.</p>
 
 <dl class="method">
 <dt id="setlyze.std.ReportReader.get_child_names">
-<tt class="descname">get_child_names</tt><big>(</big><em>parent=None</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportReader.get_child_names" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_child_names</tt><big>(</big><em>parent=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_child_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_child_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list with all child element names from the XML DOM
 object. The child elements for the report elements are excluded.</p>
 <p>Use this as a quick way to find out which elements are present
@@ -580,7 +663,7 @@ iterator. The iterator returns the distances.</p>
 
 <dl class="method">
 <dt id="setlyze.std.ReportReader.get_statistics">
-<tt class="descname">get_statistics</tt><big>(</big><em>name</em><big>)</big><a class="headerlink" href="#setlyze.std.ReportReader.get_statistics" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_statistics</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the statistics elements with name <cite>name</cite> from the
 XML DOM report.</p>
 <p>This is a generator, meaning that this function returns an
@@ -594,20 +677,6 @@ the results.</p>
 <dt id="setlyze.std.ReportReader.get_xml">
 <tt class="descname">get_xml</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_xml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_xml" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the XML source for the XML DOM report.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.std.ReportReader.save_report">
-<tt class="descname">save_report</tt><big>(</big><em>path</em>, <em>type</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.save_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.save_report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the data from the XML DOM report to a data file or an
-analysis report document. The file is saved to <cite>path</cite> in a
-format specified by <cite>type</cite>. Possible values for <cite>type</cite> are
-strings containing <tt class="docutils literal"><span class="pre">xml</span></tt>, <tt class="docutils literal"><span class="pre">txt</span></tt> or <tt class="docutils literal"><span class="pre">latex</span></tt>.</p>
-<p>If <cite>type</cite> contains <tt class="docutils literal"><span class="pre">xml</span></tt>, all data from the DOM object is
-saved to an XML file. If <cite>type</cite> contians <tt class="docutils literal"><span class="pre">txt</span></tt> or <tt class="docutils literal"><span class="pre">latex</span></tt>,
-the report elements speciefied by the user will be save to a
-human readable document.</p>
-<p>Design Part: 1.17</p>
 </dd></dl>
 
 <dl class="method">
@@ -672,6 +741,8 @@ callbacks.</dd>
 <dd>It&#8217;s recommended to study this subject of the PyGTK
 documentation to get a better understanding of event and
 signal handling.</dd>
+<dt><a class="reference external" href="http://www.pygtk.org/articles/subclassing-gobject/sub-classing-gobject-in-python.htm">Sub-classing GObject in Python</a></dt>
+<dd>Or how to create custom properties and signals with PyGTK.</dd>
 <dt><a class="reference external" href="http://www.pygtk.org/pygtk2reference/gobject-functions.html#function-gobject--idle-add">gobject.idle_add</a></dt>
 <dd>PyGTK documentation for <tt class="xref py py-meth docutils literal"><span class="pre">gobject.idle_add()</span></tt>.</dd>
 </dl>
@@ -680,7 +751,7 @@ signal handling.</dd>
 
 <dl class="function">
 <dt id="setlyze.std.chisq_test">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">chisq_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>correct=True</em>, <em>p=None</em>, <em>rescale_p=False</em>, <em>simulate_p_value=False</em>, <em>b=2000</em><big>)</big><a class="headerlink" href="#setlyze.std.chisq_test" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">chisq_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>correct=True</em>, <em>p=None</em>, <em>rescale_p=False</em>, <em>simulate_p_value=False</em>, <em>b=2000</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#chisq_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.chisq_test" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="docutils">
 <dt>Performs chi-squared contingency table tests and</dt>
 <dd>goodness-of-fit tests.</dd>
@@ -714,8 +785,30 @@ documentation, type <tt class="docutils literal"><span class="pre">help(chisq.te
 </dd></dl>
 
 <dl class="function">
+<dt id="setlyze.std.combinations_with_replacement">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">combinations_with_replacement</tt><big>(</big><em>iterable</em>, <em>r</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#combinations_with_replacement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.combinations_with_replacement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return r length subsequences of elements from the input iterable
+allowing individual elements to be repeated more than once.</p>
+<p>Combinations are emitted in lexicographic sort order. So, if the
+input iterable is sorted, the combination tuples will be produced
+in sorted order.</p>
+<p>Elements are treated as unique based on their position, not on their
+value. So if the input elements are unique, the generated
+combinations will also be unique.</p>
+<p>This function was taken from the Python documentation for
+<a class="reference external" href="http://docs.python.org/library/itertools.html#module-itertools" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">itertools</span></tt></a>.</p>
+<p>A simple example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">i</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">combinations_with_replacement</span><span class="p">(</span><span class="s">&#39;ABCD&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">i</span><span class="p">]</span>
+<span class="go">[(&#39;A&#39;, &#39;A&#39;), (&#39;A&#39;, &#39;B&#39;), (&#39;A&#39;, &#39;C&#39;), (&#39;A&#39;, &#39;D&#39;), (&#39;B&#39;, &#39;B&#39;), (&#39;B&#39;, &#39;C&#39;), (&#39;B&#39;, &#39;D&#39;), (&#39;C&#39;, &#39;C&#39;), (&#39;C&#39;, &#39;D&#39;), (&#39;D&#39;, &#39;D&#39;)]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
 <dt id="setlyze.std.combine_records">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">combine_records</tt><big>(</big><em>records</em><big>)</big><a class="headerlink" href="#setlyze.std.combine_records" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">combine_records</tt><big>(</big><em>records</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#combine_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.combine_records" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a combined SETL records from a list of multiple SETL
 records with the same plate ID.</p>
 <p><cite>records</cite> is a list containing multiple SETL records where each
@@ -743,6 +836,20 @@ two spots.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="setlyze.std.export_report">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">export_report</tt><big>(</big><em>reader</em>, <em>path</em>, <em>type</em>, <em>elements=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#export_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.export_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the data from the XML DOM report to a data file or an
+analysis report document. The file is saved to <cite>path</cite> in a
+format specified by <cite>type</cite>. Possible values for <cite>type</cite> are
+<tt class="docutils literal"><span class="pre">xml</span></tt>, <tt class="docutils literal"><span class="pre">txt</span></tt> or <tt class="docutils literal"><span class="pre">latex</span></tt>.</p>
+<p>If <cite>type</cite> is <tt class="docutils literal"><span class="pre">xml</span></tt>, all data from the DOM object is
+saved to an XML file. If <cite>type</cite> is <tt class="docutils literal"><span class="pre">txt</span></tt> or <tt class="docutils literal"><span class="pre">latex</span></tt>,
+the report elements specified by the user will be saved to a
+human readable document.</p>
+<p>Design Part: 1.17</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="setlyze.std.get_random_for_plate">
 <tt class="descclassname">setlyze.std.</tt><tt class="descname">get_random_for_plate</tt><big>(</big><em>n</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#get_random_for_plate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.get_random_for_plate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a <cite>n</cite> length list of random integers with a range from 1
@@ -753,7 +860,7 @@ SETL plate.</p>
 standard library. As described in the Python documentation, this
 function is bound to an instance of <tt class="xref py py-class docutils literal"><span class="pre">random.Random</span></tt> which
 uses the <tt class="xref py py-meth docutils literal"><span class="pre">random.random()</span></tt> method. In turn this method uses
-the Mersenne Twister (<a class="reference internal" href="../references.html#ref-mersenne-twister"><em>M. Matsumoto and T. Nishimura</em></a>)
+the Mersenne Twister (<a class="reference internal" href="../references.html#ref-mersenne-twister"><em>Matsumoto &amp; Nishimura</em></a>)
 as the core generator. The Mersenne Twister is one of the most
 extensively tested random number generators in existence.</p>
 <div class="admonition-see-also admonition seealso">
@@ -959,8 +1066,15 @@ from <cite>record</cite>, a sequence of 25 spot booleans.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="setlyze.std.make_remarks">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">make_remarks</tt><big>(</big><em>results</em>, <em>attributes</em>, <em>conclusions=('Attraction'</em>, <em>'Repulsion')</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#make_remarks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.make_remarks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a remarks string that contains a summary of the results
+and attributes of a statistical test.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="setlyze.std.mean">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">mean</tt><big>(</big><em>x</em><big>)</big><a class="headerlink" href="#setlyze.std.mean" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">mean</tt><big>(</big><em>x</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.mean" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the arithmetic mean of a sequence of numbers <cite>x</cite>.</p>
 <p>A simple example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
@@ -996,6 +1110,12 @@ action. Optionally set <cite>autoclose</cite> to automatically close the
 progress dialog if <cite>fraction</cite> equals <tt class="docutils literal"><span class="pre">1.0</span></tt>.</p>
 <p>Don&#8217;t call this function manually; use <a class="reference internal" href="#setlyze.std.update_progress_dialog" title="setlyze.std.update_progress_dialog"><tt class="xref py py-meth docutils literal"><span class="pre">update_progress_dialog()</span></tt></a>
 instead.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.std.remove_items_from_list">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">remove_items_from_list</tt><big>(</big><em>a</em>, <em>b</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#remove_items_from_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.remove_items_from_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the items in list <cite>b</cite> from list <cite>a</cite>.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1136,7 +1256,7 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="locale.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../setlyze_modules_analysis.html"
                         title="next chapter">Analysis Modules</a></p>
@@ -1177,7 +1297,10 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
         <li class="right" >
           <a href="locale.html" title="setlyze.locale — English text retrieval"
              >previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
       </ul>

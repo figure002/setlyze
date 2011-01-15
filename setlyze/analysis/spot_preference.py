@@ -37,6 +37,7 @@ can be broken down in the following steps:
 
 """
 
+import sys
 import logging
 import math
 import threading
@@ -170,11 +171,8 @@ class Begin(object):
 
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
-            message_format="Empty plate areas")
-        dialog.format_secondary_text("Got nothing to do, because "
-            "all the plate areas totals were zero. "
-            "You might have more luck if you select more locations "
-            "next time. The current analysis will abort.")
+            message_format="No species were found")
+        dialog.format_secondary_text(setlyze.locale.text('empty-plate-areas'))
         response = dialog.run()
 
         if response == gtk.RESPONSE_OK:
@@ -199,7 +197,7 @@ class Begin(object):
         """Display the window for selecting the locations."""
         select = setlyze.gui.SelectLocations(width=370, slot=0)
         select.set_title(setlyze.locale.text('analysis1'))
-        select.set_description(setlyze.locale.text('select-locations') + "\n" +
+        select.set_description(setlyze.locale.text('select-locations') + "\n\n" +
             setlyze.locale.text('option-change-source') + "\n\n" +
             setlyze.locale.text('selection-tips')
             )
@@ -260,15 +258,12 @@ class Start(threading.Thread):
     def __init__(self):
         super(Start, self).__init__()
 
+        self.chisq_observed = None # Design Part: 2.25
+        self.chisq_expected = None # Design Part: 2.26
+        self.test_repeats = setlyze.config.cfg.get('test-repeats')
         self.dbfile = setlyze.config.cfg.get('db-file')
-        self.total_species = None
-        self.mean = None
-        self.areas_totals_observed = None # Design Part: 2.25
-        self.areas_totals_expected = None # Design Part: 2.26
-        self.area2chisquare = None
-        self.chisquare = None
-        # Dictionary for the statistic test results.
-        self.statistics = {'wilcoxon':[], 'chi_squared':[]}
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
+        self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis1'))
@@ -291,13 +286,13 @@ class Start(threading.Thread):
         Design Part: 1.58
         """
 
-        # Add a short delay. This gives the progress dialog time to
-        # display properly.
+        # Add a short delay. This gives the progress dialog time to display
+        # properly.
         time.sleep(0.5)
 
-        # The total number of times we decide to update the progress
-        # dialog.
-        total_steps = 9.0
+        # Set the total number of times we decide to update the progress dialog.
+        total_steps = 7 + self.test_repeats
+        self.pdialog_handler.set_total_steps(total_steps)
 
         # Make an object that facilitates access to the database.
         self.db = setlyze.database.get_database_accessor()
@@ -309,86 +304,64 @@ class Start(threading.Thread):
         # Create log message.
         logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-        # Create log message.
+        # Create log message and update progress dialog.
         logging.info("\tCreating table with species spots...")
-        # Update progress dialog.
-        setlyze.std.update_progress_dialog(1/total_steps, "Creating table with species spots...")
+        self.pdialog_handler.increase("Creating table with species spots...")
         # Make a spots table for the selected species.
         self.db.set_species_spots(rec_ids, slot=0)
 
-        # Create log message.
+        # Create log message and update progress dialog.
         logging.info("\tMaking plate IDs in species spots table unique...")
-        # Update progress dialog.
-        setlyze.std.update_progress_dialog(2/total_steps, "Making plate IDs in species spots table unique...")
+        self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
         # Make the plate IDs unique.
         n_plates_unique = self.db.make_plates_unique(slot=0)
         # Create log message.
         logging.info("\t  %d records remaining." % (n_plates_unique))
 
-        # Update progress dialog.
-        setlyze.std.update_progress_dialog(3/total_steps,
-            "Calculating the observed plate area totals for each plate...")
+        # Create log message and update progress dialog.
+        logging.info("\tCalculating the observed plate area totals for each plate...")
+        self.pdialog_handler.increase("Calculating the observed plate area totals for each plate...")
         # Calculate the expected totals.
         self.set_plate_area_totals_observed()
 
-        # Create log message.
-        logging.info("\tPerforming statistical tests with %d repeats..." %
-            setlyze.config.cfg.get('test-repeats'))
-        # Update progress dialog.
-        setlyze.std.update_progress_dialog(4/total_steps,
-            "Performing statistical tests with %s repeats..." %
-            setlyze.config.cfg.get('test-repeats'))
-        # Perform the repeats for the statistical tests. This will repatedly
-        # calculate the expected totals, so we'll use the expected totals
-        # of the last repeat as the results for the report dialog.
-        self.repeat_test(setlyze.config.cfg.get('test-repeats'))
-
-        # Update progress dialog.
-        setlyze.std.update_progress_dialog(5/total_steps,
-            "Calculating observed species totals per plate area...")
-        # Calculate the species totals.
-        self.areas_totals_observed = self.get_defined_areas_totals_observed()
-        # Create log message.
-        logging.info("\tObserved species totals: %s" % self.areas_totals_observed)
+        # Calculate the observed species encounters for the user defined plate
+        # areas.
+        self.chisq_observed = self.get_defined_areas_totals_observed()
 
         # Make sure that spot area totals are not all zero. If so, abort
         # the analysis, because we can't devide by zero (unless you're
         # Chuck Norris of course).
         areas_total = 0
-        for area_total in self.areas_totals_observed.itervalues():
+        for area_total in self.chisq_observed.itervalues():
             areas_total += area_total
-
         if areas_total == 0:
-            # Create log message.
-            logging.info("\tAll plate areas totals are zero. Aborting.")
-            # Send signal the analysis was aborted.
-            setlyze.std.sender.emit('analysis-aborted')
+            logging.info("\tThe species was not found on any plates, aborting.")
+            gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
             return
 
-        # Update progress dialog.
-        setlyze.std.update_progress_dialog(6/total_steps,
-            "Calculating expected species totals per plate area...")
-        # Calculate the expected totals.
-        self.areas_totals_expected = self.get_defined_areas_totals_expected()
-        # Create log message.
-        logging.info("\tExpected species totals: %s" % self.areas_totals_expected)
+        # Create log message and update progress dialog.
+        logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.test_repeats)
+        self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.test_repeats)
+        # Perform the repeats for the statistical tests. This will reapatedly
+        # calculate the expected totals, so we'll use the expected totals
+        # of the last repeat as the results for the report dialog.
+        self.repeat_test(self.test_repeats)
 
         # Create log message.
         logging.info("\tPerforming statistical tests...")
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(7/total_steps,
-            "Performing statistical tests...")
+        self.pdialog_handler.increase("Performing statistical tests...")
         # Performing the statistical tests.
-        self.calculate_significance()
+        self.calculate_significance_wilcoxon()
+        self.calculate_significance_chisq()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(8/total_steps,
-            "Generating the analysis report...")
+        self.pdialog_handler.increase("Generating the analysis report...")
         # Generate the report.
         self.generate_report()
 
         # Update progress dialog.
-        setlyze.std.update_progress_dialog(9/total_steps, "")
+        self.pdialog_handler.increase("")
 
         # Emit the signal that the analysis has finished.
         # Note that the signal will be sent from a separate thread,
@@ -536,7 +509,7 @@ class Start(threading.Thread):
         cursor2.close()
         connection.close()
 
-    def calculate_significance(self):
+    def calculate_significance_wilcoxon(self):
         """TODO"""
 
         # The area groups to perfom the test on.
@@ -544,6 +517,113 @@ class Start(threading.Thread):
             ('A','B','C'),('B','C','D')]
 
         for area_group in area_groups:
+            # Get both sets of distances from plates per total spot numbers.
+            observed = self.db.get_area_totals(
+                'plate_area_totals_observed', area_group)
+            expected = self.db.get_area_totals(
+                'plate_area_totals_expected', area_group)
+
+            # Iterators cannot be used directly by RPy, so convert them to
+            # lists first.
+            observed = list(observed)
+            expected = list(expected)
+
+            # Perform a consistency check. The number of observed and
+            # expected spot distances must always be the same.
+            count_observed = len(observed)
+            count_expected = len(expected)
+
+            # Calculate the number of species encounters for the current
+            # area group.
+            species_encouters_observed = sum(observed)
+            species_encouters_expected = sum(expected)
+
+            # A minimum of 2 observed distances is required for the
+            # significance test. So skip this spots number if it's less.
+            if count_observed < 2 or count_expected < 2:
+                continue
+
+            # Calculate the means.
+            mean_observed = setlyze.std.mean(observed)
+            mean_expected = setlyze.std.mean(expected)
+
+            # Create a human readable string with the areas in the area group.
+            area_group_str = "+".join(area_group)
+
+            # Perform two sample Wilcoxon tests.
+            sig_result = setlyze.std.wilcox_test(observed, expected,
+                alternative = "two.sided", paired = False,
+                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_int = False)
+
+            # Save the significance result.
+            data = {}
+            data['attr'] = {
+                'plate_area': area_group_str,
+                'n': count_observed,
+                'n_sp_observed': species_encouters_observed,
+                'n_sp_expected': species_encouters_expected,
+                'method': sig_result['method'],
+                'alternative': sig_result['alternative'],
+                'conf_level': 1 - setlyze.config.cfg.get('alpha-level'),
+                'paired': False,
+                }
+            data['results'] = {
+                'p_value': sig_result['p.value'],
+                'mean_observed': mean_observed,
+                'mean_expected': mean_expected,
+                }
+
+            # Append the result to the list of results.
+            self.statistics['wilcoxon'].append(data)
+
+    def calculate_significance_chisq(self):
+        """TODO"""
+
+        # Get the probabilities for the user defined plate areas.
+        probabilities = self.get_area_probabilities()
+
+        # Also perform Chi-squared test.
+        sig_result = setlyze.std.chisq_test(self.chisq_observed.values(),
+            p = probabilities.values())
+
+        # Save the significance result.
+        data = {}
+        data['attr'] = {
+            'method': sig_result['method'],
+            }
+        data['results'] = {
+            'chi_squared': sig_result['statistic']['X-squared'],
+            'p_value': sig_result['p.value'],
+            'df': sig_result['parameter']['df'],
+            }
+
+        # Save the expected values.
+        self.chisq_expected = {}
+        for i, area in enumerate(self.chisq_observed):
+            self.chisq_expected[area] = sig_result['expected'][i]
+
+        # Append the result to the list of results.
+        self.statistics['chi_squared'].append(data)
+
+    def calculate_significance_wilcoxon_repeats(self):
+        """TODO"""
+
+        # The plate area groups to perfom the test on.
+        area_groups = [('A'),('B'),('C'),('D'),('A','B'),('C','D'),
+            ('A','B','C'),('B','C','D')]
+
+        # Perform the test on each area group.
+        for area_group in area_groups:
+            # Create a human readable string with the areas in the area group.
+            area_group_str = "+".join(area_group)
+
+            # Check if this area group is present in the statistics variable.
+            # If not, create it.
+            if area_group_str not in self.statistics['repeats']:
+                self.statistics['repeats'][area_group_str] = {'n_significant': 0,
+                    'n_preference': 0, 'n_rejection': 0}
+
             # Get both sets of distances from plates per total spot numbers.
             observed = self.db.get_area_totals(
                 'plate_area_totals_observed', area_group)
@@ -569,86 +649,40 @@ class Start(threading.Thread):
             mean_observed = setlyze.std.mean(observed)
             mean_expected = setlyze.std.mean(expected)
 
-            # Create a human readable string with the areas in the area group.
-            area_group_str = "+".join(area_group)
-
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = setlyze.config.cfg.get('significance-confidence'),
+                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
                 conf_int = False)
 
-            # Save the significance result.
-            data = {}
-            data['attr'] = {
-                'area_group': area_group_str,
-                'n': count_observed,
-                'method': sig_result['method'],
-                'alternative': sig_result['alternative'],
-                'conf_level': setlyze.config.cfg.get('significance-confidence'),
-                'paired': False,
-                }
-            data['results'] = {
-                'p_value': sig_result['p.value'],
-                'mean_observed': mean_observed,
-                'mean_expected': mean_expected,
-                }
-
-            # Append the result to the list of results.
-            self.statistics['wilcoxon'].append(data)
-
-    def calculate_significance_for_repeats(self):
-        """TODO"""
-
-        # The area groups to perfom the test on.
-        area_groups = [('A'),('B'),('C'),('D'),('A','B'),('C','D'),
-            ('A','B','C'),('B','C','D')]
-
-        for area_group in area_groups:
-            # Get both sets of distances from plates per total spot numbers.
-            observed = self.db.get_area_totals(
-                'plate_area_totals_observed', area_group)
-            expected = self.db.get_area_totals(
-                'plate_area_totals_expected', area_group)
-
-            # Iterators cannot be used directly by RPy, so convert them to
-            # lists first.
-            observed = list(observed)
-            expected = list(expected)
-
-            # Perform a consistency check. The number of observed and
-            # expected spot distances must always be the same.
-            count_observed = len(observed)
-            count_expected = len(expected)
-
-            # A minimum of 2 observed distances is required for the
-            # significance test. So skip this spots number if it's less.
-            if count_observed < 2 or count_expected < 2:
-                continue
-
-            # Create a human readable string with the areas in the area group.
-            area_group_str = "+".join(area_group)
-
-            # Perform two sample Wilcoxon tests.
-            sig_result = setlyze.std.wilcox_test(observed, expected,
-                alternative = "two.sided", paired = False,
-                conf_level = setlyze.config.cfg.get('significance-confidence'),
-                conf_int = False)
-
-            # Save the significance result.
+            # Save basic results for this repeated test.
+            # Check if the result was significant (P-value < alpha-level).
             p_value = float(sig_result['p.value'])
-            if p_value < 0.05 and p_value != 'nan':
-                self.repeat_results[area_group_str] += 1
+            if p_value < setlyze.config.cfg.get('alpha-level') and p_value != 'nan':
+                # If so, increase significant counter with one.
+                self.statistics['repeats'][area_group_str]['n_significant'] += 1
+
+                # If significant, also check if there is preference or
+                # rejection for this plate area.
+                if mean_observed > mean_expected:
+                    # Increase preference counter with one.
+                    self.statistics['repeats'][area_group_str]['n_preference'] += 1
+                else:
+                    # Increase rejection counter with one.
+                    self.statistics['repeats'][area_group_str]['n_rejection'] += 1
 
     def repeat_test(self, number):
-        self.repeat_results = {'A': 0, 'B': 0, 'C': 0, 'D': 0, 'A+B': 0, 'C+D': 0,
-            'A+B+C': 0, 'B+C+D': 0}
-
+        """Repeat the siginificance test `number` times."""
         for i in range(number):
-            self.set_plate_area_totals_expected()
-            self.calculate_significance_for_repeats()
+            # Update the progess bar.
+            self.pdialog_handler.increase()
 
-        print self.repeat_results
+            # The expected area totals are random. So the expected values
+            # differ a little on each repeat.
+            self.set_plate_area_totals_expected()
+
+            # And then we calculate the siginificance for each repeat.
+            self.calculate_significance_wilcoxon_repeats()
 
     def get_defined_areas_totals_observed(self):
         """Return the observed totals for a species for each plate area.
@@ -661,7 +695,8 @@ class Start(threading.Thread):
         areas_totals_observed = {'area1': 0,
             'area2': 0,
             'area3': 0,
-            'area4': 0,}
+            'area4': 0,
+            }
 
         for area_name, area_group in areas_definition.iteritems():
             # Get both sets of distances from plates per total spot numbers.
@@ -672,50 +707,44 @@ class Start(threading.Thread):
             for total in observed:
                 areas_totals_observed[area_name] += total
 
-        # Remove the areas that were earlier removed, as these areas
-        # were empty, and shouldn't be included for the calculations
-        # later on.
-        for area_name in areas_definition:
-            if len(area_name) == 0:
-                del areas_totals_observed[area_name]
+        # Remove unused areas from the variable.
+        delete = []
+        for area in areas_totals_observed:
+            if area not in areas_definition:
+                delete.append(area)
+        for area in delete:
+            del areas_totals_observed[area]
 
         return areas_totals_observed
 
-    def get_defined_areas_totals_expected(self):
-        """Return the expected totals for a species for each plate area.
-
-        Design Part: 1.63
-        """
+    def get_area_probabilities(self):
+        """Return the probabilities for the defined plate areas."""
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
 
         # The spot names, and how many times they occur on a plate.
-        spot_multiplies = {'A':4, 'B':12, 'C':8, 'D':1}
+        probabilities = {'A': 4/25.0,
+            'B': 12/25.0,
+            'C': 8/25.0,
+            'D': 1/25.0,
+            }
 
         # Calculate what each spot area should be multiplied with, as
         # the spot areas can be combinations of spots.
-        multiply_rules = { 'area1': 0, 'area2': 0, 'area3': 0, 'area4': 0 }
+        area_probabilities = { 'area1': 0, 'area2': 0, 'area3': 0, 'area4': 0 }
         for area, spot_names in areas_definition.iteritems():
             for spot_name in spot_names:
-                multiply_rules[area] += spot_multiplies[spot_name]
+                area_probabilities[area] += probabilities[spot_name]
 
-        # Make log message.
-        logging.info("\tMultiply rules: %s" % multiply_rules)
+        # Remove unused areas.
+        delete = []
+        for area in area_probabilities:
+            if area not in areas_definition:
+                delete.append(area)
 
-        # Calculate the sum of area totals.
-        areas_total = 0
-        for area_total in self.areas_totals_observed.itervalues():
-            areas_total += area_total
+        for area in delete:
+            del area_probabilities[area]
 
-        # Calculate the mean value for the spots.
-        spot_mean = areas_total / 25.0
-
-        # Calculate the expected values and put them in the expected
-        # totals table.
-        areas_totals_expected = {}
-        for area in self.areas_totals_observed.iterkeys():
-            areas_totals_expected[area] = spot_mean * multiply_rules[area]
-
-        return areas_totals_expected
+        return area_probabilities
 
     def generate_report(self):
         """Generate the analysis report.
@@ -727,10 +756,11 @@ class Start(threading.Thread):
         report.set_location_selections()
         report.set_species_selections()
         report.set_plate_areas_definition()
-        report.set_area_totals_observed(self.areas_totals_observed)
-        report.set_area_totals_expected(self.areas_totals_expected)
+        report.set_area_totals_observed(self.chisq_observed)
+        report.set_area_totals_expected(self.chisq_expected)
+        report.set_statistics('chi_squared_areas', self.statistics['chi_squared'])
         report.set_statistics('wilcoxon_areas', self.statistics['wilcoxon'])
-        report.set_significance_test_repeats_areas(self.repeat_results)
+        report.set_statistics_repeats('wilcoxon_areas', self.statistics['repeats'])
 
         # Create global a link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())

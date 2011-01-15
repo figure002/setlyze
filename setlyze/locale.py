@@ -45,27 +45,27 @@ ENGLISH = [
         "And tomorrow's forecast is, %s"),
     ('use-saved-data',
         "The SETL data from the last run is still on your computer. The "
-        "data was loaded on %s from %s.\n\nSelect Yes to use this (old) "
-        "data, or select No to load up-to-date data from the remote SETL database "
-        "(requires a direct connection with the SETL database server)."),
+        "data was loaded on %s from %s.\n\nSelect Yes to use this possibly old "
+        "data, or select No to load up-to-date data from the remote SETL "
+        "database (requires a direct connection with the SETL database server)."),
     ('select-locations',
         "Below are the available locations. Please select the locations "
         "from which you want to select species."),
     ('option-change-source',
-        "By default, the data is loaded from the SETL database. To load "
+        "By default, the data is loaded from the remote SETL database. To load "
         "data from a different data source, click the \"Change Data "
         "Source\" button below."),
     ('selection-tips',
         "Tip: Hold Ctrl or Shift to select multiple items. To select all "
         "items, press Ctrl+A."),
     ('select-species',
-        "Below are the available species for the selected location(s). "
-        "Please select the species required for the analysis."),
+        "Below are the available species for the selected location(s). Please "
+        "select the species to be included for the analysis."),
     ('analysis1',
         'Analysis 1 "Spot preference"'),
     ('analysis1-descr',
-        "Determine if a species has preference for a specific spot on "
-        "SETL plates."),
+        "Determine if a species has preference for a specific spot on SETL "
+        "plates."),
     ('analysis2',
         'Analysis 2 "Attraction of species (intra-specific)"'),
     ('analysis2-descr',
@@ -80,17 +80,17 @@ ENGLISH = [
     ('analysis4-descr',
         'Determine if one species is somehow related to another species.'),
     ('define-plate-areas',
-        "Please define the plate areas for the analysis. You can keep "
+        "Please define the plate areas for the Chi-squared test. You can keep "
         "the default setting, meaning that A, B, C and D are treated as "
         "separate plate areas, or you can combine specific areas by "
         "changing the setting below. Combining areas means that the "
         "combined areas are treated as a single plate area. Empty plate "
-        "areas are ignored."),
+        "areas are ignored. This plate area definition will not be used by the "
+        "Wilcoxon test because a fixed set of plate areas will be tested."),
     ('error-single-plate-area',
-        "You've chosen to combine all plate spots together, resulting "
-        "in a single plate area. This analysis can't continue with just "
-        "a single plate area. Please change your setting so that there "
-        "are at least two plate areas."),
+        "You've chosen to combine all plate areas together, resulting "
+        "in a single plate area. This analysis requires at least two plate "
+        "areas. Please change your plate areas definition."),
     ('change-data-source',
         "Click on one of the tabs below to change to a different data "
         "source."),
@@ -105,6 +105,28 @@ ENGLISH = [
     ('analysis-running',
         "Please stand by while the analysis is running. This may take "
         "a while..."),
+    ('invalid-alpha-level',
+        "You entered an invalid alpha level. The alpha level must be a "
+        "probability between 0 and 1."),
+    ('invalid-repeats-number',
+        "You entered an invalid repeats number. The number of repeats for "
+        "statistical tests must be 2 or higher."),
+    ('empty-plate-areas',
+        "The selected species weren't found on any SETL-plates from the selected "
+        "locations. Try again with different locations or select more "
+        "locations."),
+    ('t-plate-areas-definition',
+        "Plate Areas Definition for Chi-squared Test"),
+    ('t-plate-area-totals',
+        "Species Totals per Plate Area for Chi-squared Test"),
+    ('t-results-wilcoxon-rank-sum',
+        "Results for Wilcoxon rank-sum tests (non-repeated)"),
+    ('t-results-pearson-chisq',
+        "Results for Pearson's Chi-squared Tests for Count Data"),
+    ('t-results-shapiro-wilk',
+        "Results for Shapiro-Wilk tests of normality"),
+    ('t-significance-results-repeats',
+        "Significance results for repeated %s tests"),
     ]
 
 # Turn the list into a dictionary. This provides easier access to its

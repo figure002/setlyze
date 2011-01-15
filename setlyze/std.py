@@ -47,16 +47,24 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2010/10/01 13:42:16"
 
-def make_remarks(results, attributes, conclusions=('Attraction','Repulsion')):
+def make_remarks(results, attributes):
     """Return a remarks string that contains a summary of the results
     and attributes of a statistical test.
     """
     remarks = []
 
+    # Decide which conclusions to use based on the attributes.
+    if 'plate_area' in attributes:
+        conclusions = ('Rejection','Preference')
+    elif 'n_positive_spots' in attributes or 'ratios_group' in attributes:
+        conclusions = ('Attraction','Repulsion')
+    else:
+        conclusions = ('Attraction','Repulsion')
+
     if 'p_value' in results:
         if results['p_value'] == 'nan':
             remarks.append("Not significant")
-        elif float(results['p_value']) > 0.05:
+        elif float(results['p_value']) > setlyze.config.cfg.get('alpha-level'):
             remarks.append("Not significant")
         else:
             remarks.append("Significant")
@@ -224,86 +232,7 @@ def distance_frequency(x, method):
             frequencies[dist] += 1
     return frequencies
 
-def update_progress_dialog(fraction, action=None, autoclose=True):
-    """Set the progress dialog's progressbar fraction to ``fraction``.
-    The value of `fraction` should be between 0.0 and 1.0. Optionally set
-    the current action to `action`, a short string explaining the current
-    action. Optionally set `autoclose` to automatically close the
-    progress dialog if `fraction` equals ``1.0``.
 
-    The ``progress-dialog`` configuration must be set to an instance of
-    gtk.ProgressBar for this to work. If no progress dialog is set,
-    nothing will happen.
-    """
-    pdialog = setlyze.config.cfg.get('progress-dialog')
-
-    # If no progress dialog is set, do nothing.
-    if not pdialog:
-        return
-
-    # This is always called from a separate thread, so we must use
-    # gobject.idle_add to access the GUI.
-    gobject.idle_add(on_update_progress_dialog, fraction, action, autoclose)
-
-def on_close_progress_dialog(delay=0):
-    """Close the progress dialog. Optionally set a delay of `delay`
-    seconds before it's being closed.
-
-    There's no need to call this function manually, as it is called
-    by :meth:`on_update_progress_dialog` when it's needed.
-    """
-    pdialog = setlyze.config.cfg.get('progress-dialog')
-
-    # If a delay is set, sleep 'delay' seconds.
-    if delay: time.sleep(delay)
-
-    # Close the dialog.
-    pdialog.on_close()
-
-    # This callback function must return False, so it is
-    # automatically removed from the list of event sources.
-    return False
-
-def on_update_progress_dialog(fraction, action=None, autoclose=True):
-    """Set the progress dialog's progressbar fraction to ``fraction``.
-    The value of `fraction` should be between 0.0 and 1.0. Optionally set
-    the current action to `action`, a short string explaining the current
-    action. Optionally set `autoclose` to automatically close the
-    progress dialog if `fraction` equals ``1.0``.
-
-    Don't call this function manually; use :meth:`update_progress_dialog`
-    instead.
-    """
-    pdialog = setlyze.config.cfg.get('progress-dialog')
-
-    # Update fraction.
-    pdialog.pbar.set_fraction(fraction)
-
-    # Set percentage text for the progress bar.
-    percent = fraction * 100.0
-    pdialog.pbar.set_text("%.0f%%" % percent)
-
-    # Show the current action below the progress bar.
-    if isinstance(action, str):
-        action = "<span style='italic'>%s</span>" % (action)
-        pdialog.action.set_markup(action)
-
-    if fraction == 1.0:
-        pdialog.pbar.set_text("Finished!")
-        pdialog.button_close.set_sensitive(True)
-
-        if autoclose:
-            # Close the progress dialog when finished. We set a delay
-            # of 1 second before closing it, so the user gets to see the
-            # dialog when an analysis finishes very fast.
-
-            # This is always called from a separate thread, so we must
-            # use gobject.idle_add to access the GUI.
-            gobject.idle_add(on_close_progress_dialog, 1)
-
-    # This callback function must return False, so it is
-    # automatically removed from the list of event sources.
-    return False
 
 def uniqify(seq):
     """Remove all duplicates from a list."""
@@ -1497,7 +1426,7 @@ class ReportGenerator(object):
                 child_elements=x['results'],
                 )
 
-    def set_significance_test_repeats_areas(self, repeat_results):
+    def set_statistics_repeats(self, name, results):
         """Add the element "significance_test_repeats_areas" to the XML DOM
         report.
 
@@ -1506,49 +1435,67 @@ class ReportGenerator(object):
 
         The XML representation looks like this: ::
 
-            <significance_test_repeats_areas repeats="100">
-                <n_significant plate_area="A">
-                    100
-                </n_significant>
-                <n_significant plate_area="C+D">
-                    100
-                </n_significant>
-                <n_significant plate_area="C">
-                    100
-                </n_significant>
-                <n_significant plate_area="B">
-                    0
-                </n_significant>
-                <n_significant plate_area="B+C+D">
-                    100
-                </n_significant>
-                <n_significant plate_area="D">
-                    86
-                </n_significant>
-                <n_significant plate_area="A+B+C">
-                    0
-                </n_significant>
-                <n_significant plate_area="A+B">
-                    100
-                </n_significant>
+            <wilcoxon_areas_repeats alpha_level="0.05" repeats="100">
+                <result plate_area="A">
+                    <n_preference>
+                        100
+                    </n_preference>
+                    <n_rejection>
+                        0
+                    </n_rejection>
+                    <n_significant>
+                        100
+                    </n_significant>
+                </result>
+                <plate_area id="B+C+D">
+                    <n_preference>
+                        0
+                    </n_preference>
+                    <n_rejection>
+                        100
+                    </n_rejection>
+                    <n_significant>
+                        100
+                    </n_significant>
+                </plate_area>
             </significance_test_repeats_areas>
 
         Design Part:
         """
 
+        # Make sure the testid is valid.
+        valid_names = ('wilcoxon_areas','wilcoxon_spots','wilcoxon_ratios')
+        if name not in valid_names:
+            raise ValueError("Possible values for 'name' are %s. You gave '%s'." %
+                (", ".join(testids), name))
+
+        # Decide which attribute name to use for 'result' elements.
+        if 'areas' in name:
+            group_attribute = 'plate_area'
+        elif 'spots' in name:
+            group_attribute = 'n_spots'
+        elif 'ratios' in name:
+            group_attribute = 'ratio_group'
+
         # Create a new child element for the report.
-        significance_test_repeats_areas = self.create_element(
+        repeats_element = self.create_element(
             parent=self.report,
-            name="significance_test_repeats_areas",
-            attributes={'repeats': setlyze.config.cfg.get('test-repeats')},
+            name="%s_repeats" % (name),
+            attributes={'repeats': setlyze.config.cfg.get('test-repeats'),
+                'alpha_level': setlyze.config.cfg.get('alpha-level')},
             )
 
-        for plate_area, significants in repeat_results.iteritems():
-            self.create_element(parent=significance_test_repeats_areas,
-                name="n_significant",
-                attributes={'plate_area': plate_area},
-                text=significants
+        for group_attribute_value, items in results.iteritems():
+            result_element = self.create_element(parent=repeats_element,
+                name='result',
+                attributes={group_attribute: group_attribute_value},
                 )
+
+            for name, value in items.iteritems():
+                self.create_element(parent=result_element,
+                    name=name,
+                    text=value,
+                    )
 
     def get_report(self):
         """Return the XML DOM report object."""
@@ -1895,7 +1842,7 @@ class ReportReader(object):
 
         return totals
 
-    def get_statistics(self, name):
+    def get_statistics(self, element_name):
         """Return the statistics elements with name `name` from the
         XML DOM report.
 
@@ -1915,7 +1862,7 @@ class ReportReader(object):
 
         # Return each element with name `name` from the 'statistics' node.
         for e in statistics.childNodes:
-            if e.nodeType == e.ELEMENT_NODE and e.localName == name:
+            if e.nodeType == e.ELEMENT_NODE and e.localName == element_name:
                 attributes = {}
                 results = {}
 
@@ -1934,38 +1881,59 @@ class ReportReader(object):
                 # Return a tuple.
                 yield (attributes,results)
 
-    def get_significance_test_repeats_areas(self):
-        """Return the observed species totals per plate area from the
-        XML DOM report.
+    def get_statistics_repeats(self, element_name):
+        """Return the repeated statistical test results for `element_name`
+        from the XML DOM report. `element_name` is the element name of the
+        non-repeated variant. Possible values for `element_name` are
+        "wilcoxon_areas", "wilcoxon_spots", "wilcoxon_ratios",
+        "chi_squared_areas", "chi_squared_spots" and "chi_squared_ratios".
 
         This method returns a dictionary. For example: ::
 
             {
-            'area1': 24.64,
-            'area2': 73.92,
-            'area3': 55.44
+                'A': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0},
+                'B': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+                'C': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+                'D': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+                'A+B': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+                'repeats': 100,
             }
         """
 
-        # Find the 'significance_test_repeats_areas' node in the XML DOM object.
-        test_repeats = self.get_element(self.doc, "significance_test_repeats_areas")
+        # Find the 'element_name_repeats' node in the XML DOM object.
+        element_name = '%s_repeats' % element_name
+        repeats_element = self.get_element(self.doc, element_name)
 
-        # Check if the 'significance_test_repeats_areas' node was found.
-        if not test_repeats:
+        # Check if the 'element_name_repeats' node was found.
+        if not repeats_element:
             return
 
-        # Add each area total to the 'test_repeats_results' dictionary.
-        test_repeats_results = {}
-        for e in test_repeats.childNodes:
-            if e.nodeType == e.ELEMENT_NODE and e.localName == "n_significant":
-                plate_area = e.getAttribute("plate_area")
+        # Decide which attribute name to use for 'result' elements.
+        if 'areas' in element_name:
+            group_attribute = 'plate_area'
+        elif 'spots' in element_name:
+            group_attribute = 'n_spots'
+        elif 'ratios' in element_name:
+            group_attribute = 'ratio_group'
 
-                test_repeats_results[plate_area] = e.childNodes[0].nodeValue.strip()
+        # Add the results to the 'results' dictionary.
+        results = {}
+        for e in repeats_element.childNodes:
+            if e.nodeType == e.ELEMENT_NODE and e.localName == 'result':
+                group_attribute_value = e.getAttribute(group_attribute)
 
-        # Add the number of repeats as well.
-        test_repeats_results['repeats'] = test_repeats.getAttribute("repeats")
+                # Create a dictionary for this plate area.
+                results[group_attribute_value] = {}
 
-        return test_repeats_results
+                # Get all sub elements for 'result'.
+                for e2 in e.childNodes:
+                    if e2.nodeType == e2.ELEMENT_NODE:
+                        results[group_attribute_value][e2.localName] = e2.childNodes[0].nodeValue.strip()
+
+        # Add the number of repeats to the 'results' dict as well.
+        results['repeats'] = repeats_element.getAttribute('repeats')
+
+        return results
 
     def get_xml(self):
         """Return the XML source for the XML DOM report."""
@@ -2058,38 +2026,66 @@ class ExportTextReport(object):
         """Return a table header with column names from `headers` in
         reStructuredText format.
 
-        `headers` is a list/tuple containing two-item tuples
-        ``(<column name>, <column width>)``. The column name is a string,
-        and the column width is an integer defining the character width
-        of the column. A value of -1 for column with means that the
-        column will have the same width as the column name.
+        `headers` is a list of strings representing the column names.
         """
         header = ""
         header_lengths = []
-        format = []
-        for name,length in headers:
-            if length == -1:
-                length = len(name)
+        header_placeholders = []
+        row_placeholders = []
+        predefined_lengths = {"df": 6,
+            "Remarks": 40,
+            "W": 6,
+            }
+        predefined_fields = {"Plate Area": "%%-%ds",
+            "Area ID": "%%-%ds",
+            "P-value": "%%%d.4f",
+            "Chi squared": "%%%d.4f",
+            "Plate Area": "%%-%ds",
+            "Plate Area Surfaces": "%%-%ds",
+            "Mean Observed": "%%%d.4f",
+            "Mean Expected": "%%%d.4f",
+            "Remarks": "%%-%ds",
+            }
 
+        # Generate a placeholder strings for the column names and the fields.
+        for name in headers:
+            if name not in predefined_lengths:
+                length = len(name)
+            else:
+                length = predefined_lengths[name]
+
+            # Save the lengths of all column names. This is needed for
+            # generating the table rules.
             header_lengths.append(length)
-            format.append("%%-%ds" % length)
+
+            # Construct the placeholders for the column names.
+            header_placeholders.append("%%-%ds" % length)
+
+            # Construct the placeholders for the fields.
+            if name not in predefined_fields:
+                row_placeholders.append("%%%ds" % length)
+            else:
+                row_placeholders.append(predefined_fields[name] % length)
 
         # Generate top rule for table.
         header += self.table_rule(header_lengths)
 
-        # Generate column names.
-        format = "  ".join(format)
-        args = tuple([x[0] for x in headers])
-        header += format % args
+        # Generate string with column names.
+        header_placeholders = "  ".join(header_placeholders)
+        header += header_placeholders % tuple(headers)
         header += "\n"
 
         # Generate rule below column names.
         header += self.table_rule(header_lengths)
 
+        # Generate placeholder string for table rows.
+        row_placeholders = "  ".join(row_placeholders)
+        row_placeholders += "\n"
+
         # Generate rule for the end of the table.
         footer = self.table_rule(header_lengths)
 
-        return (header,footer)
+        return (header,row_placeholders,footer)
 
     def table_rule(self, col_widths):
         """Return a rule for a table with column widths `col_widths`.
@@ -2102,26 +2098,28 @@ class ExportTextReport(object):
         return "  ".join(format) + "\n"
 
     def generate(self, elements=None):
+        """Generate analysis report in text format."""
+
         # Get the child element names of the report root.
         report_elements = self.reader.get_child_names()
+
         # Add the child element names of the 'statistics' element to the
         # list of root element names.
         stats = self.reader.get_element(self.reader.doc, 'statistics')
         if stats:
             report_elements.extend(self.reader.get_child_names(stats))
 
-        # If 'elements' argument was provided, create a new
-        # 'report_elements' list containing only the elements that are
-        # present in both lists.
+        # If 'elements' argument was provided, create a new 'report_elements'
+        # list containing only the elements that are present in both lists.
         report_elements_new = []
         if elements:
             for element in elements:
                 for r_element in report_elements:
                     # Now check if string 'element' is part of string
-                    # r_element. Note that they don't have to be
-                    # exactly the same, e.g. if 'spot_distances' is
-                    # present in 'elements', both 'spot_distances_observed'
-                    # and 'spot_distances_expected' will be added to
+                    # r_element. Note that they don't have to be exactly the
+                    # same, e.g. if 'spot_distances' is present in 'elements',
+                    # both 'spot_distances_observed' and
+                    # 'spot_distances_expected' will be added to
                     # 'report_elements_new'.
                     if element in r_element:
                         report_elements_new.append(r_element)
@@ -2137,7 +2135,7 @@ class ExportTextReport(object):
             yield self.section("Locations and Species Selections")
 
             species_selection = self.reader.get_species_selection(slot=0)
-            yield self.subsection("Species Selection (1)")
+            yield self.subsection("Species Selection [1]")
             for spe in species_selection:
                 if not len(spe['name_latin']):
                     yield "* %s\n" % (spe['name_venacular'])
@@ -2148,7 +2146,7 @@ class ExportTextReport(object):
 
             if len(list(self.reader.get_species_selection(slot=1))):
                 species_selection = self.reader.get_species_selection(slot=1)
-                yield self.subsection("Species Selection (2)")
+                yield self.subsection("Species Selection [2]")
                 for spe in species_selection:
                     if not len(spe['name_latin']):
                         yield "* %s\n" % (spe['name_venacular'])
@@ -2159,13 +2157,13 @@ class ExportTextReport(object):
 
         # Add locations selections.
         if 'location_selections' in report_elements:
-            yield self.subsection("Locations selection (1)")
+            yield self.subsection("Locations selection [1]")
             locations_selection = self.reader.get_locations_selection(slot=0)
             for loc in locations_selection:
                 yield "* %s\n" % loc['name']
 
             if len(list(self.reader.get_locations_selection(slot=1))):
-                yield self.subsection("Locations selection (2)")
+                yield self.subsection("Locations selection [2]")
                 locations_selection = self.reader.get_locations_selection(slot=1)
                 for loc in locations_selection:
                     yield "* %s\n" % loc['name']
@@ -2175,290 +2173,351 @@ class ExportTextReport(object):
                 'spot_distances_expected' in report_elements:
             yield self.section("Spot Distances")
 
-            t_header, t_footer = self.table(
-                [("Observed", -1),
-                ("Expected", -1)]
-                )
+            t_header, t_row, t_footer = self.table(["Observed","Expected"])
 
             yield t_header
             observed_distances = self.reader.get_spot_distances_observed()
             expected_distances = self.reader.get_spot_distances_expected()
             for dist_observed in observed_distances:
-                yield "%8s  %8s\n" % (dist_observed, expected_distances.next())
+                yield t_row % (dist_observed, expected_distances.next())
             yield t_footer
 
         # Add the plate areas definition.
         if 'plate_areas_definition' in report_elements:
-            yield self.section("Plate Areas Definition")
+            yield self.section(setlyze.locale.text('t-plate-areas-definition'))
 
-            t_header, t_footer = self.table(
-                [("Area ID", -1),
-                ("Plate Area Spots", -1)]
-                )
+            t_header, t_row, t_footer = self.table(["Area ID","Plate Area Surfaces"])
 
             yield t_header
             spots_definition = self.reader.get_plate_areas_definition()
             for area_id, spots in sorted(spots_definition.iteritems()):
                 spots = ", ".join(spots)
-                yield "%-7s  %s\n" % (area_id, spots)
+                yield t_row % (area_id, spots)
             yield t_footer
 
         # Add the species totals per plate area.
         if 'area_totals_observed' in report_elements and \
                 'area_totals_expected' in report_elements:
-            yield self.section("Species Totals per Plate Area")
+            yield self.section(setlyze.locale.text('t-plate-area-totals'))
 
-            t_header, t_footer = self.table(
-                [("Area ID", -1),
-                ("Observed Totals", -1),
-                ("Expected Totals", -1)]
-                )
+            t_header, t_row, t_footer = self.table(["Area ID","Observed Totals",
+                "Expected Totals"])
 
             yield t_header
             totals_observed = self.reader.get_area_totals_observed()
             totals_expected = self.reader.get_area_totals_expected()
             for area_id in sorted(totals_observed):
-                yield "%-7s  %15s  %15s\n" % (area_id, totals_observed[area_id], totals_expected[area_id])
-            yield t_footer
-
-        # Add the results for the normality tests.
-        if 'normality' in report_elements:
-            yield self.section("Results for Shapiro-Wilk tests of normality")
-
-            t_header, t_footer = self.table(
-                [("Positive Spots", -1),
-                ("n (distances)", -1),
-                ("P-value", -1),
-                ("W", 6),
-                ("Normality", -1)]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('normality')
-            for attr,items in statistics:
-                null_hypothesis = "True"
-                if float(items['p_value']) < setlyze.config.cfg.get('normality-alpha'):
-                    null_hypothesis = "False"
-
-                yield "%14s  %13s  %7.4f  %6.4f  %s\n" % \
-                    (attr['n_positive_spots'],
-                    attr['n'],
-                    float(items['p_value']),
-                    float(items['w']),
-                    null_hypothesis
+                yield t_row % \
+                    (area_id,
+                    totals_observed[area_id],
+                    totals_expected[area_id],
                     )
             yield t_footer
 
-        # Add the results for the t-tests.
-        if 't_test' in report_elements:
-            yield self.section("Results for t-tests")
-            # TODO
+        # Add the results for the Chi-squared tests (areas).
+        if 'chi_squared_areas' in report_elements:
+            yield self.section(setlyze.locale.text('t-results-pearson-chisq'))
 
-        # Add the results for the Wilcoxon rank-sum tests.
-        if 'wilcoxon_spots' in report_elements:
-            yield self.section("Results for Wilcoxon rank-sum tests")
-
-            t_header, t_footer = self.table(
-                [('Positive Spots', -1),
-                ('n (plates)', -1),
-                ('n (distances)', -1),
-                ('P-value', -1),
-                ('Mean Observed', -1),
-                ('Mean Expected', -1),]
-                )
+            t_header, t_row, t_footer = self.table(['P-value','Chi squared','df',
+                'Remarks'])
 
             yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_spots')
+            statistics = self.reader.get_statistics('chi_squared_areas')
             for attr,items in statistics:
-                yield "%14s  %10s  %13s  %7.4f  %13.4f  %13.4f\n" % \
-                    (attr['n_positive_spots'],
-                    attr['n_plates'],
-                    attr['n'],
-                    float(items['p_value']),
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    )
-            yield t_footer
-
-            yield "\n(table continued)\n\n"
-
-            t_header, t_footer = self.table(
-                [('Positive Spots', -1),
-                ('Conf. interval start', -1),
-                ('Conf. interval end', -1),
-                ('Remarks', 40),]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_spots')
-            for attr,items in statistics:
-                yield "%14s  %20.6f  %18.6f  %s\n" % \
-                    (attr['n_positive_spots'],
-                    float(items['conf_int_start']),
-                    float(items['conf_int_end']),
-                    make_remarks(items,attr)
-                    )
-            yield t_footer
-
-        # Add the results for the Wilcoxon rank-sum tests.
-        if 'wilcoxon_ratios' in report_elements:
-            yield self.section("Results for Wilcoxon rank-sum tests")
-
-            t_header, t_footer = self.table(
-                [('Ratios Group', -1),
-                ('n (plates)', -1),
-                ('n (distances)', -1),
-                ('P-value', -1),
-                ('Mean Observed', -1),
-                ('Mean Expected', -1),]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_ratios')
-            for attr,items in statistics:
-                yield "%12s  %10s  %13s  %7.4f  %13.4f  %13.4f\n" % \
-                    (attr['ratio_group'],
-                    attr['n_plates'],
-                    attr['n'],
-                    float(items['p_value']),
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    )
-            yield t_footer
-
-            yield "\n(table continued)\n\n"
-
-            t_header, t_footer = self.table(
-                [('Ratios Group', -1),
-                ('Conf. interval start', -1),
-                ('Conf. interval end', -1),
-                ('Remarks', 40),]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_ratios')
-            for attr,items in statistics:
-                yield "%12s  %20.6f  %18.6f  %s\n" % \
-                    (attr['ratio_group'],
-                    float(items['conf_int_start']),
-                    float(items['conf_int_end']),
-                    make_remarks(items,attr)
-                    )
-            yield t_footer
-
-        # Add the results for the Chi-squared tests.
-        if 'chi_squared_spots' in report_elements:
-            yield self.section("Results for Pearson's Chi-squared Tests for Count Data")
-
-            t_header, t_footer = self.table(
-                [('Positive Spots', -1),
-                ('n (plates)', -1),
-                ('n (distances)', -1),
-                ('P-value', -1),
-                ('Chi squared', -1),
-                ('df', 6),]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_spots')
-            for attr,items in statistics:
-                yield "%14s  %10s  %13s  %7.4f  %11.4f  %6s\n" % \
-                    (attr['n_positive_spots'],
-                    attr['n_plates'],
-                    attr['n'],
-                    float(items['p_value']),
+                yield t_row % \
+                    (float(items['p_value']),
                     float(items['chi_squared']),
-                    items['df'],)
+                    int(float(items['df'])),
+                    make_remarks(items,attr),
+                    )
             yield t_footer
 
-            yield "\n(table continued)\n\n"
-
-            t_header, t_footer = self.table(
-                [('Positive Spots', -1),
-                ('Mean Observed', -1),
-                ('Mean Expected', -1),
-                ('Remarks', 40),]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_spots')
-            for attr,items in statistics:
-                yield "%14s  %13.4f  %13.4f  %s\n" % \
-                    (attr['n_positive_spots'],
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    make_remarks(items,attr))
-            yield t_footer
-
-        # Add the results for the Chi-squared tests.
-        if 'chi_squared_ratios' in report_elements:
-            yield self.section("Results for Pearson's Chi-squared Tests for Count Data")
-
-            t_header, t_footer = self.table(
-                [('Ratios Group', -1),
-                ('n (plates)', -1),
-                ('n (distances)', -1),
-                ('P-value', -1),
-                ('Chi squared', -1),
-                ('df', 6),]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_ratios')
-            for attr,items in statistics:
-                yield "%12s  %10s  %13s  %7.4f  %11.4f  %6s\n" % \
-                    (attr['ratio_group'],
-                    attr['n_plates'],
-                    attr['n'],
-                    float(items['p_value']),
-                    float(items['chi_squared']),
-                    items['df'],)
-            yield t_footer
-
-            yield "\n(table continued)\n\n"
-
-            t_header, t_footer = self.table(
-                [('Ratios Group', -1),
-                ('Mean Observed', -1),
-                ('Mean Expected', -1),
-                ('Remarks', 40),]
-                )
-
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_ratios')
-            for attr,items in statistics:
-                yield "%12s  %13.4f  %13.4f  %s\n" % \
-                    (attr['ratio_group'],
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    make_remarks(items,attr))
-            yield t_footer
-
-
-        # Add the results for the Wilcoxon rank-sum tests.
+        # Add the results for the Wilcoxon (non-repreated, areas).
         if 'wilcoxon_areas' in report_elements:
-            yield self.section("Results for Wilcoxon rank-sum tests (non-repeated)")
+            yield self.section(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
 
-            t_header, t_footer = self.table(
-                [('Plate Area', -1),
-                ('n (sp. encounters)', -1),
-                ('P-value', -1),
-                ('Mean Observed', -1),
-                ('Mean Expected', -1),
-                ('Remarks', 40),]
-                )
+            t_header, t_row, t_footer = self.table(['Plate Area','n (totals)',
+                'n (observed species)', 'n (expected species)', 'P-value'])
 
             yield t_header
             statistics = self.reader.get_statistics('wilcoxon_areas')
             for attr,items in statistics:
-                remarks = make_remarks(items,attr,conclusions=('Rejection','Preference'))
-                yield "%-10s  %18s  %7.4f  %13.4f  %13.4f  %s\n" % \
-                    (attr['area_group'],
+                remarks = make_remarks(items,attr)
+                yield t_row % \
+                    (attr['plate_area'],
+                    int(attr['n']),
+                    int(attr['n_sp_observed']),
+                    int(attr['n_sp_expected']),
+                    float(items['p_value']),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_row, t_footer = self.table(['Plate Area','Mean Observed',
+                'Mean Expected','Remarks'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_areas')
+            for attr,items in statistics:
+                yield t_row % \
+                    (attr['plate_area'],
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    make_remarks(items,attr),
+                    )
+            yield t_footer
+
+            # Add the results for the repeated Wilcoxon rank-sum tests.
+            if 'wilcoxon_areas_repeats' in report_elements:
+                yield self.section(setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'))
+
+                t_header, t_row, t_footer = self.table(['Plate Area','n (totals)',
+                    'n (observed species)','n (significant)',
+                    'n (non-significant)'])
+
+                yield t_header
+                statistics = self.reader.get_statistics('wilcoxon_areas')
+                statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_areas')
+                for attr,items in statistics:
+                    plate_area = attr['plate_area']
+                    remarks = make_remarks(items,attr)
+                    yield t_row % \
+                        (plate_area,
+                        int(attr['n']),
+                        int(attr['n_sp_observed']),
+                        int(statistics_repeats[plate_area]['n_significant']),
+                        int(int(statistics_repeats['repeats']) - int(statistics_repeats[plate_area]['n_significant'])),
+                        )
+                yield t_footer
+
+                yield "\n(table continued)\n\n"
+
+                t_header, t_row, t_footer = self.table(['Plate Area','n (preference)',
+                    'n (rejection)'])
+
+                yield t_header
+                statistics = self.reader.get_statistics('wilcoxon_areas')
+                statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_areas')
+                for attr,items in statistics:
+                    plate_area = attr['plate_area']
+                    yield t_row % \
+                        (plate_area,
+                        int(statistics_repeats[plate_area]['n_preference']),
+                        int(statistics_repeats[plate_area]['n_rejection']),
+                        )
+                yield t_footer
+
+        # Add the results for the Wilcoxon (non-repreated, spots).
+        if 'wilcoxon_spots' in report_elements:
+            yield self.section(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+
+            t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
+            'n (distances)','P-value','Mean Observed','Mean Expected'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_spots')
+            for attr,items in statistics:
+                yield t_row % \
+                    (attr['n_positive_spots'],
+                    attr['n_plates'],
                     attr['n'],
                     float(items['p_value']),
                     float(items['mean_observed']),
                     float(items['mean_expected']),
-                    remarks,
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_row, t_footer = self.table(['Positive Spots','Remarks'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_spots')
+            for attr,items in statistics:
+                yield t_row % \
+                    (attr['n_positive_spots'],
+                    make_remarks(items,attr)
+                    )
+            yield t_footer
+
+        # Add the results for the Wilcoxon (non-repreated, spots).
+        if 'wilcoxon_spots_repeats' in report_elements:
+            yield self.section(setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'))
+
+            t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
+            'n (distances)','n (significant)','n (non-significant)'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_spots')
+            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_spots')
+            for attr,items in statistics:
+                n_spots = attr['n_positive_spots']
+                yield t_row % \
+                    (n_spots,
+                    int(attr['n_plates']),
+                    int(attr['n']),
+                    int(statistics_repeats[n_spots]['n_significant']),
+                    int(int(statistics_repeats['repeats']) - int(statistics_repeats[n_spots]['n_significant'])),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_row, t_footer = self.table(['Positive Spots','n (attraction)',
+                'n (repulsion)'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_spots')
+            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_spots')
+            for attr,items in statistics:
+                n_spots = attr['n_positive_spots']
+                yield t_row % \
+                    (n_spots,
+                    int(statistics_repeats[n_spots]['n_attraction']),
+                    int(statistics_repeats[n_spots]['n_repulsion']),
+                    )
+            yield t_footer
+
+        # Add the results for the Wilcoxon (non-repreated, ratios).
+        if 'wilcoxon_ratios' in report_elements:
+            yield self.section(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+
+            t_header, t_row, t_footer = self.table(['Ratio Group','n (plates)',
+                'n (distances)','P-value','Mean Observed','Mean Expected'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_ratios')
+            for attr,items in statistics:
+                yield t_row % \
+                    (int(attr['ratio_group']),
+                    int(attr['n_plates']),
+                    int(attr['n']),
+                    float(items['p_value']),
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_row, t_footer = self.table(['Ratio Group','Remarks'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_ratios')
+            for attr,items in statistics:
+                yield t_row % \
+                    (int(attr['ratio_group']),
+                    make_remarks(items,attr)
+                    )
+            yield t_footer
+
+        # Add the results for the Wilcoxon (non-repreated, spots).
+        if 'wilcoxon_ratios_repeats' in report_elements:
+            yield self.section(setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'))
+
+            t_header, t_row, t_footer = self.table(['Ratio Group','n (plates)',
+            'n (distances)','n (significant)','n (non-significant)'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_ratios')
+            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_ratios')
+            for attr,items in statistics:
+                ratio_group = attr['ratio_group']
+                yield t_row % \
+                    (ratio_group,
+                    int(attr['n_plates']),
+                    int(attr['n']),
+                    int(statistics_repeats[ratio_group]['n_significant']),
+                    int(int(statistics_repeats['repeats']) - int(statistics_repeats[ratio_group]['n_significant'])),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_row, t_footer = self.table(['Ratio Group','n (attraction)',
+                'n (repulsion)'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('wilcoxon_ratios')
+            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_ratios')
+            for attr,items in statistics:
+                ratio_group = attr['ratio_group']
+                yield t_row % \
+                    (ratio_group,
+                    int(statistics_repeats[ratio_group]['n_attraction']),
+                    int(statistics_repeats[ratio_group]['n_repulsion']),
+                    )
+            yield t_footer
+
+        # Add the results for the Chi-squared tests (spots).
+        if 'chi_squared_spots' in report_elements:
+            yield self.section(setlyze.locale.text('t-results-pearson-chisq'))
+
+            t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
+            'n (distances)','P-value','Chi squared','df'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_spots')
+            for attr,items in statistics:
+                yield t_row % \
+                    (int(attr['n_positive_spots']),
+                    int(attr['n_plates']),
+                    int(attr['n']),
+                    float(items['p_value']),
+                    float(items['chi_squared']),
+                    int(float(items['df'])),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_row, t_footer = self.table(['Positive Spots','Mean Observed',
+                'Mean Expected','Remarks'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_spots')
+            for attr,items in statistics:
+                yield t_row % \
+                    (attr['n_positive_spots'],
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    make_remarks(items,attr))
+            yield t_footer
+
+        # Add the results for the Chi-squared tests (ratios).
+        if 'chi_squared_ratios' in report_elements:
+            yield self.section(setlyze.locale.text('t-results-pearson-chisq'))
+
+            t_header, t_row, t_footer = self.table(('Ratio Group','n (plates)',
+                'n (distances)','P-value','Chi squared','df'))
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_ratios')
+            for attr,items in statistics:
+                yield t_row % \
+                    (int(attr['ratio_group']),
+                    int(attr['n_plates']),
+                    int(attr['n']),
+                    float(items['p_value']),
+                    float(items['chi_squared']),
+                    int(float(items['df'])),
+                    )
+            yield t_footer
+
+            yield "\n(table continued)\n\n"
+
+            t_header, t_row, t_footer = self.table(['Ratio Group','Mean Observed',
+                'Mean Expected','Remarks'])
+
+            yield t_header
+            statistics = self.reader.get_statistics('chi_squared_ratios')
+            for attr,items in statistics:
+                yield t_row % \
+                    (attr['ratio_group'],
+                    float(items['mean_observed']),
+                    float(items['mean_expected']),
+                    make_remarks(items,attr)
                     )
             yield t_footer
 
@@ -2466,6 +2525,131 @@ class ExportTextReport(object):
         f = open(path, 'w')
         f.writelines(self.generate(elements))
         f.close()
+
+class ProgressDialogHandler(object):
+    """Class for controlling the progress dialog."""
+
+    def __init__(self):
+        self.total_steps = None
+        self.current_step = 0
+        self.autoclose = True
+        self.pdialog = setlyze.config.cfg.get('progress-dialog')
+
+    def set_total_steps(self, number):
+        """Set the total number of steps for the progress."""
+        if not isinstance(number, int):
+            raise ValueError("Value for 'number' should be an integer, not '%s'." %
+                (type(number).__name__))
+
+        # Reset the current step so we start with 0% again.
+        self.current_step = 0
+
+        # Set the new value for total steps. This number must be saved as a
+        # float, because we want to calculate fractions.
+        self.total_steps = float(number)
+
+    def set_action(self, action):
+        """Set the progress dialog's action string to `action`. This action
+        string is showed below the progress bar.
+        """
+        action = "<span style='italic'>%s</span>" % (action)
+        gobject.idle_add(self.pdialog.action.set_markup, action)
+
+    def increase(self, action=None):
+        """Increase the progress bar's fraction based on the current fraction
+        and the total number of steps."""
+        if not self.total_steps:
+            raise ValueError("You didn't set the total number of steps. Use "
+                "'set_total_steps()'.")
+
+        # Calculate the new fraction.
+        self.current_step += 1
+        fraction = self.current_step / self.total_steps
+
+        # Check if the fraction has a logical value.
+        if 0.0 > fraction > 1.0:
+            raise ValueError("Incorrect fraction '%f' encountered. You "
+                "probably didn't set the correct total steps." % fraction)
+
+        # Update the progress dialog.
+        self.update(fraction, action)
+
+    def update(self, fraction, action=None):
+        """Set the progress dialog's progressbar fraction to ``fraction``.
+        The value of `fraction` should be between 0.0 and 1.0. Optionally set
+        the current action to `action`, a short string explaining the current
+        action. Optionally set `autoclose` to automatically close the progress
+        dialog if `fraction` equals 1.0.
+
+        The ``progress-dialog`` configuration must be set to an instance of
+        gtk.ProgressBar for this to work. If no progress dialog is set,
+        nothing will happen.
+        """
+        # If no progress dialog is set, do nothing.
+        if not self.pdialog:
+            return
+
+        # In case this is always called from a separate thread, so we must use
+        # gobject.idle_add to access the GUI.
+        gobject.idle_add(self.__update_progress_dialog, fraction, action)
+
+    def __update_progress_dialog(self, fraction, action=None):
+        """Set the progress dialog's progressbar fraction to ``fraction``.
+        The value of `fraction` should be between 0.0 and 1.0. Optionally set
+        the current action to `action`, a short string explaining the current
+        action. Optionally set `autoclose` to automatically close the
+        progress dialog if `fraction` equals ``1.0``.
+
+        Don't call this function manually; use :meth:`update_progress_dialog`
+        instead.
+        """
+
+        # Update fraction.
+        self.pdialog.pbar.set_fraction(fraction)
+
+        # Set percentage text for the progress bar.
+        percent = fraction * 100.0
+        self.pdialog.pbar.set_text("%.1f%%" % percent)
+
+        # Show the current action below the progress bar.
+        if isinstance(action, str):
+            action = "<span style='italic'>%s</span>" % (action)
+            self.pdialog.action.set_markup(action)
+
+        if fraction == 1.0:
+            self.pdialog.pbar.set_text("Finished!")
+            self.pdialog.button_close.set_sensitive(True)
+
+            if self.autoclose:
+                # Close the progress dialog when finished. We set a delay
+                # of 1 second before closing it, so the user gets to see the
+                # dialog when an analysis finishes very fast.
+
+                # This is always called from a separate thread, so we must
+                # use gobject.idle_add to access the GUI.
+                gobject.idle_add(self.__close_progress_dialog, 1)
+
+        # This callback function must return False, so it is
+        # automatically removed from the list of event sources.
+        return False
+
+    def __close_progress_dialog(self, delay=0):
+        """Close the progress dialog. Optionally set a delay of `delay`
+        seconds before it's being closed.
+
+        There's no need to call this function manually, as it is called
+        by :meth:`on_update_progress_dialog` when it's needed.
+        """
+
+        # If a delay is set, sleep 'delay' seconds.
+        if delay: time.sleep(delay)
+
+        # Close the dialog.
+        self.pdialog.on_close()
+
+        # This callback function must return False, so it is
+        # automatically removed from the list of event sources.
+        return False
 
 # Register the Sender class as an official GType.
 gobject.type_register(Sender)

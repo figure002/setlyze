@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="config.html" title="setlyze.config — Configuration manager"
              accesskey="P">previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
       </ul>
@@ -64,7 +67,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 03, 2010</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 10, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -82,7 +85,7 @@ database.</p>
 <dl class="class">
 <dt id="setlyze.database.AccessDBGeneric">
 <em class="property">class </em><tt class="descclassname">setlyze.database.</tt><tt class="descname">AccessDBGeneric</tt><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric" title="Permalink to this definition">¶</a></dt>
-<dd><p>Super class for AccessLocalDB and AccessRemoteDB.</p>
+<dd><p>Super class for <a class="reference internal" href="#setlyze.database.AccessLocalDB" title="setlyze.database.AccessLocalDB"><tt class="xref py py-class docutils literal"><span class="pre">AccessLocalDB</span></tt></a> and <a class="reference internal" href="#setlyze.database.AccessRemoteDB" title="setlyze.database.AccessRemoteDB"><tt class="xref py py-class docutils literal"><span class="pre">AccessRemoteDB</span></tt></a>.</p>
 <p>This class contains methods that are generic for both sub-classes.
 It provides both sub classes with methods for data that is always
 present in the local database.</p>
@@ -112,11 +115,36 @@ from <cite>spots_table1</cite>, and <tt class="docutils literal"><span class="pr
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.database.AccessDBGeneric.get_area_totals">
+<tt class="descname">get_area_totals</tt><big>(</big><em>plate_area_totals_table</em>, <em>area_group</em><big>)</big><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_area_totals" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.database.AccessDBGeneric.get_database_info">
+<tt class="descname">get_database_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_database_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_database_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return info (creation date, data source) stored in the local
+database file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.database.AccessDBGeneric.get_distances_matching_ratios">
+<tt class="descname">get_distances_matching_ratios</tt><big>(</big><em>distance_table</em>, <em>ratios</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_ratios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the spot distances from distance table <cite>distance_table</cite> where
+positive spots numbers between species A and B have ratio
+matching the list of ratios <cite>ratios</cite>.</p>
+<p>The ratio A:B is considered the same as B:A.</p>
+<p>This is a generator, meaning that this method returns an
+iterator. This iterator returns the distances.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.database.AccessDBGeneric.get_distances_matching_spots_total">
-<tt class="descname">get_distances_matching_spots_total</tt><big>(</big><em>cursor</em>, <em>distance_table</em>, <em>spots_n</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_spots_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_spots_total" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_distances_matching_spots_total</tt><big>(</big><em>distance_table</em>, <em>spots_n</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_spots_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_spots_total" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the distances from distance table <cite>distance_table</cite> that
 are from plates having <cite>spots_n</cite> positive spot numbers.</p>
-<p><cite>cursor</cite> must be a SQLite cursor object.</p>
+<p>This is a generator, meaning that this method returns an
+iterator. This iterator returns the distances.</p>
 </dd></dl>
 
 <dl class="method">
@@ -124,6 +152,7 @@ are from plates having <cite>spots_n</cite> positive spot numbers.</p>
 <tt class="descname">get_locations</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_locations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of all locations from the local database.</p>
 <p>Returns a list of tuples <tt class="docutils literal"><span class="pre">(loc_id,</span> <span class="pre">'loc_name')</span></tt>.</p>
+<p>Design Part: 1.95</p>
 </dd></dl>
 
 <dl class="method">
@@ -134,7 +163,7 @@ The value for <cite>slot</cite> defines which spots table is used.
 The possible values of <cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for table
 <tt class="docutils literal"><span class="pre">species_spots_1</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt> for <tt class="docutils literal"><span class="pre">species_spots_2</span></tt>.</p>
 <p>We&#8217;re doing this so we can threat multiple species selected by
-the user as a single specie.</p>
+the user as a single species.</p>
 <p>Design Part: 1.20</p>
 </dd></dl>
 
@@ -143,14 +172,12 @@ the user as a single specie.</p>
 <tt class="descname">remove_single_spot_plates</tt><big>(</big><em>table</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.remove_single_spot_plates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.remove_single_spot_plates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove records that have just one positive spot. Intra-specific
 distance can’t be calculated for those.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Use of this function is discouraged. You can easily check for
+<p class="deprecated">
+<span class="versionmodified">Deprecated since version 0.1: </span>Use of this function is discouraged. You can easily check for
 a minimum number of spots in your functions. Also the function
 <a class="reference internal" href="std.html#setlyze.std.get_spot_combinations_from_record" title="setlyze.std.get_spot_combinations_from_record"><tt class="xref py py-meth docutils literal"><span class="pre">get_spot_combinations_from_record()</span></tt></a> will
 return an empty list if no combinations are possibe (e.g. the
 record contains less than 2 positive spots).</p>
-</div>
 <p>Design Part: 1.21</p>
 </dd></dl>
 
@@ -181,18 +208,22 @@ in the list <cite>loc_ids</cite> and the species IDs in the list <cite>spe_ids</
 database that match the localities selection.</p>
 <p>The values for <cite>loc_slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for the first localities
 selection and <tt class="docutils literal"><span class="pre">1</span></tt> for the second localities selection.</p>
+<p>Design Part: 1.96</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.get_spots">
 <tt class="descname">get_spots</tt><big>(</big><em>rec_ids</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.get_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.get_spots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all 25 spot booleans for the records with IDs matching
-the record IDs in the list <cite>rec_ids</cite>.</p>
+the list of record IDs <cite>rec_ids</cite>.</p>
+<p>This is a generator, meaning that this method returns an
+iterator. This iterator returns tuples with the 25 spot booleans for
+all matching records.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.set_species_spots">
-<tt class="descname">set_species_spots</tt><big>(</big><em>rec_ids</em>, <em>slot</em><big>)</big><a class="headerlink" href="#setlyze.database.AccessLocalDB.set_species_spots" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">set_species_spots</tt><big>(</big><em>rec_ids</em>, <em>slot</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.set_species_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.set_species_spots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table in the local database containing the spots
 information for SETL records matching <cite>rec_ids</cite>. Two spots
 tables can be created. The values for <cite>slot</cite> can be <tt class="docutils literal"><span class="pre">0</span></tt> for table
@@ -244,7 +275,7 @@ home folder.</p>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_info">
-<tt class="descname">create_table_info</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_info" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for storing basic information about the
 local database.</p>
 <p>This information includes its creation date and the data source.
@@ -258,7 +289,7 @@ too old, followed by creating a new local database.</p>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_localities">
-<tt class="descname">create_table_localities</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_localities" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_localities</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_localities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_localities" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the SETL localities.</p>
 <p>Because the data from this table is accessed frequently, the
 localities records are automatically saved to this table when
@@ -267,8 +298,24 @@ an analyze is started.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.database.MakeLocalDB.create_table_plate_area_totals_expected">
+<tt class="descname">create_table_plate_area_totals_expected</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plate_area_totals_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table for the total of positive spots per plate area per
+plate ID.</p>
+<p>Design Part:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.database.MakeLocalDB.create_table_plate_area_totals_observed">
+<tt class="descname">create_table_plate_area_totals_observed</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plate_area_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table for the total of positive spots per plate area per
+plate ID.</p>
+<p>Design Part:</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_plate_spot_totals">
-<tt class="descname">create_table_plate_spot_totals</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plate_spot_totals" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_plate_spot_totals</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_plate_spot_totals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plate_spot_totals" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the total of spots per plate in the
 distance tables.</p>
 <p>Design Part: 1.85</p>
@@ -276,7 +323,7 @@ distance tables.</p>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_plates">
-<tt class="descname">create_table_plates</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plates" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_plates</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_plates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the SETL plates.</p>
 <p>This table is only filled if the user selected CSV files to
 import SETL data from. If the remote SETL database is used,
@@ -286,7 +333,7 @@ the plate records are obtained directly via queries.</p>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_records">
-<tt class="descname">create_table_records</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_records" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_records</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_records" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the SETL records.</p>
 <p>This table is only filled if the user selected CSV files to
 import SETL data from. If the remote SETL database is used,
@@ -296,7 +343,7 @@ the records are obtained directly via queries.</p>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_species">
-<tt class="descname">create_table_species</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_species" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_species</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_species" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the SETL species.</p>
 <p>Because the data from this table is accessed frequently, the
 species records are automatically saved to this table when
@@ -306,7 +353,7 @@ an analyze is started.</p>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_species_spots_1">
-<tt class="descname">create_table_species_spots_1</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_species_spots_1" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_species_spots_1</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_species_spots_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_species_spots_1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table that will contain the SETL records for the
 first species selection.</p>
 <p>Because the user can select multiple species, the plate IDs in
@@ -317,7 +364,7 @@ creating a separate column <tt class="docutils literal"><span class="pre">id</sp
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_species_spots_2">
-<tt class="descname">create_table_species_spots_2</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_species_spots_2" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_species_spots_2</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_species_spots_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_species_spots_2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table that will contain the SETL records for the
 second species selection.</p>
 <p>Because the user can select multiple species, the plate IDs in
@@ -327,33 +374,17 @@ creating a separate column <tt class="docutils literal"><span class="pre">id</sp
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.database.MakeLocalDB.create_table_spot_distances">
-<tt class="descname">create_table_spot_distances</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table that will contain all the pre-calculated
-spot distances that are possible on a SETL plate.</p>
-<p>Design Part: 1.82</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_spot_distances_expected">
-<tt class="descname">create_table_spot_distances_expected</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances_expected" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_spot_distances_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_spot_distances_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances_expected" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the expected spot distances.</p>
 <p>Design Part: 1.84</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_spot_distances_observed">
-<tt class="descname">create_table_spot_distances_observed</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances_observed" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_table_spot_distances_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_spot_distances_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_spot_distances_observed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a table for the observed spot distances.</p>
 <p>Design Part: 1.83</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.database.MakeLocalDB.fill_distance_table">
-<tt class="descname">fill_distance_table</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.fill_distance_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.fill_distance_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate all possible spot distances for a SETL plate and put
-them in a table in the local database.</p>
-<p>Design Part: 1.47</p>
 </dd></dl>
 
 <dl class="method">
@@ -453,7 +484,7 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.remove_db_file">
-<tt class="descname">remove_db_file</tt><big>(</big><em>tries=0</em><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.remove_db_file" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">remove_db_file</tt><big>(</big><em>tries=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.remove_db_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.remove_db_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the database file.</p>
 <p>This method does 3 tries if for some reason the database file
 could not be deleted (e.g. the file is in use by a different
@@ -485,7 +516,7 @@ supplied CSV files into the local database.</p>
 
 <dl class="function">
 <dt id="setlyze.database.get_database_accessor">
-<tt class="descclassname">setlyze.database.</tt><tt class="descname">get_database_accessor</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.get_database_accessor" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.database.</tt><tt class="descname">get_database_accessor</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#get_database_accessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.get_database_accessor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an object that facilitates access to either the local or
 the remote database.</p>
 <p>Based on the data source configuration, obtained with
@@ -493,11 +524,12 @@ the remote database.</p>
 return an instance of AccessLocalDB or AccessRemoteDB. This instance
 provides methods that are specific to the data source currently in
 use.</p>
+<p>Design Part: 1.93</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="setlyze.database.get_plates_total_matching_spots_total">
-<tt class="descclassname">setlyze.database.</tt><tt class="descname">get_plates_total_matching_spots_total</tt><big>(</big><em>n_spots</em>, <em>slot=0</em><big>)</big><a class="headerlink" href="#setlyze.database.get_plates_total_matching_spots_total" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.database.</tt><tt class="descname">get_plates_total_matching_spots_total</tt><big>(</big><em>n_spots</em>, <em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#get_plates_total_matching_spots_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.get_plates_total_matching_spots_total" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an integer representing the number of plates that
 match the provided number of positive spots <cite>n_spots</cite>.</p>
 <p>Possible values for <cite>slot</cite> are 0 for the first species selection,
@@ -526,7 +558,7 @@ and 1 for the second species selection.</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="config.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">setlyze.config</span></tt> &#8212; Configuration manager</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">setlyze.config</span></tt> &#8212; Configuration manager</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="gui.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.gui</span></tt> &#8212; Graphical interfaces</a></p>
@@ -567,7 +599,10 @@ and 1 for the second species selection.</p>
         <li class="right" >
           <a href="config.html" title="setlyze.config — Configuration manager"
              >previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
       </ul>

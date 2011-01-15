@@ -27,10 +27,10 @@ this makes the variables available across all modules. Here is a small
 usage example,
 
     >>> import setlyze.config
-    >>> setlyze.config.cfg.set('significance-alpha', 0.01)
+    >>> setlyze.config.cfg.set('alpha-level', 0.01)
     >>> setlyze.config.cfg.set('species-selection', [11, 12, 13, 14], slot=0)
     >>> setlyze.config.cfg.set('species-selection', [15, 16, 17], slot=1)
-    >>> print "The alpha level for the t-test and Wilcoxon test is set to", setlyze.config.cfg.get('significance-alpha')
+    >>> print "The alpha level for the t-test and Wilcoxon test is set to", setlyze.config.cfg.get('alpha-level')
     The alpha level for the t-test and Wilcoxon test is set to 0.01
     >>> print "The first species selection is", setlyze.config.cfg.get('species-selection', slot=0)
     The first species selection is [11, 12, 13, 14]
@@ -138,18 +138,17 @@ DEFAULT_CONFIG = [
     ('progress-dialog', None),
     # Analysis report.
     ('analysis-report', None),
-    # Normality test: alpha level.
-    ('normality-alpha', 0.05),
-    # Significance test: alpha level.
-    ('significance-alpha', 0.05),
-    # Significance test: confidence level.
-    ('significance-confidence', 0.95),
+    # Alpha level for normality tests.
+    ('alpha-level-normality', 0.05),
+    # Alpha level for significance tests. The confidence level is calculated
+    # with "1 - alpha-level".
+    ('alpha-level', 0.05),
     # Probabilities for each spot distance.
     ('spot-dist-to-prob-intra', SPOT_DIST_TO_PROB_INTRA),
     # Probabilities for each spot distance.
     ('spot-dist-to-prob-inter', SPOT_DIST_TO_PROB_INTER),
     # Number of repeats to perform for statistical tests.
-    ('test-repeats', 100),
+    ('test-repeats', 10),
 ]
 
 class ConfigManager(object):

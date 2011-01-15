@@ -7,7 +7,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.analysis.attraction_inter — Analysis 2.2, Attraction of species (inter-specific) &mdash; SETLyze v1.0 documentation</title>
+    <title>setlyze.analysis.attraction_inter — Analysis 3, Attraction of species (inter-specific) &mdash; SETLyze v1.0 documentation</title>
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="SETLyze v1.0 documentation" href="../../index.html" />
     <link rel="up" title="Analysis Modules" href="../../setlyze_modules_analysis.html" />
-    <link rel="next" title="setlyze.analysis.attraction_intra — Analysis 2.1, Attraction of species (intra-specific)" href="attraction_intra.html" />
+    <link rel="next" title="setlyze.analysis.attraction_intra — Analysis 2, Attraction of species (intra-specific)" href="attraction_intra.html" />
     <link rel="prev" title="Analysis Modules" href="../../setlyze_modules_analysis.html" /> 
   </head>
   <body>
@@ -38,12 +38,15 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis 2.1, Attraction of species (intra-specific)"
+          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis 2, Attraction of species (intra-specific)"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="../../setlyze_modules_analysis.html" title="Analysis Modules"
              accesskey="P">previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
           <li><a href="../../setlyze_modules_analysis.html" accesskey="U">Analysis Modules</a> &raquo;</li> 
@@ -55,8 +58,8 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="setlyze-analysis-attraction-inter-analysis-2-2-attraction-of-species-inter-specific">
-<h1><a class="reference internal" href="#module-setlyze.analysis.attraction_inter" title="setlyze.analysis.attraction_inter"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt></a> &#8212; Analysis 2.2, Attraction of species (inter-specific)<a class="headerlink" href="#setlyze-analysis-attraction-inter-analysis-2-2-attraction-of-species-inter-specific" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="setlyze-analysis-attraction-inter-analysis-3-attraction-of-species-inter-specific">
+<h1><a class="reference internal" href="#module-setlyze.analysis.attraction_inter" title="setlyze.analysis.attraction_inter"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt></a> &#8212; Analysis 3, Attraction of species (inter-specific)<a class="headerlink" href="#setlyze-analysis-attraction-inter-analysis-3-attraction-of-species-inter-specific" title="Permalink to this headline">¶</a></h1>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -65,26 +68,57 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 03, 2010</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 09, 2011</td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="module-setlyze.analysis.attraction_inter">
 <span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.analysis.attraction_inter" title="Permalink to this headline">¶</a></h2>
+<p>This module performs analysis 3 &#8220;Attraction of species (inter-
+specific)&#8221;. This analysis can be broken down in the following steps:</p>
+<ol class="arabic simple">
+<li>Show a list of all localities and let the user perform a localities
+selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the first species selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the second species selection.</li>
+<li>Get all SETL records that match the localities + first species
+selection and save these to table &#8220;species_spots_1&#8221; in the local
+database.</li>
+<li>Merge records with the same plate ID in table &#8220;species_spots_1&#8221; to
+make the plate IDs unique.</li>
+<li>Get all SETL records that match the localities + second species
+selection and save these to table &#8220;species_spots_2&#8221; in the local
+database.</li>
+<li>Merge records with the same plate ID in table &#8220;species_spots_2&#8221; to
+make the plate IDs unique.</li>
+<li>Calculate the inter-specific spot distances from the records in both
+species spots tables and save the distances to table
+&#8220;spot_distances_observed&#8221; in the local database.</li>
+<li>Calculate expected inter-specific spot distances by generating
+random spots and save the distances to table
+&#8220;spot_distances_expected&#8221; in the local database.</li>
+<li>Calculate the significance in difference between the observed and
+expected spot distances. Two tests of significance are performed:
+the Wilcoxon rank-sum test and the Chi-squared test.</li>
+<li>Generate the anayslis report.</li>
+<li>Show the analysis report to the user.</li>
+</ol>
 <dl class="class">
 <dt id="setlyze.analysis.attraction_inter.Begin">
 <em class="property">class </em><tt class="descclassname">setlyze.analysis.attraction_inter.</tt><tt class="descname">Begin</tt><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Make all the preparations for analysis 2.2:</dt>
-<dd><ul class="first last simple">
-<li>Let the user make the first locations selection.</li>
-<li>Let the user make the first species selection.</li>
-<li>Let the user make the second locations selection.</li>
-<li>Let the user make the second species selection.</li>
-</ul>
-</dd>
-</dl>
-<p>When done, start the analysis.</p>
+<dd><p>Make the preparations for analysis 3:</p>
+<ol class="arabic simple">
+<li>Show a list of all localities and let the user perform a localities
+selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the first species selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the second species selection.</li>
+<li>Start the analysis.</li>
+<li>Show the analysis report to the user.</li>
+</ol>
 <p>Design Part: 1.5.1</p>
 <dl class="method">
 <dt id="setlyze.analysis.attraction_inter.Begin.destroy_handler_connections">
@@ -135,14 +169,36 @@ by this analysis.</p>
 <dl class="class">
 <dt id="setlyze.analysis.attraction_inter.Start">
 <em class="property">class </em><tt class="descclassname">setlyze.analysis.attraction_inter.</tt><tt class="descname">Start</tt><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform all the calculations for analysis 2.2.</p>
+<dd><p>Perform the calculations for analysis 3.</p>
+<ol class="arabic simple">
+<li>Get all SETL records that match the localities + first species
+selection and save these to table &#8220;species_spots_1&#8221; in the local
+database.</li>
+<li>Merge records with the same plate ID in table &#8220;species_spots_1&#8221; to
+make the plate IDs unique.</li>
+<li>Get all SETL records that match the localities + second species
+selection and save these to table &#8220;species_spots_2&#8221; in the local
+database.</li>
+<li>Merge records with the same plate ID in table &#8220;species_spots_2&#8221; to
+make the plate IDs unique.</li>
+<li>Calculate the inter-specific spot distances from the records in both
+species spots tables and save the distances to table
+&#8220;spot_distances_observed&#8221; in the local database.</li>
+<li>Calculate expected inter-specific spot distances by generating
+random spots and save the distances to table
+&#8220;spot_distances_expected&#8221; in the local database.</li>
+<li>Calculate the significance in difference between the observed and
+expected spot distances. Two tests of significance are performed:
+the Wilcoxon rank-sum test and the Chi-squared test.</li>
+<li>Generate the anayslis report.</li>
+</ol>
 <p>Design Part: 1.5.2</p>
 <dl class="method">
 <dt id="setlyze.analysis.attraction_inter.Start.calculate_distances_inter">
 <tt class="descname">calculate_distances_inter</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.calculate_distances_inter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the inter-specific distances for each plate (present
-in two tables) and save the distances to
-local_database.spot_distances_observed.</p>
+<dd><p>Calculate the inter-specific spot distances for each plate
+and save the distances to table &#8220;spot_distances_observed&#8221; in
+the local database.</p>
 <p>Design Part: 1.27</p>
 </dd></dl>
 
@@ -150,16 +206,84 @@ local_database.spot_distances_observed.</p>
 <dt id="setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected">
 <tt class="descname">calculate_distances_inter_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.calculate_distances_inter_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the expected distances based on the observed
-inter-specific distances (2.12) and save these to a table in the
-local database (2.13).</p>
+inter-specific distances and save these to table
+&#8220;spot_distances_expected&#8221; in the local database.</p>
 <p>Design Part: 1.69</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.Start.calculate_significance">
+<tt class="descname">calculate_significance</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.calculate_significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.calculate_significance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform statistical tests to check if the differences between
+the means of the two sets of distances are statistically
+significant.</p>
+<p>We perform two statistical tests:</p>
+<ol class="arabic simple">
+<li>The unpaired Wilcoxon rank sum test. We use unpaired
+because the two sets of distances are unrelated
+(<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Dalgaard</em></a>). In other words,
+a distance n in &#8216;observed&#8217; is unrelated to distance n in
+&#8216;expected&#8217; (where n is an item number in the lists).</li>
+<li>The Chi-squared test for given probabilities
+(<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Millar</em></a>,
+<a class="reference internal" href="../../references.html#ref-millar"><em>Dalgaard</em></a>). The probabilities
+for all spot distances have been pre-calcualted. So the
+observed probabilities are compared with the pre-calculated
+probabilities.</li>
+</ol>
+<p>Based on the results of the tests we can decide which
+hypothesis we can assume to be true.</p>
+<dl class="docutils">
+<dt>Null hypothesis</dt>
+<dd>The species in question doesn&#8217;t attract or repel itself.</dd>
+<dt>Alternative hypothesis</dt>
+<dd>The species in question attracts (mean observed &lt; mean
+expected) or repels (mean observed &gt; mean expected) itself.</dd>
+</dl>
+<p>The decision is based on the p-value calculated by the test:</p>
+<dl class="docutils">
+<dt>P &gt;= alpha level</dt>
+<dd>Assume that the null hypothesis is true.</dd>
+<dt>P &lt; alpha level</dt>
+<dd>Assume that the alternative hypothesis is true.</dd>
+</dl>
+<p>The default value for the alpha level is 0.05 (5%). In biology
+we usually assume that differences are significant if P has
+a value less than 5% (<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Millar</em></a>).</p>
+<p>The default value for the confidence level is 0.95 (95%). So
+there is a 95% probability that the true mean lies within the
+range of the confidence interval.</p>
+<p>A high number of positive spots on a plate will naturally lead
+to a high p-value (not significant). These plates will
+negatively affect the result of statistical test. To account
+for this, the tests are performed on groups of plates. Instead of
+doing one test on all plates, we group the plates based on the
+positive spots ratios.</p>
+<p>Because we match plates that contain both species selection, we
+can calculate a ratio of positive spots for each plate. So a
+plate with 3 positive spots for species A and 2 positive spots
+for species B, would result in a ratio of 3:2 (or 2:3). We consider
+a ratio of A:B to be the same as ratio B:A.</p>
+<p>We&#8217;ve grouped all possible ratio&#8217;s in 5 ratios groups. See
+<a class="reference internal" href="../../user_manual.html#record-grouping"><em>record grouping</em></a> in the user manual for
+more details. Both tests are performed on each ratios group.</p>
+<p>Both tests are also performed on ratios groups 1-5 taken together.</p>
+<p>Design Part: 1.24</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.analysis.attraction_inter.Start.generate_report">
 <tt class="descname">generate_report</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.generate_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.generate_report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate the analysis report and display the report in a dialog.</p>
+<dd><p>Generate the analysis report.</p>
 <p>Design Part: 1.15</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.Start.generate_spot_ratio_groups">
+<tt class="descname">generate_spot_ratio_groups</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.generate_spot_ratio_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.generate_spot_ratio_groups" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an iterator that returns the ratio groups.</p>
+<p>Each returned group is a list of ratios in the form of two-item
+tuples.</p>
 </dd></dl>
 
 <dl class="method">
@@ -192,9 +316,13 @@ local database (2.13).</p>
 </dd>
 </dl>
 </li>
+<li><p class="first"><a class="reference internal" href="../database.html#setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table" title="setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table"><tt class="xref py py-meth docutils literal"><span class="pre">fill_plate_spot_totals_table()</span></tt></a></p>
+</li>
 <li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter" title="setlyze.analysis.attraction_inter.Start.calculate_distances_inter"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_inter()</span></tt></a></p>
 </li>
 <li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected" title="setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_inter_expected()</span></tt></a></p>
+</li>
+<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_significance" title="setlyze.analysis.attraction_inter.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a></p>
 </li>
 <li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.generate_report" title="setlyze.analysis.attraction_inter.Start.generate_report"><tt class="xref py py-meth docutils literal"><span class="pre">generate_report()</span></tt></a></p>
 </li>
@@ -220,7 +348,7 @@ local database (2.13).</p>
             </a></p>
   <h3><a href="../../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt> &#8212; Analysis 2.2, Attraction of species (inter-specific)</a><ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt> &#8212; Analysis 3, Attraction of species (inter-specific)</a><ul>
 <li><a class="reference internal" href="#module-setlyze.analysis.attraction_inter">Module Contents</a></li>
 </ul>
 </li>
@@ -231,7 +359,7 @@ local database (2.13).</p>
                         title="previous chapter">Analysis Modules</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="attraction_intra.html"
-                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis 2.1, Attraction of species (intra-specific)</a></p>
+                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis 2, Attraction of species (intra-specific)</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/setlyze/analysis/attraction_inter.txt"
@@ -264,12 +392,15 @@ local database (2.13).</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis 2.1, Attraction of species (intra-specific)"
+          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis 2, Attraction of species (intra-specific)"
              >next</a> |</li>
         <li class="right" >
           <a href="../../setlyze_modules_analysis.html" title="Analysis Modules"
              >previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
           <li><a href="../../setlyze_modules_analysis.html" >Analysis Modules</a> &raquo;</li> 

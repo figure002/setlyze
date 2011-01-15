@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="database.html" title="setlyze.database — Database access"
              accesskey="P">previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
       </ul>
@@ -64,7 +67,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">December 03, 2010</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 10, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -135,7 +138,7 @@ the remote SETL database.</p>
 
 <dl class="method">
 <dt id="setlyze.gui.ChangeDataSource.on_csv_ok">
-<tt class="descname">on_csv_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_csv_ok" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">on_csv_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_csv_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_csv_ok" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the paths to the CSV files, set the new value for the
 data source configuration, load the SETL data from the CSV file
 into the local database, and close the dialog.</p>
@@ -308,7 +311,7 @@ signal.</p>
 
 <dl class="method">
 <dt id="setlyze.gui.DefinePlateAreas.on_close_dialog">
-<tt class="descname">on_close_dialog</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.DefinePlateAreas.on_close_dialog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">on_close_dialog</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DefinePlateAreas.on_close_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DefinePlateAreas.on_close_dialog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the dialog and send the <tt class="docutils literal"><span class="pre">define-areas-dialog-closed</span></tt>
 signal.</p>
 <p>This method should is called when the user presses the X (close)
@@ -336,8 +339,9 @@ the definition and save it.</p>
 <dt id="setlyze.gui.DisplayReport">
 <em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">DisplayReport</tt><big>(</big><em>report=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display a dialog visualizing the elements in the XML DOM analysis
-data object.</p>
-<p>This class uses <a class="reference internal" href="std.html#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.ReportReader</span></tt></a> to read the data
+data object. The argument <cite>reader</cite> is an instance of
+<a class="reference internal" href="std.html#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.ReportReader</span></tt></a>.</p>
+<p>This class uses <a class="reference internal" href="std.html#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">ReportReader</span></tt></a> to read the data
 from the XML DOM analysis data object.</p>
 <p>Design Part: 1.89</p>
 <dl class="method">
@@ -355,7 +359,7 @@ dialog.</p>
 
 <dl class="method">
 <dt id="setlyze.gui.DisplayReport.add_locations_selections">
-<tt class="descname">add_locations_selections</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_locations_selections" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_locations_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_locations_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_locations_selections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the locations selection(s) to the report dialog.</p>
 </dd></dl>
 
@@ -380,13 +384,19 @@ report dialog.</p>
 
 <dl class="method">
 <dt id="setlyze.gui.DisplayReport.add_species_selections">
-<tt class="descname">add_species_selections</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_species_selections" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_species_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_species_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_species_selections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the species selection(s) to the report dialog.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_chisq">
-<tt class="descname">add_statistics_chisq</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.gui.DisplayReport.add_statistics_chisq_ratios">
+<tt class="descname">add_statistics_chisq_ratios</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_chisq_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq_ratios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.DisplayReport.add_statistics_chisq_spots">
+<tt class="descname">add_statistics_chisq_spots</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_chisq_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq_spots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the statistic results to the report dialog.</p>
 </dd></dl>
 
@@ -397,8 +407,20 @@ report dialog.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_wilcoxon">
-<tt class="descname">add_statistics_wilcoxon</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_wilcoxon" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.gui.DisplayReport.add_statistics_wilcoxon_areas">
+<tt class="descname">add_statistics_wilcoxon_areas</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_wilcoxon_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.DisplayReport.add_statistics_wilcoxon_ratios">
+<tt class="descname">add_statistics_wilcoxon_ratios</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_wilcoxon_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_wilcoxon_ratios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.DisplayReport.add_statistics_wilcoxon_spots">
+<tt class="descname">add_statistics_wilcoxon_spots</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_wilcoxon_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_wilcoxon_spots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the statistic results to the report dialog.</p>
 </dd></dl>
 
@@ -426,16 +448,6 @@ report dialog.</p>
 <tt class="descname">on_save</tt><big>(</big><em>obj</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.on_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.on_save" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display a dialog that allows the user to save the report to
 a file.</p>
-<dl class="docutils">
-<dt>Two types of files can be exported:</dt>
-<dd><ul class="first last simple">
-<li>An analysis data file containing the settings, data, and
-results for the analysis (XML format).</li>
-<li>TODO: A document containing the analysis results (plain text,
-LaTeX).</li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="method">
@@ -444,31 +456,6 @@ LaTeX).</li>
 <dd><p>Create a report reader and pass the XML DOM report data
 object <cite>report</cite> to the reader. <cite>report</cite> can also be the path to
 a report data XML file.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="setlyze.gui.Help">
-<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">Help</tt><a class="headerlink" href="#setlyze.gui.Help" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display a help dialog.</p>
-<p>Design Part:</p>
-<dl class="method">
-<dt id="setlyze.gui.Help.create_layout">
-<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.Help.create_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct the layout for the dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.Help.on_close">
-<tt class="descname">on_close</tt><big>(</big><em>obj</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.Help.on_close" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.Help.set_html">
-<tt class="descname">set_html</tt><big>(</big><em>html</em><big>)</big><a class="headerlink" href="#setlyze.gui.Help.set_html" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set HTML code for the dialog.</p>
 </dd></dl>
 
 </dd></dl>
@@ -502,7 +489,7 @@ between the lines of your code,</p>
 <span class="o">...</span>
 <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s">&quot;Calculating that...&quot;</span><span class="p">)</span>
 <span class="o">...</span>
-<span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;Finished!&quot;</span><span class="p">)</span>
+<span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
@@ -524,17 +511,111 @@ new to threading, start with the
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.ProgressDialog.destroy_silent">
-<tt class="descname">destroy_silent</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog.destroy_silent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog.destroy_silent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Destroy the dialog without sending the
-<tt class="docutils literal"><span class="pre">progress-dialog-closed</span></tt> signal.</p>
+<dt id="setlyze.gui.ProgressDialog.on_close">
+<tt class="descname">on_close</tt><big>(</big><em>widget=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog.on_close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destroy the dialog.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.gui.SelectAnalysis">
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectAnalysis</tt><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a window that allows the user to select an analysis.</p>
+<p>Design Part: 1.86</p>
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.create_layout">
+<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.create_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the layout.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.ProgressDialog.on_close">
-<tt class="descname">on_close</tt><big>(</big><em>widget=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog.on_close" title="Permalink to this definition">¶</a></dt>
-<dd><p>Destroy the dialog and send the <tt class="docutils literal"><span class="pre">progress-dialog-closed</span></tt>
-signal.</p>
+<dt id="setlyze.gui.SelectAnalysis.destroy_handler_connections">
+<tt class="descname">destroy_handler_connections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.destroy_handler_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.destroy_handler_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect all signal connections with signal handlers created
+by this object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.make_local_database">
+<tt class="descname">make_local_database</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.make_local_database"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.make_local_database" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a local database. If there&#8217;s already a local database file
+on the user&#8217;s computer, ask the user if he/she wants to use that
+database. If Yes is answered, that local database file
+will be set as the data source. If No is answered, a
+new local database is created and filled with data from the remote
+SETL database (that last part is not implemented yet).</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.on_about">
+<tt class="descname">on_about</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.on_about"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.on_about" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display SETLyze&#8217;s about dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.on_analysis_closed">
+<tt class="descname">on_analysis_closed</tt><big>(</big><em>sender</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.on_analysis_closed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.on_analysis_closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.on_analysis_started">
+<tt class="descname">on_analysis_started</tt><big>(</big><em>sender</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.on_analysis_started"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.on_analysis_started" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destroy this object&#8217;s signal handlers and hide the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.on_continue">
+<tt class="descname">on_continue</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.on_continue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.on_continue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if a local database is set. If not, create one if necessary
+and set the database. Once a database has been set, begin with the
+selected analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.on_make_local_db">
+<tt class="descname">on_make_local_db</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.on_make_local_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.on_make_local_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a new local database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.on_quit">
+<tt class="descname">on_quit</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.on_quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.on_quit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.on_toggled">
+<tt class="descname">on_toggled</tt><big>(</big><em>radiobutton=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.on_toggled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.on_toggled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the description frame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.gui.SelectExportElements">
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectExportElements</tt><big>(</big><em>reader</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a dialog for allowing the user to select which report
+elements to export. The argument <cite>reader</cite> is an instance of
+<a class="reference internal" href="std.html#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.ReportReader</span></tt></a>.</p>
+<dl class="method">
+<dt id="setlyze.gui.SelectExportElements.create_layout">
+<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements.create_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add widgets to the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectExportElements.get_selected_elements">
+<tt class="descname">get_selected_elements</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements.get_selected_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements.get_selected_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list with the names of the selected report
+elements.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectExportElements.set_report_reader">
+<tt class="descname">set_report_reader</tt><big>(</big><em>reader</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements.set_report_reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements.set_report_reader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the report reader.</p>
 </dd></dl>
 
 </dd></dl>
@@ -600,7 +681,7 @@ selection from the SETL species in the local database.</p>
 <dl class="method">
 <dt id="setlyze.gui.SelectSpecies.create_model">
 <tt class="descname">create_model</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectSpecies.create_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectSpecies.create_model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a model for the tree view from the specie IDs and
+<dd><p>Create a model for the tree view from the species IDs and
 names.</p>
 <p>Design Part: 1.43</p>
 </dd></dl>
@@ -648,6 +729,13 @@ first selection and <tt class="docutils literal"><span class="pre">1</span></tt>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.gui.SelectionWindow.on_change_data_source">
+<tt class="descname">on_change_data_source</tt><big>(</big><em>button</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.on_change_data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_change_data_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the ChangeDataSource dialog.</p>
+<p>Design Part: 1.11</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.gui.SelectionWindow.on_changed">
 <tt class="descname">on_changed</tt><big>(</big><em>treeselection</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.on_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_changed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the locations selection to a temporary variable.</p>
@@ -656,7 +744,7 @@ first selection and <tt class="docutils literal"><span class="pre">1</span></tt>
 
 <dl class="method">
 <dt id="setlyze.gui.SelectionWindow.on_close_dialog">
-<tt class="descname">on_close_dialog</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_close_dialog" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">on_close_dialog</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.on_close_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_close_dialog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the dialog and send the <tt class="docutils literal"><span class="pre">selection-dialog-closed</span></tt>
 signal.</p>
 <p>This method should is called when the user pressed the X (close)
@@ -672,13 +760,6 @@ anything was selected. If not, display a message dialog. If yes,
 call method self.save_selection to save the selection and then
 close the selection dialog.</p>
 <p>Design Part: 1.44</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.SelectionWindow.on_select_data_files">
-<tt class="descname">on_select_data_files</tt><big>(</big><em>button</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.on_select_data_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_select_data_files" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display the ChangeDataSource window.</p>
-<p>Design Part: 1.11</p>
 </dd></dl>
 
 <dl class="method">
@@ -698,7 +779,7 @@ close the selection dialog.</p>
 <tt class="descname">set_save_slot</tt><big>(</big><em>slot</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.set_save_slot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.set_save_slot" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the localities/species selection save slot to <cite>slot</cite>.</p>
 <p>The selection variable has two slots available for saving
-selections (in analysis 2.2, two selections need to be saved,
+selections (in analysis 3, two selections need to be saved,
 hence two slots were created).</p>
 <p>The possible values of <cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for the first selection,
 and <tt class="docutils literal"><span class="pre">1</span></tt> for the second selection.</p>
@@ -719,24 +800,21 @@ called when the selection dialog is created.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="setlyze.gui.bold">
-<tt class="descclassname">setlyze.gui.</tt><tt class="descname">bold</tt><big>(</big><em>text</em><big>)</big><a class="headerlink" href="#setlyze.gui.bold" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return bold text marked up with Pango.</p>
+<dt id="setlyze.gui.markup_header">
+<tt class="descclassname">setlyze.gui.</tt><tt class="descname">markup_header</tt><big>(</big><em>text</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#markup_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.markup_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply Pango markup to <cite>text</cite> to make it look like a header.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="setlyze.gui.on_help">
-<tt class="descclassname">setlyze.gui.</tt><tt class="descname">on_help</tt><big>(</big><em>button</em>, <em>key</em>, <em>method='browser'</em><big>)</big><a class="headerlink" href="#setlyze.gui.on_help" title="Permalink to this definition">¶</a></dt>
-<dd><p>Show the help contents for <cite>key</cite>.</p>
-<p>Possible values for <cite>method</cite> are <tt class="docutils literal"><span class="pre">dialog</span></tt> for displaying the
-help contents in a new dialog, or <tt class="docutils literal"><span class="pre">browser</span></tt> for displaying the
-help contents in the user&#8217;s default application for displaying HTML
-files (usually a browser).</p>
+<tt class="descclassname">setlyze.gui.</tt><tt class="descname">on_help</tt><big>(</big><em>button</em>, <em>section</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#on_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.on_help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the help contents for <cite>section</cite> in the system&#8217;s default
+application for displaying HTML files (usually a web browser).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="setlyze.gui.on_quit">
-<tt class="descclassname">setlyze.gui.</tt><tt class="descname">on_quit</tt><big>(</big><em>button</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.on_quit" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.gui.</tt><tt class="descname">on_quit</tt><big>(</big><em>button</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#on_quit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.on_quit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Quit the application.</p>
 </dd></dl>
 
@@ -762,7 +840,7 @@ files (usually a browser).</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="database.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="locale.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
@@ -803,7 +881,10 @@ files (usually a browser).</p>
         <li class="right" >
           <a href="database.html" title="setlyze.database — Database access"
              >previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
       </ul>

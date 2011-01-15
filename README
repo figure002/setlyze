@@ -1,0 +1,21 @@
+SETLyze is an application which is capable of performing
+a set of analysis on the data from the SETL database. SETLyze is
+capable of performing the following analysis:
+
+*Analysis 1 "Spot Preference"*
+    Determine a species’ preference for a specific location on a SETL
+    plate.
+
+*Analysis 2.1 "Attraction of Species (intra-specific)"*
+    Determine if a specie attracts or repels individuals of its own kind.
+
+*Analysis 2.2 "Attraction of Species (inter-specific)"*
+    Determine if two different species attract or repel each other.
+
+The following analysis will be implemented in the next version:
+
+*Analysis 3 "Relation between Species"*
+    Determine if there is a relation between two (groups of) species on
+    SETL plates in a location. Plates per location are compared. Also
+    instead of looking at different plate spots, only the presence or
+    absence of a specie on a plate is taken into account.
