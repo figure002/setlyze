@@ -67,7 +67,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 10, 2011</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 15, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -96,6 +96,12 @@ then do the following to get a list of the selected locations.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="class">
+<dt id="setlyze.gui.About">
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">About</tt><a class="headerlink" href="#setlyze.gui.About" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display SETLyze&#8217;s about dialog.</p>
+</dd></dl>
+
 <dl class="class">
 <dt id="setlyze.gui.ChangeDataSource">
 <em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">ChangeDataSource</tt><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource" title="Permalink to this definition">¶</a></dt>
@@ -157,7 +163,7 @@ multiple times.</p>
 
 <dl class="class">
 <dt id="setlyze.gui.DefinePlateAreas">
-<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">DefinePlateAreas</tt><big>(</big><em>title='Define SETL-plate Areas'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DefinePlateAreas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DefinePlateAreas" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">DefinePlateAreas</tt><big>(</big><em>title='Define SETL-plate Areas for Chi-squared Test'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DefinePlateAreas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DefinePlateAreas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display a dialog that allows the user to define the areas on a
 SETL plate.</p>
 <p>Below is a SETL-plate with a grid. By default there are 4 surface
@@ -389,6 +395,12 @@ report dialog.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.gui.DisplayReport.add_statistics_chisq_areas">
+<tt class="descname">add_statistics_chisq_areas</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.gui.DisplayReport.add_statistics_chisq_ratios">
 <tt class="descname">add_statistics_chisq_ratios</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_chisq_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq_ratios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the statistic results to the report dialog.</p>
@@ -404,6 +416,24 @@ report dialog.</p>
 <dt id="setlyze.gui.DisplayReport.add_statistics_normality">
 <tt class="descname">add_statistics_normality</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_normality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_normality" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the statistic results for normality to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.DisplayReport.add_statistics_repeats_areas">
+<tt class="descname">add_statistics_repeats_areas</tt><big>(</big><em>element_name</em>, <em>testname</em><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_repeats_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.DisplayReport.add_statistics_repeats_ratios">
+<tt class="descname">add_statistics_repeats_ratios</tt><big>(</big><em>element_name</em>, <em>testname</em><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_repeats_ratios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.DisplayReport.add_statistics_repeats_spots">
+<tt class="descname">add_statistics_repeats_spots</tt><big>(</big><em>element_name</em>, <em>testname</em><big>)</big><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_repeats_spots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
 </dd></dl>
 
 <dl class="method">
@@ -461,6 +491,51 @@ a report data XML file.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="setlyze.gui.Preferences">
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">Preferences</tt><a class="headerlink" href="#setlyze.gui.Preferences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a preferences dialog which allows the user to configure
+the application.</p>
+<dl class="method">
+<dt id="setlyze.gui.Preferences.create_layout">
+<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.Preferences.create_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the layout.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Preferences.on_about">
+<tt class="descname">on_about</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.Preferences.on_about" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display SETLyze&#8217;s about dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Preferences.on_cancel">
+<tt class="descname">on_cancel</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.Preferences.on_cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the preferences dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Preferences.on_ok">
+<tt class="descname">on_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.Preferences.on_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save new settings and close the preferences dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Preferences.set_alpha_level">
+<tt class="descname">set_alpha_level</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.Preferences.set_alpha_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the new alpha level for statistical test. Return True if
+succeeded, or False if failed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Preferences.set_test_repeats">
+<tt class="descname">set_test_repeats</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.Preferences.set_test_repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the new value for the number of repeats for statistical tests.
+Return True if succeeded, or False if failed.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="setlyze.gui.ProgressDialog">
 <em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">ProgressDialog</tt><big>(</big><em>title</em>, <em>description</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display a progress dialog.</p>
@@ -483,26 +558,44 @@ this to work.</p>
 </div>
 </li>
 <li><p class="first">Edit the worker process to automatically update the progress
-dialog. This is as easy as calling the custom update method
-between the lines of your code,</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="s">&quot;Calculating this...&quot;</span><span class="p">)</span>
-<span class="o">...</span>
-<span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="s">&quot;Calculating that...&quot;</span><span class="p">)</span>
-<span class="o">...</span>
-<span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
+dialog. You&#8217;ll need the progress dialog handler for that. In your worker
+class, create one like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Then you need to tell the handler how many times you&#8217;re going to update
+the progress dialog (the number of times you&#8217;ll call the increase()
+method):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then call the increase() method in you worker class to update the
+progress dialog. Notice that increase() will be called 8 times in the
+example below (hence total steps was set to 8):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Calculating this...&quot;</span><span class="p">)</span>
+<span class="n">some_heavy_function</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">calculate_this</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">()</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Calculating that...&quot;</span><span class="p">)</span>
+
+<span class="n">more_heavy_calculations</span><span class="p">()</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Finished!&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Then start your worker process in a separate thread (if you&#8217;re
-new to threading, start with the
-<a class="reference external" href="http://docs.python.org/library/threading.html">threading documentation</a>)</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">t</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+<li><p class="first">Then start your worker process in a separate thread (if you&#8217;re new to
+threading, start with the <a class="reference external" href="http://docs.python.org/library/threading.html">threading documentation</a>)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">t</span> <span class="o">=</span> <span class="n">WorkerClass</span><span class="p">()</span>
 <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </div>
 </li>
 </ol>
-<p>Then run your application and watch the progress bar grow.</p>
+<p>Then run your application and watch the progress bar increase.</p>
 <p>Design Part: 1.92</p>
 <dl class="method">
 <dt id="setlyze.gui.ProgressDialog.create_layout">
@@ -512,7 +605,7 @@ new to threading, start with the
 
 <dl class="method">
 <dt id="setlyze.gui.ProgressDialog.on_close">
-<tt class="descname">on_close</tt><big>(</big><em>widget=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog.on_close" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">on_close</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog.on_close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Destroy the dialog.</p>
 </dd></dl>
 
@@ -840,7 +933,7 @@ application for displaying HTML files (usually a web browser).</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="database.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="locale.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>

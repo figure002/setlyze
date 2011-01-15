@@ -2061,7 +2061,7 @@
             <span class="n">format</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;=&quot;</span><span class="o">*</span><span class="n">n</span><span class="p">)</span>
         <span class="k">return</span> <span class="s">&quot;  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span>
 </div>
-    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ExportTextReport.generate"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.ExportTextReport.generate">[docs]</a>    <span class="k">def</span> <span class="nf">generate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="c"># Get the child element names of the report root.</span>
         <span class="n">report_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_child_names</span><span class="p">()</span>
         <span class="c"># Add the child element names of the &#39;statistics&#39; element to the</span>
@@ -2393,7 +2393,7 @@
                     <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;mean_expected&#39;</span><span class="p">]),</span>
                     <span class="n">make_remarks</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">attr</span><span class="p">))</span>
             <span class="k">yield</span> <span class="n">t_footer</span>
-
+</div>
     <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">elements</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">elements</span><span class="p">))</span>

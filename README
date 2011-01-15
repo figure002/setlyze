@@ -1,21 +1,36 @@
-SETLyze is an application which is capable of performing
-a set of analysis on the data from the SETL database. SETLyze is
-capable of performing the following analysis:
+=============
+About SETLyze
+=============
+
+The purpose of SETLyze is to provide the people involved with the SETL-project
+an easy and fast way of getting useful information from the data stored in the
+SETL database. The SETL database at GiMaRIS contains data about the settlement
+of species in Dutch waters. SETLyze helps provide more insight in a set of
+biological questions by analyzing this data. SETLyze is capable of performing
+the following set of analyses:
 
 *Analysis 1 "Spot Preference"*
-    Determine a species’ preference for a specific location on a SETL
-    plate.
+    Determine a species’ preference for a specific location on a SETL plate.
+    Species can be combined so that they are treated as a single species.
 
-*Analysis 2.1 "Attraction of Species (intra-specific)"*
-    Determine if a specie attracts or repels individuals of its own kind.
+*Analysis 2 "Attraction of Species (intra-specific)"*
+    Determine if a species attracts or repels individuals of its own kind.
+    Species can be combined so that they are treated as a single species.
 
-*Analysis 2.2 "Attraction of Species (inter-specific)"*
-    Determine if two different species attract or repel each other.
+*Analysis 3 "Attraction of Species (inter-specific)"*
+    Determine if two different species attract or repel each other. Species
+    can be combined so that they are treated as a single species.
 
 The following analysis will be implemented in the next version:
 
-*Analysis 3 "Relation between Species"*
-    Determine if there is a relation between two (groups of) species on
-    SETL plates in a location. Plates per location are compared. Also
-    instead of looking at different plate spots, only the presence or
-    absence of a specie on a plate is taken into account.
+*Analysis 4 "Relation between Species"*
+    Determine if there is a relation between two species on SETL-plates in a
+    specific location. Plates per location are compared. Also instead of
+    looking at different plate surfaces, only the presence or absence of a
+    species on a plate is taken into account.
+
+
+Installation Instructions
+=========================
+
+For installation instructions, please read the INSTALL file.

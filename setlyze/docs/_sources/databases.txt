@@ -1,7 +1,0 @@
-========================================================================
-Technical Design for the Databases
-========================================================================
-
-Technical design for the SETL database and the local SQLite database
-created by SETLyze.
-
