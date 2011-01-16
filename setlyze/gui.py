@@ -3,7 +3,8 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing the settlement of species.
+#  This file is part of SETLyze - A tool for analyzing the settlement
+#  of species on SETL plates.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -68,7 +69,7 @@ __version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2010/09/22"
+__date__ = "2011/01/15"
 
 def on_help(button, section):
     """Display the help contents for `section` in the system's default
@@ -76,8 +77,10 @@ def on_help(button, section):
     """
 
     # Construct the path to the help file.
-    path = pkg_resources.resource_filename('setlyze',
-        '/docs/user_manual.html#'+section)
+    if setlyze.std.we_are_frozen():
+        path = os.path.join(setlyze.std.module_path(), 'docs/user_manual.html#'+section)
+    else:
+        path = pkg_resources.resource_filename('setlyze', '/docs/user_manual.html#'+section)
 
     # Turn the path into an URL.
     if path.startswith('/'):
@@ -89,8 +92,8 @@ def on_help(button, section):
     # On Windows, the section part of the URL (the '#...' part)
     # is stripped off. This doesn't happen if 'file:///' is left out.
     # This however always launches IE instead of the default browser.
-    #if os.name == 'nt':
-    #    url = path
+    if os.name == 'nt':
+        url = path
 
     # Open the URL in the system's web browser.
     webbrowser.open(url)
@@ -210,7 +213,11 @@ class SelectAnalysis(gtk.Window):
 
         # Load an image for the logo.
         setl_logo = gtk.Image()
-        setl_logo.set_from_file(pkg_resources.resource_filename('setlyze', 'images/setl-logo.png'))
+        if setlyze.std.we_are_frozen():
+            image_path = os.path.join(setlyze.std.module_path(), 'images/setl-logo.png')
+        else:
+            image_path = pkg_resources.resource_filename('setlyze', 'images/setl-logo.png')
+        setl_logo.set_from_file(image_path)
         setl_logo_align = gtk.Alignment(xalign=1, yalign=0, xscale=0, yscale=1)
         setl_logo_align.add(setl_logo)
         # Add the logo to the table.
@@ -1048,8 +1055,11 @@ class DefinePlateAreas(gtk.Window):
 
         # Load an image of the SETL grid.
         setl_grid = gtk.Image()
-        setl_grid.set_from_file(pkg_resources.resource_filename('setlyze',
-            '/images/setl-grid.png'))
+        if setlyze.std.we_are_frozen():
+            image_path = os.path.join(setlyze.std.module_path(), 'images/setl-grid.png')
+        else:
+            image_path = pkg_resources.resource_filename('setlyze', 'images/setl-grid.png')
+        setl_grid.set_from_file(image_path)
         # Add the image to the table.
         table.attach(setl_grid, left_attach=1, right_attach=2,
             top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
@@ -3446,9 +3456,12 @@ class About(gtk.AboutDialog):
             "You should have received a copy of the GNU General Public License\n"
             "along with this program.  If not, see http://www.gnu.org/licenses/")
 
-        logo_path = pkg_resources.resource_filename('setlyze',
-            '/images/setl-logo.png')
-        logo = gtk.gdk.pixbuf_new_from_file(logo_path)
+        # Load the logo file.
+        if setlyze.std.we_are_frozen():
+            image_path = os.path.join(setlyze.std.module_path(), 'images/setl-logo.png')
+        else:
+            image_path = pkg_resources.resource_filename('setlyze', 'images/setl-logo.png')
+        logo = gtk.gdk.pixbuf_new_from_file(image_path)
 
         self.set_position(gtk.WIN_POS_CENTER)
         self.set_program_name("SETLyze")
@@ -3459,8 +3472,8 @@ class About(gtk.AboutDialog):
             "Application Developers:\n"
             "\tJonathan den Boer",
             "\tSerrano Pereira <serrano.pereira@gmail.com>"])
+        self.set_comments("A tool for analyzing the settlement of species \non SETL plates.")
         self.set_artists(["Serrano Pereira <serrano.pereira@gmail.com>"])
-        self.set_comments("A tool for analyzing the settlement of species.")
         self.set_license(license)
         self.set_website("http://www.gimaris.com/")
         self.set_logo(logo)

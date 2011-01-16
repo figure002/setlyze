@@ -3,7 +3,8 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing the settlement of species.
+#  This file is part of SETLyze - A tool for analyzing the settlement
+#  of species on SETL plates.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -45,7 +46,21 @@ __version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2010/10/01 13:42:16"
+__date__ = "2011/01/15"
+
+def we_are_frozen():
+    """Returns whether we are frozen via py2exe. This will affect how we find
+    out where we are located.
+    """
+    return hasattr(sys, "frozen")
+
+def module_path():
+    """This will get us the program's directory, even if we are frozen using
+    py2exe.
+    """
+    if we_are_frozen():
+        return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
+    return os.path.dirname(unicode(__file__, sys.getfilesystemencoding()))
 
 def make_remarks(results, attributes):
     """Return a remarks string that contains a summary of the results

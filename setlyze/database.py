@@ -3,7 +3,8 @@
 #
 #  Copyright 2010, GiMaRIS <info@gimaris.com>
 #
-#  This file is part of SETLyze - A tool for analyzing the settlement of species.
+#  This file is part of SETLyze - A tool for analyzing the settlement
+#  of species on SETL plates.
 #
 #  SETLyze is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -52,7 +53,7 @@ __version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2010/09/22"
+__date__ = "2011/01/15"
 
 def get_database_accessor():
     """Return an object that facilitates access to either the local or
@@ -841,7 +842,7 @@ class AccessDBGeneric(object):
         cursor.close()
         connection.close()
 
-        info = {}
+        info = {'source': None, 'date': None}
         if source:
             info['source'] = source[0]
         if date:

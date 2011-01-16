@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
-import glob
 import os
+import glob
+
+from setuptools import setup
+
+"""Use this script to install SETLyze. For installation instructions, see the
+INSTALL file.
+"""
 
 def recursive_get_folder_patterns(pattern):
     patterns = []
@@ -44,4 +49,16 @@ setup(name='setlyze',
     url='http://www.gimaris.com/',
     packages=['setlyze','setlyze.analysis'],
     package_data={'setlyze': package_data_setlyze},
+
+    classifiers=["License :: OSI Approved :: GNU General Public License (GPL)",
+        "Programming Language :: Python",
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Science/Research",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Operating System :: POSIX :: Linux",
+        "Operating System :: Microsoft :: Windows",
+        "Natural Language :: English",
+    ],
+    keywords='gimaris species settlement setl invasive analysis',
+    install_requires=['setuptools','pygtk','gobject','cairo','rpy'],
 )

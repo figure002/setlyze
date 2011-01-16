@@ -19,11 +19,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This is the executable for SETLyze. Run this script to start SETLyze."""
+"""This is SETLyze's executable. Run this script to start SETLyze."""
 
 import sys
 import logging
 from sqlite3 import dbapi2 as sqlite
+import warnings
 
 import pygtk
 pygtk.require('2.0')
@@ -39,6 +40,12 @@ import setlyze.analysis.relations
 
 gobject.threads_init()
 
+# The following is a workaround for the executable created with py2exe. This
+# prevents SETLyze from exiting with an error message when warning messages
+# occured.
+if setlyze.std.we_are_frozen():
+    warnings.simplefilter('ignore')
+
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
@@ -48,7 +55,7 @@ __version__ = "0.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/01/04"
+__date__ = "2011/01/15"
 
 
 def main():
@@ -56,8 +63,11 @@ def main():
     # SQLite's supported types. This adds support for Unicode strings.
     sqlite.register_adapter(str, adapt_str)
 
-    # Show all log messages of type INFO.
-    logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
+    # Show all log messages of type INFO (unless we are frozen by py2exe).
+    if setlyze.std.we_are_frozen():
+        logging.basicConfig(level=logging.ERROR, format='%(levelname)s %(message)s')
+    else:
+        logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 
     # Handle the application signals.
     handle_application_signals()

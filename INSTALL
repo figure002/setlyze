@@ -38,7 +38,7 @@ Once installed, SETLyze can be started from the command-line with, ::
 Install in home directory
 =========================
 
-You can install SETLyze into home directory, in ~/bin. This method requires
+You can install SETLyze into your home directory, in ~/bin. This method requires
 that ~/bin is in your $PATH and that ~/lib/python is in your $PYTHONPATH. ::
 
     python setup.py install --home=~
