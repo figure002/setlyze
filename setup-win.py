@@ -8,6 +8,12 @@ import py2exe
 """This setup script is used to create the py2exe executable of SETLyze. Do
 *not* use this script to install SETLyze. To install SETLyze, use 'setup.py'
 instead.
+
+On Windows, use the following command to create the SETLyze executable for
+Windows.:
+
+    python setup-win.py py2exe
+
 """
 
 setup(name='setlyze',
@@ -37,7 +43,7 @@ setup(name='setlyze',
         ('tests', glob.glob('tests/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
         ('.',['COPYING','icon.ico','README']),
-        # Don't forget to manually copy the 'setlyze/docs/' folder to the
+        # Don't forget to manually copy the folder 'setlyze/docs/' to the
         # 'dist' folder before creating setup.exe.
         ],
 )
