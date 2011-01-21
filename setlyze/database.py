@@ -229,18 +229,68 @@ class MakeLocalDB(threading.Thread):
         self.pdialog_handler.set_total_steps(4)
 
         # Insert the data from the CSV files into the local database.
-        self.pdialog_handler.set_action("Importing %s" % os.path.split(setlyze.config.cfg.get('localities-file'))[1])
-        self.insert_localities_from_csv()
+        filename = os.path.split(setlyze.config.cfg.get('localities-file'))[1]
+        self.pdialog_handler.set_action("Importing %s" % filename)
+        try:
+            self.insert_localities_from_csv()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading localities data from %s failed." % filename)
+            return
 
-        self.pdialog_handler.increase("Importing %s" % os.path.split(setlyze.config.cfg.get('plates-file'))[1])
-        self.insert_plates_from_csv()
+        filename = os.path.split(setlyze.config.cfg.get('plates-file'))[1]
+        self.pdialog_handler.increase("Importing %s" % filename)
+        try:
+            self.insert_plates_from_csv()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading plates data from %s failed." % filename)
+            return
 
-        self.pdialog_handler.increase("Importing %s" % os.path.split(setlyze.config.cfg.get('records-file'))[1])
-        self.insert_records_from_csv()
+        filename = os.path.split(setlyze.config.cfg.get('records-file'))[1]
+        self.pdialog_handler.increase("Importing %s" % filename)
+        try:
+            self.insert_records_from_csv()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading records data from %s failed." % filename)
+            return
 
-        self.pdialog_handler.increase("Importing %s" % os.path.split(setlyze.config.cfg.get('species-file'))[1])
-        self.insert_species_from_csv()
+        filename = os.path.split(setlyze.config.cfg.get('species-file'))[1]
+        self.pdialog_handler.increase("Importing %s" % filename)
+        try:
+            self.insert_species_from_csv()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading species data from %s failed." % filename)
+            return
 
+        # If we are here, the import was successful. Set the progress dialog
+        # to 100%.
         self.pdialog_handler.increase("")
 
         # Close the connection with the database.
@@ -249,6 +299,8 @@ class MakeLocalDB(threading.Thread):
 
         logging.info("Local database populated.")
         setlyze.config.cfg.set('has-local-db', True)
+
+        return True
 
     def insert_localities_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the SETL localities from a CSV file into the local
@@ -265,7 +317,7 @@ class MakeLocalDB(threading.Thread):
 
         Design Part: 1.34
         """
-        logging.info("Importing data from %s" % setlyze.config.cfg.get('localities-file'))
+        logging.info("Importing localities data from %s" % setlyze.config.cfg.get('localities-file'))
 
         # Try to open the CSV file.
         try:
@@ -280,6 +332,10 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the CSV file and insert that row
         # into the local database.
         for row in setl_reader:
+            if len(row) != 5:
+                raise ValueError("Expecting 5 fields per row for the "
+                    "localities CSV file, found %d fields." % len(row))
+
             self.cursor.execute("INSERT INTO localities VALUES (?,?,?,?,?)",
                 (row[0],row[1],row[2],row[3],row[4])
                 )
@@ -301,7 +357,7 @@ class MakeLocalDB(threading.Thread):
 
         Design Part: 1.35
         """
-        logging.info("Importing data from %s" % setlyze.config.cfg.get('species-file'))
+        logging.info("Importing species data from %s" % setlyze.config.cfg.get('species-file'))
 
         # Try to open the CSV file.
         try:
@@ -316,6 +372,10 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the CSV file and insert that row
         # into the local database.
         for row in setl_reader:
+            if len(row) != 7:
+                raise ValueError("Expecting 7 fields per row for the "
+                    "species CSV file, found %d fields." % len(row))
+
             self.cursor.execute("INSERT INTO species VALUES (?,?,?,?,?,?)",
                 (row[0],row[1],row[2],row[3],row[4],row[5])
                 )
@@ -337,7 +397,7 @@ class MakeLocalDB(threading.Thread):
 
         Design Part: 1.36
         """
-        logging.info("Importing data from %s" % setlyze.config.cfg.get('plates-file'))
+        logging.info("Importing plates data from %s" % setlyze.config.cfg.get('plates-file'))
 
         # Try to open the CSV file.
         try:
@@ -352,6 +412,10 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the CSV file and insert that row
         # into the local database.
         for row in setl_reader:
+            if len(row) != 10:
+                raise ValueError("Expecting 10 fields per row for the "
+                    "plates CSV file, found %d fields." % len(row))
+
             self.cursor.execute("INSERT INTO plates VALUES (?,?,?,?,?,?,?,?,?,?)",
                 (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9])
                 )
@@ -373,7 +437,7 @@ class MakeLocalDB(threading.Thread):
 
         Design Part: 1.37
         """
-        logging.info("Importing data from %s" % setlyze.config.cfg.get('records-file'))
+        logging.info("Importing records data from %s" % setlyze.config.cfg.get('records-file'))
 
         # Try to open the CSV file.
         try:
@@ -389,6 +453,10 @@ class MakeLocalDB(threading.Thread):
         # into the local database.
         placeholders = ','.join('?' * 38)
         for row in setl_reader:
+            if len(row) != 40:
+                raise ValueError("Expecting 40 fields per row for the "
+                    "plates CSV file, found %d fields." % len(row))
+
             self.cursor.execute("INSERT INTO records VALUES (%s)" % placeholders,
                 (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
                 row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],

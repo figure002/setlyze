@@ -8,8 +8,8 @@ SETLyze Design Parts
 ==================  =================================
 Design Part #       Reference
 ==================  =================================
-1.0                 The executable for SETLyze.
-1.1                 The initial function for SETLyze.
+1.0                 The executable for SETLyze (``setlyze.pyw``).
+1.1                 The :meth:`main` function in the executable.
 1.2					:class:`setlyze.database.MakeLocalDB`
 1.3					:mod:`setlyze.analysis.spot_preference`
 1.3.1 				:class:`setlyze.analysis.spot_preference.Begin`
@@ -74,9 +74,10 @@ Design Part #       Reference
 1.59 				:meth:`setlyze.analysis.attraction_intra.Start.run`
 1.60 				:meth:`setlyze.analysis.attraction_inter.Start.run`
 1.61 				:meth:`setlyze.analysis.relations.Start.run`
-1.62 				:meth:`setlyze.analysis.spot_preference.Start.get_areas_totals_observed`
-1.63 				:meth:`setlyze.analysis.spot_preference.Start.get_areas_totals_expected`
-1.64 				:meth:`setlyze.analysis.spot_preference.Start.chi_square_tester`
+1.62 				:meth:`setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed`
+1.63 				:meth:`setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected`
+1.64 				:meth:`setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed`
+1.65 				:meth:`setlyze.analysis.spot_preference.Start.repeat_test`
 1.66 				:meth:`setlyze.database.MakeLocalDB.insert_localities_from_db`
 1.67 				:meth:`setlyze.database.MakeLocalDB.insert_species_from_db`
 1.68.1 				:meth:`setlyze.analysis.spot_preference.Begin.on_display_report`
@@ -84,8 +85,8 @@ Design Part #       Reference
 1.68.3 				:meth:`setlyze.analysis.attraction_inter.Begin.on_display_report`
 1.68.4 				:meth:`setlyze.analysis.relations.Begin.on_display_report`
 1.69 				:meth:`setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected`
-1.70 				:meth:`setlyze.std.ReportGenerator.set_statistics_normality`
-1.71 				:meth:`setlyze.std.ReportGenerator.set_statistics_significance`
+1.70 				:meth:`setlyze.std.ReportGenerator.set_statistics`
+1.71                :meth:`setlyze.std.ReportGenerator.set_statistics_repeats`
 1.72 				:meth:`setlyze.std.ReportGenerator.set_analysis`
 1.73 				:meth:`setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table`
 1.74 				:meth:`setlyze.analysis.attraction_inter.Start.calculate_significance`
@@ -112,6 +113,14 @@ Design Part #       Reference
 1.95                :meth:`setlyze.database.AccessDBGeneric.get_locations`
 1.96                :meth:`setlyze.database.AccessLocalDB.get_species`
 1.97                :meth:`setlyze.database.AccessRemoteDB.get_species`
+1.98 				:meth:`setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon`
+1.99 				:meth:`setlyze.analysis.spot_preference.Start.calculate_significance_chisq`
+1.100 				:meth:`setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats`
+1.101 				:meth:`setlyze.analysis.spot_preference.Start.get_area_probabilities`
+1.102 				:meth:`setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats`
+1.103 				:meth:`setlyze.analysis.attraction_intra.Start.repeat_test`
+1.104 				:meth:`setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats`
+1.105 				:meth:`setlyze.analysis.attraction_inter.Start.repeat_test`
 ==================  =================================
 
 2.x Data Storage Places

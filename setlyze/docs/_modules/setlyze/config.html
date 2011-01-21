@@ -54,7 +54,8 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
+<span class="c">#  of species on SETL plates.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -78,10 +79,10 @@
 <span class="sd">usage example,</span>
 
 <span class="sd">    &gt;&gt;&gt; import setlyze.config</span>
-<span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;significance-alpha&#39;, 0.01)</span>
+<span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;alpha-level&#39;, 0.01)</span>
 <span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;species-selection&#39;, [11, 12, 13, 14], slot=0)</span>
 <span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;species-selection&#39;, [15, 16, 17], slot=1)</span>
-<span class="sd">    &gt;&gt;&gt; print &quot;The alpha level for the t-test and Wilcoxon test is set to&quot;, setlyze.config.cfg.get(&#39;significance-alpha&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; print &quot;The alpha level for the t-test and Wilcoxon test is set to&quot;, setlyze.config.cfg.get(&#39;alpha-level&#39;)</span>
 <span class="sd">    The alpha level for the t-test and Wilcoxon test is set to 0.01</span>
 <span class="sd">    &gt;&gt;&gt; print &quot;The first species selection is&quot;, setlyze.config.cfg.get(&#39;species-selection&#39;, slot=0)</span>
 <span class="sd">    The first species selection is [11, 12, 13, 14]</span>
@@ -104,7 +105,7 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/09/22&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2011/01/15&quot;</span>
 
 
 <span class="c"># Path where all data files are stored. The use of os.path.join may seem</span>
@@ -189,16 +190,17 @@
     <span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
     <span class="c"># Analysis report.</span>
     <span class="p">(</span><span class="s">&#39;analysis-report&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Normality test: alpha level.</span>
-    <span class="p">(</span><span class="s">&#39;normality-alpha&#39;</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
-    <span class="c"># Significance test: alpha level.</span>
-    <span class="p">(</span><span class="s">&#39;significance-alpha&#39;</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
-    <span class="c"># Significance test: confidence level.</span>
-    <span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">),</span>
+    <span class="c"># Alpha level for normality tests.</span>
+    <span class="p">(</span><span class="s">&#39;alpha-level-normality&#39;</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
+    <span class="c"># Alpha level for significance tests. The confidence level is calculated</span>
+    <span class="c"># with &quot;1 - alpha-level&quot;.</span>
+    <span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
     <span class="c"># Probabilities for each spot distance.</span>
     <span class="p">(</span><span class="s">&#39;spot-dist-to-prob-intra&#39;</span><span class="p">,</span> <span class="n">SPOT_DIST_TO_PROB_INTRA</span><span class="p">),</span>
     <span class="c"># Probabilities for each spot distance.</span>
     <span class="p">(</span><span class="s">&#39;spot-dist-to-prob-inter&#39;</span><span class="p">,</span> <span class="n">SPOT_DIST_TO_PROB_INTER</span><span class="p">),</span>
+    <span class="c"># Number of repeats to perform for statistical tests.</span>
+    <span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
 <span class="p">]</span>
 
 <div class="viewcode-block" id="ConfigManager"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager">[docs]</a><span class="k">class</span> <span class="nc">ConfigManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>

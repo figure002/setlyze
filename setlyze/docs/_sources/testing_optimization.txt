@@ -128,10 +128,10 @@ unreliable. So the Shapiro-Wilk normality test was performed as well: ::
 Again very low p-values are found, which is why we assume that spot distances
 on a SETL-plate don't follow a standard normal distribution. Hence we chose
 the Wilcoxon rank-sum test because this test doesn't assume that data come
-from a normal distribution [#ref-dalgaard]_. Welch's t-test is
-an adaptation of Student's t-test [#ref-welch]_. And because
+from a normal distribution (:ref:`Dalgaard <ref-dalgaard>`). Welch's t-test is
+an adaptation of Student's t-test (:ref:`Wikipedia <ref-welch>`). And because
 Student's t-test does assume that data come from a normal distribution
-[#ref-dalgaard]_, we chose not to use this test.
+(:ref:`Dalgaard <ref-dalgaard>`), we chose not to use this test.
 
 .. _optimization:
 
@@ -205,11 +205,3 @@ than retrieving pre-calculated spot distances from the database. So the use
 of the "spot_distances" table was dropped and spot distances are now calculated
 on run time.
 
-
-.. rubric:: References
-
-.. [#ref-dalgaard] Dalgaard, P. *Introductory Statistics With R, Second Edition*. Springer,
-   Copenhagen.
-
-.. [#ref-welch] Wikipedia. Welch's t test. `http://en.wikipedia.org/wiki/Welch's_t_test
-   <http://en.wikipedia.org/wiki/Welch's_t_test>`_. 17 August 2010.

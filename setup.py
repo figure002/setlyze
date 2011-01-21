@@ -56,7 +56,7 @@ package_data_setlyze.extend(['images/*.*'])
 
 setup(name = 'setlyze',
     version = '0.1',
-    description = "A tool for analyzing the settlement of species.",
+    description = "A tool for analyzing the settlement of species on SETL plates.",
     long_description = "A tool for analyzing the settlement of species on SETL plates.",
     author = 'Serrano Pereira',
     author_email = 'serrano.pereira@gmail.com',
@@ -77,10 +77,11 @@ setup(name = 'setlyze',
     ],
     install_requires = [
         'setuptools',
-        'pygtk >= 2.0',
-        'pygobject >= 2.20',
-        'pycairo >= 1.8',
-        'rpy >= 1.0.3'
+        'pygtk >= 2.22',
+        'pygobject >= 2.26',
+        'pycairo >= 1.8.6',
+        'rpy >= 1.0.3',
+        'pywin32',
         ],
     packages = [
         'setlyze',

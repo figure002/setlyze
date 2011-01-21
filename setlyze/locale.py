@@ -19,11 +19,10 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module is for storing frequently used English lines used
-throughout the source-code. The purpose is to have a standard place for
-storing English sentences. This was basically meant for convenience so
-the developer doesn't have to browse through code just to change a
-sentence.
+"""This module is for storing and retrieving messages used in SETLyze.
+The purpose is to have a standard place for storing these messages. This was
+basically meant for convenience so the developer doesn't have to browse
+through SETLyze's code base just to change a sentence.
 
 This module wasn't created for adding multi-language support, though
 it can be easily expanded to do so.
@@ -65,7 +64,7 @@ ENGLISH = [
     ('analysis1',
         'Analysis 1 "Spot preference"'),
     ('analysis1-descr',
-        "Determine if a species has preference for a specific spot on SETL "
+        "Determine if a species has preference for a specific area on SETL "
         "plates."),
     ('analysis2',
         'Analysis 2 "Attraction of species (intra-specific)"'),
@@ -75,18 +74,19 @@ ENGLISH = [
     ('analysis3',
         'Analysis 3 "Attraction of species (inter-specific)"'),
     ('analysis3-descr',
-        'Determine if two different species attract or repel each other.'),
+        "Determine if two different species attract or repel each other."),
     ('analysis4',
         'Analysis 4 "Relation between species"'),
     ('analysis4-descr',
-        'Determine if one species is somehow related to another species.'),
+        "Determine if there is a relation between the presence/absence of two "
+        "species in a specific location."),
     ('define-plate-areas',
         "Please define the plate areas for the Chi-squared test. You can keep "
         "the default setting, meaning that A, B, C and D are treated as "
         "separate plate areas, or you can combine specific areas by "
         "changing the setting below. Combining areas means that the "
         "combined areas are treated as a single plate area. Empty plate "
-        "areas are ignored. This plate area definition will not be used by the "
+        "areas are ignored. This plate area definition will not be used for the "
         "Wilcoxon test because a fixed set of plate areas will be tested."),
     ('error-single-plate-area',
         "You've chosen to combine all plate areas together, resulting "
@@ -128,6 +128,17 @@ ENGLISH = [
         "Results for Shapiro-Wilk tests of normality"),
     ('t-significance-results-repeats',
         "Significance results for repeated %s tests"),
+    ('csv-files-not-selected',
+        "You didn't select all CSV files. SETLyze requires four CSV files "
+        "as input. See the user manual for more information. Please select "
+        "all four files and try again."),
+    ('csv-import-failed',
+        "Failed to load the SETL data from the CSV files. This is probably "
+        "caused by an incorrect format of the input file. SETLyze requires "
+        "the input files to be in a specific format. Please follow the "
+        "instructions in the user manual on how to create the CSV files in "
+        "the required format.\n\n"
+        "The error returned was: %s"),
     ]
 
 # Turn the list into a dictionary. This provides easier access to its

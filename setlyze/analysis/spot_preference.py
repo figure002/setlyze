@@ -69,15 +69,11 @@ class Begin(object):
 
     1. Show a list of all localities and let the user perform a localities
        selection.
-
     2. Show a list of all species that match the locations selection and
        let the user perform a species selection.
-
     3. Show the Define Plate Areas dialog and let the user define the plate
        areas.
-
     4. Start the analysis.
-
     5. Show the analysis report to the user.
 
     Design Part: 1.3.1
@@ -243,14 +239,10 @@ class Start(threading.Thread):
     """Perform the calculations for analysis 1.
 
     1. Calculate the observed species frequencies for the plate areas.
-
     2. Check if all plate area frequencies are zero. If so, abort.
-
     3. Calculate the expected species frequencies for the plate areas.
-
     4. Calculate the significance in difference between the observed and
        expected area totals. The Chi-squared test is used for this.
-
     5. Generate the anayslis report.
 
     Design Part: 1.3.2
@@ -261,7 +253,7 @@ class Start(threading.Thread):
 
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
-        self.test_repeats = setlyze.config.cfg.get('test-repeats')
+        self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.pdialog_handler = setlyze.std.ProgressDialogHandler()
         self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
@@ -278,10 +270,18 @@ class Start(threading.Thread):
     def run(self):
         """Call the necessary methods for the analysis in the right order
         and do some data checks:
-            * :meth:`get_areas_totals_observed`
-            * Check if all plate areas totals are zero. If so, abort.
-            * :meth:`get_areas_totals_expected`
-            * :meth:`chi_square_tester`
+
+            * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
+              :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
+            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
+              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
+            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
+            * :meth:`set_plate_area_totals_observed`
+            * :meth:`get_defined_areas_totals_observed`
+            * Check if all plate area totals are zero. If so, abort.
+            * :meth:`repeat_test`
+            * :meth:`calculate_significance_wilcoxon`
+            * :meth:`calculate_significance_chisq`
             * :meth:`generate_report`
 
         Design Part: 1.58
@@ -292,7 +292,7 @@ class Start(threading.Thread):
         time.sleep(0.5)
 
         # Set the total number of times we decide to update the progress dialog.
-        total_steps = 7 + self.test_repeats
+        total_steps = 7 + self.n_repeats
         self.pdialog_handler.set_total_steps(total_steps)
 
         # Make an object that facilitates access to the database.
@@ -341,12 +341,12 @@ class Start(threading.Thread):
             return
 
         # Create log message and update progress dialog.
-        logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.test_repeats)
-        self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.test_repeats)
-        # Perform the repeats for the statistical tests. This will reapatedly
-        # calculate the expected totals, so we'll use the expected totals
-        # of the last repeat as the results for the report dialog.
-        self.repeat_test(self.test_repeats)
+        logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
+        self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
+        # Perform the repeats for the statistical tests. This will repeatedly
+        # calculate the expected totals, so we'll use the expected values
+        # of the last repeat for the non-repeated tests.
+        self.repeat_test(self.n_repeats)
 
         # Create log message.
         logging.info("\tPerforming statistical tests...")
@@ -370,7 +370,11 @@ class Start(threading.Thread):
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
     def set_plate_area_totals_observed(self):
-        """Fill the 'plate_area_totals_observed' table."""
+        """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"
+        table in the local SQLite database.
+
+        Design Part: 1.62
+        """
         locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
         species_selection = setlyze.config.cfg.get('species-selection', slot=0)
 
@@ -442,7 +446,11 @@ class Start(threading.Thread):
         connection.close()
 
     def set_plate_area_totals_expected(self):
-        """Fill the 'plate_area_totals_expected' table."""
+        """Fills :ref:`design-part-data-2.42`, the "plate_area_totals_expected"
+        table in the local SQLite database.
+
+        Design Part: 1.63
+        """
 
         # From plate area to spot numbers.
         area2spots = {'A': (1,5,21,25),
@@ -511,7 +519,59 @@ class Start(threading.Thread):
         connection.close()
 
     def calculate_significance_wilcoxon(self):
-        """TODO"""
+        """Perform statistical tests to check if the differences between
+        the means of the two sets of positive spots numbers are statistically
+        significant.
+
+        The unpaired Wilcoxon rank sum test is used. We use unpaired
+        because the two sets of positive spots numbers are unrelated
+        (:ref:`Dalgaard <ref-dalgaard>`).
+
+        The test is performed on different data groups. Each data group
+        contains the positive spots numbers for a specific plate area or
+        a combination of plate areas. The user defined plate areas are not
+        used for this test, so the default plate areas A, B, C and D are used.
+        The groups are defined as follows:
+
+        1. Plate area A
+        2. Plate area B
+        3. Plate area C
+        4. Plate area D
+        5. Plate area A+B
+        6. Plate area C+D
+        7. Plate area A+B+C
+        8. Plate area B+C+D
+
+        Based on the results of a test we can decide which hypothesis we can
+        assume to be true.
+
+        Null hypothesis
+            The species in question does not have a preference or rejection
+            for the plate area in question.
+
+        Alternative hypothesis
+            The species in question has a preference for the plate area in
+            question (mean observed > mean expected) or has a rejection for
+            the plate area in question (mean observed < mean expected).
+
+        The decision is based on the p-value calculated by the test:
+
+        P >= alpha level
+            Assume that the null hypothesis is true.
+
+        P < alpha level
+            Assume that the alternative hypothesis is true.
+
+        Combining the results of all plate area groups listed above should
+        allow you to draw a conclusion about the species' plate area preference.
+        For example, should a species have a strong preference for the corners
+        of a SETL-plate, then you would expect to find low p-values for group
+        1 (preference). But also low P-values for groups 3, 4, 6 and 8
+        because of rejection. If group 2 would not be significant, then group
+        7 wouldn't be either, because areas A and C neutralize eachother.
+
+        Design Part: 1.98
+        """
 
         # The area groups to perfom the test on.
         area_groups = [('A'),('B'),('C'),('D'),('A','B'),('C','D'),
@@ -579,7 +639,47 @@ class Start(threading.Thread):
             self.statistics['wilcoxon'].append(data)
 
     def calculate_significance_chisq(self):
-        """TODO"""
+        """Perform statistical tests to check if the differences between
+        the means of the two sets of positive spots numbers are statistically
+        significant.
+
+        The Chi-squared test for given probabilities (:ref:`Millar <ref-millar>`,
+        :ref:`Dalgaard <ref-dalgaard>`) is used to calculate this significance.
+        The probabilities for the user defined plate areas are first calculated.
+        From these probabilities the expected positive spots numbers are
+        calculated by the Chi-squared test. The number of observed positive
+        spots are then compared to the expected number of positive spots. This
+        is done for all user defined plate areas.
+
+        Based on the results of a test we can decide which hypothesis we can
+        assume to be true.
+
+        Null hypothesis
+            The species in question does not have a preference or rejection
+            for the plate area in question.
+
+        Alternative hypothesis
+            The species in question has a preference for the plate area in
+            question (n observed > n expected) or has a rejection for
+            the plate area in question (n observed < n expected).
+
+        The decision is based on the p-value calculated by the test:
+
+        P >= alpha level
+            Assume that the null hypothesis is true.
+
+        P < alpha level
+            Assume that the alternative hypothesis is true.
+
+        In contrast to the results of the Wilcoxon test, the results for this
+        test don't show whether the species has a preference or a rejection
+        for a specific user defined plate area. This is because the design of
+        the Chi-squared test, which looks at the data of all plate areas
+        together. So it just tells you if the data shows significant
+        differences.
+
+        Design Part: 1.99
+        """
 
         # Get the probabilities for the user defined plate areas.
         probabilities = self.get_area_probabilities()
@@ -608,7 +708,22 @@ class Start(threading.Thread):
         self.statistics['chi_squared'].append(data)
 
     def calculate_significance_wilcoxon_repeats(self):
-        """TODO"""
+        """This method does the same as :meth:`calculate_significance_wilcoxon`,
+        but instead is designed to be called repeatedly, saving the results
+        of the repeated test. This method doesn't save the detailed
+        results of the Wilcoxon test, but just saves whether the p-value
+        was significant, and whether it was preference or rejection for the
+        plate area in question.
+
+        Repeation of the Wilcoxon test is necessary, as the expected values
+        are calculated randomly. The test needs to be repeated many times
+        if you want to draw a solid conclusion from the results.
+
+        The number of times this method is called depends on the configuration
+        setting "test-repeats".
+
+        Design Part: 1.100
+        """
 
         # The plate area groups to perfom the test on.
         area_groups = [('A'),('B'),('C'),('D'),('A','B'),('C','D'),
@@ -673,7 +788,15 @@ class Start(threading.Thread):
                     self.statistics['repeats'][area_group_str]['n_rejection'] += 1
 
     def repeat_test(self, number):
-        """Repeat the siginificance test `number` times."""
+        """Repeats the siginificance test `number` times. The significance
+        test is performed by :meth:`calculate_significance_wilcoxon_repeats`.
+
+        Each time before :meth:`calculate_significance_wilcoxon_repeats` is
+        called, :meth:`set_plate_area_totals_expected` is called to
+        re-calculate the expected values (which are random).
+
+        Design Part: 1.65
+        """
         for i in range(number):
             # Update the progess bar.
             self.pdialog_handler.increase()
@@ -686,9 +809,14 @@ class Start(threading.Thread):
             self.calculate_significance_wilcoxon_repeats()
 
     def get_defined_areas_totals_observed(self):
-        """Return the observed totals for a species for each plate area.
+        """Return the number of positive spots for each user defined plate
+        area. The positive spots for the areas of all plates matching the
+        species selection are summed up.
 
-        Design Part: 1.62
+        Returns a dictionary where the keys are the unique names of the plate
+        areas, and the values are the number of positive spots.
+
+        Design Part: 1.64
         """
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
 
@@ -719,7 +847,17 @@ class Start(threading.Thread):
         return areas_totals_observed
 
     def get_area_probabilities(self):
-        """Return the probabilities for the defined plate areas."""
+        """Return the probabilities for the defined plate areas.
+
+        It is assumed that each of the 25 plate surfaces on a SETL-plate
+        have a probability of 1/25.
+
+        Returns a dictionary; the keys are the unique names of the user
+        defined plate areas, and the values are the probabilities. The
+        probabilities are floats between 0 and 1.
+
+        Design Part: 1.101
+        """
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
 
         # The spot names, and how many times they occur on a plate.

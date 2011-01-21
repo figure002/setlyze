@@ -95,7 +95,7 @@ def on_help(button, section):
     if os.name == 'nt':
         url = path
 
-    # Open the URL in the system's web browser.
+    # Open the URL in the system's default web browser.
     webbrowser.open(url)
 
 def on_quit(button, data=None):
@@ -1453,6 +1453,9 @@ class ChangeDataSource(gtk.Window):
         # Create the layout for the dialog.
         self.create_layout()
 
+        # Bind handles to application signals.
+        self.handle_application_signals()
+
         # Display all widgets.
         self.show_all()
 
@@ -1629,13 +1632,42 @@ class ChangeDataSource(gtk.Window):
 
         return table
 
+    def handle_application_signals(self):
+        """Respond to signals emitted by the application."""
+        self.handler1 = setlyze.std.sender.connect('csv-import-failed',
+            self.on_csv_import_failed)
+
+        # Make sure the above handle is disconnected when loading new SETL
+        # data succeeds.
+        self.handler2 = setlyze.std.sender.connect('local-db-created',
+            self.destroy_handler_connections)
+
+    def destroy_handler_connections(self, sender=None, data=None):
+        """Disconnect all signal connections with signal handlers created by
+        this class.
+        """
+        setlyze.std.sender.disconnect(self.handler1)
+        setlyze.std.sender.disconnect(self.handler2)
+
     def on_csv_ok(self, widget, data=None):
         """Save the paths to the CSV files, set the new value for the
         data source configuration, load the SETL data from the CSV file
         into the local database, and close the dialog.
         """
 
-        # TODO: Check if all files are selected.
+        # Check if all files are selected.
+        if not self.loc_file_chooser.get_filename() or \
+            not self.spe_file_chooser.get_filename() or \
+            not self.rec_file_chooser.get_filename() or \
+            not self.pla_file_chooser.get_filename():
+            dialog = gtk.MessageDialog(parent=None, flags=0,
+                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                message_format="Not all CSV files selected")
+            dialog.format_secondary_text( setlyze.locale.text('csv-files-not-selected') )
+            dialog.set_position(gtk.WIN_POS_CENTER)
+            dialog.run()
+            dialog.destroy()
+            return False
 
         # Save the paths.
         setlyze.config.cfg.set('localities-file', self.loc_file_chooser.get_filename() )
@@ -1643,9 +1675,8 @@ class ChangeDataSource(gtk.Window):
         setlyze.config.cfg.set('records-file', self.rec_file_chooser.get_filename() )
         setlyze.config.cfg.set('plates-file', self.pla_file_chooser.get_filename() )
 
-        # Let the application know that we are now using user selected
-        # CSV files.
-        setlyze.config.cfg.set('data-source', "csv-msaccess")
+        # Let the application know that we are now using user selected CSV files.
+        setlyze.config.cfg.set('data-source', 'csv-msaccess')
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Loading data",
@@ -1656,11 +1687,33 @@ class ChangeDataSource(gtk.Window):
         t = setlyze.database.MakeLocalDB()
         t.start()
 
-        # Close ChangeDataSource window.
+        # Close the dialog.
         self.destroy()
+
+    def on_csv_import_failed(self, sender, error, data=None):
+        """Display an error message showing the user that importing SETL data
+        from the selected CSV files failed.
+        """
+        self.destroy_handler_connections()
+
+        # Close the progress dialog.
+        setlyze.config.cfg.get('progress-dialog').destroy()
+
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+            message_format="Loading SETL data failed")
+        dialog.format_secondary_text( setlyze.locale.text('csv-import-failed', error) )
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
+
+        # Returning True indicates that the event has been handled, and that
+        # it should not propagate further.
+        return True
 
     def on_cancel(self, widget, data=None):
         """Close the dialog."""
+        self.destroy_handler_connections()
         self.destroy()
 
     def update_working_folder(self, chooser, data=None):
@@ -1686,54 +1739,11 @@ class ProgressDialog(gtk.Window):
     process). This worker process needs to run in a separate thread for
     this to work.
 
-    Follow these steps to get the progress dialog working:
-
-    1) Create an instance of this class, ::
-
-        pd = setlyze.gui.ProgressDialog(title="Analyzing",
-            description="Performing heavy calculations, please wait...")
-
-    2) Register the progress dialog using the ``config`` module, ::
-
-        setlyze.config.cfg.set('progress-dialog', pd)
-
-    3) Edit the worker process to automatically update the progress
-       dialog. You'll need the progress dialog handler for that. In your worker
-       class, create one like this: ::
-
-            self.pdialog_handler = setlyze.std.ProgressDialogHandler()
-
-       Then you need to tell the handler how many times you're going to update
-       the progress dialog (the number of times you'll call the increase()
-       method): ::
-
-            self.pdialog_handler.set_total_steps(8)
-
-       Then call the increase() method in you worker class to update the
-       progress dialog. Notice that increase() will be called 8 times in the
-       example below (hence total steps was set to 8): ::
-
-            self.pdialog_handler.increase("Calculating this...")
-            some_heavy_function()
-
-            for x in range(5):
-                calculate_this()
-                self.pdialog_handler.increase()
-
-            self.pdialog_handler.increase("Calculating that...")
-
-            more_heavy_calculations()
-
-            self.pdialog_handler.increase("Finished!")
-
-    4) Then start your worker process in a separate thread (if you're new to
-       threading, start with the `threading documentation
-       <http://docs.python.org/library/threading.html>`_) ::
-
-        t = WorkerClass()
-        t.start()
-
-    Then run your application and watch the progress bar increase.
+    You cannot access the progress dialog, which runs in the main thread, from
+    a separate (worker) thread. Doing this will cause the application to crash.
+    For the purpose of controlling the progress dialog from the worker
+    process, use :class:`setlyze.std.ProgressDialogHandler`. Read the
+    documentation for that class for usage information.
 
     Design Part: 1.92
     """
@@ -2453,7 +2463,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 270)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -2524,7 +2534,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 190)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -2595,7 +2605,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 220)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -2668,7 +2678,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 270)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -2806,7 +2816,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 190)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -2946,7 +2956,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 220)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -3014,7 +3024,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 270)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -3083,7 +3093,7 @@ class DisplayReport(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 250)
+        tree.set_size_request(-1, 190)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 

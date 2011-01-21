@@ -54,7 +54,8 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
+<span class="c">#  of species on SETL plates.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -119,7 +120,7 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/09/22&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2011/01/15&quot;</span>
 
 <div class="viewcode-block" id="on_help"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.on_help">[docs]</a><span class="k">def</span> <span class="nf">on_help</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the help contents for `section` in the system&#39;s default</span>
@@ -127,8 +128,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c"># Construct the path to the help file.</span>
-    <span class="n">path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
-        <span class="s">&#39;/docs/user_manual.html#&#39;</span><span class="o">+</span><span class="n">section</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;docs/user_manual.html#&#39;</span><span class="o">+</span><span class="n">section</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;/docs/user_manual.html#&#39;</span><span class="o">+</span><span class="n">section</span><span class="p">)</span>
 
     <span class="c"># Turn the path into an URL.</span>
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
@@ -140,10 +143,10 @@
     <span class="c"># On Windows, the section part of the URL (the &#39;#...&#39; part)</span>
     <span class="c"># is stripped off. This doesn&#39;t happen if &#39;file:///&#39; is left out.</span>
     <span class="c"># This however always launches IE instead of the default browser.</span>
-    <span class="c">#if os.name == &#39;nt&#39;:</span>
-    <span class="c">#    url = path</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s">&#39;nt&#39;</span><span class="p">:</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">path</span>
 
-    <span class="c"># Open the URL in the system&#39;s web browser.</span>
+    <span class="c"># Open the URL in the system&#39;s default web browser.</span>
     <span class="n">webbrowser</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="on_quit"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.on_quit">[docs]</a><span class="k">def</span> <span class="nf">on_quit</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -190,7 +193,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">SelectAnalysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WINDOW_TOPLEVEL</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SelectAnalysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Welcome to SETLyze&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
@@ -261,7 +264,11 @@
 
         <span class="c"># Load an image for the logo.</span>
         <span class="n">setl_logo</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">()</span>
-        <span class="n">setl_logo</span><span class="o">.</span><span class="n">set_from_file</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setl-logo.png&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;images/setl-logo.png&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setl-logo.png&#39;</span><span class="p">)</span>
+        <span class="n">setl_logo</span><span class="o">.</span><span class="n">set_from_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
         <span class="n">setl_logo_align</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">setl_logo_align</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">setl_logo</span><span class="p">)</span>
         <span class="c"># Add the logo to the table.</span>
@@ -295,13 +302,18 @@
 
         <span class="c"># Create an about button.</span>
         <span class="n">button_about</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_ABOUT</span><span class="p">)</span>
-        <span class="n">button_about</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">button_about</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_about</span><span class="p">)</span>
+
+        <span class="c"># Create a settings button.</span>
+        <span class="n">button_prefs</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_PREFERENCES</span><span class="p">)</span>
+        <span class="n">button_prefs</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_preferences</span><span class="p">)</span>
 
         <span class="c"># Put the buttons in a horizontal button box.</span>
         <span class="n">button_box_l</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
         <span class="n">button_box_l</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_START</span><span class="p">)</span>
+        <span class="n">button_box_l</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">button_box_l</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_about</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_l</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_prefs</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c"># Add the about button to the table.</span>
         <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_l</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -414,42 +426,12 @@
         <span class="sd">&quot;&quot;&quot;Close the application.&quot;&quot;&quot;</span>
         <span class="n">gtk</span><span class="o">.</span><span class="n">main_quit</span><span class="p">()</span>
 </div>
+    <span class="k">def</span> <span class="nf">on_preferences</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="n">Preferences</span><span class="p">()</span>
+
 <div class="viewcode-block" id="SelectAnalysis.on_about"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.on_about">[docs]</a>    <span class="k">def</span> <span class="nf">on_about</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Display SETLyze&#39;s about dialog.&quot;&quot;&quot;</span>
-        <span class="n">license</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;This program is free software: you can redistribute it and/or modify</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;it under the terms of the GNU General Public License as published by</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;the Free Software Foundation, either version 3 of the License, or</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;(at your option) any later version.</span><span class="se">\n\n</span><span class="s">&quot;</span>
-
-            <span class="s">&quot;This program is distributed in the hope that it will be useful,</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;but WITHOUT ANY WARRANTY; without even the implied warranty of</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;GNU General Public License for more details.</span><span class="se">\n\n</span><span class="s">&quot;</span>
-
-            <span class="s">&quot;You should have received a copy of the GNU General Public License</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;along with this program.  If not, see http://www.gnu.org/licenses/&quot;</span><span class="p">)</span>
-
-        <span class="n">logo_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
-            <span class="s">&#39;/images/setl-logo.png&#39;</span><span class="p">)</span>
-        <span class="n">logo</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">gdk</span><span class="o">.</span><span class="n">pixbuf_new_from_file</span><span class="p">(</span><span class="n">logo_path</span><span class="p">)</span>
-
-        <span class="n">about</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">AboutDialog</span><span class="p">()</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_program_name</span><span class="p">(</span><span class="s">&quot;SETLyze&quot;</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_version</span><span class="p">(</span><span class="n">__version__</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_copyright</span><span class="p">(</span><span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_authors</span><span class="p">([</span><span class="s">&quot;Project Leader/Contact Person:</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Arjan Gittenberger &lt;gittenberger@gimaris.com&gt;&quot;</span><span class="p">,</span>
-            <span class="s">&quot;Application Developers:</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Jonathan den Boer&quot;</span><span class="p">,</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_artists</span><span class="p">([</span><span class="s">&quot;Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_comments</span><span class="p">(</span><span class="s">&quot;A tool for analyzing the settlement of species.&quot;</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_license</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_website</span><span class="p">(</span><span class="s">&quot;http://www.gimaris.com/&quot;</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">set_logo</span><span class="p">(</span><span class="n">logo</span><span class="p">)</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="n">about</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="n">About</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="SelectAnalysis.make_local_database"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectAnalysis.make_local_database">[docs]</a>    <span class="k">def</span> <span class="nf">make_local_database</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set a local database. If there&#39;s already a local database file</span>
@@ -956,7 +938,7 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">(</span><span class="s">&#39;species-selection-saved&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_slot</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="SelectSpecies.create_model"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectSpecies.create_model">[docs]</a>    <span class="k">def</span> <span class="nf">create_model</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a model for the tree view from the specie IDs and</span>
+        <span class="sd">&quot;&quot;&quot;Create a model for the tree view from the species IDs and</span>
 <span class="sd">        names.</span>
 
 <span class="sd">        Design Part: 1.43</span>
@@ -985,7 +967,7 @@
         <span class="c"># Notice text=2, which means that we let the column display the</span>
         <span class="c"># attribute values for the cell renderer from column 2 in the</span>
         <span class="c"># TreeModel. Column 2 contains the species names (latin).</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Specie (latin)&quot;</span><span class="p">,</span> <span class="n">renderer_text</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Species (Latin)&quot;</span><span class="p">,</span> <span class="n">renderer_text</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="c"># Sort on column 2 from the model.</span>
         <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">column</span><span class="o">.</span><span class="n">set_sort_order</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">SORT_ASCENDING</span><span class="p">)</span>
@@ -997,7 +979,7 @@
         <span class="c"># Notice text=1, which means that we let the column display the</span>
         <span class="c"># attribute values for the cell renderer from column 1 in the</span>
         <span class="c"># TreeModel. Column 1 contains the species names (venacular).</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Specie (venacular)&quot;</span><span class="p">,</span> <span class="n">renderer_text</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Species (venacular)&quot;</span><span class="p">,</span> <span class="n">renderer_text</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c"># Sort on column 1 from the model.</span>
         <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">column</span><span class="o">.</span><span class="n">set_resizable</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
@@ -1042,7 +1024,7 @@
 <span class="sd">    Design Part: 1.91</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;Define SETL-plate Areas&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s">&quot;Define SETL-plate Areas for Chi-squared Test&quot;</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">DefinePlateAreas</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
@@ -1124,8 +1106,11 @@
 
         <span class="c"># Load an image of the SETL grid.</span>
         <span class="n">setl_grid</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">()</span>
-        <span class="n">setl_grid</span><span class="o">.</span><span class="n">set_from_file</span><span class="p">(</span><span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
-            <span class="s">&#39;/images/setl-grid.png&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;images/setl-grid.png&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setl-grid.png&#39;</span><span class="p">)</span>
+        <span class="n">setl_grid</span><span class="o">.</span><span class="n">set_from_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
         <span class="c"># Add the image to the table.</span>
         <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">setl_grid</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
             <span class="n">top_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
@@ -1410,7 +1395,7 @@
                 <span class="c"># is useless, so show a warning.</span>
                 <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                     <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
-                    <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Invalid spot definition&quot;</span><span class="p">)</span>
+                    <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Invalid plate areas definition&quot;</span><span class="p">)</span>
                 <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;error-single-plate-area&#39;</span><span class="p">)</span> <span class="p">)</span>
                 <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -1518,6 +1503,9 @@
 
         <span class="c"># Create the layout for the dialog.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_layout</span><span class="p">()</span>
+
+        <span class="c"># Bind handles to application signals.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handle_application_signals</span><span class="p">()</span>
 
         <span class="c"># Display all widgets.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">show_all</span><span class="p">()</span>
@@ -1695,13 +1683,42 @@
 
         <span class="k">return</span> <span class="n">table</span>
 </div>
+<div class="viewcode-block" id="ChangeDataSource.handle_application_signals"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.handle_application_signals">[docs]</a>    <span class="k">def</span> <span class="nf">handle_application_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Respond to signals emitted by the application.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_csv_import_failed</span><span class="p">)</span>
+
+        <span class="c"># Make sure the above handle is disconnected when loading new SETL</span>
+        <span class="c"># data succeeds.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler2</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;local-db-created&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">destroy_handler_connections</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ChangeDataSource.destroy_handler_connections"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.destroy_handler_connections">[docs]</a>    <span class="k">def</span> <span class="nf">destroy_handler_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Disconnect all signal connections with signal handlers created by</span>
+<span class="sd">        this class.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler1</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler2</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="ChangeDataSource.on_csv_ok"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.on_csv_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_csv_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Save the paths to the CSV files, set the new value for the</span>
 <span class="sd">        data source configuration, load the SETL data from the CSV file</span>
 <span class="sd">        into the local database, and close the dialog.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># TODO: Check if all files are selected.</span>
+        <span class="c"># Check if all files are selected.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="ow">or</span> \
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spe_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="ow">or</span> \
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rec_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="ow">or</span> \
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pla_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">():</span>
+            <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+                <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Not all CSV files selected&quot;</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;csv-files-not-selected&#39;</span><span class="p">)</span> <span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">False</span>
 
         <span class="c"># Save the paths.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
@@ -1709,9 +1726,8 @@
         <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rec_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pla_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
 
-        <span class="c"># Let the application know that we are now using user selected</span>
-        <span class="c"># CSV files.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">,</span> <span class="s">&quot;csv-msaccess&quot;</span><span class="p">)</span>
+        <span class="c"># Let the application know that we are now using user selected CSV files.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">,</span> <span class="s">&#39;csv-msaccess&#39;</span><span class="p">)</span>
 
         <span class="c"># Show a progress dialog.</span>
         <span class="n">pd</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Loading data&quot;</span><span class="p">,</span>
@@ -1722,11 +1738,33 @@
         <span class="n">t</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">MakeLocalDB</span><span class="p">()</span>
         <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
-        <span class="c"># Close ChangeDataSource window.</span>
+        <span class="c"># Close the dialog.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ChangeDataSource.on_csv_import_failed"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.on_csv_import_failed">[docs]</a>    <span class="k">def</span> <span class="nf">on_csv_import_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display an error message showing the user that importing SETL data</span>
+<span class="sd">        from the selected CSV files failed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy_handler_connections</span><span class="p">()</span>
+
+        <span class="c"># Close the progress dialog.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+            <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Loading SETL data failed&quot;</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="c"># Returning True indicates that the event has been handled, and that</span>
+        <span class="c"># it should not propagate further.</span>
+        <span class="k">return</span> <span class="bp">True</span>
 </div>
 <div class="viewcode-block" id="ChangeDataSource.on_cancel"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.on_cancel">[docs]</a>    <span class="k">def</span> <span class="nf">on_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Close the dialog.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy_handler_connections</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="ChangeDataSource.update_working_folder"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.update_working_folder">[docs]</a>    <span class="k">def</span> <span class="nf">update_working_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chooser</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
@@ -1752,35 +1790,11 @@
 <span class="sd">    process). This worker process needs to run in a separate thread for</span>
 <span class="sd">    this to work.</span>
 
-<span class="sd">    Follow these steps to get the progress dialog working:</span>
-
-<span class="sd">    1) Create an instance of this class, ::</span>
-
-<span class="sd">        pd = setlyze.gui.ProgressDialog(title=&quot;Analyzing&quot;,</span>
-<span class="sd">            description=&quot;Performing heavy calculations, please wait...&quot;)</span>
-
-<span class="sd">    2) Register the progress dialog using the ``config`` module, ::</span>
-
-<span class="sd">        setlyze.config.cfg.set(&#39;progress-dialog&#39;, pd)</span>
-
-<span class="sd">    3) Edit the worker process to automatically update the progress</span>
-<span class="sd">       dialog. This is as easy as calling the custom update method</span>
-<span class="sd">       between the lines of your code, ::</span>
-
-<span class="sd">        setlyze.std.update_progress_dialog(0.0, &quot;Calculating this...&quot;)</span>
-<span class="sd">        ...</span>
-<span class="sd">        setlyze.std.update_progress_dialog(0.5, &quot;Calculating that...&quot;)</span>
-<span class="sd">        ...</span>
-<span class="sd">        setlyze.std.update_progress_dialog(1.0, &quot;&quot;)</span>
-
-<span class="sd">    4) Then start your worker process in a separate thread (if you&#39;re</span>
-<span class="sd">       new to threading, start with the</span>
-<span class="sd">       `threading documentation &lt;http://docs.python.org/library/threading.html&gt;`_) ::</span>
-
-<span class="sd">        t = MyClass()</span>
-<span class="sd">        t.start()</span>
-
-<span class="sd">    Then run your application and watch the progress bar grow.</span>
+<span class="sd">    You cannot access the progress dialog, which runs in the main thread, from</span>
+<span class="sd">    a separate (worker) thread. Doing this will cause the application to crash.</span>
+<span class="sd">    For the purpose of controlling the progress dialog from the worker</span>
+<span class="sd">    process, use :class:`setlyze.std.ProgressDialogHandler`. Read the</span>
+<span class="sd">    documentation for that class for usage information.</span>
 
 <span class="sd">    Design Part: 1.92</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1793,6 +1807,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_border_width</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_deletable</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_resizable</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_modal</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_keep_above</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
@@ -1854,7 +1869,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">vbox</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ProgressDialog.on_close"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ProgressDialog.on_close">[docs]</a>    <span class="k">def</span> <span class="nf">on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ProgressDialog.on_close"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ProgressDialog.on_close">[docs]</a>    <span class="k">def</span> <span class="nf">on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Destroy the dialog.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
 </div></div>
@@ -2065,19 +2080,25 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span>
 
+        <span class="c"># Get the names of all root report elements.</span>
         <span class="n">report_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_child_names</span><span class="p">()</span>
+
+        <span class="c"># Add the names of all statistics elements to the list of root</span>
+        <span class="c"># elements.</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s">&#39;statistics&#39;</span><span class="p">)</span>
+        <span class="n">report_elements</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_child_names</span><span class="p">(</span><span class="n">statistics</span><span class="p">))</span>
 
         <span class="c"># Add a header with the analysis name.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_title_header</span><span class="p">()</span>
 
-        <span class="c">#if &#39;specie_selections&#39; in report_elements:</span>
+        <span class="c">#if &#39;species_selections&#39; in report_elements:</span>
         <span class="c">#    self.add_species_selections()</span>
 
         <span class="c">#if &#39;location_selections&#39; in report_elements:</span>
         <span class="c">#    self.add_locations_selections()</span>
 
         <span class="k">if</span> <span class="s">&quot;location_selections&quot;</span> <span class="ow">in</span> <span class="n">report_elements</span> <span class="ow">and</span> \
-                <span class="s">&quot;specie_selections&quot;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
+                <span class="s">&quot;species_selections&quot;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_selections</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="s">&#39;spot_distances_observed&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span> <span class="ow">and</span> \
@@ -2091,27 +2112,40 @@
                 <span class="s">&#39;area_totals_expected&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_area_totals</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="s">&#39;statistics&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
-            <span class="n">stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_element</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s">&#39;statistics&#39;</span><span class="p">)</span>
-            <span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_child_names</span><span class="p">(</span><span class="n">stats</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&#39;chi_squared_areas&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_chisq_areas</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="s">&#39;normality&#39;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;statistics&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;normality&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_normality</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="s">&#39;t_test&#39;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;t_test&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_ttest</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="s">&#39;wilcoxon_spots&#39;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;wilcoxon_spots&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_wilcoxon_spots</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="s">&#39;wilcoxon_ratios&#39;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;wilcoxon_spots_repeats&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_repeats_spots</span><span class="p">(</span><span class="s">&#39;wilcoxon_spots&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s">&#39;wilcoxon_ratios&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_wilcoxon_ratios</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="s">&#39;chi_squared_spots&#39;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;wilcoxon_ratios_repeats&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_repeats_ratios</span><span class="p">(</span><span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s">&#39;wilcoxon_areas&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_wilcoxon_areas</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="s">&#39;wilcoxon_areas_repeats&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_repeats_areas</span><span class="p">(</span><span class="s">&#39;wilcoxon_areas&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s">&#39;chi_squared_spots&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_chisq_spots</span><span class="p">()</span>
 
-            <span class="k">if</span> <span class="s">&#39;chi_squared_ratios&#39;</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s">&#39;chi_squared_ratios&#39;</span> <span class="ow">in</span> <span class="n">report_elements</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">add_statistics_chisq_ratios</span><span class="p">()</span>
+
 </div>
 <div class="viewcode-block" id="DisplayReport.add_title_header"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport.add_title_header">[docs]</a>    <span class="k">def</span> <span class="nf">add_title_header</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a header text to the report dialog.</span>
@@ -2378,7 +2412,7 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="s">&quot;Plate Areas Definition&quot;</span><span class="p">)</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-plate-areas-definition&#39;</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
@@ -2393,7 +2427,7 @@
         <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Area ID&quot;</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
 
-        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Plate Area Spots&quot;</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Plate Area Surfaces&quot;</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
 
         <span class="c"># To store the data, we use the ListStore object.</span>
@@ -2424,7 +2458,7 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="s">&quot;Species Totals per Plate Area&quot;</span><span class="p">)</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-plate-area-totals&#39;</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
@@ -2473,14 +2507,14 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="s">&quot;Results for Wilcoxon signed-rank tests&quot;</span><span class="p">)</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
 
         <span class="c"># Create a TreeView for the selections.</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
-        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">270</span><span class="p">)</span>
         <span class="c"># Set horizontal rules, makes it easier to read items.</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
@@ -2489,7 +2523,7 @@
 
         <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Positive Spots&#39;</span><span class="p">,</span><span class="s">&#39;n (plates)&#39;</span><span class="p">,</span>
             <span class="s">&#39;n (distances)&#39;</span><span class="p">,</span><span class="s">&#39;P-value&#39;</span><span class="p">,</span><span class="s">&#39;Mean Observed&#39;</span><span class="p">,</span><span class="s">&#39;Mean Expected&#39;</span><span class="p">,</span>
-            <span class="s">&#39;Conf. interval start&#39;</span><span class="p">,</span><span class="s">&#39;Conf. interval end&#39;</span><span class="p">,</span><span class="s">&#39;Remarks&#39;</span><span class="p">]</span>
+            <span class="s">&#39;Remarks&#39;</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
             <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
@@ -2501,8 +2535,6 @@
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
-            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
-            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
@@ -2525,8 +2557,6 @@
                 <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;p_value&#39;</span><span class="p">]),</span>
                 <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;mean_observed&#39;</span><span class="p">]),</span>
                 <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;mean_expected&#39;</span><span class="p">]),</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;conf_int_start&#39;</span><span class="p">]),</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;conf_int_end&#39;</span><span class="p">]),</span>
                 <span class="n">remarks</span><span class="p">,</span>
                 <span class="p">])</span>
 
@@ -2548,23 +2578,23 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="s">&quot;Results for Wilcoxon signed-rank tests&quot;</span><span class="p">)</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
 
         <span class="c"># Create a TreeView for the selections.</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
-        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">190</span><span class="p">)</span>
         <span class="c"># Set horizontal rules, makes it easier to read items.</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c"># Add columns to the tree view.</span>
         <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
 
-        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ratios Group&#39;</span><span class="p">,</span><span class="s">&#39;n (plates)&#39;</span><span class="p">,</span>
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ratio Group&#39;</span><span class="p">,</span><span class="s">&#39;n (plates)&#39;</span><span class="p">,</span>
             <span class="s">&#39;n (distances)&#39;</span><span class="p">,</span><span class="s">&#39;P-value&#39;</span><span class="p">,</span><span class="s">&#39;Mean Observed&#39;</span><span class="p">,</span><span class="s">&#39;Mean Expected&#39;</span><span class="p">,</span>
-            <span class="s">&#39;Conf. interval start&#39;</span><span class="p">,</span><span class="s">&#39;Conf. interval end&#39;</span><span class="p">,</span><span class="s">&#39;Remarks&#39;</span><span class="p">]</span>
+            <span class="s">&#39;Remarks&#39;</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
             <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
@@ -2576,8 +2606,6 @@
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
-            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
-            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
@@ -2600,8 +2628,79 @@
                 <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;p_value&#39;</span><span class="p">]),</span>
                 <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;mean_observed&#39;</span><span class="p">]),</span>
                 <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;mean_expected&#39;</span><span class="p">]),</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;conf_int_start&#39;</span><span class="p">]),</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;conf_int_end&#39;</span><span class="p">]),</span>
+                <span class="n">remarks</span><span class="p">,</span>
+                <span class="p">])</span>
+
+        <span class="c"># Set the tree model.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">liststore</span><span class="p">)</span>
+
+        <span class="c"># Add the tree to the scrolled window.</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+
+        <span class="c"># Add the ScrolledWindow to the vertcal box.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">expander</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DisplayReport.add_statistics_wilcoxon_areas"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport.add_statistics_wilcoxon_areas">[docs]</a>    <span class="k">def</span> <span class="nf">add_statistics_wilcoxon_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the statistic results to the report dialog.&quot;&quot;&quot;</span>
+
+        <span class="c"># Create a Scrolled Window</span>
+        <span class="n">scrolled_window</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">()</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_shadow_type</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHADOW_NONE</span><span class="p">)</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
+
+        <span class="c"># Create the expander</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">))</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c"># Add the scrolled window to the expander.</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
+
+        <span class="c"># Create a TreeView for the selections.</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">220</span><span class="p">)</span>
+        <span class="c"># Set horizontal rules, makes it easier to read items.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># Add columns to the tree view.</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
+
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Plate Area&#39;</span><span class="p">,</span><span class="s">&#39;n (totals)&#39;</span><span class="p">,</span><span class="s">&#39;n (observed species)&#39;</span><span class="p">,</span>
+            <span class="s">&#39;n (expected species)&#39;</span><span class="p">,</span> <span class="s">&#39;P-value&#39;</span><span class="p">,</span><span class="s">&#39;Mean Observed&#39;</span><span class="p">,</span><span class="s">&#39;Mean Expected&#39;</span><span class="p">,</span>
+            <span class="s">&#39;Remarks&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c"># Make column sortable.</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="c"># To store the data, we use the ListStore object.</span>
+        <span class="n">liststore</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ListStore</span><span class="p">(</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c"># Add the distances to the model.</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics</span><span class="p">(</span><span class="s">&#39;wilcoxon_areas&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span><span class="n">items</span> <span class="ow">in</span> <span class="n">statistics</span><span class="p">:</span>
+            <span class="c"># Create a remarks string which allows for easy recognition</span>
+            <span class="c"># of interesting results.</span>
+            <span class="n">remarks</span> <span class="o">=</span> <span class="n">make_remarks</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">attr</span><span class="p">)</span>
+
+            <span class="c"># Add all result items to the tree model.</span>
+            <span class="n">liststore</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="n">attr</span><span class="p">[</span><span class="s">&#39;plate_area&#39;</span><span class="p">],</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n_sp_observed&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n_sp_expected&#39;</span><span class="p">]),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;p_value&#39;</span><span class="p">]),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;mean_observed&#39;</span><span class="p">]),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;mean_expected&#39;</span><span class="p">]),</span>
                 <span class="n">remarks</span><span class="p">,</span>
                 <span class="p">])</span>
 
@@ -2623,14 +2722,14 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="s">&quot;Results for Pearson&#39;s Chi-squared Tests for Count Data&quot;</span><span class="p">)</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
 
         <span class="c"># Create a TreeView for the selections.</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
-        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">270</span><span class="p">)</span>
         <span class="c"># Set horizontal rules, makes it easier to read items.</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
@@ -2689,6 +2788,69 @@
         <span class="c"># Add the ScrolledWindow to the vertcal box.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">expander</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </div>
+<div class="viewcode-block" id="DisplayReport.add_statistics_chisq_areas"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport.add_statistics_chisq_areas">[docs]</a>    <span class="k">def</span> <span class="nf">add_statistics_chisq_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the statistic results to the report dialog.&quot;&quot;&quot;</span>
+
+        <span class="c"># Create a Scrolled Window</span>
+        <span class="n">scrolled_window</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">()</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_shadow_type</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHADOW_NONE</span><span class="p">)</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
+
+        <span class="c"># Create the expander</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">))</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c"># Add the scrolled window to the expander.</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
+
+        <span class="c"># Create a TreeView for the selections.</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="c"># Set horizontal rules, makes it easier to read items.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># Add columns to the tree view.</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
+
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;P-value&#39;</span><span class="p">,</span><span class="s">&#39;Chi squared&#39;</span><span class="p">,</span><span class="s">&#39;df&#39;</span><span class="p">,</span><span class="s">&#39;Remarks&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c"># Make column sortable.</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="c"># To store the data, we use the ListStore object.</span>
+        <span class="n">liststore</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ListStore</span><span class="p">(</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_FLOAT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c"># Add the distances to the model.</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics</span><span class="p">(</span><span class="s">&#39;chi_squared_areas&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span><span class="n">items</span> <span class="ow">in</span> <span class="n">statistics</span><span class="p">:</span>
+            <span class="c"># Create a remarks string which allows for easy recognition</span>
+            <span class="c"># of interesting results.</span>
+            <span class="n">remarks</span> <span class="o">=</span> <span class="n">make_remarks</span><span class="p">(</span><span class="n">items</span><span class="p">,</span><span class="n">attr</span><span class="p">)</span>
+
+            <span class="c"># Add all result items to the tree model.</span>
+            <span class="n">liststore</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;p_value&#39;</span><span class="p">]),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;chi_squared&#39;</span><span class="p">]),</span>
+                <span class="nb">float</span><span class="p">(</span><span class="n">items</span><span class="p">[</span><span class="s">&#39;df&#39;</span><span class="p">]),</span>
+                <span class="n">remarks</span><span class="p">,</span>
+                <span class="p">])</span>
+
+        <span class="c"># Set the tree model.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">liststore</span><span class="p">)</span>
+
+        <span class="c"># Add the tree to the scrolled window.</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+
+        <span class="c"># Add the ScrolledWindow to the vertcal box.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">expander</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
 <div class="viewcode-block" id="DisplayReport.add_statistics_chisq_ratios"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport.add_statistics_chisq_ratios">[docs]</a>    <span class="k">def</span> <span class="nf">add_statistics_chisq_ratios</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add the statistic results to the report dialog.&quot;&quot;&quot;</span>
 
@@ -2698,23 +2860,23 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="s">&quot;Results for Pearson&#39;s Chi-squared Tests for Count Data&quot;</span><span class="p">)</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
 
         <span class="c"># Create a TreeView for the selections.</span>
         <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
-        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">250</span><span class="p">)</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">190</span><span class="p">)</span>
         <span class="c"># Set horizontal rules, makes it easier to read items.</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
         <span class="c"># Add columns to the tree view.</span>
         <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
 
-        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ratios Group&#39;</span><span class="p">,</span><span class="s">&#39;n (plates)&#39;</span><span class="p">,</span>
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Ratio Group&#39;</span><span class="p">,</span><span class="s">&#39;n (plates)&#39;</span><span class="p">,</span>
             <span class="s">&#39;n (distances)&#39;</span><span class="p">,</span><span class="s">&#39;P-value&#39;</span><span class="p">,</span><span class="s">&#39;Chi squared&#39;</span><span class="p">,</span><span class="s">&#39;df&#39;</span><span class="p">,</span>
-            <span class="s">&#39;Mean Observed&#39;</span><span class="p">,</span><span class="s">&#39;Mean Expected&#39;</span><span class="p">,</span><span class="s">&#39;Remarks&#39;</span><span class="p">]</span>
+            <span class="s">&#39;Mean Observed&#39;</span><span class="p">,</span><span class="s">&#39;Mean Expected&#39;</span><span class="p">,</span><span class="s">&#39;Remarks&#39;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
             <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
@@ -2773,7 +2935,7 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="s">&quot;Results for Shapiro-Wilk tests of normality&quot;</span><span class="p">)</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-shapiro-wilk&#39;</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
@@ -2828,7 +2990,212 @@
 
         <span class="c"># Add the ScrolledWindow to the vertcal box.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">expander</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DisplayReport.add_statistics_repeats_areas"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport.add_statistics_repeats_areas">[docs]</a>    <span class="k">def</span> <span class="nf">add_statistics_repeats_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_name</span><span class="p">,</span> <span class="n">testname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the statistic results to the report dialog.&quot;&quot;&quot;</span>
 
+        <span class="c"># Create a Scrolled Window</span>
+        <span class="n">scrolled_window</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">()</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_shadow_type</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHADOW_NONE</span><span class="p">)</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
+
+        <span class="c"># Create the expander</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="n">testname</span><span class="p">))</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c"># Add the scrolled window to the expander.</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
+
+        <span class="c"># Create a TreeView for the selections.</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">220</span><span class="p">)</span>
+        <span class="c"># Set horizontal rules, makes it easier to read items.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># Add columns to the tree view.</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
+
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Plate Area&#39;</span><span class="p">,</span><span class="s">&#39;n (totals)&#39;</span><span class="p">,</span><span class="s">&#39;n (observed species)&#39;</span><span class="p">,</span>
+            <span class="s">&#39;n (significant)&#39;</span><span class="p">,</span><span class="s">&#39;n (non-significant)&#39;</span><span class="p">,</span><span class="s">&#39;n (preference)&#39;</span><span class="p">,</span>
+            <span class="s">&#39;n (rejection)&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c"># Make column sortable.</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="c"># To store the data, we use the ListStore object.</span>
+        <span class="n">liststore</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ListStore</span><span class="p">(</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c"># Add the results to the model.</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics</span><span class="p">(</span><span class="n">element_name</span><span class="p">)</span>
+        <span class="n">statistics_repeats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics_repeats</span><span class="p">(</span><span class="n">element_name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span><span class="n">items</span> <span class="ow">in</span> <span class="n">statistics</span><span class="p">:</span>
+            <span class="n">plate_area</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="s">&#39;plate_area&#39;</span><span class="p">]</span>
+            <span class="n">liststore</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="n">plate_area</span><span class="p">,</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n_sp_observed&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">plate_area</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">plate_area</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">])),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">plate_area</span><span class="p">][</span><span class="s">&#39;n_preference&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">plate_area</span><span class="p">][</span><span class="s">&#39;n_rejection&#39;</span><span class="p">]),</span>
+                <span class="p">])</span>
+
+        <span class="c"># Set the tree model.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">liststore</span><span class="p">)</span>
+
+        <span class="c"># Add the tree to the scrolled window.</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+
+        <span class="c"># Add the ScrolledWindow to the vertcal box.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">expander</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DisplayReport.add_statistics_repeats_spots"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport.add_statistics_repeats_spots">[docs]</a>    <span class="k">def</span> <span class="nf">add_statistics_repeats_spots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_name</span><span class="p">,</span> <span class="n">testname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the statistic results to the report dialog.&quot;&quot;&quot;</span>
+
+        <span class="c"># Create a Scrolled Window</span>
+        <span class="n">scrolled_window</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">()</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_shadow_type</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHADOW_NONE</span><span class="p">)</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
+
+        <span class="c"># Create the expander</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="n">testname</span><span class="p">))</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c"># Add the scrolled window to the expander.</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
+
+        <span class="c"># Create a TreeView for the selections.</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">270</span><span class="p">)</span>
+        <span class="c"># Set horizontal rules, makes it easier to read items.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># Add columns to the tree view.</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
+
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Positive Spots&#39;</span><span class="p">,</span><span class="s">&#39;n (plates)&#39;</span><span class="p">,</span><span class="s">&#39;n (distances)&#39;</span><span class="p">,</span>
+            <span class="s">&#39;n (significant)&#39;</span><span class="p">,</span><span class="s">&#39;n (non-significant)&#39;</span><span class="p">,</span><span class="s">&#39;n (attraction)&#39;</span><span class="p">,</span>
+            <span class="s">&#39;n (repulsion)&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c"># Make column sortable.</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="c"># To store the data, we use the ListStore object.</span>
+        <span class="n">liststore</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ListStore</span><span class="p">(</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c"># Add the results to the model.</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics</span><span class="p">(</span><span class="n">element_name</span><span class="p">)</span>
+        <span class="n">statistics_repeats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics_repeats</span><span class="p">(</span><span class="n">element_name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span><span class="n">items</span> <span class="ow">in</span> <span class="n">statistics</span><span class="p">:</span>
+            <span class="n">n_spots</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="s">&#39;n_positive_spots&#39;</span><span class="p">]</span>
+
+            <span class="n">liststore</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="n">n_spots</span><span class="p">,</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n_plates&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">n_spots</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">n_spots</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">])),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">n_spots</span><span class="p">][</span><span class="s">&#39;n_attraction&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">n_spots</span><span class="p">][</span><span class="s">&#39;n_repulsion&#39;</span><span class="p">]),</span>
+                <span class="p">])</span>
+
+        <span class="c"># Set the tree model.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">liststore</span><span class="p">)</span>
+
+        <span class="c"># Add the tree to the scrolled window.</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+
+        <span class="c"># Add the ScrolledWindow to the vertcal box.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">expander</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DisplayReport.add_statistics_repeats_ratios"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport.add_statistics_repeats_ratios">[docs]</a>    <span class="k">def</span> <span class="nf">add_statistics_repeats_ratios</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_name</span><span class="p">,</span> <span class="n">testname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add the statistic results to the report dialog.&quot;&quot;&quot;</span>
+
+        <span class="c"># Create a Scrolled Window</span>
+        <span class="n">scrolled_window</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ScrolledWindow</span><span class="p">()</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_shadow_type</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHADOW_NONE</span><span class="p">)</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
+
+        <span class="c"># Create the expander</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="n">testname</span><span class="p">))</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+        <span class="c"># Add the scrolled window to the expander.</span>
+        <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
+
+        <span class="c"># Create a TreeView for the selections.</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeView</span><span class="p">()</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">190</span><span class="p">)</span>
+        <span class="c"># Set horizontal rules, makes it easier to read items.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_rules_hint</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># Add columns to the tree view.</span>
+        <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
+
+        <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Ratio Group&#39;</span><span class="p">,</span><span class="s">&#39;n (plates)&#39;</span><span class="p">,</span><span class="s">&#39;n (distances)&#39;</span><span class="p">,</span>
+            <span class="s">&#39;n (significant)&#39;</span><span class="p">,</span><span class="s">&#39;n (non-significant)&#39;</span><span class="p">,</span><span class="s">&#39;n (attraction)&#39;</span><span class="p">,</span>
+            <span class="s">&#39;n (repulsion)&#39;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">column_names</span><span class="p">):</span>
+            <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">i</span><span class="p">)</span>
+            <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="c"># Make column sortable.</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+
+        <span class="c"># To store the data, we use the ListStore object.</span>
+        <span class="n">liststore</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">ListStore</span><span class="p">(</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_INT</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c"># Add the results to the model.</span>
+        <span class="n">statistics</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics</span><span class="p">(</span><span class="n">element_name</span><span class="p">)</span>
+        <span class="n">statistics_repeats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_statistics_repeats</span><span class="p">(</span><span class="n">element_name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span><span class="n">items</span> <span class="ow">in</span> <span class="n">statistics</span><span class="p">:</span>
+            <span class="n">ratio_group</span> <span class="o">=</span> <span class="n">attr</span><span class="p">[</span><span class="s">&#39;ratio_group&#39;</span><span class="p">]</span>
+
+            <span class="n">liststore</span><span class="o">.</span><span class="n">append</span><span class="p">([</span>
+                <span class="n">ratio_group</span><span class="p">,</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n_plates&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">attr</span><span class="p">[</span><span class="s">&#39;n&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">ratio_group</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">ratio_group</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">])),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">ratio_group</span><span class="p">][</span><span class="s">&#39;n_attraction&#39;</span><span class="p">]),</span>
+                <span class="nb">int</span><span class="p">(</span><span class="n">statistics_repeats</span><span class="p">[</span><span class="n">ratio_group</span><span class="p">][</span><span class="s">&#39;n_repulsion&#39;</span><span class="p">]),</span>
+                <span class="p">])</span>
+
+        <span class="c"># Set the tree model.</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">liststore</span><span class="p">)</span>
+
+        <span class="c"># Add the tree to the scrolled window.</span>
+        <span class="n">scrolled_window</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+
+        <span class="c"># Add the ScrolledWindow to the vertcal box.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">expander</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="SelectExportElements"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.SelectExportElements">[docs]</a><span class="k">class</span> <span class="nc">SelectExportElements</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Dialog</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display a dialog for allowing the user to select which report</span>
@@ -2842,12 +3209,14 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_border_width</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Export Analysis Report - Select Elements&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_keep_above</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Select Report Elements to Export&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_buttons</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_CANCEL</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RESPONSE_REJECT</span><span class="p">,</span>
             <span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_OK</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RESPONSE_ACCEPT</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_has_separator</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
-        <span class="c"># Add widgets to the GTK window.</span>
+        <span class="c"># Add widgets to the GTK dialog.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_layout</span><span class="p">()</span>
 
         <span class="c"># Display all widgets.</span>
@@ -2884,15 +3253,18 @@
         <span class="c"># name.</span>
         <span class="n">element_names</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;spot_distances&#39;</span><span class="p">:</span> <span class="s">&quot;Spot Distances&quot;</span><span class="p">,</span>
             <span class="s">&#39;location_selections&#39;</span><span class="p">:</span> <span class="s">&quot;Locations Selection(s)&quot;</span><span class="p">,</span>
-            <span class="s">&#39;specie_selections&#39;</span><span class="p">:</span> <span class="s">&quot;Species Selection(s)&quot;</span><span class="p">,</span>
-            <span class="s">&#39;wilcoxon_spots&#39;</span><span class="p">:</span> <span class="s">&quot;Results for Wilcoxon signed-rank tests&quot;</span><span class="p">,</span>
-            <span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">:</span> <span class="s">&quot;Results for Wilcoxon signed-rank tests&quot;</span><span class="p">,</span>
-            <span class="s">&#39;chi_squared_spots&#39;</span><span class="p">:</span> <span class="s">&quot;Results for Pearson&#39;s Chi-squared Tests for Count Data&quot;</span><span class="p">,</span>
-            <span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">:</span> <span class="s">&quot;Results for Pearson&#39;s Chi-squared Tests for Count Data&quot;</span><span class="p">,</span>
-            <span class="s">&#39;plate_areas_definition&#39;</span><span class="p">:</span> <span class="s">&quot;Plate Areas Definition&quot;</span><span class="p">,</span>
-            <span class="s">&#39;area_totals&#39;</span><span class="p">:</span> <span class="s">&quot;Species Totals per Plate Area&quot;</span><span class="p">,</span>
-            <span class="s">&#39;normality&#39;</span><span class="p">:</span> <span class="s">&quot;Results for Shapiro-Wilk tests of normality&quot;</span><span class="p">,</span>
-            <span class="s">&#39;t_test&#39;</span><span class="p">:</span> <span class="s">&quot;Results for t-tests&quot;</span><span class="p">,</span>
+            <span class="s">&#39;species_selections&#39;</span><span class="p">:</span> <span class="s">&quot;Species Selection(s)&quot;</span><span class="p">,</span>
+            <span class="s">&#39;plate_areas_definition&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-plate-areas-definition&#39;</span><span class="p">),</span>
+            <span class="s">&#39;area_totals&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-plate-area-totals&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_spots&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_areas&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_spots_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_areas_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
+            <span class="s">&#39;chi_squared_spots&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
+            <span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
+            <span class="s">&#39;chi_squared_areas&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
             <span class="p">}</span>
 
         <span class="c"># Create check buttons.</span>
@@ -2936,7 +3308,238 @@
         <span class="n">uncheck</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;spot_distances&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">element</span><span class="p">,</span> <span class="n">button</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_buttons</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">uncheck</span><span class="p">:</span>
-                <span class="n">button</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></div></div>
+                <span class="n">button</span><span class="o">.</span><span class="n">set_active</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="Preferences"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.Preferences">[docs]</a><span class="k">class</span> <span class="nc">Preferences</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Window</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Display a preferences dialog which allows the user to configure</span>
+<span class="sd">    the application.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Preferences</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">&quot;Preferences&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_border_width</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_resizable</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_keep_above</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+
+        <span class="c"># Construct the layout.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">create_layout</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Preferences.create_layout"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.Preferences.create_layout">[docs]</a>    <span class="k">def</span> <span class="nf">create_layout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct the layout.&quot;&quot;&quot;</span>
+
+        <span class="c"># Create table container</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">homogeneous</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">set_col_spacings</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">set_row_spacings</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="c"># Create a label</span>
+        <span class="n">label_alpha_level</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Alpha level (α) for statistical tests:&quot;</span><span class="p">)</span>
+        <span class="n">label_alpha_level</span><span class="o">.</span><span class="n">set_justify</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">JUSTIFY_FILL</span><span class="p">)</span>
+        <span class="n">label_alpha_level</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">label_alpha_level</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Create an entry for the alpha level.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_alpha_level</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Entry</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_alpha_level</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_alpha_level</span><span class="o">.</span><span class="n">set_width_chars</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">align1</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">align1</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_alpha_level</span><span class="p">)</span>
+
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">align1</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Create a label</span>
+        <span class="n">label_test_repeats</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Number of repeats for statistical tests:&quot;</span><span class="p">)</span>
+        <span class="n">label_test_repeats</span><span class="o">.</span><span class="n">set_justify</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">JUSTIFY_FILL</span><span class="p">)</span>
+        <span class="n">label_test_repeats</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">label_test_repeats</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Create an entry for test repeats.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_test_repeats</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Entry</span><span class="p">(</span><span class="nb">max</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_test_repeats</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">entry_test_repeats</span><span class="o">.</span><span class="n">set_width_chars</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+
+        <span class="n">align3</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">align3</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_test_repeats</span><span class="p">)</span>
+
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">align3</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="o">|</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Put a separator above the buttons.</span>
+        <span class="n">separator</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HSeparator</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">separator</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Create a help button.</span>
+        <span class="n">button_help</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_HELP</span><span class="p">)</span>
+        <span class="n">button_help</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="n">on_help</span><span class="p">,</span> <span class="s">&#39;preferences-dialog&#39;</span><span class="p">)</span>
+
+        <span class="c"># Put the buttons in a horizontal button box.</span>
+        <span class="n">button_box_l</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
+        <span class="n">button_box_l</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_START</span><span class="p">)</span>
+        <span class="n">button_box_l</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_help</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the about button to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_l</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Continue button.</span>
+        <span class="n">button_ok</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_OK</span><span class="p">)</span>
+        <span class="n">button_ok</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">button_ok</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_ok</span><span class="p">)</span>
+
+        <span class="c"># Quit button.</span>
+        <span class="n">button_cancel</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_CANCEL</span><span class="p">)</span>
+        <span class="n">button_cancel</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">button_cancel</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_cancel</span><span class="p">)</span>
+
+        <span class="c"># Put the buttons in a horizontal box.</span>
+        <span class="n">button_box_r</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_END</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_cancel</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_ok</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the aligned button box to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_r</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the table to the main window.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">table</span><span class="p">)</span>
+
+        <span class="c"># Make it visible.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Preferences.on_ok"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.Preferences.on_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save new settings and close the preferences dialog.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_alpha_level</span><span class="p">():</span>
+            <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+                <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Invalid alpha level&quot;</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;invalid-alpha-level&#39;</span><span class="p">)</span> <span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+            <span class="c"># Don&#39;t destroy the dialog if saving setting failed.</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_test_repeats</span><span class="p">():</span>
+            <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+                <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Invalid number of repeats&quot;</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;invalid-repeats-number&#39;</span><span class="p">)</span> <span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+            <span class="c"># Don&#39;t destroy the dialog if saving setting failed.</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Preferences.set_alpha_level"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.Preferences.set_alpha_level">[docs]</a>    <span class="k">def</span> <span class="nf">set_alpha_level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the new alpha level for statistical test. Return True if</span>
+<span class="sd">        succeeded, or False if failed.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">alpha_level</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_alpha_level</span><span class="o">.</span><span class="n">get_text</span><span class="p">())</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c"># Saving setting failed.</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="mf">0.0</span> <span class="o">&lt;</span> <span class="n">alpha_level</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+            <span class="c"># Saving setting failed.</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="c"># Set the new value.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">,</span> <span class="n">alpha_level</span><span class="p">)</span>
+
+        <span class="c"># Saving setting succeeded.</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="Preferences.set_test_repeats"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.Preferences.set_test_repeats">[docs]</a>    <span class="k">def</span> <span class="nf">set_test_repeats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the new value for the number of repeats for statistical tests.</span>
+<span class="sd">        Return True if succeeded, or False if failed.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">test_repeats</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_test_repeats</span><span class="o">.</span><span class="n">get_text</span><span class="p">())</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="c"># Saving setting failed.</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test_repeats</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c"># Saving setting failed.</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="c"># Set the new value.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span> <span class="n">test_repeats</span><span class="p">)</span>
+
+        <span class="c"># Saving setting succeeded.</span>
+        <span class="k">return</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="Preferences.on_cancel"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.Preferences.on_cancel">[docs]</a>    <span class="k">def</span> <span class="nf">on_cancel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the preferences dialog.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Preferences.on_about"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.Preferences.on_about">[docs]</a>    <span class="k">def</span> <span class="nf">on_about</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display SETLyze&#39;s about dialog.&quot;&quot;&quot;</span>
+        <span class="n">About</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="About"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.About">[docs]</a><span class="k">class</span> <span class="nc">About</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">AboutDialog</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Display SETLyze&#39;s about dialog.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">About</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+
+        <span class="n">license</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;This program is free software: you can redistribute it and/or modify</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;it under the terms of the GNU General Public License as published by</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;the Free Software Foundation, either version 3 of the License, or</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;(at your option) any later version.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+
+            <span class="s">&quot;This program is distributed in the hope that it will be useful,</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;but WITHOUT ANY WARRANTY; without even the implied warranty of</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;GNU General Public License for more details.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+
+            <span class="s">&quot;You should have received a copy of the GNU General Public License</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;along with this program.  If not, see http://www.gnu.org/licenses/&quot;</span><span class="p">)</span>
+
+        <span class="c"># Load the logo file.</span>
+        <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;images/setl-logo.png&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setl-logo.png&#39;</span><span class="p">)</span>
+        <span class="n">logo</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">gdk</span><span class="o">.</span><span class="n">pixbuf_new_from_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_program_name</span><span class="p">(</span><span class="s">&quot;SETLyze&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_version</span><span class="p">(</span><span class="n">__version__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_copyright</span><span class="p">(</span><span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_authors</span><span class="p">([</span><span class="s">&quot;Project Leader/Contact Person:</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Arjan Gittenberger &lt;gittenberger@gimaris.com&gt;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;Application Developers:</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Jonathan den Boer&quot;</span><span class="p">,</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_comments</span><span class="p">(</span><span class="s">&quot;A tool for analyzing the settlement of species </span><span class="se">\n</span><span class="s">on SETL plates.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_artists</span><span class="p">([</span><span class="s">&quot;Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_license</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_website</span><span class="p">(</span><span class="s">&quot;http://www.gimaris.com/&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_logo</span><span class="p">(</span><span class="n">logo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span></div>
 </pre></div>
 
           </div>

@@ -54,7 +54,8 @@
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of species.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
+<span class="c">#  of species on SETL plates.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -94,7 +95,7 @@
 
 <span class="sd">7. Calculate the significance in difference between the observed and</span>
 <span class="sd">   expected spot distances. Two tests of significance are performed:</span>
-<span class="sd">   the Wilcoxon signed-rank test and the Chi-squared test.</span>
+<span class="sd">   the Wilcoxon rank-sum test and the Chi-squared test.</span>
 
 <span class="sd">8. Generate the anayslis report.</span>
 
@@ -124,7 +125,7 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2010/09/22&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2011/01/15&quot;</span>
 
 <div class="viewcode-block" id="Begin"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Begin">[docs]</a><span class="k">class</span> <span class="nc">Begin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make the preparations for analysis 2:</span>
@@ -274,7 +275,7 @@
 
 <span class="sd">    5. Calculate the significance in difference between the observed and</span>
 <span class="sd">       expected spot distances. Two tests of significance are performed:</span>
-<span class="sd">       the Wilcoxon signed-rank test and the Chi-squared test.</span>
+<span class="sd">       the Wilcoxon rank-sum test and the Chi-squared test.</span>
 
 <span class="sd">    6. Generate the anayslis report.</span>
 
@@ -286,8 +287,10 @@
 
         <span class="c"># Path to the local database file.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">)</span>
+        <span class="c"># Create progress dialog handler.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">()</span>
         <span class="c"># Dictionary for the statistic test results.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;wilcoxon&#39;</span><span class="p">:[],</span> <span class="s">&#39;chi_squared&#39;</span><span class="p">:[]}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;wilcoxon&#39;</span><span class="p">:[],</span> <span class="s">&#39;chi_squared&#39;</span><span class="p">:[],</span> <span class="s">&#39;repeats&#39;</span><span class="p">:{}}</span>
 
         <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
@@ -305,8 +308,9 @@
 <span class="sd">            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or</span>
 <span class="sd">              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`</span>
 <span class="sd">            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table`</span>
 <span class="sd">            * :meth:`calculate_distances_intra`</span>
-<span class="sd">            * :meth:`calculate_distances_intra_expected`</span>
+<span class="sd">            * :meth:`repeat_test`</span>
 <span class="sd">            * :meth:`calculate_significance`</span>
 <span class="sd">            * :meth:`generate_report`</span>
 
@@ -317,9 +321,10 @@
         <span class="c"># display properly.</span>
         <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
 
-        <span class="c"># The total number of times we update the progress dialog during</span>
-        <span class="c"># the analysis.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span> <span class="o">=</span> <span class="mf">10.0</span>
+        <span class="c"># Set the total number of times we&#39;re going to update the progress</span>
+        <span class="c"># dialog during the analysis.</span>
+        <span class="n">total_steps</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span><span class="n">total_steps</span><span class="p">)</span>
 
         <span class="c"># Make an object that facilitates access to the database.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">get_database_accessor</span><span class="p">()</span>
@@ -334,14 +339,14 @@
         <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Creating table with species spots...&quot;</span><span class="p">)</span>
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Creating table with species spots...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Creating table with species spots...&quot;</span><span class="p">)</span>
         <span class="c"># Make a spots table for the selected species.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_species_spots</span><span class="p">(</span><span class="n">rec_ids</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Making plate IDs in species spots table unique...&quot;</span><span class="p">)</span>
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">2</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Making plate IDs in species spots table unique...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Making plate IDs in species spots table unique...&quot;</span><span class="p">)</span>
         <span class="c"># Make the plate IDs unique.</span>
         <span class="n">n_plates_unique</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">make_plates_unique</span><span class="p">(</span><span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="c"># Create log message.</span>
@@ -350,7 +355,7 @@
         <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Saving the positive spot totals for each plate...&quot;</span><span class="p">)</span>
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Saving the positive spot totals for each plate...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Saving the positive spot totals for each plate...&quot;</span><span class="p">)</span>
         <span class="c"># Save the positive spot totals for each plate to the database.</span>
         <span class="n">skipped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">fill_plate_spot_totals_table</span><span class="p">(</span><span class="s">&#39;species_spots_1&#39;</span><span class="p">)</span>
         <span class="c"># Create log message.</span>
@@ -358,35 +363,40 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">  </span><span class="si">%d</span><span class="s"> records remaining.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n_plates_unique</span> <span class="o">-</span> <span class="n">skipped</span><span class="p">))</span>
 
         <span class="c"># Create log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Calculating the intra-specific distances for the selected specie...&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Calculating the intra-specific distances for the selected species...&quot;</span><span class="p">)</span>
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">4</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Calculating the intra-specific distances for the selected specie...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Calculating the intra-specific distances for the selected species...&quot;</span><span class="p">)</span>
         <span class="c"># Calculate the observed spot distances.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calculate_distances_intra</span><span class="p">()</span>
 
-        <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">5</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Calculating the expected distances for the selected specie...&quot;</span><span class="p">)</span>
         <span class="c"># Create log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Calculating the expected distances for the selected specie...&quot;</span><span class="p">)</span>
-        <span class="c"># Generate random spots.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">calculate_distances_intra_expected</span><span class="p">()</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Performing statistical tests with </span><span class="si">%d</span><span class="s"> repeats...&quot;</span> <span class="o">%</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">))</span>
+        <span class="c"># Update progress dialog.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Performing statistical tests with </span><span class="si">%s</span><span class="s"> repeats...&quot;</span> <span class="o">%</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">))</span>
+        <span class="c"># Perform the repeats for the statistical tests. This will repeatedly</span>
+        <span class="c"># calculate the expected totals, so we&#39;ll use the expected values</span>
+        <span class="c"># of the last repeat for the non-repeated tests.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">repeat_test</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">))</span>
 
         <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Performing statistical tests...&quot;</span><span class="p">)</span>
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">6</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Performing statistical tests...&quot;</span><span class="p">)</span>
-        <span class="c"># Performing the statistical tests.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Performing statistical tests...&quot;</span><span class="p">)</span>
+        <span class="c"># Performing the statistical tests. The expected values for the last</span>
+        <span class="c"># repeat is used for this test.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">calculate_significance</span><span class="p">()</span>
 
         <span class="c"># Create log message.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Generating the analysis report...&quot;</span><span class="p">)</span>
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">7</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
         <span class="c"># Generate the report.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
 
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">10</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">autoclose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
 
         <span class="c"># Emit the signal that the analysis has finished.</span>
         <span class="c"># Note that the signal will be sent from a separate thread,</span>
@@ -520,13 +530,13 @@
 
 <span class="sd">        1. The unpaired Wilcoxon rank sum test. We use unpaired</span>
 <span class="sd">           because the two sets of distances are unrelated</span>
-<span class="sd">           (:ref:`P. Dalgaard &lt;ref-dalgaard&gt;`). In other words,</span>
+<span class="sd">           (:ref:`Dalgaard &lt;ref-dalgaard&gt;`). In other words,</span>
 <span class="sd">           a distance n in &#39;observed&#39; is unrelated to distance n in</span>
 <span class="sd">           &#39;expected&#39; (where n is an item number in the lists).</span>
 
 <span class="sd">        2. The Chi-squared test for given probabilities</span>
-<span class="sd">           (:ref:`N. Millar &lt;ref-dalgaard&gt;`,</span>
-<span class="sd">           :ref:`P. Dalgaard &lt;ref-millar&gt;`). The probabilities</span>
+<span class="sd">           (:ref:`Millar &lt;ref-dalgaard&gt;`,</span>
+<span class="sd">           :ref:`Dalgaard &lt;ref-millar&gt;`). The probabilities</span>
 <span class="sd">           for all spot distances have been pre-calcualted. So the</span>
 <span class="sd">           observed probabilities are compared with the pre-calculated</span>
 <span class="sd">           probabilities.</span>
@@ -551,11 +561,7 @@
 
 <span class="sd">        The default value for the alpha level is 0.05 (5%). In biology</span>
 <span class="sd">        we usually assume that differences are significant if P has</span>
-<span class="sd">        a value less than 5% (:ref:`N. Millar &lt;ref-dalgaard&gt;`).</span>
-
-<span class="sd">        The default value for the confidence level is 0.95 (95%). So</span>
-<span class="sd">        there is a 95% probability that the true mean lies within the</span>
-<span class="sd">        range of the confidence interval.</span>
+<span class="sd">        a value less than 5% (:ref:`Millar &lt;ref-dalgaard&gt;`).</span>
 
 <span class="sd">        A high number of positive spots on a plate will naturally lead</span>
 <span class="sd">        to a high p-value (not significant). These plates will</span>
@@ -576,37 +582,35 @@
 <span class="sd">        Design Part: 1.24</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c"># Make a connection with the local database.</span>
-        <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span><span class="p">)</span>
-        <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-        <span class="n">cursor2</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
         <span class="c"># Perform the tests for records that have a specific number of</span>
         <span class="c"># positive spots. The tests are performed separately for each</span>
         <span class="c"># number in the list. Numbers starting with &quot;-&quot; means all records</span>
         <span class="c"># with positive spots up to that number.</span>
-        <span class="n">spot_totals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span><span class="mi">23</span><span class="p">,</span><span class="mi">24</span><span class="p">,</span><span class="o">-</span><span class="mi">24</span><span class="p">]</span>
+        <span class="n">spot_totals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span>
+            <span class="mi">23</span><span class="p">,</span><span class="mi">24</span><span class="p">,</span><span class="o">-</span><span class="mi">24</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">n_spots</span> <span class="ow">in</span> <span class="n">spot_totals</span><span class="p">:</span>
-            <span class="c"># As you can see</span>
-
             <span class="c"># Get both sets of distances from plates per total spot numbers.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span><span class="n">cursor</span><span class="p">,</span>
+            <span class="n">observed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span>
                 <span class="s">&#39;spot_distances_observed&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span><span class="n">cursor2</span><span class="p">,</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span>
                 <span class="s">&#39;spot_distances_expected&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
 
-            <span class="c"># Create lists for the distances so we can use it for the R</span>
-            <span class="c"># functions.</span>
-            <span class="n">observed</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">]</span>
-            <span class="n">expected</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cursor2</span><span class="p">]</span>
+            <span class="c"># Iterators cannot be used directly by RPy, so convert them to</span>
+            <span class="c"># lists first.</span>
+            <span class="n">observed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
 
-            <span class="c"># Perform a consistency test. The number of observed and</span>
-            <span class="c"># expected distances must always be the same.</span>
+            <span class="c"># Get the number of plates found that match the current</span>
+            <span class="c"># number of positive spots.</span>
+            <span class="n">n_plates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">matching_plates_total</span>
+
+            <span class="c"># Perform a consistency check. The number of observed and</span>
+            <span class="c"># expected spot distances must always be the same.</span>
             <span class="n">count_observed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
             <span class="n">count_expected</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">count_observed</span> <span class="o">!=</span> <span class="n">count_expected</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Number of observed and expected &quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Number of observed and expected spot &quot;</span>
                     <span class="s">&quot;distances are not equal. This indicates a bug &quot;</span>
                     <span class="s">&quot;in the application.&quot;</span><span class="p">)</span>
 
@@ -619,15 +623,11 @@
             <span class="n">mean_observed</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
             <span class="n">mean_expected</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
 
-            <span class="c"># Get the number of plates found that match the current</span>
-            <span class="c"># number of positive spots.</span>
-            <span class="n">n_plates</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">get_plates_total_matching_spots_total</span><span class="p">(</span><span class="n">n_spots</span><span class="p">)</span>
-
             <span class="c"># Perform two sample Wilcoxon tests.</span>
             <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
                 <span class="n">alternative</span> <span class="o">=</span> <span class="s">&quot;two.sided&quot;</span><span class="p">,</span> <span class="n">paired</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
-                <span class="n">conf_level</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">),</span>
-                <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+                <span class="n">conf_level</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">),</span>
+                <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
 
             <span class="c"># Save the significance result.</span>
             <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
@@ -637,15 +637,15 @@
                 <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="n">count_observed</span><span class="p">,</span>
                 <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
                 <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
-                <span class="s">&#39;conf_level&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;significance-confidence&#39;</span><span class="p">),</span>
+                <span class="s">&#39;conf_level&#39;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">),</span>
                 <span class="s">&#39;paired&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="n">data</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
                 <span class="s">&#39;mean_observed&#39;</span><span class="p">:</span> <span class="n">mean_observed</span><span class="p">,</span>
                 <span class="s">&#39;mean_expected&#39;</span><span class="p">:</span> <span class="n">mean_expected</span><span class="p">,</span>
-                <span class="s">&#39;conf_int_start&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
-                <span class="s">&#39;conf_int_end&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;conf.int&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                <span class="c">#&#39;conf_int_start&#39;: sig_result[&#39;conf.int&#39;][0],</span>
+                <span class="c">#&#39;conf_int_end&#39;: sig_result[&#39;conf.int&#39;][1],</span>
                 <span class="p">}</span>
 
             <span class="c"># Append the result to the list of results.</span>
@@ -682,11 +682,107 @@
 
             <span class="c"># Append the result to the list of results.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Start.calculate_significance_for_repeats"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_significance_for_repeats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This method does the same Wilcoxon test from :meth:`calculate_significance`,</span>
+<span class="sd">        but instead is designed to be called repeatedly, saving the results</span>
+<span class="sd">        of the repeated test. This method doesn&#39;t save the detailed</span>
+<span class="sd">        results of the Wilcoxon test, but just saves whether the p-value</span>
+<span class="sd">        was significant, and whether it was attraction or repulsion for the</span>
+<span class="sd">        different numbers of positive spots.</span>
 
-        <span class="c"># Close connection with the local database.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">cursor2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="sd">        Repeation of the Wilcoxon test is necessary, as the expected values</span>
+<span class="sd">        are calculated randomly. The test needs to be repeated many times</span>
+<span class="sd">        if you want to draw a solid conclusion from the results.</span>
+
+<span class="sd">        The number of times this method is called depends on the configuration</span>
+<span class="sd">        setting &quot;test-repeats&quot;.</span>
+
+<span class="sd">        Design Part: 1.102</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">spot_totals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">13</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">,</span><span class="mi">21</span><span class="p">,</span><span class="mi">22</span><span class="p">,</span>
+            <span class="mi">23</span><span class="p">,</span><span class="mi">24</span><span class="p">,</span><span class="o">-</span><span class="mi">24</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">n_spots</span> <span class="ow">in</span> <span class="n">spot_totals</span><span class="p">:</span>
+            <span class="c"># Check if this spots number is present in the statistics variable.</span>
+            <span class="c"># If not, create it.</span>
+            <span class="k">if</span> <span class="n">n_spots</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">][</span><span class="n">n_spots</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;n_significant&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                    <span class="s">&#39;n_attraction&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;n_repulsion&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+            <span class="c"># Get both sets of distances from plates per total spot numbers.</span>
+            <span class="n">observed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span>
+                <span class="s">&#39;spot_distances_observed&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_distances_matching_spots_total</span><span class="p">(</span>
+                <span class="s">&#39;spot_distances_expected&#39;</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">)</span>
+
+            <span class="c"># Iterators cannot be used directly by RPy, so convert them to</span>
+            <span class="c"># lists first.</span>
+            <span class="n">observed</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+            <span class="n">expected</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+
+            <span class="c"># Perform a consistency check. The number of observed and</span>
+            <span class="c"># expected spot distances must always be the same.</span>
+            <span class="n">count_observed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+            <span class="n">count_expected</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">count_observed</span> <span class="o">!=</span> <span class="n">count_expected</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Number of observed and expected spot &quot;</span>
+                    <span class="s">&quot;distances are not equal. This indicates a bug &quot;</span>
+                    <span class="s">&quot;in the application.&quot;</span><span class="p">)</span>
+
+            <span class="c"># A minimum of 2 observed distances is required for the</span>
+            <span class="c"># significance test. So skip this spots number if it&#39;s less.</span>
+            <span class="k">if</span> <span class="n">count_observed</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Calculate the means.</span>
+            <span class="n">mean_observed</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+            <span class="n">mean_expected</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
+
+            <span class="c"># Perform two sample Wilcoxon tests.</span>
+            <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
+                <span class="n">alternative</span> <span class="o">=</span> <span class="s">&quot;two.sided&quot;</span><span class="p">,</span> <span class="n">paired</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
+                <span class="n">conf_level</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">),</span>
+                <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+
+            <span class="c"># Save basic results for this repeated test.</span>
+            <span class="c"># Check if the result was significant (P-value &lt; alpha-level).</span>
+            <span class="n">p_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">p_value</span> <span class="o">!=</span> <span class="s">&#39;nan&#39;</span><span class="p">:</span>
+                <span class="c"># If so, increase significant counter with one.</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">][</span><span class="n">n_spots</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c"># If significant, also check if there is preference or</span>
+                <span class="c"># rejection for this plate area.</span>
+                <span class="k">if</span> <span class="n">mean_observed</span> <span class="o">&lt;</span> <span class="n">mean_expected</span><span class="p">:</span>
+                    <span class="c"># Increase attracion counter with one.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">][</span><span class="n">n_spots</span><span class="p">][</span><span class="s">&#39;n_attraction&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c"># Increase repulsion counter with one.</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">][</span><span class="n">n_spots</span><span class="p">][</span><span class="s">&#39;n_repulsion&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="Start.repeat_test"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.repeat_test">[docs]</a>    <span class="k">def</span> <span class="nf">repeat_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Repeats the siginificance test `number` times. The significance</span>
+<span class="sd">        test is performed by :meth:`calculate_significance_for_repeats`.</span>
+
+<span class="sd">        Each time before :meth:`calculate_significance_for_repeats` is called,</span>
+<span class="sd">        :meth:`calculate_distances_intra_expected` is called to re-calculate the</span>
+<span class="sd">        expected values (which are random).</span>
+
+<span class="sd">        Design Part: 1.103</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="c"># Update the progess bar.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">()</span>
+
+            <span class="c"># The expected spot distances are random. So the expected values</span>
+            <span class="c"># differ a little on each repeat.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_distances_intra_expected</span><span class="p">()</span>
+
+            <span class="c"># And then we calculate the siginificance for each repeat.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_significance_for_repeats</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Start.generate_report"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.generate_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate the analysis report.</span>
@@ -696,19 +792,20 @@
         <span class="n">report</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ReportGenerator</span><span class="p">()</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_analysis</span><span class="p">(</span><span class="s">&#39;attraction_intra&#39;</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_location_selections</span><span class="p">()</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">set_specie_selections</span><span class="p">()</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_species_selections</span><span class="p">()</span>
 
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">8</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
 
         <span class="n">report</span><span class="o">.</span><span class="n">set_spot_distances_observed</span><span class="p">()</span>
 
         <span class="c"># Update progress dialog.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">update_progress_dialog</span><span class="p">(</span><span class="mi">9</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">total_steps</span><span class="p">,</span> <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
 
         <span class="n">report</span><span class="o">.</span><span class="n">set_spot_distances_expected</span><span class="p">()</span>
 
         <span class="n">report</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;wilcoxon_spots&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon&#39;</span><span class="p">])</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">set_statistics_repeats</span><span class="p">(</span><span class="s">&#39;wilcoxon_spots&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;repeats&#39;</span><span class="p">])</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;chi_squared_spots&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared&#39;</span><span class="p">])</span>
 
         <span class="c"># Create a global link to the report.</span>

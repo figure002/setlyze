@@ -658,11 +658,11 @@ meaning. They just make it possible to destinct between the plate areas.</p>
 </div>
 <div class="section" id="design-part-data-2-25">
 <span id="id32"></span><h3>2.25<a class="headerlink" href="#design-part-data-2-25" title="Permalink to this headline">¶</a></h3>
-<p>An application variable that contains the actual species totals for each
-plate area. Keep in mind that this is not the number of individual
-organisms found on the plate area, as the records just tell the presence
+<p>An application variable that contains the observed species totals for each
+user defined plate area. Keep in mind that this is not the number of individual
+organisms found on the plate areas, as the records just tell the presence
 of a species. So it tells how many times the presence of a species was
-found on each plate area.</p>
+found on each user defined plate area.</p>
 <p>This is what the value can look like</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
 <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mi">52</span><span class="p">,</span>
@@ -674,7 +674,7 @@ found on each plate area.</p>
 </div>
 <dl class="docutils">
 <dt>Namespace:</dt>
-<dd><tt class="docutils literal"><span class="pre">setlyze.analysis.spot_preference.areas_totals_observed</span></tt></dd>
+<dd><tt class="docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.areas_totals_observed</span></tt></dd>
 </dl>
 </div>
 <div class="section" id="design-part-data-2-26">
@@ -781,9 +781,45 @@ column <tt class="docutils literal"><span class="pre">n_spots_b</span></tt> for 
 );</pre>
 </div>
 </div>
-<div class="section" id="id47">
-<h3>2.40<a class="headerlink" href="#id47" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="design-part-data-2-40">
+<span id="id47"></span><h3>2.40<a class="headerlink" href="#design-part-data-2-40" title="Permalink to this headline">¶</a></h3>
 <p>A XML file containing all data elements from <a class="reference internal" href="#design-part-data-2-17"><em>2.17</em></a>.</p>
+</div>
+<div class="section" id="design-part-data-2-41">
+<span id="id48"></span><h3>2.41<a class="headerlink" href="#design-part-data-2-41" title="Permalink to this headline">¶</a></h3>
+<p>Table <tt class="docutils literal"><span class="pre">plate_area_totals_observed</span></tt> in the local SQLite database. This table
+contains the number of positive spots for each default plate area (A, B, C,
+and D) for each plate that matches the species selection.</p>
+<p>This table is filled by <a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed" title="setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">set_plate_area_totals_observed()</span></tt></a>.</p>
+<p>SQLite query:</p>
+<div class="highlight-python"><pre>CREATE TABLE plate_area_totals_observed (
+    pla_id INTEGER PRIMARY KEY,
+    area_a INTEGER,
+    area_b INTEGER,
+    area_c INTEGER,
+    area_d INTEGER
+);</pre>
+</div>
+</div>
+<div class="section" id="design-part-data-2-42">
+<span id="id49"></span><h3>2.42<a class="headerlink" href="#design-part-data-2-42" title="Permalink to this headline">¶</a></h3>
+<p>Table <tt class="docutils literal"><span class="pre">plate_area_totals_expected</span></tt> in the local SQLite database.</p>
+<p>This table contains the number of expected positive spots for each default
+plate area (A, B, C, and D) per plate that matches the species selection. The
+expected spots are calculated with a random generator. The random generator
+randomly puts an equal number of positive spots on a virtual plate, then
+calcualtes the number of positive spots for each plate area. This is done for
+all plates mathching a species selection.</p>
+<p>This table is filled by <a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected" title="setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected"><tt class="xref py py-meth docutils literal"><span class="pre">set_plate_area_totals_expected()</span></tt></a>.</p>
+<p>SQLite query:</p>
+<div class="highlight-python"><pre>CREATE TABLE plate_area_totals_expected (
+    pla_id INTEGER PRIMARY KEY,
+    area_a INTEGER,
+    area_b INTEGER,
+    area_c INTEGER,
+    area_d INTEGER
+);</pre>
+</div>
 </div>
 </div>
 </div>
@@ -855,7 +891,9 @@ column <tt class="docutils literal"><span class="pre">n_spots_b</span></tt> for 
 <li><a class="reference internal" href="#design-part-data-2-37">2.37</a></li>
 <li><a class="reference internal" href="#design-part-data-2-38">2.38</a></li>
 <li><a class="reference internal" href="#design-part-data-2-39">2.39</a></li>
-<li><a class="reference internal" href="#id47">2.40</a></li>
+<li><a class="reference internal" href="#design-part-data-2-40">2.40</a></li>
+<li><a class="reference internal" href="#design-part-data-2-41">2.41</a></li>
+<li><a class="reference internal" href="#design-part-data-2-42">2.42</a></li>
 </ul>
 </li>
 </ul>

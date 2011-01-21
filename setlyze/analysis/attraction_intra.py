@@ -259,7 +259,7 @@ class Start(threading.Thread):
             * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
             * :meth:`~setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table`
             * :meth:`calculate_distances_intra`
-            * :meth:`calculate_distances_intra_expected`
+            * :meth:`repeat_test`
             * :meth:`calculate_significance`
             * :meth:`generate_report`
 
@@ -325,15 +325,16 @@ class Start(threading.Thread):
         self.pdialog_handler.increase("Performing statistical tests with %s repeats..." %
             setlyze.config.cfg.get('test-repeats'))
         # Perform the repeats for the statistical tests. This will repeatedly
-        # calculate the expected totals, so we'll use the expected totals
-        # of the last repeat as the results for the report dialog.
+        # calculate the expected totals, so we'll use the expected values
+        # of the last repeat for the non-repeated tests.
         self.repeat_test(setlyze.config.cfg.get('test-repeats'))
 
         # Create log message.
         logging.info("\tPerforming statistical tests...")
         # Update progress dialog.
         self.pdialog_handler.increase("Performing statistical tests...")
-        # Performing the statistical tests.
+        # Performing the statistical tests. The expected values for the last
+        # repeat is used for this test.
         self.calculate_significance()
 
         # Create log message.
@@ -511,10 +512,6 @@ class Start(threading.Thread):
         we usually assume that differences are significant if P has
         a value less than 5% (:ref:`Millar <ref-dalgaard>`).
 
-        The default value for the confidence level is 0.95 (95%). So
-        there is a 95% probability that the true mean lies within the
-        range of the confidence interval.
-
         A high number of positive spots on a plate will naturally lead
         to a high p-value (not significant). These plates will
         negatively affect the result of statistical test. To account
@@ -636,7 +633,22 @@ class Start(threading.Thread):
             self.statistics['chi_squared'].append(data)
 
     def calculate_significance_for_repeats(self):
-        """TODO"""
+        """This method does the same Wilcoxon test from :meth:`calculate_significance`,
+        but instead is designed to be called repeatedly, saving the results
+        of the repeated test. This method doesn't save the detailed
+        results of the Wilcoxon test, but just saves whether the p-value
+        was significant, and whether it was attraction or repulsion for the
+        different numbers of positive spots.
+
+        Repeation of the Wilcoxon test is necessary, as the expected values
+        are calculated randomly. The test needs to be repeated many times
+        if you want to draw a solid conclusion from the results.
+
+        The number of times this method is called depends on the configuration
+        setting "test-repeats".
+
+        Design Part: 1.102
+        """
 
         spot_totals = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,
             23,24,-24]
@@ -700,7 +712,15 @@ class Start(threading.Thread):
                     self.statistics['repeats'][n_spots]['n_repulsion'] += 1
 
     def repeat_test(self, number):
-        """Repeat the siginificance test `number` times."""
+        """Repeats the siginificance test `number` times. The significance
+        test is performed by :meth:`calculate_significance_for_repeats`.
+
+        Each time before :meth:`calculate_significance_for_repeats` is called,
+        :meth:`calculate_distances_intra_expected` is called to re-calculate the
+        expected values (which are random).
+
+        Design Part: 1.103
+        """
 
         for i in range(number):
             # Update the progess bar.

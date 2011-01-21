@@ -26,29 +26,30 @@ marine invasive species. The website describes the SETL-project as follows:
     and checked for species at least every three months." ---
     `ANEMOON foundation <http://www.anemoon.org/>`_
 
-Data collected from these SETL plates are being collected in
-the SETL database. This database contains over 25000 records containing
-information of over 200 species in different localities throughout the
-Netherlands. SETLyze is an application which is capable of performing
-a set of analysis on the data from the SETL database. SETLyze is
-capable of performing the following analyses:
+Data collected from these SETL plates are stored in the SETL database. This
+database currently contains over 25000 records containing information of over
+200 species in different localities throughout the Netherlands. SETLyze is an
+application capable of performing a set of analyses on this SETL data. SETLyze
+is capable of performing the following analyses:
 
 *Analysis 1 "Spot Preference"*
-    Determine a species’ preference for a specific location on a SETL
-    plate.
+    Determine a species’ preference for a specific location on a SETL plate.
+    Species can be combined so that they are treated as a single species.
 
 *Analysis 2 "Attraction of Species (intra-specific)"*
     Determine if a species attracts or repels individuals of its own kind.
+    Species can be combined so that they are treated as a single species.
 
 *Analysis 3 "Attraction of Species (inter-specific)"*
-    Determine if two different species attract or repel each other.
+    Determine if two different species attract or repel each other. Species
+    can be combined so that they are treated as a single species.
 
 The following analysis will be implemented in the next version:
 
 *Analysis 4 "Relation between Species"*
-    Determine if there is a relation between two (groups of) species on
-    SETL plates in a location. Plates per location are compared. Also
-    instead of looking at different plate spots, only the presence or
+    Determine if there is a relation between the presence/absence of two
+    species in a specific location. Plates per location are compared. Also
+    instead of looking at different plate surfaces, only the presence or
     absence of a species on a plate is taken into account.
 
 Data Collection
@@ -114,14 +115,14 @@ Installation
 Microsoft® Windows®
 ===================
 
-For Windows® users, an installer is available that includes the SETLyze
-core package together with the necessary pre-requisites.
+For Windows® users, an installer is available that installs SETLyze together
+with the pre-requisites (``setlyze-x.x-bundle-win32.exe``).
 
 GNU/Linux
 =========
 
 For GNU/Linux users, a source package is available. The source package
-doesn't contain the software dependencies. GNU/Linux user can use their
+doesn't contain SETLyze's dependencies. GNU/Linux user can use their
 package manager to install the dependencies.
 
 On Ubuntu or other Debian derivatives, installing the dependencies
@@ -129,19 +130,33 @@ can be done with the following command: ::
 
     sudo apt-get install python python-gtk2 python-rpy python-setuptools
 
-Once all dependencies are installed, extract the source package and start
-SETLyze by running "setlyze.pyw".
+System-wide install (recommended)
+---------------------------------
 
-If you want to install SETLyze system wide, you can do so with the
-provided setup script. The following command will install
-SETLyze's modules to an existing Python installation and copies
-SETLyze's executable "setlyze.pyw" to the system's "bin" folder. ::
+To install system-wide, ``cd`` into the directory you extracted SETLyze into and
+run the following command which will install ``setlyze.pyw`` into the default
+location (traditionally ``/usr/local/bin``): ::
 
     sudo python setup.py install
 
 Once installed, SETLyze can be started from the command-line with, ::
 
     setlyze.pyw
+
+Install in home directory
+-------------------------
+
+You can install SETLyze into your home directory, in ``~/bin``. This method requires
+that ``~/bin`` is in your $PATH and that ``~/lib/python`` is in your $PYTHONPATH. ::
+
+    python setup.py install --home=~
+
+Run from source directory
+-------------------------
+
+You can also just run SETLyze by (double) clicking ``setlyze.pyw`` in the
+source directory. For this to work, ``setlyze.pyw`` needs to have execute
+rights.
 
 
 Using SETLyze
@@ -272,6 +287,45 @@ Clicking the About button shows SETLyze's About dialog. The About dialog
 shows basic information about SETLyze; its version number, license
 information, a link to the GiMaRIS website, the application developers,
 and contact information.
+
+.. _dialog-preferences:
+
+Preferences dialog
+==================
+
+.. figure:: dialog_preferences.png
+   :scale: 100 %
+   :alt: Preferences dialog
+   :align: center
+
+   Figure 15. Preferences dialog
+
+The preferences dialog allows you to change SETLyze's settings. At this point
+there are just just two settings you can change. These are described below.
+
+Alpha level (α) for statistical tests
+    Sets the alpha level. The alpha level must be a number between 0 and 1.
+    The default value ``0.05`` means an alpha level of 5%.
+
+    This alpha level is translated to a confidence level with the formula
+    :math:`conf. level = 1 - \alpha`. This confidence level is
+    used for some statistical tests to calculate the confidence interval. At
+    this moment this is just the t-test (not used in any analysis at this point).
+    The alpha level is also used to determine if a specific P-value returned by
+    statistical tests is considered significant. If P-value < alpha level,
+    then the P-value is considered significant. P-values >= alpha level are
+    considered non-significant.
+
+Number of repeats for statistical tests
+    Sets the number of repeats to perform on some statistical tests. Some
+    statistical tests used in SETLyze use expected values that are randomly
+    generated. This means you can't draw a solid conclusion from the result
+    of just one test. There is a change that the found result was a coincidence.
+    To account for this, these test are repeated a number of times. The default
+    value is 10 repeats. This value is very low, but good enough for
+    testing purposes. Once you need results to make a solid conclusion,
+    set this to a higher number. Note that analyses will run much longer with
+    many repeats (and an Abort button is not yet implemented).
 
 .. _dialog-loc-selection:
 
@@ -589,12 +643,12 @@ are calculated the same way as for the observed spot distances. This
 means that the resulting list of expected spot distances has the same
 length as the observed spot distances.
 
-.. _wilcoxon-test:
+.. _results-wilcoxon-rank-sum-test:
 
-Results for Wilcoxon rank-sum test
-----------------------------------
+Results for Wilcoxon rank-sum tests (non-repeated)
+--------------------------------------------------
 
-Shows the results for the Wilcoxon rank-sum tests.
+Shows the results for the non-repeated Wilcoxon rank-sum tests.
 
     "In statistics, the Mann–Whitney U test (also called the
     Mann–Whitney–Wilcoxon (MWW) or Wilcoxon rank-sum test) is a non-parametric
@@ -604,16 +658,24 @@ Shows the results for the Wilcoxon rank-sum tests.
 
 Tests showed that spot distances on a SETL plate are not normally
 distributed (see :ref:`testing_spot_distances_normality`), hence the Wilcoxon
-rank-sum test was chosen to test if the independent observed and expected spot
-distances differ significantly.
+rank-sum test for unpaired data was chosen to test if observed and expected
+spot distances differ significantly. The observed and expected spot distances
 
-Depending on the analysis, the records matching the species selection
-are first grouped by positive spots number (analysis 2) or by ratios
-group (analysis 3). See section :ref:`record grouping <record-grouping>`.
+Depending on the analysis, the test is performed on different groups of data.
+The data can be grouped by plate area (analysis 1), the number of positive spots
+(analysis 2) or by the ratios group (analysis 3). See section :ref:`record
+grouping <record-grouping>` for more information.
 
-Each row for the results of the Wicoxon test contains the results
-of a single test on a spots/ratios group. Each row can have the
-following elements:
+Each row for the results of the Wicoxon test contains the results of a single
+test on a data group. Each row can have the following elements:
+
+Plate Area
+    The plate area of a SETL-plate. A SETL-plate is divided into four plate
+    areas (see :ref:`figure 7 <fig_plate_areas_default>`). The test is
+    performed on each of the four plate areas, plus the combinations "A+B",
+    "C+D", "A+B+C", and "B+C+D". Combining the results of the test for all
+    plate areas (and combinations) allows you to make conclusions about the
+    species' preference for areas on SETL plates.
 
 Positive Spots
     A number representing the number of positive spots. For this test
@@ -622,6 +684,27 @@ Positive Spots
 Ratios Group
     A number representing the ratios group. For this test
     only records grouped in that ratios group were used.
+
+n (totals)
+    The number of values (n) used for the statistical test. Each value (x) is a
+    number representing the number of encounters of a species on a plate area
+    for a specific record in the database. So a value ``x=4`` means that the
+    species was found on four spots of the area in question for a specific
+    plate. If the area in question was "A", then the maximum value for x would be
+    4, because area "A" consists of four spots. This is done for all records
+    matching that species and plate area, resulting in a sequence of numbers
+    (e.g. ``1,0,0,3,12,4,8,0,...``). So n is the number of values x.
+
+n (observed species)
+    The number of times the species was found on the plate area in question.
+    This is for all plates summed up.
+
+n (expected species)
+    The number of times you'd expect the species to be found on the plate
+    area in question. The expected values are calculated per plate with
+    a random generator. For each plate, the same number of positive spots
+    are generated randomly on a virtual plate. The number of positive spots
+    are then counted for the plate area in question.
 
 n (plates)
     The number of plates that match the number of positive spots.
@@ -640,14 +723,71 @@ Mean Expected
     The mean of the expected spot distances. This is calculated separately.
 
 Remarks
-    A summary of the results. Shows whether the p-value is significant,
-    and if so, how significant and decides based on the means if the
-    species attract (observed mean < expected mean) or repel
+    A summary of the results. Shows whether the p-value is significant
+    (p-value < alpha level), and if so, how significant and decides based on
+    the means if the species attract species/reject a plate area
+    (observed mean < expected mean) or repel species/prefer a plate area
     (observed mean > expected mean).
 
-Some spots/ratios groups might me missing from the list of results. This is
-because spots/ratios groups that don't have matching records are skipped,
-so they are not displayed in the list of results.
+Some data groups might me missing from the list of results. This is because
+groups that don't have matching records are skipped, so they are not displayed
+in the list of results.
+
+.. _results-wilcoxon-repeated:
+
+Significance results for repeated Wilcoxon tests
+------------------------------------------------
+
+Shows the significance results for the repeated Wilcoxon tests. Which
+specific Wilcoxon test was performed is shown in the section name of the
+non-repeated Wilcoxon test.
+
+For more information about the Wilcoxon rank-sum test, see
+:ref:`Results for Wilcoxon rank-sum tests (non-repeated) <results-wilcoxon-rank-sum>`.
+
+The number of repeats to perform can be set in the :ref:`preferences dialog
+<dialog-preferences>`.
+
+Each row for the results of the repeated Wicoxon test contains the results of
+repeated tests on a data group. Each row can have the following elements:
+
+Plate Area
+    See description for :ref:`Results for Wilcoxon rank-sum tests (non-repeated)
+    <results-wilcoxon-rank-sum>`
+
+n (totals)
+    See description for :ref:`Results for Wilcoxon rank-sum tests (non-repeated)
+    <results-wilcoxon-rank-sum>`
+
+n (observed species)
+    See description for :ref:`Results for Wilcoxon rank-sum tests (non-repeated)
+    <results-wilcoxon-rank-sum>`
+
+n (significant)
+    Shows how many times the test turned out significant for the repeats
+    (P-value < alpha level).
+
+n (non-significant)
+    Shows how many times the test turned out to be not significant for the
+    repeats (P-value >= alpha level).
+
+n (preference)
+    Shows how many times there was a significant preference for the plate
+    area in question.
+
+n (rejection)
+    Shows how many times there was a significant rejection for the plate
+    area in question.
+
+n (attraction)
+    Shows how many times there was a significant attraction for the species in
+    question.
+
+n (repulsion)
+    Shows how many times there was a significant repulsion for the species in
+    question.
+
+.. _results-pearsons-chisq-test:
 
 Results for Pearson's Chi-squared Test for Count Data
 -----------------------------------------------------
@@ -668,48 +808,50 @@ pre-calculated for each spot distance. The probabilities for intra-specific
 spot distances are from the model of :ref:`figure 13 <fig_distance_distribution_intra>`
 and the probabilities for inter-specific distances are from the model of
 :ref:`figure 14 <fig_distance_distribution_inter>`. The probabilities
-have been hard coded into the application: ::
+have been hard coded into the application:
 
-    # The probability for each spot distance on a 5x5 SETL plate
-    # (intra-specific).
-    # Format of the dictionary: {distance: probability, ...}
-    SPOT_DIST_TO_PROB_INTRA = {
-        1: 40/300.0,
-        1.41: 32/300.0,
-        2: 30/300.0,
-        2.24: 48/300.0,
-        2.83: 18/300.0,
-        3: 20/300.0,
-        3.16: 32/300.0,
-        3.61: 24/300.0,
-        4: 10/300.0,
-        4.12: 16/300.0,
-        4.24: 8/300.0,
-        4.47: 12/300.0,
-        5: 8/300.0,
-        5.66: 2/300.0,
-        }
+Intra-specific spot distances:
 
-    # The probability for each spot distance on a 5x5 SETL plate
-    # (inter-specific).
-    # Format of the dictionary: {distance: probability, ...}
-    SPOT_DIST_TO_PROB_INTER = {
-        0: 25/625.0,
-        1: 80/625.0,
-        1.41: 64/625.0,
-        2: 60/625.0,
-        2.24: 96/625.0,
-        2.83: 36/625.0,
-        3: 40/625.0,
-        3.16: 64/625.0,
-        3.61: 48/625.0,
-        4: 20/625.0,
-        4.12: 32/625.0,
-        4.24: 16/625.0,
-        4.47: 24/625.0,
-        5: 16/625.0,
-        5.66: 4/625.0,
-        }
+=============  ===========
+Spot Distance  Probability
+=============  ===========
+1              40/300
+1.41           32/300
+2              30/300
+2.24           48/300
+2.83           18/300
+3              20/300
+3.16           32/300
+3.61           24/300
+4              10/300
+4.12           16/300
+4.24           8/300
+4.47           12/300
+5              8/300
+5.66           2/300
+=============  ===========
+
+Inter-specific spot distances:
+
+=============  ===========
+Spot Distance  Probability
+=============  ===========
+0              25/625
+1              80/625
+1.41           64/625
+2              60/625
+2.24           96/625
+2.83           36/625
+3              40/625
+3.16           64/625
+3.61           48/625
+4              20/625
+4.12           32/625
+4.24           16/625
+4.47           24/625
+5              16/625
+5.66           4/625
+=============  ===========
 
 Depending on the analysis, the records matching the species selection
 are first grouped by positive spots number (analysis 2) or by ratios
@@ -797,6 +939,24 @@ Two methods for grouping records have been implemented. One is by positive
 spots number, and the other is by positive spots ratio. We'll describe
 each grouping method below.
 
+Grouping by Plate Area
+----------------------
+
+This type of grouping is done for analysis 1, "spot preference". Each group
+is a plate area or a combination of plate areas (see :ref:`figure 7
+<fig_plate_areas_default>`). The following groups are defined:
+
+#. Plate area A
+#. Plate area B
+#. Plate area C
+#. Plate area D
+#. Plate area A+B
+#. Plate area B+C
+#. Plate area A+B+C
+#. Plate area B+C+D
+
+For each group, the number of positive spots for all plates and that specific
+plate area are calculated. These make up the observed values.
 
 Record grouping by number of positive spots
 -------------------------------------------
@@ -968,3 +1128,15 @@ Access database to CSV files.
 
 5. You should end up with four files, one CSV file for each table. Put
    these files in one folder.
+
+
+Use Cases
+#########
+
+Possible use cases which describe how SETLyze can be used to find answers to
+biological questions regarding the settlement of species on SETL-plates.
+
+.. toctree::
+   :maxdepth: 2
+
+   usecases

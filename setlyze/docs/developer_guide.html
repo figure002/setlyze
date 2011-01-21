@@ -24,7 +24,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="SETLyze v1.0 documentation" href="index.html" />
     <link rel="next" title="SETLyze Design Parts" href="design_parts_index.html" />
-    <link rel="prev" title="SETLyze User Manual" href="user_manual.html" /> 
+    <link rel="prev" title="Use Cases for SETLyze" href="usecases.html" /> 
   </head>
   <body>
     <div class="related">
@@ -40,7 +40,7 @@
           <a href="design_parts_index.html" title="SETLyze Design Parts"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="user_manual.html" title="SETLyze User Manual"
+          <a href="usecases.html" title="Use Cases for SETLyze"
              accesskey="P">previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
@@ -68,49 +68,50 @@ internals, its programming style, what&#8217;s unfinished, et cetera.</p>
 <h3>Navigating the SETLyze folder<a class="headerlink" href="#navigating-the-setlyze-folder" title="Permalink to this headline">¶</a></h3>
 <p>The key files in SETLyze&#8217;s root folder are:</p>
 <dl class="docutils">
-<dt>docs</dt>
-<dd>This folder contains the documentation for SETLyze. This includes
-the User Manual and the Developer Guide. You can view the manual
-by (double) clicking index.html. This should show the documentation
-in your web browser.</dd>
 <dt>setlyze</dt>
-<dd>This is the main code base for SETLyze. This package folder contains
+<dd>This is SETLyze&#8217;s main code base. This package folder contains
 all of SETLyze&#8217;s modules. This is the folder where you&#8217;ll be
 editing most Python source files for SETLyze.</dd>
+<dt>setlyze/docs</dt>
+<dd>This folder contains the documentation for SETLyze. This includes
+the User Manual and the Developer Guide. You can view the manual
+by (double) clicking index.html. This should open the documentation
+in your web browser.</dd>
 <dt>COPYING</dt>
 <dd>This text file contains the license for SETLyze. SETLyze is released
 under the GNU General Public License version 3.</dd>
 <dt>INSTALL</dt>
 <dd>Text file with installation instrutions for SETLyze.</dd>
 <dt>setlyze.pyw</dt>
-<dd>This is the executable for SETLyze. This is what you&#8217;ll run to start
-SETLyze.</dd>
+<dd>This is SETLyze&#8217;s executable. This is what you&#8217;ll run to start SETLyze.</dd>
 <dt>setup.py</dt>
-<dd>Installs SETLyze system-wide or to your home directory. This script
-is used to install SETLyze on your machine. For installation
-instructions, read the INSTALL file.</dd>
+<dd>Installer script for SETLyze. Installs SETLyze system-wide or to your
+home directory. For installation instructions, read the INSTALL file.</dd>
 </dl>
 </div>
 <div class="section" id="technical-design">
 <h3>Technical Design<a class="headerlink" href="#technical-design" title="Permalink to this headline">¶</a></h3>
-<p>SETLyze comes with a Technical Design; a visual representation of
-SETLyze&#8217;s design parts (functions/classes/GUI&#8217;s) interconnected by arrows
-representing the application&#8217;s functions and work flow. All design parts
-have a number. The same numbers can be found in the application&#8217;s
-source-code. This means that the different design parts of the Technical
-Design can be easily linked to the corresponding source-code.</p>
+<p>SETLyze comes with a <a class="reference download internal" href="_downloads/technical_design_setlyze-0.1.pdf"><tt class="xref download docutils literal"><span class="pre">Technical</span> <span class="pre">Design</span></tt></a>;
+a visual representation of SETLyze&#8217;s design parts (functions/classes/GUI&#8217;s)
+interconnected by arrows representing the application&#8217;s functions and work
+flow. All design parts are numbered. The same numbers can be found in the
+SETLyze&#8217;s source code. This means that the different design parts of the
+Technical Design can be easily linked to the corresponding source code.</p>
 <p>The Technical Design provides an easy to understand overview of the
-application, but is also of great value to developers. It is much
-easier to understand how the application works by looking at its
-Technical Design. If the developer is interested in a specific part of
-the source-code, he or she can easily navigate to that part of the
-source-code by the reference numbers used in the Technical Design.</p>
+application for users, but is also of great value to developers. It makes it
+easier to get a basic understanding of how the application works by looking
+at the Technical Design. If the developer is interested in a specific part of
+the application, he or she can easily navigate to the corresponding description
+and source code by the reference numbers used in the Technical Design.</p>
+<p>Both the descriptions and source codes for the design parts in the Technical
+Design are browsable using this documentation. Read the &#8220;Design Parts&#8221; section
+below.</p>
 <div class="section" id="design-parts">
 <h4>Design Parts<a class="headerlink" href="#design-parts" title="Permalink to this headline">¶</a></h4>
-<p>The links below will guide you to the different design parts present
-in the Technical Design. Clicking on a design part will show you its
-description. Next to the description is a link &#8220;[source]&#8221; which links
-the the corresponding source-code.</p>
+<p>The links below will guide you to the different design parts present in the
+Technical Design. You just have to click in the the number for that design
+part. Clicking on a design part will show you its description. Next to the
+description is a link &#8220;[source]&#8221; which links to the corresponding source code.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="design_parts_index.html">SETLyze Design Parts</a><ul>
@@ -293,6 +294,16 @@ inconsistency if other people use the full name.</p>
 <p>Functions that transform one thing to another should be named <tt class="docutils literal"><span class="pre">x_to_y</span></tt>
 (not <tt class="docutils literal"><span class="pre">x2y</span></tt> as occurs in some old code.)</p>
 </div>
+<div class="section" id="event-and-signal-handling">
+<h3>Event and Signal Handling<a class="headerlink" href="#event-and-signal-handling" title="Permalink to this headline">¶</a></h3>
+<p>A large part of SETLyze is controlled with signals and signal handlers. To emit
+custom application signals we use <tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.sender.emit()</span></tt>. And to
+connect a signal to a signal handler, we use <tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.sender.connect()</span></tt>.
+When signal handlers are no longer needed, use
+<tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.sender.disconnect()</span></tt> to disconnect the handler from the signal.
+Calling <tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.sender.disconnect()</span></tt> should generally be done when
+the instance that called <tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.sender.connect()</span></tt> is destroyed.</p>
+</div>
 <div class="section" id="license-statement">
 <h3>License Statement<a class="headerlink" href="#license-statement" title="Permalink to this headline">¶</a></h3>
 <p>SETLyze is released under the GNU General Public License version 3.
@@ -304,8 +315,8 @@ the encoding declaration. So the top of each file should look like this:</p>
 <span class="c">#</span>
 <span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
-<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement of</span>
-<span class="c">#  species.</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
+<span class="c">#  of species on SETL plates.</span>
 <span class="c">#</span>
 <span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
 <span class="c">#  it under the terms of the GNU General Public License as published by</span>
@@ -331,6 +342,20 @@ the encoding declaration. So the top of each file should look like this:</p>
 <li class="toctree-l1"><a class="reference internal" href="testing_optimization.html">Testing and Optimization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="testing_optimization.html#testing">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="testing_optimization.html#optimization">Optimization</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="distribution">
+<h2>Distribution<a class="headerlink" href="#distribution" title="Permalink to this headline">¶</a></h2>
+<p>The following document describes how to create the distribution packages and
+installers for SETLyze.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="distribution.html">Distribution of SETLyze</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="distribution.html#distribution-on-windows-building-an-installer">Distribution on Windows: Building an Installer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution.html#building-a-source-package">Building a Source Package</a></li>
 </ul>
 </li>
 </ul>
@@ -371,10 +396,14 @@ the encoding declaration. So the top of each file should look like this:</p>
 <li><a class="reference internal" href="#module-imports">Module Imports</a></li>
 <li><a class="reference internal" href="#naming">Naming</a></li>
 <li><a class="reference internal" href="#standard-names">Standard Names</a></li>
+<li><a class="reference internal" href="#event-and-signal-handling">Event and Signal Handling</a></li>
 <li><a class="reference internal" href="#license-statement">License Statement</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#testing-and-optimization">Testing and Optimization</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#distribution">Distribution</a><ul>
 </ul>
 </li>
 </ul>
@@ -382,8 +411,8 @@ the encoding declaration. So the top of each file should look like this:</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="user_manual.html"
-                        title="previous chapter">SETLyze User Manual</a></p>
+  <p class="topless"><a href="usecases.html"
+                        title="previous chapter">Use Cases for SETLyze</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="design_parts_index.html"
                         title="next chapter">SETLyze Design Parts</a></p>
@@ -422,7 +451,7 @@ the encoding declaration. So the top of each file should look like this:</p>
           <a href="design_parts_index.html" title="SETLyze Design Parts"
              >next</a> |</li>
         <li class="right" >
-          <a href="user_manual.html" title="SETLyze User Manual"
+          <a href="usecases.html" title="Use Cases for SETLyze"
              >previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     

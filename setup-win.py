@@ -1,4 +1,23 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+#  Copyright 2010, GiMaRIS <info@gimaris.com>
+#
+#  This file is part of SETLyze - A tool for analyzing the settlement
+#  of species on SETL plates.
+#
+#  SETLyze is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  SETLyze is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import glob
 
@@ -9,10 +28,34 @@ import py2exe
 *not* use this script to install SETLyze. To install SETLyze, use 'setup.py'
 instead.
 
-On Windows, use the following command to create the SETLyze executable for
-Windows.:
+On Windows, follow these steps to create the SETLyze executable for Windows:
+
+1) Run the following command to create the Windows executable:
 
     python setup-win.py py2exe
+
+   This should create a 'dist' SETLyze's source folder.
+
+2) Manually copy the folder 'setlyze/docs/' to the 'dist' folder. This folder
+   contains SETLyze's documentation.
+
+3) Manually copy the following folders to the 'dist' folder:
+
+   C:\Program Files\GTK2-Runtime\etc\
+   C:\Program Files\GTK2-Runtime\lib\
+   C:\Program Files\GTK2-Runtime\share\
+
+   These folders are a part of the GTK2-Runtime. Without these three folders,
+   SETLyze would look very ugly on Windows.
+
+4) Test the new executable by running 'setlyze.exe' in the 'dist' folder. If
+   everything works fine, you can use the 'dist' folder to create a Windows
+   installer using Nullsoft Scriptable Installer System (NSIS). The NSIS script
+   used to create the Windows setup is called 'setlyze_setup_modern.nsi'. To create
+   the Windows installer for SETLyze, make sure you have NSIS installed. Then
+   simply right-click the 'setlyze_setup_modern.nsi' file and select "Compile
+   NSIS Script". This should produce the Windows installer, called something
+   like 'setlyze-0.1-bundle-win32.exe'.
 
 """
 
@@ -40,10 +83,7 @@ setup(name='setlyze',
             },
     },
     data_files=[('test-data', glob.glob('test-data/*.*')),
-        ('tests', glob.glob('tests/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
-        ('.',['COPYING','icon.ico','README']),
-        # Don't forget to manually copy the folder 'setlyze/docs/' to the
-        # 'dist' folder before creating setup.exe.
+        ('.',['COPYING','README']),
         ],
 )

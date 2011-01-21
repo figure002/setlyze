@@ -477,7 +477,7 @@ def get_random_for_plate(n):
     standard library. As described in the Python documentation, this
     function is bound to an instance of :py:class:`random.Random` which
     uses the :py:meth:`random.random` method. In turn this method uses
-    the Mersenne Twister (:ref:`Matsumoto & Nishimura <ref-mersenne-twister>`)
+    the Mersenne Twister (:ref:`Matsumoto & Nishimura <ref-matsumoto>`)
     as the core generator. The Mersenne Twister is one of the most
     extensively tested random number generators in existence.
 
@@ -756,15 +756,22 @@ class Sender(gobject.GObject):
 
     __gproperties__ = {
         'save-slot' : (gobject.TYPE_INT, # type
-            'Save slot for selections.', # nick name
-            'Save slot for selections. There are two slots possible (0 and 1).', # description
+            "Save slot", # nick name
+            "Save slot for selections. There are two slots possible (0 and 1).", # description
             0, # minimum value
             1, # maximum value
             0, # default value
             gobject.PARAM_READWRITE), # flags
         'analysis' : (gobject.TYPE_STRING, # type
-            'The analysis to be started.', # nick name
-            'The analysis to be started. Possible values are spot_preference, ...', # description
+            "Analysis name", # nick name
+            "Name of the analysis to be started. Possible values are \
+            'spot_preference', 'attraction_intra', 'attraction_inter' \
+            and 'relations'.", # description
+            '', # default value
+            gobject.PARAM_READWRITE), # flags
+        'error-message' : (gobject.TYPE_STRING, # type
+            "Error message", # nick name
+            "The error message returned by a function or class.", # description
             '', # default value
             gobject.PARAM_READWRITE), # flags
     }
@@ -772,6 +779,7 @@ class Sender(gobject.GObject):
     # Create custom application signals.
     __gsignals__ = {
         'on-start-analysis': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
+        'csv-import-failed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'beginning-analysis': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'analysis-started': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -798,12 +806,15 @@ class Sender(gobject.GObject):
         gobject.GObject.__init__(self)
         self.save_slot = 0
         self.analysis = ''
+        self.error_message = ''
 
     def do_get_property(self, property):
         if property.name == 'save-slot':
             return self.save_slot
         elif property.name == 'analysis':
             return self.analysis
+        elif property.name == 'error-message':
+            return self.error_message
         else:
             raise AttributeError('Unknown property %s' % property.name)
 
@@ -812,6 +823,8 @@ class Sender(gobject.GObject):
             self.save_slot = value
         elif property.name == 'analysis':
             self.analysis = value
+        elif property.name == 'error-message':
+            self.error_message = value
         else:
             raise AttributeError('Unknown property %s' % property.name)
 
@@ -1422,7 +1435,7 @@ class ReportGenerator(object):
                 </wilcoxon>
             </statistics>
 
-        Design Part: 1.71
+        Design Part: 1.70
         """
 
         # Create the 'statistics' element if it doesn't exist.
@@ -1475,7 +1488,7 @@ class ReportGenerator(object):
                 </plate_area>
             </significance_test_repeats_areas>
 
-        Design Part:
+        Design Part: 1.71
         """
 
         # Make sure the testid is valid.
@@ -2542,7 +2555,61 @@ class ExportTextReport(object):
         f.close()
 
 class ProgressDialogHandler(object):
-    """Class for controlling the progress dialog."""
+    """This class allows you to control the progress dialog from a separate
+    thread.
+
+    Follow these steps to get the progress dialog working:
+
+    1) In the main thread, create a progress dialog, ::
+
+        pd = setlyze.gui.ProgressDialog(title="Analyzing",
+            description="Performing heavy calculations, please wait...")
+
+    2) Make the progress dialog global using the :mod:`setlyze.config` module, ::
+
+        setlyze.config.cfg.set('progress-dialog', pd)
+
+    3) Edit the worker process to automatically update the progress dialog.
+       First create an instance of this class in the __init__() of your class: ::
+
+            self.pdialog_handler = setlyze.std.ProgressDialogHandler()
+
+    4) Then you need to tell the handler how many times you're going to update
+       the progress dialog (which is the number of times you'll call the
+       :meth:`increase` method): ::
+
+            self.pdialog_handler.set_total_steps(8)
+
+    5) Then call the :meth:`increase` method in you worker class at the moments
+       you want to update the progress dialog. Notice that :meth:`increase`
+       will be called 8 times in the example below (hence total steps was set
+       to 8): ::
+
+            self.pdialog_handler.set_action("Calculating this...")
+            self.some_heavy_function()
+
+            self.pdialog_handler.increase("Still calculating...")
+            for x in range(5):
+                self.pdialog_handler.increase()
+                self.calculate_this(x)
+
+            self.pdialog_handler.increase("Calculating that...")
+            self.more_heavy_calculations()
+
+            self.pdialog_handler.increase("Finished!")
+
+    6) Then start your worker process in a separate thread (if you're new to
+       threading, start with the `threading documentation
+       <http://docs.python.org/library/threading.html>`_) ::
+
+        t = WorkerClass()
+        t.start()
+
+    The progress bar should now increase while the worker process is running.
+    For more examples you can look at the sources of the analysis modules (e.g.
+    :mod:`setlyze.analysis.spot_preference`).
+
+    """
 
     def __init__(self):
         self.total_steps = None
@@ -2565,14 +2632,17 @@ class ProgressDialogHandler(object):
 
     def set_action(self, action):
         """Set the progress dialog's action string to `action`. This action
-        string is showed below the progress bar.
+        string is showed in italics below the progress bar.
         """
         action = "<span style='italic'>%s</span>" % (action)
         gobject.idle_add(self.pdialog.action.set_markup, action)
 
     def increase(self, action=None):
-        """Increase the progress bar's fraction based on the current fraction
-        and the total number of steps."""
+        """Increase the progress bar's fraction. Calling this method causes
+        the progress bar to fill a portion of the bar. This method takes care
+        of calculating the right fraction. If `action` is supplied, the
+        progress dialog's action string is set to `action`.
+        """
         if not self.total_steps:
             raise ValueError("You didn't set the total number of steps. Use "
                 "'set_total_steps()'.")
@@ -2590,15 +2660,14 @@ class ProgressDialogHandler(object):
         self.update(fraction, action)
 
     def update(self, fraction, action=None):
-        """Set the progress dialog's progressbar fraction to ``fraction``.
+        """Set the progress dialog's progress bar fraction to `fraction`.
         The value of `fraction` should be between 0.0 and 1.0. Optionally set
         the current action to `action`, a short string explaining the current
-        action. Optionally set `autoclose` to automatically close the progress
-        dialog if `fraction` equals 1.0.
+        action.
 
-        The ``progress-dialog`` configuration must be set to an instance of
-        gtk.ProgressBar for this to work. If no progress dialog is set,
-        nothing will happen.
+        The "progress-dialog" configuration must be set to an instance of
+        :class:`setlyze.gui.ProgressDialog` for this to work. If no progress
+        dialog is set, nothing will happen.
         """
         # If no progress dialog is set, do nothing.
         if not self.pdialog:
@@ -2609,14 +2678,12 @@ class ProgressDialogHandler(object):
         gobject.idle_add(self.__update_progress_dialog, fraction, action)
 
     def __update_progress_dialog(self, fraction, action=None):
-        """Set the progress dialog's progressbar fraction to ``fraction``.
+        """Set the progress dialog's progressbar fraction to `fraction`.
         The value of `fraction` should be between 0.0 and 1.0. Optionally set
         the current action to `action`, a short string explaining the current
-        action. Optionally set `autoclose` to automatically close the
-        progress dialog if `fraction` equals ``1.0``.
+        action.
 
-        Don't call this function manually; use :meth:`update_progress_dialog`
-        instead.
+        Don't call this function manually; use :meth:`increase` instead.
         """
 
         # Update fraction.
@@ -2653,14 +2720,14 @@ class ProgressDialogHandler(object):
         seconds before it's being closed.
 
         There's no need to call this function manually, as it is called
-        by :meth:`on_update_progress_dialog` when it's needed.
+        by :meth:`__update_progress_dialog` when needed.
         """
 
         # If a delay is set, sleep 'delay' seconds.
         if delay: time.sleep(delay)
 
-        # Close the dialog.
-        self.pdialog.on_close()
+        # Close the progress dialog.
+        self.pdialog.destroy()
 
         # This callback function must return False, so it is
         # automatically removed from the list of event sources.

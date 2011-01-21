@@ -68,7 +68,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 15, 2011</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 21, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -232,9 +232,6 @@ expected) or repels (mean observed &gt; mean expected) itself.</dd>
 <p>The default value for the alpha level is 0.05 (5%). In biology
 we usually assume that differences are significant if P has
 a value less than 5% (<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Millar</em></a>).</p>
-<p>The default value for the confidence level is 0.95 (95%). So
-there is a 95% probability that the true mean lies within the
-range of the confidence interval.</p>
 <p>A high number of positive spots on a plate will naturally lead
 to a high p-value (not significant). These plates will
 negatively affect the result of statistical test. To account
@@ -253,8 +250,19 @@ spot distances.</p>
 
 <dl class="method">
 <dt id="setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats">
-<tt class="descname">calculate_significance_for_repeats</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="Permalink to this definition">¶</a></dt>
-<dd><p>TODO</p>
+<tt class="descname">calculate_significance_for_repeats</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_intra.html#Start.calculate_significance_for_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method does the same Wilcoxon test from <a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance" title="setlyze.analysis.attraction_intra.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a>,
+but instead is designed to be called repeatedly, saving the results
+of the repeated test. This method doesn&#8217;t save the detailed
+results of the Wilcoxon test, but just saves whether the p-value
+was significant, and whether it was attraction or repulsion for the
+different numbers of positive spots.</p>
+<p>Repeation of the Wilcoxon test is necessary, as the expected values
+are calculated randomly. The test needs to be repeated many times
+if you want to draw a solid conclusion from the results.</p>
+<p>The number of times this method is called depends on the configuration
+setting &#8220;test-repeats&#8221;.</p>
+<p>Design Part: 1.102</p>
 </dd></dl>
 
 <dl class="method">
@@ -266,8 +274,13 @@ spot distances.</p>
 
 <dl class="method">
 <dt id="setlyze.analysis.attraction_intra.Start.repeat_test">
-<tt class="descname">repeat_test</tt><big>(</big><em>number</em><big>)</big><a class="headerlink" href="#setlyze.analysis.attraction_intra.Start.repeat_test" title="Permalink to this definition">¶</a></dt>
-<dd><p>Repeat the siginificance test <cite>number</cite> times.</p>
+<tt class="descname">repeat_test</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_intra.html#Start.repeat_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_intra.Start.repeat_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Repeats the siginificance test <cite>number</cite> times. The significance
+test is performed by <a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a>.</p>
+<p>Each time before <a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a> is called,
+<a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected" title="setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_intra_expected()</span></tt></a> is called to re-calculate the
+expected values (which are random).</p>
+<p>Design Part: 1.103</p>
 </dd></dl>
 
 <dl class="method">
@@ -283,7 +296,7 @@ spot distances.</p>
 <li><a class="reference internal" href="../database.html#setlyze.database.AccessDBGeneric.make_plates_unique" title="setlyze.database.AccessDBGeneric.make_plates_unique"><tt class="xref py py-meth docutils literal"><span class="pre">make_plates_unique()</span></tt></a></li>
 <li><a class="reference internal" href="../database.html#setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table" title="setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table"><tt class="xref py py-meth docutils literal"><span class="pre">fill_plate_spot_totals_table()</span></tt></a></li>
 <li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_distances_intra" title="setlyze.analysis.attraction_intra.Start.calculate_distances_intra"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_intra()</span></tt></a></li>
-<li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected" title="setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_intra_expected()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.repeat_test" title="setlyze.analysis.attraction_intra.Start.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">repeat_test()</span></tt></a></li>
 <li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance" title="setlyze.analysis.attraction_intra.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a></li>
 <li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.generate_report" title="setlyze.analysis.attraction_intra.Start.generate_report"><tt class="xref py py-meth docutils literal"><span class="pre">generate_report()</span></tt></a></li>
 </ul>
