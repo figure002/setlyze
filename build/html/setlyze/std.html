@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="locale.html" title="setlyze.locale — English text retrieval"
              accesskey="P">previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
       </ul>
@@ -64,7 +67,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 06, 2011</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 21, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -96,6 +99,12 @@ here.</p>
 <tt class="descname">chapter</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.chapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.chapter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return <cite>header</cite> marked up as a header for parts in
 reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ExportTextReport.generate">
+<tt class="descname">generate</tt><big>(</big><em>elements=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate analysis report in text format.</p>
 </dd></dl>
 
 <dl class="method">
@@ -137,11 +146,7 @@ reStructuredText format.</p>
 <tt class="descname">table</tt><big>(</big><em>headers</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a table header with column names from <cite>headers</cite> in
 reStructuredText format.</p>
-<p><cite>headers</cite> is a list/tuple containing two-item tuples
-<tt class="docutils literal"><span class="pre">(&lt;column</span> <span class="pre">name&gt;,</span> <span class="pre">&lt;column</span> <span class="pre">width&gt;)</span></tt>. The column name is a string,
-and the column width is an integer defining the character width
-of the column. A value of -1 for column with means that the
-column will have the same width as the column name.</p>
+<p><cite>headers</cite> is a list of strings representing the column names.</p>
 </dd></dl>
 
 <dl class="method">
@@ -149,6 +154,103 @@ column will have the same width as the column name.</p>
 <tt class="descname">table_rule</tt><big>(</big><em>col_widths</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ExportTextReport.table_rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ExportTextReport.table_rule" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a rule for a table with column widths <cite>col_widths</cite>.</p>
 <p><cite>col_widths</cite> is a list/tuple containing column widths (integers).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.std.ProgressDialogHandler">
+<em class="property">class </em><tt class="descclassname">setlyze.std.</tt><tt class="descname">ProgressDialogHandler</tt><a class="reference internal" href="../_modules/setlyze/std.html#ProgressDialogHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ProgressDialogHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class allows you to control the progress dialog from a separate
+thread.</p>
+<p>Follow these steps to get the progress dialog working:</p>
+<ol class="arabic">
+<li><p class="first">In the main thread, create a progress dialog,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pd</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Analyzing&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;Performing heavy calculations, please wait...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Make the progress dialog global using the <a class="reference internal" href="config.html#module-setlyze.config" title="setlyze.config"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.config</span></tt></a> module,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Edit the worker process to automatically update the progress dialog.
+First create an instance of this class in the __init__() of your class:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Then you need to tell the handler how many times you&#8217;re going to update
+the progress dialog (which is the number of times you&#8217;ll call the
+<a class="reference internal" href="#setlyze.std.ProgressDialogHandler.increase" title="setlyze.std.ProgressDialogHandler.increase"><tt class="xref py py-meth docutils literal"><span class="pre">increase()</span></tt></a> method):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Then call the <a class="reference internal" href="#setlyze.std.ProgressDialogHandler.increase" title="setlyze.std.ProgressDialogHandler.increase"><tt class="xref py py-meth docutils literal"><span class="pre">increase()</span></tt></a> method in you worker class at the moments
+you want to update the progress dialog. Notice that <a class="reference internal" href="#setlyze.std.ProgressDialogHandler.increase" title="setlyze.std.ProgressDialogHandler.increase"><tt class="xref py py-meth docutils literal"><span class="pre">increase()</span></tt></a>
+will be called 8 times in the example below (hence total steps was set
+to 8):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="s">&quot;Calculating this...&quot;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">some_heavy_function</span><span class="p">()</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Still calculating...&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">calculate_this</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Calculating that...&quot;</span><span class="p">)</span>
+<span class="bp">self</span><span class="o">.</span><span class="n">more_heavy_calculations</span><span class="p">()</span>
+
+<span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Finished!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Then start your worker process in a separate thread (if you&#8217;re new to
+threading, start with the <a class="reference external" href="http://docs.python.org/library/threading.html">threading documentation</a>)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">t</span> <span class="o">=</span> <span class="n">WorkerClass</span><span class="p">()</span>
+<span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p>The progress bar should now increase while the worker process is running.
+For more examples you can look at the sources of the analysis modules (e.g.
+<a class="reference internal" href="analysis/spot_preference.html#module-setlyze.analysis.spot_preference" title="setlyze.analysis.spot_preference"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.analysis.spot_preference</span></tt></a>).</p>
+<dl class="method">
+<dt id="setlyze.std.ProgressDialogHandler.increase">
+<tt class="descname">increase</tt><big>(</big><em>action=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ProgressDialogHandler.increase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ProgressDialogHandler.increase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Increase the progress bar&#8217;s fraction. Calling this method causes
+the progress bar to fill a portion of the bar. This method takes care
+of calculating the right fraction. If <cite>action</cite> is supplied, the
+progress dialog&#8217;s action string is set to <cite>action</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ProgressDialogHandler.set_action">
+<tt class="descname">set_action</tt><big>(</big><em>action</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ProgressDialogHandler.set_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ProgressDialogHandler.set_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the progress dialog&#8217;s action string to <cite>action</cite>. This action
+string is showed in italics below the progress bar.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ProgressDialogHandler.set_total_steps">
+<tt class="descname">set_total_steps</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ProgressDialogHandler.set_total_steps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ProgressDialogHandler.set_total_steps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the total number of steps for the progress.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ProgressDialogHandler.update">
+<tt class="descname">update</tt><big>(</big><em>fraction</em>, <em>action=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ProgressDialogHandler.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ProgressDialogHandler.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the progress dialog&#8217;s progress bar fraction to <cite>fraction</cite>.
+The value of <cite>fraction</cite> should be between 0.0 and 1.0. Optionally set
+the current action to <cite>action</cite>, a short string explaining the current
+action.</p>
+<p>The &#8220;progress-dialog&#8221; configuration must be set to an instance of
+<a class="reference internal" href="gui.html#setlyze.gui.ProgressDialog" title="setlyze.gui.ProgressDialog"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.gui.ProgressDialog</span></tt></a> for this to work. If no progress
+dialog is set, nothing will happen.</p>
 </dd></dl>
 
 </dd></dl>
@@ -391,36 +493,36 @@ definition.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.std.ReportGenerator.set_specie_selections">
-<tt class="descname">set_specie_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_specie_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_specie_selections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the element <tt class="docutils literal"><span class="pre">specie_selections</span></tt> to the XML DOM
+<dt id="setlyze.std.ReportGenerator.set_species_selections">
+<tt class="descname">set_species_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_species_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_species_selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element <tt class="docutils literal"><span class="pre">species_selections</span></tt> to the XML DOM
 report.</p>
 <p>This element will be filled with the species selections. If
 two species selections were made, both will be added to the
 element.</p>
 <p>The XML representation looks like this:</p>
-<div class="highlight-python"><pre>&lt;specie_selections&gt;
+<div class="highlight-python"><pre>&lt;species_selections&gt;
     &lt;selection slot="0"&gt;
-        &lt;specie id="2"&gt;
+        &lt;species id="2"&gt;
             &lt;name_latin&gt;
                 Ectopleura larynx
             &lt;/name_latin&gt;
             &lt;name_venacular&gt;
                 Gorgelpijp
             &lt;/name_venacular&gt;
-        &lt;/specie&gt;
+        &lt;/species&gt;
     &lt;/selection&gt;
     &lt;selection slot="1"&gt;
-        &lt;specie id="6"&gt;
+        &lt;species id="6"&gt;
             &lt;name_latin&gt;
                 Metridium senile
             &lt;/name_latin&gt;
             &lt;name_venacular&gt;
                 Zeeanjelier
             &lt;/name_venacular&gt;
-        &lt;/specie&gt;
+        &lt;/species&gt;
     &lt;/selection&gt;
-&lt;/specie_selections&gt;</pre>
+&lt;/species_selections&gt;</pre>
 </div>
 <p>Design Part: 1.51</p>
 </dd></dl>
@@ -502,6 +604,42 @@ with child elements for the <tt class="docutils literal"><span class="pre">stati
     &lt;/wilcoxon&gt;
 &lt;/statistics&gt;</pre>
 </div>
+<p>Design Part: 1.70</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportGenerator.set_statistics_repeats">
+<tt class="descname">set_statistics_repeats</tt><big>(</big><em>name</em>, <em>results</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportGenerator.set_statistics_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportGenerator.set_statistics_repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the element &#8220;significance_test_repeats_areas&#8221; to the XML DOM
+report.</p>
+<p>This element will be filled with the number of significant results
+per plate area group.</p>
+<p>The XML representation looks like this:</p>
+<div class="highlight-python"><pre>&lt;wilcoxon_areas_repeats alpha_level="0.05" repeats="100"&gt;
+    &lt;result plate_area="A"&gt;
+        &lt;n_preference&gt;
+            100
+        &lt;/n_preference&gt;
+        &lt;n_rejection&gt;
+            0
+        &lt;/n_rejection&gt;
+        &lt;n_significant&gt;
+            100
+        &lt;/n_significant&gt;
+    &lt;/result&gt;
+    &lt;plate_area id="B+C+D"&gt;
+        &lt;n_preference&gt;
+            0
+        &lt;/n_preference&gt;
+        &lt;n_rejection&gt;
+            100
+        &lt;/n_rejection&gt;
+        &lt;n_significant&gt;
+            100
+        &lt;/n_significant&gt;
+    &lt;/plate_area&gt;
+&lt;/significance_test_repeats_areas&gt;</pre>
+</div>
 <p>Design Part: 1.71</p>
 </dd></dl>
 
@@ -530,7 +668,7 @@ contains the name of the analysis.</p>
 <dl class="method">
 <dt id="setlyze.std.ReportReader.get_area_totals_expected">
 <tt class="descname">get_area_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_area_totals_expected" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the expected specie totals per area from the XML DOM
+<dd><p>Return the expected species totals per area from the XML DOM
 report.</p>
 <p>This method returns a dictionary. For example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
@@ -545,7 +683,7 @@ report.</p>
 <dl class="method">
 <dt id="setlyze.std.ReportReader.get_area_totals_observed">
 <tt class="descname">get_area_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_area_totals_observed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the observed specie totals per plate area from the
+<dd><p>Return the observed species totals per plate area from the
 XML DOM report.</p>
 <p>This method returns a dictionary. For example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
@@ -660,7 +798,7 @@ iterator. The iterator returns the distances.</p>
 
 <dl class="method">
 <dt id="setlyze.std.ReportReader.get_statistics">
-<tt class="descname">get_statistics</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_statistics" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_statistics</tt><big>(</big><em>element_name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_statistics" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the statistics elements with name <cite>name</cite> from the
 XML DOM report.</p>
 <p>This is a generator, meaning that this function returns an
@@ -668,6 +806,26 @@ iterator. This iterator returns tuples in the format
 <tt class="docutils literal"><span class="pre">({'&lt;name&gt;':</span> <span class="pre">&lt;value&gt;,</span> <span class="pre">...},</span> <span class="pre">{'&lt;name&gt;':</span> <span class="pre">&lt;value&gt;,</span> <span class="pre">...})</span></tt> where
 the first dictionary contains the attributes and the second
 the results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.std.ReportReader.get_statistics_repeats">
+<tt class="descname">get_statistics_repeats</tt><big>(</big><em>element_name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#ReportReader.get_statistics_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.ReportReader.get_statistics_repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the repeated statistical test results for <cite>element_name</cite>
+from the XML DOM report. <cite>element_name</cite> is the element name of the
+non-repeated variant. Possible values for <cite>element_name</cite> are
+&#8220;wilcoxon_areas&#8221;, &#8220;wilcoxon_spots&#8221;, &#8220;wilcoxon_ratios&#8221;,
+&#8220;chi_squared_areas&#8221;, &#8220;chi_squared_spots&#8221; and &#8220;chi_squared_ratios&#8221;.</p>
+<p>This method returns a dictionary. For example:</p>
+<div class="highlight-python"><pre>{
+    'A': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0},
+    'B': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+    'C': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+    'D': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+    'A+B': {'n_significant': 0, 'n_preference': 0, 'n_rejection': 0,
+    'repeats': 100,
+}</pre>
+</div>
 </dd></dl>
 
 <dl class="method">
@@ -857,7 +1015,7 @@ SETL plate.</p>
 standard library. As described in the Python documentation, this
 function is bound to an instance of <tt class="xref py py-class docutils literal"><span class="pre">random.Random</span></tt> which
 uses the <tt class="xref py py-meth docutils literal"><span class="pre">random.random()</span></tt> method. In turn this method uses
-the Mersenne Twister (<a class="reference internal" href="../references.html#ref-mersenne-twister"><em>M. Matsumoto and T. Nishimura</em></a>)
+the Mersenne Twister (<a class="reference internal" href="../references.html#ref-matsumoto"><em>Matsumoto &amp; Nishimura</em></a>)
 as the core generator. The Mersenne Twister is one of the most
 extensively tested random number generators in existence.</p>
 <div class="admonition-see-also admonition seealso">
@@ -1089,24 +1247,10 @@ and attributes of a statistical test.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="setlyze.std.on_close_progress_dialog">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">on_close_progress_dialog</tt><big>(</big><em>delay=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#on_close_progress_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.on_close_progress_dialog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the progress dialog. Optionally set a delay of <cite>delay</cite>
-seconds before it&#8217;s being closed.</p>
-<p>There&#8217;s no need to call this function manually, as it is called
-by <a class="reference internal" href="#setlyze.std.on_update_progress_dialog" title="setlyze.std.on_update_progress_dialog"><tt class="xref py py-meth docutils literal"><span class="pre">on_update_progress_dialog()</span></tt></a> when it&#8217;s needed.</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="setlyze.std.on_update_progress_dialog">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">on_update_progress_dialog</tt><big>(</big><em>fraction</em>, <em>action=None</em>, <em>autoclose=True</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#on_update_progress_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.on_update_progress_dialog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the progress dialog&#8217;s progressbar fraction to <tt class="docutils literal"><span class="pre">fraction</span></tt>.
-The value of <cite>fraction</cite> should be between 0.0 and 1.0. Optionally set
-the current action to <cite>action</cite>, a short string explaining the current
-action. Optionally set <cite>autoclose</cite> to automatically close the
-progress dialog if <cite>fraction</cite> equals <tt class="docutils literal"><span class="pre">1.0</span></tt>.</p>
-<p>Don&#8217;t call this function manually; use <a class="reference internal" href="#setlyze.std.update_progress_dialog" title="setlyze.std.update_progress_dialog"><tt class="xref py py-meth docutils literal"><span class="pre">update_progress_dialog()</span></tt></a>
-instead.</p>
+<dt id="setlyze.std.module_path">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">module_path</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#module_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.module_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>This will get us the program&#8217;s directory, even if we are frozen using
+py2exe.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1186,16 +1330,10 @@ documentation, type <tt class="docutils literal"><span class="pre">help(t.test)<
 </dd></dl>
 
 <dl class="function">
-<dt id="setlyze.std.update_progress_dialog">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">update_progress_dialog</tt><big>(</big><em>fraction</em>, <em>action=None</em>, <em>autoclose=True</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#update_progress_dialog"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.update_progress_dialog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the progress dialog&#8217;s progressbar fraction to <tt class="docutils literal"><span class="pre">fraction</span></tt>.
-The value of <cite>fraction</cite> should be between 0.0 and 1.0. Optionally set
-the current action to <cite>action</cite>, a short string explaining the current
-action. Optionally set <cite>autoclose</cite> to automatically close the
-progress dialog if <cite>fraction</cite> equals <tt class="docutils literal"><span class="pre">1.0</span></tt>.</p>
-<p>The <tt class="docutils literal"><span class="pre">progress-dialog</span></tt> configuration must be set to an instance of
-gtk.ProgressBar for this to work. If no progress dialog is set,
-nothing will happen.</p>
+<dt id="setlyze.std.we_are_frozen">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">we_are_frozen</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#we_are_frozen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.we_are_frozen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns whether we are frozen via py2exe. This will affect how we find
+out where we are located.</p>
 </dd></dl>
 
 <dl class="function">
@@ -1294,7 +1432,10 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
         <li class="right" >
           <a href="locale.html" title="setlyze.locale — English text retrieval"
              >previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
       </ul>

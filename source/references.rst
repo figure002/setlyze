@@ -7,17 +7,15 @@ All references used in the documentation are listed here.
 Reference List
 =======================
 
-.. _ref-mersenne-twister:
+.. [#ref-matsumoto] Matsumoto, M., Nishimura, T. Mersenne Twister: A 623-dimensionally
+   equidistributed uniform pseudorandom number generator. *ACM Transactions on
+   Modeling and Computer Simulation* **8**, 3-30 (1998).
 
-1. M. Matsumoto and T. Nishimura, "Mersenne Twister: A 623-dimensionally
-   equidistributed uniform pseudorandom number generator", ACM Transactions on
-   Modeling and Computer Simulation Vol. 8, No. 1, January pp.3-30 1998.
+.. [#ref-millar] Millar, N. Biology statistics made simple using Excel. *School Science
+   Review* **83**, (303).
 
-.. _ref-millar:
+.. [#ref-dalgaard] Dalgaard, P. *Introductory Statistics With R, Second Edition*. Springer,
+   Copenhagen.
 
-2. N. Millar, "Biology statistics made simple using Excel", School Science
-   Review, December 2001, 83(303).
-
-.. _ref-dalgaard:
-
-3. \P. Dalgaard, "Introductory Statistics with R", DOI: 10.1007 / 978-0-387-79054-1_1.
+.. [#ref-welch] Wikipedia. Welch's t test. `http://en.wikipedia.org/wiki/Welch's_t_test
+   <http://en.wikipedia.org/wiki/Welch's_t_test>`_. 17 August 2010.

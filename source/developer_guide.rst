@@ -19,16 +19,16 @@ Navigating the SETLyze folder
 
 The key files in SETLyze's root folder are:
 
-docs
-    This folder contains the documentation for SETLyze. This includes
-    the User Manual and the Developer Guide. You can view the manual
-    by (double) clicking index.html. This should show the documentation
-    in your web browser.
-
 setlyze
-    This is the main code base for SETLyze. This package folder contains
+    This is SETLyze's main code base. This package folder contains
     all of SETLyze's modules. This is the folder where you'll be
     editing most Python source files for SETLyze.
+
+setlyze/docs
+    This folder contains the documentation for SETLyze. This includes
+    the User Manual and the Developer Guide. You can view the manual
+    by (double) clicking index.html. This should open the documentation
+    in your web browser.
 
 COPYING
     This text file contains the license for SETLyze. SETLyze is released
@@ -38,38 +38,41 @@ INSTALL
     Text file with installation instrutions for SETLyze.
 
 setlyze.pyw
-    This is the executable for SETLyze. This is what you'll run to start
-    SETLyze.
+    This is SETLyze's executable. This is what you'll run to start SETLyze.
 
 setup.py
-    Installs SETLyze system-wide or to your home directory. This script
-    is used to install SETLyze on your machine. For installation
-    instructions, read the INSTALL file.
+    Installer script for SETLyze. Installs SETLyze system-wide or to your
+    home directory. For installation instructions, read the INSTALL file.
+
 
 Technical Design
 ================
 
-SETLyze comes with a Technical Design; a visual representation of
-SETLyze's design parts (functions/classes/GUI's) interconnected by arrows
-representing the application's functions and work flow. All design parts
-have a number. The same numbers can be found in the application's
-source-code. This means that the different design parts of the Technical
-Design can be easily linked to the corresponding source-code.
+SETLyze comes with a :download:`Technical Design <./technical_design_setlyze-0.1.pdf>`;
+a visual representation of SETLyze's design parts (functions/classes/GUI's)
+interconnected by arrows representing the application's functions and work
+flow. All design parts are numbered. The same numbers can be found in the
+SETLyze's source code. This means that the different design parts of the
+Technical Design can be easily linked to the corresponding source code.
 
 The Technical Design provides an easy to understand overview of the
-application, but is also of great value to developers. It is much
-easier to understand how the application works by looking at its
-Technical Design. If the developer is interested in a specific part of
-the source-code, he or she can easily navigate to that part of the
-source-code by the reference numbers used in the Technical Design.
+application for users, but is also of great value to developers. It makes it
+easier to get a basic understanding of how the application works by looking
+at the Technical Design. If the developer is interested in a specific part of
+the application, he or she can easily navigate to the corresponding description
+and source code by the reference numbers used in the Technical Design.
+
+Both the descriptions and source codes for the design parts in the Technical
+Design are browsable using this documentation. Read the "Design Parts" section
+below.
 
 Design Parts
 ------------
 
-The links below will guide you to the different design parts present
-in the Technical Design. Clicking on a design part will show you its
-description. Next to the description is a link "[source]" which links
-the the corresponding source-code.
+The links below will guide you to the different design parts present in the
+Technical Design. You just have to click in the the number for that design
+part. Clicking on a design part will show you its description. Next to the
+description is a link "[source]" which links to the corresponding source code.
 
 .. toctree::
    :maxdepth: 2
@@ -191,10 +194,11 @@ Module Imports
   Preserving the namespaces makes it easier for the developers to understand
   where a specific class, method, function or variable originates from.
 
-  Sometimes it's OK to maken an exception if this makes things easier (it
-  shouldn't create any confusion), for example: ::
+  We do make one exception: ::
 
     from sqlite3 import dbapi2 as sqlite
+
+  This is because we want to avoid the use of version numbers in namespaces.
 
 Naming
 ======
@@ -224,6 +228,18 @@ Functions that transform one thing to another should be named ``x_to_y``
 (not ``x2y`` as occurs in some old code.)
 
 
+Event and Signal Handling
+=========================
+
+A large part of SETLyze is controlled with signals and signal handlers. To emit
+custom application signals we use :meth:`setlyze.std.sender.emit`. And to
+connect a signal to a signal handler, we use :meth:`setlyze.std.sender.connect`.
+When signal handlers are no longer needed, use
+:meth:`setlyze.std.sender.disconnect` to disconnect the handler from the signal.
+Calling :meth:`setlyze.std.sender.disconnect` should generally be done when
+the instance that called :meth:`setlyze.std.sender.connect` is destroyed.
+
+
 License Statement
 =================
 
@@ -237,8 +253,8 @@ the encoding declaration. So the top of each file should look like this: ::
     #
     #  Copyright 2010, GiMaRIS <info@gimaris.com>
     #
-    #  This file is part of SETLyze - A tool for analyzing the settlement of
-    #  species.
+    #  This file is part of SETLyze - A tool for analyzing the settlement
+    #  of species on SETL plates.
     #
     #  SETLyze is free software: you can redistribute it and/or modify
     #  it under the terms of the GNU General Public License as published by
@@ -263,3 +279,15 @@ The following document describes the steps taken to test and optimize SETLyze.
    :maxdepth: 2
 
    testing_optimization
+
+
+Distribution
+############
+
+The following document describes how to create the distribution packages and
+installers for SETLyze.
+
+.. toctree::
+   :maxdepth: 2
+
+   distribution

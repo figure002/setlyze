@@ -81,7 +81,7 @@ PostgreSQL query: ::
 
 Table ``setl_species`` in the SETL database. The SETL database can be
 either the MS Access database or the PostgreSQL database. This table
-contains the SETL specie records.
+contains the SETL species records.
 
 PostgreSQL query: ::
 
@@ -276,7 +276,7 @@ Set the value with :meth:`setlyze.config.ConfigManager.set` ::
 
 A list ``[<selection-1>,<selection-2>]`` for storing a maximum of two
 species selections. ``<selection-1>`` and ``<selection-2>`` are lists
-of integers representing specie IDs. These IDs are the same as the IDs
+of integers representing species IDs. These IDs are the same as the IDs
 in column ``spe_id`` in :ref:`design-part-data-2.1` and
 :ref:`design-part-data-2.3`.
 
@@ -582,7 +582,7 @@ the format ::
 2.19
 ------------------------------------------------------------------------
 
-CSV file containing the specie records exported from the MS Access
+CSV file containing the species records exported from the MS Access
 SETL database.
 
 If exported from the MS Access SETL database, the CSV file must have
@@ -726,11 +726,11 @@ Set the value with :meth:`setlyze.config.ConfigManager.set` ::
 2.25
 ------------------------------------------------------------------------
 
-An application variable that contains the actual species totals for each
-plate area. Keep in mind that this is not the number of individual
-organisms found on the plate area, as the records just tell the presence
-of a specie. So it tells how many times the presence of a specie was
-found on each plate area.
+An application variable that contains the observed species totals for each
+user defined plate area. Keep in mind that this is not the number of individual
+organisms found on the plate areas, as the records just tell the presence
+of a species. So it tells how many times the presence of a species was
+found on each user defined plate area.
 
 This is what the value can look like ::
 
@@ -742,7 +742,7 @@ This is what the value can look like ::
     }
 
 Namespace:
-    ``setlyze.analysis.spot_preference.areas_totals_observed``
+    ``setlyze.analysis.spot_preference.Start.areas_totals_observed``
 
 .. _design-part-data-2.26:
 
@@ -752,7 +752,7 @@ Namespace:
 An application variable that contains the expected species totals for
 each plate area. Keep in mind that this not the number of individuals
 found on the plate area, as the records just tell the presence of a
-specie.
+species.
 
 This is what the value can look like ::
 
@@ -779,7 +779,7 @@ the user selected locations.
 2.28
 ------------------------------------------------------------------------
 
-The element ``specie_selections`` in the XML DOM report that contains the
+The element ``species_selections`` in the XML DOM report that contains the
 user selected species.
 
 .. _design-part-data-2.29:
@@ -889,7 +889,56 @@ SQLite query: ::
         n_spots_b INTEGER
     );
 
+.. _design-part-data-2.40:
+
 2.40
 ------------------------------------------------------------------------
 
 A XML file containing all data elements from :ref:`design-part-data-2.17`.
+
+.. _design-part-data-2.41:
+
+2.41
+------------------------------------------------------------------------
+
+Table ``plate_area_totals_observed`` in the local SQLite database. This table
+contains the number of positive spots for each default plate area (A, B, C,
+and D) for each plate that matches the species selection.
+
+This table is filled by :meth:`~setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed`.
+
+SQLite query: ::
+
+    CREATE TABLE plate_area_totals_observed (
+	pla_id INTEGER PRIMARY KEY,
+	area_a INTEGER,
+	area_b INTEGER,
+	area_c INTEGER,
+	area_d INTEGER
+    );
+
+.. _design-part-data-2.42:
+
+2.42
+------------------------------------------------------------------------
+
+Table ``plate_area_totals_expected`` in the local SQLite database.
+
+This table contains the number of expected positive spots for each default
+plate area (A, B, C, and D) per plate that matches the species selection. The
+expected spots are calculated with a random generator. The random generator
+randomly puts an equal number of positive spots on a virtual plate, then
+calcualtes the number of positive spots for each plate area. This is done for
+all plates mathching a species selection.
+
+This table is filled by :meth:`~setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected`.
+
+SQLite query: ::
+
+    CREATE TABLE plate_area_totals_expected (
+	pla_id INTEGER PRIMARY KEY,
+	area_a INTEGER,
+	area_b INTEGER,
+	area_c INTEGER,
+	area_d INTEGER
+    );

@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="relations.html" title="setlyze.analysis.relations — Analysis 4, Relations between species"
              accesskey="P">previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
           <li><a href="../../setlyze_modules_analysis.html" accesskey="U">Analysis Modules</a> &raquo;</li> 
@@ -65,7 +68,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 06, 2011</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 21, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -167,10 +170,112 @@ expected area totals. The Chi-squared test is used for this.</li>
 </ol>
 <p>Design Part: 1.3.2</p>
 <dl class="method">
-<dt id="setlyze.analysis.spot_preference.Start.chi_square_tester">
-<tt class="descname">chi_square_tester</tt><big>(</big><em>areas_totals_observed</em>, <em>areas_totals_expected</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.chi_square_tester"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.chi_square_tester" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform the Chi-square test on the observed and expected values.</p>
-<p>Design Part: 1.64</p>
+<dt id="setlyze.analysis.spot_preference.Start.calculate_significance_chisq">
+<tt class="descname">calculate_significance_chisq</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.calculate_significance_chisq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.calculate_significance_chisq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform statistical tests to check if the differences between
+the means of the two sets of positive spots numbers are statistically
+significant.</p>
+<p>The Chi-squared test for given probabilities (<a class="reference internal" href="../../references.html#ref-millar"><em>Millar</em></a>,
+<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Dalgaard</em></a>) is used to calculate this significance.
+The probabilities for the user defined plate areas are first calculated.
+From these probabilities the expected positive spots numbers are
+calculated by the Chi-squared test. The number of observed positive
+spots are then compared to the expected number of positive spots. This
+is done for all user defined plate areas.</p>
+<p>Based on the results of a test we can decide which hypothesis we can
+assume to be true.</p>
+<dl class="docutils">
+<dt>Null hypothesis</dt>
+<dd>The species in question does not have a preference or rejection
+for the plate area in question.</dd>
+<dt>Alternative hypothesis</dt>
+<dd>The species in question has a preference for the plate area in
+question (n observed &gt; n expected) or has a rejection for
+the plate area in question (n observed &lt; n expected).</dd>
+</dl>
+<p>The decision is based on the p-value calculated by the test:</p>
+<dl class="docutils">
+<dt>P &gt;= alpha level</dt>
+<dd>Assume that the null hypothesis is true.</dd>
+<dt>P &lt; alpha level</dt>
+<dd>Assume that the alternative hypothesis is true.</dd>
+</dl>
+<p>In contrast to the results of the Wilcoxon test, the results for this
+test don&#8217;t show whether the species has a preference or a rejection
+for a specific user defined plate area. This is because the design of
+the Chi-squared test, which looks at the data of all plate areas
+together. So it just tells you if the data shows significant
+differences.</p>
+<p>Design Part: 1.99</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon">
+<tt class="descname">calculate_significance_wilcoxon</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.calculate_significance_wilcoxon"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform statistical tests to check if the differences between
+the means of the two sets of positive spots numbers are statistically
+significant.</p>
+<p>The unpaired Wilcoxon rank sum test is used. We use unpaired
+because the two sets of positive spots numbers are unrelated
+(<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Dalgaard</em></a>).</p>
+<p>The test is performed on different data groups. Each data group
+contains the positive spots numbers for a specific plate area or
+a combination of plate areas. The user defined plate areas are not
+used for this test, so the default plate areas A, B, C and D are used.
+The groups are defined as follows:</p>
+<ol class="arabic simple">
+<li>Plate area A</li>
+<li>Plate area B</li>
+<li>Plate area C</li>
+<li>Plate area D</li>
+<li>Plate area A+B</li>
+<li>Plate area C+D</li>
+<li>Plate area A+B+C</li>
+<li>Plate area B+C+D</li>
+</ol>
+<p>Based on the results of a test we can decide which hypothesis we can
+assume to be true.</p>
+<dl class="docutils">
+<dt>Null hypothesis</dt>
+<dd>The species in question does not have a preference or rejection
+for the plate area in question.</dd>
+<dt>Alternative hypothesis</dt>
+<dd>The species in question has a preference for the plate area in
+question (mean observed &gt; mean expected) or has a rejection for
+the plate area in question (mean observed &lt; mean expected).</dd>
+</dl>
+<p>The decision is based on the p-value calculated by the test:</p>
+<dl class="docutils">
+<dt>P &gt;= alpha level</dt>
+<dd>Assume that the null hypothesis is true.</dd>
+<dt>P &lt; alpha level</dt>
+<dd>Assume that the alternative hypothesis is true.</dd>
+</dl>
+<p>Combining the results of all plate area groups listed above should
+allow you to draw a conclusion about the species&#8217; plate area preference.
+For example, should a species have a strong preference for the corners
+of a SETL-plate, then you would expect to find low p-values for group
+1 (preference). But also low P-values for groups 3, 4, 6 and 8
+because of rejection. If group 2 would not be significant, then group
+7 wouldn&#8217;t be either, because areas A and C neutralize eachother.</p>
+<p>Design Part: 1.98</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats">
+<tt class="descname">calculate_significance_wilcoxon_repeats</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.calculate_significance_wilcoxon_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method does the same as <a class="reference internal" href="#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon" title="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_wilcoxon()</span></tt></a>,
+but instead is designed to be called repeatedly, saving the results
+of the repeated test. This method doesn&#8217;t save the detailed
+results of the Wilcoxon test, but just saves whether the p-value
+was significant, and whether it was preference or rejection for the
+plate area in question.</p>
+<p>Repeation of the Wilcoxon test is necessary, as the expected values
+are calculated randomly. The test needs to be repeated many times
+if you want to draw a solid conclusion from the results.</p>
+<p>The number of times this method is called depends on the configuration
+setting &#8220;test-repeats&#8221;.</p>
+<p>Design Part: 1.100</p>
 </dd></dl>
 
 <dl class="method">
@@ -181,17 +286,37 @@ expected area totals. The Chi-squared test is used for this.</li>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.spot_preference.Start.get_areas_totals_expected">
-<tt class="descname">get_areas_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.get_areas_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_expected" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the expected totals for a specie for each plate area.</p>
-<p>Design Part: 1.63</p>
+<dt id="setlyze.analysis.spot_preference.Start.get_area_probabilities">
+<tt class="descname">get_area_probabilities</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.get_area_probabilities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.get_area_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the probabilities for the defined plate areas.</p>
+<p>It is assumed that each of the 25 plate surfaces on a SETL-plate
+have a probability of 1/25.</p>
+<p>Returns a dictionary; the keys are the unique names of the user
+defined plate areas, and the values are the probabilities. The
+probabilities are floats between 0 and 1.</p>
+<p>Design Part: 1.101</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.spot_preference.Start.get_areas_totals_observed">
-<tt class="descname">get_areas_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.get_areas_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_observed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the observed totals for a specie for each plate area.</p>
-<p>Design Part: 1.62</p>
+<dt id="setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed">
+<tt class="descname">get_defined_areas_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.get_defined_areas_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of positive spots for each user defined plate
+area. The positive spots for the areas of all plates matching the
+species selection are summed up.</p>
+<p>Returns a dictionary where the keys are the unique names of the plate
+areas, and the values are the number of positive spots.</p>
+<p>Design Part: 1.64</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.repeat_test">
+<tt class="descname">repeat_test</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.repeat_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.repeat_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Repeats the siginificance test <cite>number</cite> times. The significance
+test is performed by <a class="reference internal" href="#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats" title="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_wilcoxon_repeats()</span></tt></a>.</p>
+<p>Each time before <a class="reference internal" href="#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats" title="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_wilcoxon_repeats()</span></tt></a> is
+called, <a class="reference internal" href="#setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected" title="setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected"><tt class="xref py py-meth docutils literal"><span class="pre">set_plate_area_totals_expected()</span></tt></a> is called to
+re-calculate the expected values (which are random).</p>
+<p>Design Part: 1.65</p>
 </dd></dl>
 
 <dl class="method">
@@ -201,14 +326,37 @@ expected area totals. The Chi-squared test is used for this.</li>
 and do some data checks:</p>
 <blockquote>
 <ul class="simple">
-<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_observed" title="setlyze.analysis.spot_preference.Start.get_areas_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">get_areas_totals_observed()</span></tt></a></li>
-<li>Check if all plate areas totals are zero. If so, abort.</li>
-<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.get_areas_totals_expected" title="setlyze.analysis.spot_preference.Start.get_areas_totals_expected"><tt class="xref py py-meth docutils literal"><span class="pre">get_areas_totals_expected()</span></tt></a></li>
-<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.chi_square_tester" title="setlyze.analysis.spot_preference.Start.chi_square_tester"><tt class="xref py py-meth docutils literal"><span class="pre">chi_square_tester()</span></tt></a></li>
+<li><a class="reference internal" href="../database.html#setlyze.database.AccessLocalDB.get_record_ids" title="setlyze.database.AccessLocalDB.get_record_ids"><tt class="xref py py-meth docutils literal"><span class="pre">get_record_ids()</span></tt></a> or
+<tt class="xref py py-meth docutils literal"><span class="pre">get_record_ids()</span></tt></li>
+<li><a class="reference internal" href="../database.html#setlyze.database.AccessLocalDB.set_species_spots" title="setlyze.database.AccessLocalDB.set_species_spots"><tt class="xref py py-meth docutils literal"><span class="pre">set_species_spots()</span></tt></a> or
+<tt class="xref py py-meth docutils literal"><span class="pre">set_species_spots()</span></tt></li>
+<li><a class="reference internal" href="../database.html#setlyze.database.AccessDBGeneric.make_plates_unique" title="setlyze.database.AccessDBGeneric.make_plates_unique"><tt class="xref py py-meth docutils literal"><span class="pre">make_plates_unique()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed" title="setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">set_plate_area_totals_observed()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed" title="setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">get_defined_areas_totals_observed()</span></tt></a></li>
+<li>Check if all plate area totals are zero. If so, abort.</li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.repeat_test" title="setlyze.analysis.spot_preference.Start.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">repeat_test()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon" title="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_wilcoxon()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.calculate_significance_chisq" title="setlyze.analysis.spot_preference.Start.calculate_significance_chisq"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_chisq()</span></tt></a></li>
 <li><a class="reference internal" href="#setlyze.analysis.spot_preference.Start.generate_report" title="setlyze.analysis.spot_preference.Start.generate_report"><tt class="xref py py-meth docutils literal"><span class="pre">generate_report()</span></tt></a></li>
 </ul>
 </blockquote>
 <p>Design Part: 1.58</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected">
+<tt class="descname">set_plate_area_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.set_plate_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills <a class="reference internal" href="../../design_parts_data.html#design-part-data-2-42"><em>2.42</em></a>, the &#8220;plate_area_totals_expected&#8221;
+table in the local SQLite database.</p>
+<p>Design Part: 1.63</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed">
+<tt class="descname">set_plate_area_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/spot_preference.html#Start.set_plate_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fills <a class="reference internal" href="../../design_parts_data.html#design-part-data-2-41"><em>2.41</em></a>, the &#8220;plate_area_totals_observed&#8221;
+table in the local SQLite database.</p>
+<p>Design Part: 1.62</p>
 </dd></dl>
 
 </dd></dl>
@@ -267,7 +415,10 @@ and do some data checks:</p>
         <li class="right" >
           <a href="relations.html" title="setlyze.analysis.relations — Analysis 4, Relations between species"
              >previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
           <li><a href="../../setlyze_modules_analysis.html" >Analysis Modules</a> &raquo;</li> 

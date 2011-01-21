@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="attraction_inter.html" title="setlyze.analysis.attraction_inter — Analysis 3, Attraction of species (inter-specific)"
              accesskey="P">previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
           <li><a href="../../setlyze_modules_analysis.html" accesskey="U">Analysis Modules</a> &raquo;</li> 
@@ -65,7 +68,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 06, 2011</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 21, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -90,7 +93,7 @@ random spots and save the distances to table
 &#8220;spot_distances_expected&#8221; in the local database.</li>
 <li>Calculate the significance in difference between the observed and
 expected spot distances. Two tests of significance are performed:
-the Wilcoxon signed-rank test and the Chi-squared test.</li>
+the Wilcoxon rank-sum test and the Chi-squared test.</li>
 <li>Generate the anayslis report.</li>
 <li>Show the analysis report to the user.</li>
 </ol>
@@ -168,7 +171,7 @@ species spots table.</li>
 random spots.</li>
 <li>Calculate the significance in difference between the observed and
 expected spot distances. Two tests of significance are performed:
-the Wilcoxon signed-rank test and the Chi-squared test.</li>
+the Wilcoxon rank-sum test and the Chi-squared test.</li>
 <li>Generate the anayslis report.</li>
 </ol>
 <p>Design Part: 1.4.2</p>
@@ -200,12 +203,12 @@ significant.</p>
 <ol class="arabic simple">
 <li>The unpaired Wilcoxon rank sum test. We use unpaired
 because the two sets of distances are unrelated
-(<a class="reference internal" href="../../references.html#ref-dalgaard"><em>P. Dalgaard</em></a>). In other words,
+(<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Dalgaard</em></a>). In other words,
 a distance n in &#8216;observed&#8217; is unrelated to distance n in
 &#8216;expected&#8217; (where n is an item number in the lists).</li>
 <li>The Chi-squared test for given probabilities
-(<a class="reference internal" href="../../references.html#ref-dalgaard"><em>N. Millar</em></a>,
-<a class="reference internal" href="../../references.html#ref-millar"><em>P. Dalgaard</em></a>). The probabilities
+(<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Millar</em></a>,
+<a class="reference internal" href="../../references.html#ref-millar"><em>Dalgaard</em></a>). The probabilities
 for all spot distances have been pre-calcualted. So the
 observed probabilities are compared with the pre-calculated
 probabilities.</li>
@@ -228,10 +231,7 @@ expected) or repels (mean observed &gt; mean expected) itself.</dd>
 </dl>
 <p>The default value for the alpha level is 0.05 (5%). In biology
 we usually assume that differences are significant if P has
-a value less than 5% (<a class="reference internal" href="../../references.html#ref-dalgaard"><em>N. Millar</em></a>).</p>
-<p>The default value for the confidence level is 0.95 (95%). So
-there is a 95% probability that the true mean lies within the
-range of the confidence interval.</p>
+a value less than 5% (<a class="reference internal" href="../../references.html#ref-dalgaard"><em>Millar</em></a>).</p>
 <p>A high number of positive spots on a plate will naturally lead
 to a high p-value (not significant). These plates will
 negatively affect the result of statistical test. To account
@@ -249,10 +249,38 @@ spot distances.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats">
+<tt class="descname">calculate_significance_for_repeats</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_intra.html#Start.calculate_significance_for_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method does the same Wilcoxon test from <a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance" title="setlyze.analysis.attraction_intra.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a>,
+but instead is designed to be called repeatedly, saving the results
+of the repeated test. This method doesn&#8217;t save the detailed
+results of the Wilcoxon test, but just saves whether the p-value
+was significant, and whether it was attraction or repulsion for the
+different numbers of positive spots.</p>
+<p>Repeation of the Wilcoxon test is necessary, as the expected values
+are calculated randomly. The test needs to be repeated many times
+if you want to draw a solid conclusion from the results.</p>
+<p>The number of times this method is called depends on the configuration
+setting &#8220;test-repeats&#8221;.</p>
+<p>Design Part: 1.102</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.analysis.attraction_intra.Start.generate_report">
 <tt class="descname">generate_report</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_intra.html#Start.generate_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_intra.Start.generate_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the analysis report.</p>
 <p>Design Part: 1.14</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_intra.Start.repeat_test">
+<tt class="descname">repeat_test</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_intra.html#Start.repeat_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_intra.Start.repeat_test" title="Permalink to this definition">¶</a></dt>
+<dd><p>Repeats the siginificance test <cite>number</cite> times. The significance
+test is performed by <a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a>.</p>
+<p>Each time before <a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a> is called,
+<a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected" title="setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_intra_expected()</span></tt></a> is called to re-calculate the
+expected values (which are random).</p>
+<p>Design Part: 1.103</p>
 </dd></dl>
 
 <dl class="method">
@@ -266,8 +294,9 @@ spot distances.</p>
 <li><a class="reference internal" href="../database.html#setlyze.database.AccessLocalDB.set_species_spots" title="setlyze.database.AccessLocalDB.set_species_spots"><tt class="xref py py-meth docutils literal"><span class="pre">set_species_spots()</span></tt></a> or
 <tt class="xref py py-meth docutils literal"><span class="pre">set_species_spots()</span></tt></li>
 <li><a class="reference internal" href="../database.html#setlyze.database.AccessDBGeneric.make_plates_unique" title="setlyze.database.AccessDBGeneric.make_plates_unique"><tt class="xref py py-meth docutils literal"><span class="pre">make_plates_unique()</span></tt></a></li>
+<li><a class="reference internal" href="../database.html#setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table" title="setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table"><tt class="xref py py-meth docutils literal"><span class="pre">fill_plate_spot_totals_table()</span></tt></a></li>
 <li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_distances_intra" title="setlyze.analysis.attraction_intra.Start.calculate_distances_intra"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_intra()</span></tt></a></li>
-<li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected" title="setlyze.analysis.attraction_intra.Start.calculate_distances_intra_expected"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_intra_expected()</span></tt></a></li>
+<li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.repeat_test" title="setlyze.analysis.attraction_intra.Start.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">repeat_test()</span></tt></a></li>
 <li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.calculate_significance" title="setlyze.analysis.attraction_intra.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a></li>
 <li><a class="reference internal" href="#setlyze.analysis.attraction_intra.Start.generate_report" title="setlyze.analysis.attraction_intra.Start.generate_report"><tt class="xref py py-meth docutils literal"><span class="pre">generate_report()</span></tt></a></li>
 </ul>
@@ -341,7 +370,10 @@ spot distances.</p>
         <li class="right" >
           <a href="attraction_inter.html" title="setlyze.analysis.attraction_inter — Analysis 3, Attraction of species (inter-specific)"
              >previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
           <li><a href="../../setlyze_modules_analysis.html" >Analysis Modules</a> &raquo;</li> 

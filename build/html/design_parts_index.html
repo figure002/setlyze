@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="developer_guide.html" title="SETLyze Developer Guide"
              accesskey="P">previous</a> |</li>
+    <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="developer_guide.html" accesskey="U">SETLyze Developer Guide</a> &raquo;</li> 
       </ul>
     </div>  
@@ -69,10 +72,10 @@
 </thead>
 <tbody valign="top">
 <tr><td>1.0</td>
-<td>The executable for SETLyze.</td>
+<td>The executable for SETLyze (<tt class="docutils literal"><span class="pre">setlyze.pyw</span></tt>).</td>
 </tr>
 <tr><td>1.1</td>
-<td>The initial function for SETLyze.</td>
+<td>The <tt class="xref py py-meth docutils literal"><span class="pre">main()</span></tt> function in the executable.</td>
 </tr>
 <tr><td>1.2</td>
 <td><a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB" title="setlyze.database.MakeLocalDB"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.database.MakeLocalDB</span></tt></a></td>
@@ -234,7 +237,7 @@
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_location_selections" title="setlyze.std.ReportGenerator.set_location_selections"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_location_selections()</span></tt></a></td>
 </tr>
 <tr><td>1.51</td>
-<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_specie_selections" title="setlyze.std.ReportGenerator.set_specie_selections"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_specie_selections()</span></tt></a></td>
+<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_species_selections" title="setlyze.std.ReportGenerator.set_species_selections"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_species_selections()</span></tt></a></td>
 </tr>
 <tr><td>1.52</td>
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_spot_distances_observed" title="setlyze.std.ReportGenerator.set_spot_distances_observed"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_spot_distances_observed()</span></tt></a></td>
@@ -267,13 +270,16 @@
 <td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.relations.Start.run()</span></tt></td>
 </tr>
 <tr><td>1.62</td>
-<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.get_areas_totals_observed" title="setlyze.analysis.spot_preference.Start.get_areas_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.get_areas_totals_observed()</span></tt></a></td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed" title="setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.set_plate_area_totals_observed()</span></tt></a></td>
 </tr>
 <tr><td>1.63</td>
-<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.get_areas_totals_expected" title="setlyze.analysis.spot_preference.Start.get_areas_totals_expected"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.get_areas_totals_expected()</span></tt></a></td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected" title="setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.set_plate_area_totals_expected()</span></tt></a></td>
 </tr>
 <tr><td>1.64</td>
-<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.chi_square_tester" title="setlyze.analysis.spot_preference.Start.chi_square_tester"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.chi_square_tester()</span></tt></a></td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed" title="setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.get_defined_areas_totals_observed()</span></tt></a></td>
+</tr>
+<tr><td>1.65</td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.repeat_test" title="setlyze.analysis.spot_preference.Start.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.repeat_test()</span></tt></a></td>
 </tr>
 <tr><td>1.66</td>
 <td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.insert_localities_from_db()</span></tt></td>
@@ -297,10 +303,10 @@
 <td><a class="reference internal" href="setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected" title="setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected()</span></tt></a></td>
 </tr>
 <tr><td>1.70</td>
-<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics_normality()</span></tt></td>
+<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_statistics" title="setlyze.std.ReportGenerator.set_statistics"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics()</span></tt></a></td>
 </tr>
 <tr><td>1.71</td>
-<td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics_significance()</span></tt></td>
+<td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_statistics_repeats" title="setlyze.std.ReportGenerator.set_statistics_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_statistics_repeats()</span></tt></a></td>
 </tr>
 <tr><td>1.72</td>
 <td><a class="reference internal" href="setlyze/std.html#setlyze.std.ReportGenerator.set_analysis" title="setlyze.std.ReportGenerator.set_analysis"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.std.ReportGenerator.set_analysis()</span></tt></a></td>
@@ -380,6 +386,30 @@
 <tr><td>1.97</td>
 <td><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.AccessRemoteDB.get_species()</span></tt></td>
 </tr>
+<tr><td>1.98</td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon" title="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon()</span></tt></a></td>
+</tr>
+<tr><td>1.99</td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.calculate_significance_chisq" title="setlyze.analysis.spot_preference.Start.calculate_significance_chisq"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.calculate_significance_chisq()</span></tt></a></td>
+</tr>
+<tr><td>1.100</td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats" title="setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.calculate_significance_wilcoxon_repeats()</span></tt></a></td>
+</tr>
+<tr><td>1.101</td>
+<td><a class="reference internal" href="setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Start.get_area_probabilities" title="setlyze.analysis.spot_preference.Start.get_area_probabilities"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.spot_preference.Start.get_area_probabilities()</span></tt></a></td>
+</tr>
+<tr><td>1.102</td>
+<td><a class="reference internal" href="setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_intra.Start.calculate_significance_for_repeats()</span></tt></a></td>
+</tr>
+<tr><td>1.103</td>
+<td><a class="reference internal" href="setlyze/analysis/attraction_intra.html#setlyze.analysis.attraction_intra.Start.repeat_test" title="setlyze.analysis.attraction_intra.Start.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_intra.Start.repeat_test()</span></tt></a></td>
+</tr>
+<tr><td>1.104</td>
+<td><a class="reference internal" href="setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats()</span></tt></a></td>
+</tr>
+<tr><td>1.105</td>
+<td><a class="reference internal" href="setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Start.repeat_test" title="setlyze.analysis.attraction_inter.Start.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.analysis.attraction_inter.Start.repeat_test()</span></tt></a></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -443,7 +473,9 @@
 <li class="toctree-l3"><a class="reference internal" href="design_parts_data.html#design-part-data-2-37">2.37</a></li>
 <li class="toctree-l3"><a class="reference internal" href="design_parts_data.html#design-part-data-2-38">2.38</a></li>
 <li class="toctree-l3"><a class="reference internal" href="design_parts_data.html#design-part-data-2-39">2.39</a></li>
-<li class="toctree-l3"><a class="reference internal" href="design_parts_data.html#id47">2.40</a></li>
+<li class="toctree-l3"><a class="reference internal" href="design_parts_data.html#design-part-data-2-40">2.40</a></li>
+<li class="toctree-l3"><a class="reference internal" href="design_parts_data.html#design-part-data-2-41">2.41</a></li>
+<li class="toctree-l3"><a class="reference internal" href="design_parts_data.html#design-part-data-2-42">2.42</a></li>
 </ul>
 </li>
 </ul>
@@ -571,7 +603,10 @@
         <li class="right" >
           <a href="developer_guide.html" title="SETLyze Developer Guide"
              >previous</a> |</li>
+    <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li> 
       </ul>
     </div>

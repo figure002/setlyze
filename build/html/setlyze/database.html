@@ -43,7 +43,10 @@
         <li class="right" >
           <a href="config.html" title="setlyze.config — Configuration manager"
              accesskey="P">previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
       </ul>
@@ -64,7 +67,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 06, 2011</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">January 21, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -112,6 +115,12 @@ from <cite>spots_table1</cite>, and <tt class="docutils literal"><span class="pr
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.database.AccessDBGeneric.get_area_totals">
+<tt class="descname">get_area_totals</tt><big>(</big><em>plate_area_totals_table</em>, <em>area_group</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_area_totals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_area_totals" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.database.AccessDBGeneric.get_database_info">
 <tt class="descname">get_database_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_database_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_database_info" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return info (creation date, data source) stored in the local
@@ -120,20 +129,22 @@ database file.</p>
 
 <dl class="method">
 <dt id="setlyze.database.AccessDBGeneric.get_distances_matching_ratios">
-<tt class="descname">get_distances_matching_ratios</tt><big>(</big><em>cursor</em>, <em>distance_table</em>, <em>ratios</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_ratios" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_distances_matching_ratios</tt><big>(</big><em>distance_table</em>, <em>ratios</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_ratios" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the spot distances from distance table <cite>distance_table</cite> where
 positive spots numbers between species A and B have ratio
 matching the list of ratios <cite>ratios</cite>.</p>
 <p>The ratio A:B is considered the same as B:A.</p>
-<p><cite>cursor</cite> must be a SQLite cursor object.</p>
+<p>This is a generator, meaning that this method returns an
+iterator. This iterator returns the distances.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessDBGeneric.get_distances_matching_spots_total">
-<tt class="descname">get_distances_matching_spots_total</tt><big>(</big><em>cursor</em>, <em>distance_table</em>, <em>spots_n</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_spots_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_spots_total" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_distances_matching_spots_total</tt><big>(</big><em>distance_table</em>, <em>spots_n</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_distances_matching_spots_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_distances_matching_spots_total" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the distances from distance table <cite>distance_table</cite> that
 are from plates having <cite>spots_n</cite> positive spot numbers.</p>
-<p><cite>cursor</cite> must be a SQLite cursor object.</p>
+<p>This is a generator, meaning that this method returns an
+iterator. This iterator returns the distances.</p>
 </dd></dl>
 
 <dl class="method">
@@ -204,7 +215,10 @@ selection and <tt class="docutils literal"><span class="pre">1</span></tt> for t
 <dt id="setlyze.database.AccessLocalDB.get_spots">
 <tt class="descname">get_spots</tt><big>(</big><em>rec_ids</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.get_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.get_spots" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all 25 spot booleans for the records with IDs matching
-the record IDs in the list <cite>rec_ids</cite>.</p>
+the list of record IDs <cite>rec_ids</cite>.</p>
+<p>This is a generator, meaning that this method returns an
+iterator. This iterator returns tuples with the 25 spot booleans for
+all matching records.</p>
 </dd></dl>
 
 <dl class="method">
@@ -281,6 +295,22 @@ too old, followed by creating a new local database.</p>
 localities records are automatically saved to this table when
 an analyze is started.</p>
 <p>Design Part: 1.76</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.database.MakeLocalDB.create_table_plate_area_totals_expected">
+<tt class="descname">create_table_plate_area_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_plate_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plate_area_totals_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table for the total of positive spots per plate area per
+plate ID.</p>
+<p>Design Part:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.database.MakeLocalDB.create_table_plate_area_totals_observed">
+<tt class="descname">create_table_plate_area_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_plate_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plate_area_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a table for the total of positive spots per plate area per
+plate ID.</p>
+<p>Design Part:</p>
 </dd></dl>
 
 <dl class="method">
@@ -569,7 +599,10 @@ and 1 for the second species selection.</p>
         <li class="right" >
           <a href="config.html" title="setlyze.config — Configuration manager"
              >previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
         <li><a href="../index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
       </ul>
