@@ -19,53 +19,44 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module performs analysis 3 "Attraction of species (inter-
-specific)". This analysis can be broken down in the following steps:
+"""This module performs analysis 2 "Attraction within species". This analysis
+can be broken down in the following steps:
 
 1. Show a list of all localities and let the user perform a localities
    selection.
 
 2. Show a list of all species that match the locations selection and
-   let the user perform the first species selection.
+   let the user perform a species selection.
 
-3. Show a list of all species that match the locations selection and
-   let the user perform the second species selection.
+3. Get all SETL records that match the localities+species selection and
+   save these to table "species_spots_1" in the local database.
 
-4. Get all SETL records that match the localities + first species
-   selection and save these to table "species_spots_1" in the local
-   database.
-
-5. Merge records with the same plate ID in table "species_spots_1" to
+4. Merge records with the same plate ID in the species spots table to
    make the plate IDs unique.
 
-6. Get all SETL records that match the localities + second species
-   selection and save these to table "species_spots_2" in the local
-   database.
-
-7. Merge records with the same plate ID in table "species_spots_2" to
-   make the plate IDs unique.
-
-8. Calculate the inter-specific spot distances from the records in both
-   species spots tables and save the distances to table
+5. Calculate the intra-specific spot distances from the records in the
+   species spots table and save the distances to table
    "spot_distances_observed" in the local database.
 
-9. Calculate expected inter-specific spot distances by generating
+6. Calculate expected intra-specific spot distances by generating
    random spots and save the distances to table
    "spot_distances_expected" in the local database.
 
-10. Calculate the significance in difference between the observed and
-    expected spot distances. Two tests of significance are performed:
-    the Wilcoxon rank-sum test and the Chi-squared test.
+7. Calculate the significance in difference between the observed and
+   expected spot distances. Two tests of significance are performed:
+   the Wilcoxon rank-sum test and the Chi-squared test.
 
-11. Generate the anayslis report.
+8. Generate the anayslis report.
 
-12. Show the analysis report to the user.
+9. Show the analysis report to the user.
 
 """
 
+import os
 import logging
-import threading
+import math
 import itertools
+import threading
 import time
 from sqlite3 import dbapi2 as sqlite
 
@@ -74,9 +65,9 @@ import gobject
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
-import setlyze.locale
+import setlyze.std
 
-__author__ = "Serrano Pereira"
+__author__ = "Jonathan den Boer, Serrano Pereira"
 __copyright__ = "Copyright 2010, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.1"
@@ -86,30 +77,24 @@ __status__ = "Production"
 __date__ = "2011/01/15"
 
 class Begin(object):
-    """Make the preparations for analysis 3:
+    """Make the preparations for analysis 2:
 
     1. Show a list of all localities and let the user perform a localities
        selection.
 
     2. Show a list of all species that match the locations selection and
-       let the user perform the first species selection.
+       let the user perform a species selection.
 
-    3. Show a list of all species that match the locations selection and
-       let the user perform the second species selection.
+    3. Start the analysis.
 
-    4. Start the analysis.
+    4. Show the analysis report to the user.
 
-    5. Show the analysis report to the user.
-
-    Design Part: 1.5.1
+    Design Part: 1.4.1
     """
 
     def __init__(self):
-        self.last_window = None
-        self.previous_window = None
-
         # Create log message.
-        logging.info("Beginning Analysis 3 \"Attraction of species (inter-specific)\"")
+        logging.info("Beginning Analysis 2 \"Attraction within species\"")
 
         # Bind handles to application signals.
         self.handle_application_signals()
@@ -118,10 +103,7 @@ class Begin(object):
         setlyze.config.cfg.set('locations-selection', None)
         setlyze.config.cfg.set('species-selection', None)
 
-        # Reset the save slot.
-        setlyze.std.sender.set_property('save-slot', 0)
-
-        # Emit the signal that an analysis has started.
+        # Emit the signal that we are beginning with an analysis.
         setlyze.std.sender.emit('beginning-analysis')
 
     def handle_application_signals(self):
@@ -138,39 +120,27 @@ class Begin(object):
 
         # User pressed the Back button in the locations selection window.
         self.handler3 = setlyze.std.sender.connect('locations-dialog-back',
-            self.on_locations_back)
+            self.on_analysis_closed)
 
         # User pressed the Back button in the species selection window.
         self.handler4 = setlyze.std.sender.connect('species-dialog-back',
-            self.on_species_back)
+            self.on_select_locations)
 
         # The user selected locations have been saved.
         self.handler5 = setlyze.std.sender.connect('locations-selection-saved',
-            self.on_locations_saved)
+            self.on_select_species)
 
         # The user selected species have been saved.
         self.handler6 = setlyze.std.sender.connect('species-selection-saved',
-            self.on_species_saved)
-
-        # Display the report after the analysis has finished.
-        self.handler7 = setlyze.std.sender.connect('analysis-finished',
-            self.on_display_report)
+            self.start_analysis)
 
         # The report window was closed.
-        self.handler8 = setlyze.std.sender.connect('report-dialog-closed',
+        self.handler7 = setlyze.std.sender.connect('report-dialog-closed',
             self.on_analysis_closed)
 
-    def on_analysis_closed(self, obj=None):
-        """Show the main window and destroy the handler connections."""
-
-        # This causes the main window to show.
-        setlyze.std.sender.emit('analysis-closed')
-
-        # Make sure all handlers are destroyed when this object is
-        # finished. If we don't do this, the same handlers will be
-        # created again, resulting in copies of the same handlers, with
-        # the result that callback functions are called multiple times.
-        self.destroy_handler_connections()
+        # Display the report after the analysis has finished.
+        self.handler8 = setlyze.std.sender.connect('analysis-finished',
+            self.on_display_report)
 
     def destroy_handler_connections(self):
         """Disconnect all signal connections with signal handlers created
@@ -185,75 +155,39 @@ class Begin(object):
         setlyze.std.sender.disconnect(self.handler7)
         setlyze.std.sender.disconnect(self.handler8)
 
-    def on_locations_saved(self, sender, save_slot=0, data=None):
-        # Make sure the second slot for the locations selection is the
-        # same as the first slot, as the same selections should be used
-        # for both species selections.
-        selection = setlyze.config.cfg.get('locations-selection', slot=0)
-        setlyze.config.cfg.set('locations-selection', selection, slot=1)
+    def on_analysis_closed(self, obj=None, data=None):
+        """Show the main window and destroy the handler connections."""
 
-        # Show species selection dialog.
-        self.on_select_species()
+        # This causes the main window to show.
+        setlyze.std.sender.emit('analysis-closed')
 
-    def on_species_saved(self, sender, save_slot=0, data=None):
-        if save_slot == 0:
-            sender.set_property('save-slot', 1)
-            self.on_select_species()
-            return
-        elif save_slot == 1:
-            self.on_start_analysis()
-            return
+        # Make sure all handlers are destroyed when this object is
+        # finished. If we don't do this, the same handlers will be
+        # created again, resulting in copies of the same handlers, with
+        # the result that callback functions are called multiple times.
+        self.destroy_handler_connections()
 
-    def on_locations_back(self, sender, save_slot=0, data=None):
-        self.on_analysis_closed()
-
-    def on_species_back(self, sender, save_slot=0, data=None):
-        if save_slot == 0:
-            self.on_select_locations()
-            return
-        elif save_slot == 1:
-            sender.set_property('save-slot', 0)
-            self.on_select_species()
-            return
-
-    def on_select_locations(self, sender=None, data=None):
+    def on_select_locations(self, obj=None, data=None):
         """Display the window for selecting the locations."""
-
-        # Display the species selection window.
         select = setlyze.gui.SelectLocations(width=370, slot=0)
-        select.set_title(setlyze.locale.text('analysis3'))
-
-        # Change the header text.
-        select.set_header("Locations Selection")
+        select.set_title(setlyze.locale.text('analysis2'))
         select.set_description(setlyze.locale.text('select-locations') + "\n" +
             setlyze.locale.text('option-change-source') + "\n\n" +
             setlyze.locale.text('selection-tips')
             )
 
-    def on_select_species(self, sender=None, data=None):
+    def on_select_species(self, obj=None, data=None):
         """Display the window for selecting the species."""
-
-        # Find out to which selection slot this species selection
-        # should be saved.
-        save_slot = setlyze.std.sender.get_property('save-slot')
-
-        # Display the species selection window.
-        select = setlyze.gui.SelectSpecies(width=500, slot=save_slot)
-        select.set_title(setlyze.locale.text('analysis3'))
-        select.set_description( setlyze.locale.text('select-locations') + "\n\n" +
+        select = setlyze.gui.SelectSpecies(width=500, slot=0)
+        select.set_title(setlyze.locale.text('analysis2'))
+        select.set_description(setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
             )
-
-        # Change the header text.
-        if save_slot == 0:
-            select.set_header("First Species Selection")
-        elif save_slot == 1:
-            select.set_header("Second Species Selection")
 
         # This button should not be pressed now, so hide it.
         select.button_chg_source.hide()
 
-    def on_start_analysis(self, sender=None):
+    def start_analysis(self, obj=None, data=None):
         """Start the analysis."""
 
         # Show a progress dialog.
@@ -274,37 +208,27 @@ class Begin(object):
         setlyze.gui.DisplayReport(report)
 
 class Start(threading.Thread):
-    """Perform the calculations for analysis 3.
+    """Perform the calculations for analysis 2.
 
-    1. Get all SETL records that match the localities + first species
-       selection and save these to table "species_spots_1" in the local
-       database.
+    1. Get all SETL records that match the localities+species selection and
+       save these to a separate "species spots table" in the local database.
 
-    2. Merge records with the same plate ID in table "species_spots_1" to
+    2. Merge records with the same plate ID in the species spots table to
        make the plate IDs unique.
 
-    3. Get all SETL records that match the localities + second species
-       selection and save these to table "species_spots_2" in the local
-       database.
+    3. Calculate the intra-specific spot distances from the records in the
+       species spots table.
 
-    4. Merge records with the same plate ID in table "species_spots_2" to
-       make the plate IDs unique.
+    4. Calculate expected intra-specific spot distances by generating
+       random spots.
 
-    5. Calculate the inter-specific spot distances from the records in both
-       species spots tables and save the distances to table
-       "spot_distances_observed" in the local database.
-
-    6. Calculate expected inter-specific spot distances by generating
-       random spots and save the distances to table
-       "spot_distances_expected" in the local database.
-
-    7. Calculate the significance in difference between the observed and
+    5. Calculate the significance in difference between the observed and
        expected spot distances. Two tests of significance are performed:
        the Wilcoxon rank-sum test and the Chi-squared test.
 
-    8. Generate the anayslis report.
+    6. Generate the anayslis report.
 
-    Design Part: 1.5.2
+    Design Part: 1.4.2
     """
 
     def __init__(self):
@@ -312,68 +236,34 @@ class Start(threading.Thread):
 
         # Path to the local database file.
         self.dbfile = setlyze.config.cfg.get('db-file')
-        # Dictionary for the statistic test results.
-        self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
         # Create progress dialog handler.
         self.pdialog_handler = setlyze.std.ProgressDialogHandler()
+        # Dictionary for the statistic test results.
+        self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
 
         # Create log message.
-        logging.info("Performing %s" % setlyze.locale.text('analysis3'))
+        logging.info("Performing %s" % setlyze.locale.text('analysis2'))
 
         # Emit the signal that an analysis has started.
         setlyze.std.sender.emit('analysis-started')
 
     def __del__(self):
-        logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
-
-    def generate_spot_ratio_groups(self):
-        """Return an iterator that returns the ratio groups.
-
-        Each returned group is a list of ratios in the form of two-item
-        tuples.
-        """
-        for end in range(6, 31, 5):
-            group = setlyze.std.combinations_with_replacement(xrange(1,end), 2)
-            group = list(group)
-
-            if end > 6:
-                # Remove the ratios present in the previous group from
-                # the current group.
-                remove = setlyze.std.combinations_with_replacement(xrange(1,end-5), 2)
-                setlyze.std.remove_items_from_list(group,remove)
-            if end == 26:
-                # Plates with a 25:25 ratio will never be significant.
-                # So we remove this ratio, as it is useless.
-                group.remove((25,25))
-
-            yield group
-
-        all_ratios = list(setlyze.std.combinations_with_replacement(xrange(1,26), 2))
-        all_ratios.remove((25,25))
-
-        yield all_ratios
+        logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
 
     def run(self):
         """Call the necessary methods for the analysis in the right order:
-            * For the first species selection:
-                * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
-                  :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
-                * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
-                  :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
-                * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
-            * For the second species selection:
-                * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
-                  :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
-                * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
-                  :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
-                * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
+            * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
+              :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
+            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
+              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
+            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
             * :meth:`~setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table`
-            * :meth:`calculate_distances_inter`
+            * :meth:`calculate_distances_intra`
             * :meth:`repeat_test`
             * :meth:`calculate_significance`
             * :meth:`generate_report`
 
-        Design Part: 1.60
+        Design Part: 1.59
         """
 
         # Add a short delay. This gives the progress dialog time to
@@ -382,77 +272,51 @@ class Start(threading.Thread):
 
         # Set the total number of times we're going to update the progress
         # dialog during the analysis.
-        total_steps = 12 + setlyze.config.cfg.get('test-repeats')
+        total_steps = 10 + setlyze.config.cfg.get('test-repeats')
         self.pdialog_handler.set_total_steps(total_steps)
 
         # Make an object that facilitates access to the database.
         self.db = setlyze.database.get_database_accessor()
 
-        # SELECTION 1
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Creating first table with species spots...")
-        # Get the record IDs that match the selections.
-        locations_selection1 = setlyze.config.cfg.get('locations-selection', slot=0)
-        species_selection1 = setlyze.config.cfg.get('species-selection', slot=0)
-        rec_ids1 = self.db.get_record_ids(locations_selection1, species_selection1)
-        # Update progress dialog.
-        logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
+        # Get the record IDs that match the localities+species selection.
+        locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
+        species_selection = setlyze.config.cfg.get('species-selection', slot=0)
+        rec_ids = self.db.get_record_ids(locations_selection, species_selection)
+        # Create log message.
+        logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
         # Create log message.
-        logging.info("\t\tCreating first table with species spots...")
-        # Make a spots table for both species selections.
-        self.db.set_species_spots(rec_ids1, slot=0)
+        logging.info("\tCreating table with species spots...")
+        # Update progress dialog.
+        self.pdialog_handler.increase("Creating table with species spots...")
+        # Make a spots table for the selected species.
+        self.db.set_species_spots(rec_ids, slot=0)
 
+        # Create log message.
+        logging.info("\tMaking plate IDs in species spots table unique...")
         # Update progress dialog.
         self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-        # Create log message.
-        logging.info("\t\tMaking plate IDs in species spots table unique...")
         # Make the plate IDs unique.
         n_plates_unique = self.db.make_plates_unique(slot=0)
         # Create log message.
-        logging.info("\t\t  %d records remaining." % (n_plates_unique))
-
-        # SELECTION 2
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Creating second table with species spots...")
-        # Get the record IDs that match the selections.
-        locations_selection2 = setlyze.config.cfg.get('locations-selection', slot=1)
-        species_selection2 = setlyze.config.cfg.get('species-selection', slot=1)
-        rec_ids2 = self.db.get_record_ids(locations_selection2, species_selection2)
-        # Create log message.
-        logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
-
-        # Create log message.
-        logging.info("\t\tCreating second table with species spots...")
-        # Make a spots table for both species selections.
-        self.db.set_species_spots(rec_ids2, slot=1)
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-        # Create log message.
-        logging.info("\t\tMaking plate IDs in species spots table unique...")
-        # Make the plate IDs unique.
-        n_plates_unique = self.db.make_plates_unique(slot=1)
-        # Create log message.
-        logging.info("\t\t  %d records remaining." % (n_plates_unique))
-
-        # GENERAL
+        logging.info("\t  %d records remaining." % (n_plates_unique))
 
         # Create log message.
         logging.info("\tSaving the positive spot totals for each plate...")
         # Update progress dialog.
         self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
         # Save the positive spot totals for each plate to the database.
-        self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Calculating the inter-specific distances for the selected species...")
+        skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
         # Create log message.
-        logging.info("\tCalculating the inter-specific distances for the selected species...")
+        logging.info("\tSkipping %d records with too few positive spots." % skipped)
+        logging.info("\t  %d records remaining." % (n_plates_unique - skipped))
+
+        # Create log message.
+        logging.info("\tCalculating the intra-specific distances for the selected species...")
+        # Update progress dialog.
+        self.pdialog_handler.increase("Calculating the intra-specific distances for the selected species...")
         # Calculate the observed spot distances.
-        self.calculate_distances_inter()
+        self.calculate_distances_intra()
 
         # Create log message.
         logging.info("\tPerforming statistical tests with %d repeats..." %
@@ -488,13 +352,14 @@ class Start(threading.Thread):
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
-    def calculate_distances_inter(self):
-        """Calculate the inter-specific spot distances for each plate
-        and save the distances to table "spot_distances_observed" in
-        the local database.
+    def calculate_distances_intra(self):
+        """Calculate the intra-specific spot distances for each plate
+        in the species_spots table and save the distances to the
+        spot_distances_observed table in the local database.
 
-        Design Part: 1.27
+        Design Part: 1.22
         """
+
         # Make a connection with the local database.
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
@@ -505,34 +370,21 @@ class Start(threading.Thread):
         cursor.execute("DELETE FROM spot_distances_observed")
         connection.commit()
 
-        # Get all records from both spots tables where the plate IDs
-        # match.
-        # Each returned record has this format:
-        # id|rec_pla_id|rec_sur1|rec_sur2|rec_sur3|rec_sur4|rec_sur5|
-        # rec_sur6|rec_sur7|rec_sur8|rec_sur9|rec_sur10|rec_sur11|
-        # rec_sur12|rec_sur13|rec_sur14|rec_sur15|rec_sur16|rec_sur17|
-        # rec_sur18|rec_sur19|rec_sur20|rec_sur21|rec_sur22|rec_sur23|
-        # rec_sur24|rec_sur25|id|rec_pla_id|rec_sur1|rec_sur2|rec_sur3|
-        # rec_sur4|rec_sur5|rec_sur6|rec_sur7|rec_sur8|rec_sur9|
-        # rec_sur10|rec_sur11|rec_sur12|rec_sur13|rec_sur14|rec_sur15|
-        # rec_sur16|rec_sur17|rec_sur18|rec_sur19|rec_sur20|rec_sur21|
-        # rec_sur22|rec_sur23|rec_sur24|rec_sur25
-        cursor.execute( "SELECT s1.*, s2.* FROM species_spots_1 as s1 "
-                        "INNER JOIN species_spots_2 as s2 "
-                        "ON s1.rec_pla_id=s2.rec_pla_id"
-                        )
+        # Get all records from the table.
+        cursor.execute( "SELECT rec_pla_id,"
+                        "rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,"
+                        "rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,"
+                        "rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,"
+                        "rec_sur16,rec_sur17,rec_sur18,rec_sur19,rec_sur20,"
+                        "rec_sur21,rec_sur22,rec_sur23,rec_sur24,rec_sur25 "
+                        "FROM species_spots_1")
 
         for record in cursor:
-            record1 = record[2:27]
-            record2 = record[29:54]
-            plate_id = record[1]
-
-            # Get all possible positive spot combinations between the
-            # two records.
-            # If both records don't contain at least one positive spot,
-            # the combos list will be empty, and nothing will be
-            # calculated.
-            combos = setlyze.std.get_spot_combinations_from_record(record1,record2)
+            # Get all possible positive spot combinations for each
+            # plate.
+            # If the record contains less than 2 positive spots, the
+            # combos list will be empty, and nothing will be calculated.
+            combos = setlyze.std.get_spot_combinations_from_record(record[1:])
 
             # Get all spot combination pairs.
             for spot1,spot2 in combos:
@@ -549,7 +401,7 @@ class Start(threading.Thread):
                 # Save the observed spot distances to the database.
                 cursor2.execute( "INSERT INTO spot_distances_observed "
                                  "VALUES (null,?,?)",
-                                 (plate_id, distance)
+                                 (record[0], distance)
                                 )
 
         # Commit the transaction.
@@ -560,12 +412,12 @@ class Start(threading.Thread):
         cursor2.close()
         connection.close()
 
-    def calculate_distances_inter_expected(self):
-        """Calculate the expected distances based on the observed
-        inter-specific distances and save these to table
-        "spot_distances_expected" in the local database.
+    def calculate_distances_intra_expected(self):
+        """Calculate the expected spot distances based on the observed
+        spot distances and save these to the spot_distances_expected
+        table in the local database.
 
-        Design Part: 1.69
+        Design Part: 1.23
         """
 
         # Make a connection with the local database.
@@ -580,19 +432,17 @@ class Start(threading.Thread):
 
         # Get the number of positive spots for each plate. This
         # will serve as a template for the random spots.
-        cursor.execute( "SELECT pla_id, n_spots_a, n_spots_b "
+        cursor.execute( "SELECT pla_id, n_spots_a "
                         "FROM plate_spot_totals"
                         )
 
-        for plate_id, n_spots_a, n_spots_b in cursor:
+        for plate_id, n_spots in cursor:
             # Use that number of spots to generate the same number of
-            # random positive spots for both records.
-            random_spots1 = setlyze.std.get_random_for_plate(n_spots_a)
-            random_spots2 = setlyze.std.get_random_for_plate(n_spots_b)
-
-            # Get all possible combinations between the two sets of
             # random spots.
-            combos = itertools.product(random_spots1,random_spots2)
+            random_spots = setlyze.std.get_random_for_plate(n_spots)
+
+            # Get all possible combinations for the spots.
+            combos = itertools.combinations(random_spots, 2)
 
             # Get all spot combination pairs.
             for spot1,spot2 in combos:
@@ -667,45 +517,41 @@ class Start(threading.Thread):
         negatively affect the result of statistical test. To account
         for this, the tests are performed on groups of plates. Instead of
         doing one test on all plates, we group the plates based on the
-        positive spots ratios.
+        number of positive spots they contain.
 
-        Because we match plates that contain both species selection, we
-        can calculate a ratio of positive spots for each plate. So a
-        plate with 3 positive spots for species A and 2 positive spots
-        for species B, would result in a ratio of 3:2 (or 2:3). We consider
-        a ratio of A:B to be the same as ratio B:A.
+        Both tests are performed on each group. Plates of group 1 and 25
+        are not tested. We skip group 1 because it is not possible to
+        calculate spot distances for plates with just one positive spot.
+        Plates of group 25 are ignored because this will always result
+        in a p-value of 1 as a result of equal observed and expected
+        spot distances.
 
-        We've grouped all possible ratio's in 5 ratios groups. See
-        :ref:`record grouping <record-grouping>` in the user manual for
-        more details. Both tests are performed on each ratios group.
-
-        Both tests are also performed on ratios groups 1-5 taken together.
+        Both tests are also performed on groups 2-24 taken together.
 
         Design Part: 1.24
         """
 
-        # Create an iterator returning the ratio groups.
-        ratio_groups = self.generate_spot_ratio_groups()
+        # Perform the tests for records that have a specific number of
+        # positive spots. The tests are performed separately for each
+        # number in the list. Numbers starting with "-" means all records
+        # with positive spots up to that number.
+        spot_totals = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+            23,24,-24]
 
-        for n_group, ratio_group in enumerate(ratio_groups, start=1):
-            # Ratios group 6 is actually all 5 groups taken together.
-            # So change the group number to -5, meaning all groups up
-            # to 5.
-            if n_group == 6:
-                n_group = -5
-
+        for n_spots in spot_totals:
             # Get both sets of distances from plates per total spot numbers.
-            observed = self.db.get_distances_matching_ratios(
-                'spot_distances_observed', ratio_group)
-            expected = self.db.get_distances_matching_ratios(
-                'spot_distances_expected', ratio_group)
+            observed = self.db.get_distances_matching_spots_total(
+                'spot_distances_observed', n_spots)
+            expected = self.db.get_distances_matching_spots_total(
+                'spot_distances_expected', n_spots)
 
             # Iterators cannot be used directly by RPy, so convert them to
             # lists first.
             observed = list(observed)
             expected = list(expected)
 
-            # Get the number of matching plates.
+            # Get the number of plates found that match the current
+            # number of positive spots.
             n_plates = self.db.matching_plates_total
 
             # Perform a consistency check. The number of observed and
@@ -718,7 +564,7 @@ class Start(threading.Thread):
                     "in the application.")
 
             # A minimum of 2 observed distances is required for the
-            # significance test. So skip this ratio group if it's less.
+            # significance test. So skip this spots number if it's less.
             if count_observed < 2:
                 continue
 
@@ -735,7 +581,7 @@ class Start(threading.Thread):
             # Save the significance result.
             data = {}
             data['attr'] = {
-                'ratio_group': n_group,
+                'n_positive_spots': n_spots,
                 'n_plates': n_plates,
                 'n': count_observed,
                 'method': sig_result['method'],
@@ -754,13 +600,14 @@ class Start(threading.Thread):
             # Append the result to the list of results.
             self.statistics['wilcoxon'].append(data)
 
+
             # Get the probability for each spot distance. Required for
             # the Chi-squared test.
-            spot_dist_to_prob = setlyze.config.cfg.get('spot-dist-to-prob-inter')
+            spot_dist_to_prob = setlyze.config.cfg.get('spot-dist-to-prob-intra')
 
             # Get the frequencies for the observed distances. These
             # are required for the Chi-squared test.
-            observed_freq = setlyze.std.distance_frequency(observed, 'inter')
+            observed_freq = setlyze.std.distance_frequency(observed, 'intra')
 
             # Also perform Chi-squared test.
             sig_result = setlyze.std.chisq_test(observed_freq.values(),
@@ -769,7 +616,7 @@ class Start(threading.Thread):
             # Save the significance result.
             data = {}
             data['attr'] = {
-                'ratio_group': n_group,
+                'n_positive_spots': n_spots,
                 'n_plates': n_plates,
                 'n': count_observed,
                 'method': sig_result['method'],
@@ -800,30 +647,24 @@ class Start(threading.Thread):
         The number of times this method is called depends on the configuration
         setting "test-repeats".
 
-        Design Part: 1.104
+        Design Part: 1.102
         """
 
-        # Create an iterator returning the ratio groups.
-        ratio_groups = self.generate_spot_ratio_groups()
+        spot_totals = [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,
+            23,24,-24]
 
-        for n_group, ratio_group in enumerate(ratio_groups, start=1):
-            # Ratios group 6 is actually all 5 groups taken together.
-            # So change the group number to -5, meaning all groups up
-            # to 5.
-            if n_group == 6:
-                n_group = -5
-
-            # Check if this ratios group is present in the statistics variable.
+        for n_spots in spot_totals:
+            # Check if this spots number is present in the statistics variable.
             # If not, create it.
-            if n_group not in self.statistics['repeats']:
-                self.statistics['repeats'][n_group] = {'n_significant': 0,
+            if n_spots not in self.statistics['repeats']:
+                self.statistics['repeats'][n_spots] = {'n_significant': 0,
                     'n_attraction': 0, 'n_repulsion': 0}
 
             # Get both sets of distances from plates per total spot numbers.
-            observed = self.db.get_distances_matching_ratios(
-                'spot_distances_observed', ratio_group)
-            expected = self.db.get_distances_matching_ratios(
-                'spot_distances_expected', ratio_group)
+            observed = self.db.get_distances_matching_spots_total(
+                'spot_distances_observed', n_spots)
+            expected = self.db.get_distances_matching_spots_total(
+                'spot_distances_expected', n_spots)
 
             # Iterators cannot be used directly by RPy, so convert them to
             # lists first.
@@ -840,7 +681,7 @@ class Start(threading.Thread):
                     "in the application.")
 
             # A minimum of 2 observed distances is required for the
-            # significance test. So skip this ratio group if it's less.
+            # significance test. So skip this spots number if it's less.
             if count_observed < 2:
                 continue
 
@@ -859,34 +700,35 @@ class Start(threading.Thread):
             p_value = float(sig_result['p.value'])
             if p_value < setlyze.config.cfg.get('alpha-level') and p_value != 'nan':
                 # If so, increase significant counter with one.
-                self.statistics['repeats'][n_group]['n_significant'] += 1
+                self.statistics['repeats'][n_spots]['n_significant'] += 1
 
                 # If significant, also check if there is preference or
                 # rejection for this plate area.
                 if mean_observed < mean_expected:
                     # Increase attracion counter with one.
-                    self.statistics['repeats'][n_group]['n_attraction'] += 1
+                    self.statistics['repeats'][n_spots]['n_attraction'] += 1
                 else:
                     # Increase repulsion counter with one.
-                    self.statistics['repeats'][n_group]['n_repulsion'] += 1
+                    self.statistics['repeats'][n_spots]['n_repulsion'] += 1
 
     def repeat_test(self, number):
         """Repeats the siginificance test `number` times. The significance
         test is performed by :meth:`calculate_significance_for_repeats`.
 
         Each time before :meth:`calculate_significance_for_repeats` is called,
-        :meth:`calculate_distances_inter_expected` is called to re-calculate the
+        :meth:`calculate_distances_intra_expected` is called to re-calculate the
         expected values (which are random).
 
-        Design Part: 1.105
+        Design Part: 1.103
         """
+
         for i in range(number):
             # Update the progess bar.
             self.pdialog_handler.increase()
 
             # The expected spot distances are random. So the expected values
             # differ a little on each repeat.
-            self.calculate_distances_inter_expected()
+            self.calculate_distances_intra_expected()
 
             # And then we calculate the siginificance for each repeat.
             self.calculate_significance_for_repeats()
@@ -894,10 +736,10 @@ class Start(threading.Thread):
     def generate_report(self):
         """Generate the analysis report.
 
-        Design Part: 1.15
+        Design Part: 1.14
         """
         report = setlyze.std.ReportGenerator()
-        report.set_analysis('attraction_inter')
+        report.set_analysis('attraction_intra')
         report.set_location_selections()
         report.set_species_selections()
 
@@ -911,9 +753,9 @@ class Start(threading.Thread):
 
         report.set_spot_distances_expected()
 
-        report.set_statistics('wilcoxon_ratios', self.statistics['wilcoxon'])
-        report.set_statistics_repeats('wilcoxon_ratios', self.statistics['repeats'])
-        report.set_statistics('chi_squared_ratios', self.statistics['chi_squared'])
+        report.set_statistics('wilcoxon_spots', self.statistics['wilcoxon'])
+        report.set_statistics_repeats('wilcoxon_spots', self.statistics['repeats'])
+        report.set_statistics('chi_squared_spots', self.statistics['chi_squared'])
 
         # Create a global link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())

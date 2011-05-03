@@ -125,8 +125,7 @@ def on_not_implemented():
         "access is not implemented yet. It will be implemented in the next "
         "version of SETLyze.")
     dialog.set_position(gtk.WIN_POS_CENTER)
-
-    response = dialog.run()
+    dialog.run()
     dialog.destroy()
 
 def markup_header(text):
@@ -214,9 +213,9 @@ class SelectAnalysis(gtk.Window):
         # Load an image for the logo.
         setl_logo = gtk.Image()
         if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(), 'images/setl-logo.png')
+            image_path = os.path.join(setlyze.std.module_path(), 'images/setlyze-logo.png')
         else:
-            image_path = pkg_resources.resource_filename('setlyze', 'images/setl-logo.png')
+            image_path = pkg_resources.resource_filename('setlyze', 'images/setlyze-logo.png')
         setl_logo.set_from_file(image_path)
         setl_logo_align = gtk.Alignment(xalign=1, yalign=0, xscale=0, yscale=1)
         setl_logo_align.add(setl_logo)
@@ -668,11 +667,9 @@ class SelectionWindow(gtk.Window):
                 "Tip: Hold Ctrl or Shift to select multiple items. To "
                 "select all items, press Ctrl+A.")
             dialog.set_position(gtk.WIN_POS_CENTER)
-            response = dialog.run()
-
-            if response == gtk.RESPONSE_OK:
-                dialog.destroy()
-                return
+            dialog.run()
+            dialog.destroy()
+            return
 
         # Save the selection. This method is present in one of the sub
         # classes.
@@ -1347,13 +1344,11 @@ class DefinePlateAreas(gtk.Window):
                     message_format="Invalid plate areas definition")
                 dialog.format_secondary_text( setlyze.locale.text('error-single-plate-area') )
                 dialog.set_position(gtk.WIN_POS_CENTER)
-                response = dialog.run()
+                dialog.run()
+                dialog.destroy()
 
-                if response == gtk.RESPONSE_OK:
-                    dialog.destroy()
-
-                    # The definition is not correct.
-                    return False
+                # The definition is not correct.
+                return False
 
         # 's alright...
         return True
@@ -3381,10 +3376,10 @@ class Preferences(gtk.Window):
                 message_format="Invalid alpha level")
             dialog.format_secondary_text( setlyze.locale.text('invalid-alpha-level') )
             dialog.set_position(gtk.WIN_POS_CENTER)
-            response = dialog.run()
+            dialog.run()
             dialog.destroy()
 
-            # Don't destroy the dialog if saving setting failed.
+            # Don't destroy the Preferences dialog if saving setting failed.
             return
 
         if not self.set_test_repeats():
@@ -3396,7 +3391,7 @@ class Preferences(gtk.Window):
             response = dialog.run()
             dialog.destroy()
 
-            # Don't destroy the dialog if saving setting failed.
+            # Don't destroy the Preferences dialog if saving setting failed.
             return
 
         self.destroy()
@@ -3468,9 +3463,9 @@ class About(gtk.AboutDialog):
 
         # Load the logo file.
         if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(), 'images/setl-logo.png')
+            image_path = os.path.join(setlyze.std.module_path(), 'images/setlyze-logo.png')
         else:
-            image_path = pkg_resources.resource_filename('setlyze', 'images/setl-logo.png')
+            image_path = pkg_resources.resource_filename('setlyze', 'images/setlyze-logo.png')
         logo = gtk.gdk.pixbuf_new_from_file(image_path)
 
         self.set_position(gtk.WIN_POS_CENTER)

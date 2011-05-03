@@ -45,7 +45,10 @@ def transform_folder_patterns(patterns):
         if p.endswith('/*'):
             p = p.replace('/*', '/*.*')
         # Leave out the 'setlyze/' part at the beginning.
-        patterns[i] = p[8:]
+        if p.startswith('setlyze/'):
+            patterns[i] = p[8:]
+        else:
+            patterns[i] = p
     return patterns
 
 # Compile a list of patterns pointing to SETLyze's package data.

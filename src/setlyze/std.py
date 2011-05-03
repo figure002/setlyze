@@ -176,8 +176,7 @@ def combinations_with_replacement(iterable, r):
     value. So if the input elements are unique, the generated
     combinations will also be unique.
 
-    This function was taken from the Python documentation for
-    :mod:`itertools`.
+    This function was copied from the Python documentation for :mod:`itertools`.
 
     A simple example:
 
@@ -246,8 +245,6 @@ def distance_frequency(x, method):
         else:
             frequencies[dist] += 1
     return frequencies
-
-
 
 def uniqify(seq):
     """Remove all duplicates from a list."""
@@ -990,8 +987,8 @@ class ReportGenerator(object):
 
         # A dictinary with all the known analysis.
         analysis_names = {'spot_preference': "Spot Preference",
-            'attraction_intra': "Attraction of Species (intra-specific)",
-            'attraction_inter': "Attraction of Species (inter-specific)",
+            'attraction_intra': "Attraction within Species",
+            'attraction_inter': "Attraction between Species",
             'relations': "Relation between Species",
             }
 

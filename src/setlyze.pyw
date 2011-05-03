@@ -23,8 +23,8 @@
 
 import sys
 import logging
-from sqlite3 import dbapi2 as sqlite
 import warnings
+from sqlite3 import dbapi2 as sqlite
 
 import pygtk
 pygtk.require('2.0')
@@ -38,6 +38,11 @@ import setlyze.analysis.attraction_intra
 import setlyze.analysis.attraction_inter
 import setlyze.analysis.relations
 
+# Allow only the main thread to touch the GUI (GTK) part, while letting other
+# threads do background work. For this to work, first call gobject.threads_init()
+# at applicaiton initialization. Then you launch your threads normally, but
+# make sure the threads never do any GUI task directly. Instead, you use
+# gobject.idle_add() to schedule GUI tasks to executed in the main thread.
 gobject.threads_init()
 
 # The following is a workaround for the executable created with py2exe. This

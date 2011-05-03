@@ -62,21 +62,21 @@ ENGLISH = [
         "Below are the available species for the selected location(s). Please "
         "select the species to be included for the analysis."),
     ('analysis1',
-        'Analysis 1 "Spot preference"'),
+        'Analysis 1 “Spot preference”'),
     ('analysis1-descr',
         "Determine if a species has preference for a specific area on SETL "
         "plates."),
     ('analysis2',
-        'Analysis 2 "Attraction of species (intra-specific)"'),
+        'Analysis 2 “Attraction within species”'),
     ('analysis2-descr',
         "Determine if a species attracts or repels individuals of its "
         "own kind."),
     ('analysis3',
-        'Analysis 3 "Attraction of species (inter-specific)"'),
+        'Analysis 3 “Attraction between species”'),
     ('analysis3-descr',
         "Determine if two different species attract or repel each other."),
     ('analysis4',
-        'Analysis 4 "Relation between species"'),
+        'Analysis 4 “Relation between species”'),
     ('analysis4-descr',
         "Determine if there is a relation between the presence/absence of two "
         "species in a specific location."),

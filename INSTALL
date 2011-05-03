@@ -8,43 +8,79 @@ Required Packages
 SETLyze depends on the following packages and they need to be installed in
 order to run SETLyze.
 
-* python (>=2.6 & <2.7)
+* python (>=2.6 & <3.0)
 * libgtk2.0-0
 * r-base-core
-* python-setuptools
 * python-gtk2
 * python-cairo
 * python-gobject
 * python-rpy
 
 On Ubuntu or other Debian derivatives, installing the dependencies can be done
-with the following command: ::
+with the following command:
 
-    sudo apt-get install python python-gtk2 python-rpy python-setuptools
+    sudo apt-get install python python-gtk2 python-rpy
 
-System-wide install (recommended)
-=================================
 
-To install system-wide, cd into the directory you extracted SETLyze into and
-run the following command which will install 'setlyze.pyw' into the default
-location (traditionally '/usr/local/bin'):
-
-    sudo python setup.py install
-
-Once installed, SETLyze can be started from the command-line with, ::
-
-    setlyze.pyw
-
-Install in home directory
+Installation Instructions
 =========================
 
-You can install SETLyze into your home directory, in ~/bin. This method requires
-that ~/bin is in your $PATH and that ~/lib/python is in your $PYTHONPATH. ::
+1) First make sure you have all dependencies installed (see above).
 
-    python setup.py install --home=~
+The 'cmake' package is required to configure and build SETLyze from source. Make
+sure it's installed befor continuing with the next step.
 
-Run from source directory
-=========================
+    sudo apt-get install cmake
 
-You can also just run SETLyze by (double) clicking 'setlyze.pyw' in the source
-directory.
+
+2) Configuring the SETLyze build
+
+In the top level directory from where you extracted setlyze, run the following
+commands:
+
+    mkdir build
+    cd build/
+    ccmake ..
+
+This will present you with a simple console based GUI of options for SETLyze.
+First press 'c' to run the configure script. Review the options and change what
+you think is necessary. It is recommended to set CMAKE_INSTALL_PREFIX to '/usr'
+instead of '/usr/local'. Again press 'c' to run the configure script. Then
+press 'g' to generate the make files and exit.
+
+
+3) Compiling and installing
+
+As usual, type:
+
+    make
+
+followed by (as root):
+
+    make install
+
+
+Uninstallation Instructions
+===========================
+
+Removing all installed setlyze files
+------------------------------------
+
+Change to the build folder which you created in the top level directory
+from where you extracted SETLyze:
+
+    cd build/
+
+And run the uninstall command (as root):
+
+    make uninstall
+
+
+Alternative uninstallation
+--------------------------
+
+Alternatively, you can remove the files listed in the install_manifest.txt file
+which has the same result as the 'make uninstall' command.
+
+    xargs -d "\n" rm < install_manifest.txt
+

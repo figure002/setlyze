@@ -170,13 +170,12 @@ class Begin(object):
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="No species were found")
         dialog.format_secondary_text(setlyze.locale.text('empty-plate-areas'))
-        response = dialog.run()
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
 
-        if response == gtk.RESPONSE_OK:
-            dialog.destroy()
-
-            # Go back to the main window.
-            self.on_window_closed()
+        # Go back to the main window.
+        self.on_window_closed()
 
     def on_window_closed(self, sender=None, data=None):
         """Show the main window and destroy the handler connections."""
