@@ -56,11 +56,11 @@ __copyright__ = "Copyright 2010, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
     "Serrano Pereira <serrano.pereira@gmail.com>"]
 __license__ = "GPL3"
-__version__ = "0.1"
+__version__ = "0.1.1"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/01/15"
+__date__ = "2011/05/03"
 
 
 def main():

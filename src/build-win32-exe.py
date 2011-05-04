@@ -25,19 +25,19 @@ from distutils.core import setup
 import py2exe
 
 """This setup script is used to create the py2exe executable of SETLyze. Do
-*not* use this script to install SETLyze. To install SETLyze, use 'setup.py'
-instead.
+*not* use this script to install SETLyze. To install SETLyze on Linux, read
+the INSTALL file. To create and installer for Windows, read further.
 
 On Windows, follow these steps to create the SETLyze executable for Windows:
 
 1) Run the following command to create the Windows executable:
 
-    python setup-win.py py2exe
+    python build-win32-exe.py py2exe
 
-   This should create a 'dist' SETLyze's source folder.
+   This should create a 'dist' folder in SETLyze's root folder.
 
-2) Manually copy the folder 'setlyze/docs/' to the 'dist' folder. This folder
-   contains SETLyze's documentation.
+2) Manually copy the folder 'src/setlyze/docs/' to the aforementioned 'dist'
+   folder. This folder contains SETLyze's documentation.
 
 3) Manually copy the following folders to the 'dist' folder:
 
@@ -46,7 +46,7 @@ On Windows, follow these steps to create the SETLyze executable for Windows:
    C:\Program Files\GTK2-Runtime\share\
 
    These folders are a part of the GTK2-Runtime. Without these three folders,
-   SETLyze would look very ugly on Windows.
+   SETLyze would look very ugly on Windows without a GTK2-Runtime installed.
 
 4) Test the new executable by running 'setlyze.exe' in the 'dist' folder. If
    everything works fine, you can use the 'dist' folder to create a Windows
@@ -60,7 +60,7 @@ On Windows, follow these steps to create the SETLyze executable for Windows:
 """
 
 setup(name='setlyze',
-    version='0.1',
+    version='0.1.1',
     description='A tool for analyzing the settlement of species.',
     long_description='A tool for analyzing the settlement of species.',
     author='Serrano Pereira',
@@ -73,7 +73,7 @@ setup(name='setlyze',
     scripts=['setlyze.pyw'],
     windows = [
         {'script': 'setlyze.pyw',
-        'icon_resources': [(1, 'icon.ico')],
+        'icon_resources': [(1, '../win32/icon.ico')],
         }
     ],
     options= {
@@ -82,8 +82,8 @@ setup(name='setlyze',
             'dll_excludes': [],
             },
     },
-    data_files=[('test-data', glob.glob('test-data/*.*')),
+    data_files=[('test-data', glob.glob('../test-data/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
-        ('.',['COPYING','README']),
+        ('.',['../COPYING','../README']),
         ],
 )

@@ -3,7 +3,7 @@
 set (CPACK_GENERATORS "TGZ")
 set (CPACK_SOURCE_GENERATORS "TGZ")
 set (CPACK_STRIP_FILES ON)
-set (CPACK_SOURCE_IGNORE_FILES ".bzr;build;.swp;push.sh;setup-win.py;setup.py;MANIFEST.in")
+set (CPACK_SOURCE_IGNORE_FILES ".bzr;build;.swp;push.sh;win32;.*.pyc")
 
 set (CPACK_DEBIAN_PACKAGE_NAME "setlyze")
 set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Species settlement analyzer\n A tool for analyzing the settlement of species on SETL plates.")

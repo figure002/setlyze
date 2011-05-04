@@ -1,5 +1,0 @@
-include INSTALL COPYING README
-recursive-include setlyze/docs *
-recursive-include setlyze/images *
-recursive-include tests *
-recursive-include test-data *
