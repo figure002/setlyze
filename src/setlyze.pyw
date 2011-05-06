@@ -52,7 +52,7 @@ if setlyze.std.we_are_frozen():
     warnings.simplefilter('ignore')
 
 __author__ = "Serrano Pereira"
-__copyright__ = "Copyright 2010, GiMaRIS"
+__copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
     "Serrano Pereira <serrano.pereira@gmail.com>"]
 __license__ = "GPL3"

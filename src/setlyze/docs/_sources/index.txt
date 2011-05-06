@@ -16,11 +16,11 @@ the following set of analyses:
     Determine a species’ preference for a specific location on a SETL plate.
     Species can be combined so that they are treated as a single species.
 
-*Analysis 2 "Attraction of Species (intra-specific)"*
+*Analysis 2 "Attraction within Species"*
     Determine if a species attracts or repels individuals of its own kind.
     Species can be combined so that they are treated as a single species.
 
-*Analysis 3 "Attraction of Species (inter-specific)"*
+*Analysis 3 "Attraction between Species"*
     Determine if two different species attract or repel each other. Species
     can be combined so that they are treated as a single species.
 

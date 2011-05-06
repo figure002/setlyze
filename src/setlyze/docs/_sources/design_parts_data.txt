@@ -689,7 +689,7 @@ The dictionary has the format ::
 Where ``list`` is a list of strings. The possible
 strings are ``A``, ``B``, ``C`` and ``D``. Each letter represents a
 surface on a SETL plate. For a clearer picture, refer to
-:ref:`figure-setl-plate`.
+:ref:`fig_plate_areas_default`.
 
 The default value for the plate areas definition is ::
 

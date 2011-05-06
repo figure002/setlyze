@@ -71,7 +71,7 @@ from where you extracted SETLyze:
 
     cd build/
 
-And run the uninstall command (as root):
+And run the uninstall command as root:
 
     make uninstall
 

@@ -63,7 +63,7 @@ import setlyze.database
 from setlyze.std import make_remarks
 
 __author__ = "Serrano Pereira"
-__copyright__ = "Copyright 2010, GiMaRIS"
+__copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.1.1"
 __maintainer__ = "Serrano Pereira"
@@ -3471,7 +3471,7 @@ class About(gtk.AboutDialog):
         self.set_position(gtk.WIN_POS_CENTER)
         self.set_program_name("SETLyze")
         self.set_version(__version__)
-        self.set_copyright("Copyright 2010, GiMaRIS")
+        self.set_copyright(__copyright__)
         self.set_authors(["Project Leader/Contact Person:\n"
             "\tArjan Gittenberger <gittenberger@gimaris.com>",
             "Application Developers:\n"
