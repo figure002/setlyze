@@ -27,8 +27,8 @@ GiMaRIS.
 
 * Optimalisation of the overall application (renamed "SETLyze")
 * Optimalisation of analysis 1 "Spot preference"
-* Implementation of analysis 2 "Attraction of species (intra-specific)" and
-  analysis 3 "Attraction of species (inter-specific)"
+* Implementation of analysis 2 "Attraction within species" and
+  analysis 3 "Attraction between species"
 * Sphinx Documentation (User Manual, Developer Guide)
 * Technical Design
-* Distribution packages (source package, Windows® installer)
+* Distribution packages (source package, Windows installer)

@@ -7,13 +7,13 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SETLyze User Manual &mdash; SETLyze v1.0 documentation</title>
+    <title>SETLyze User Manual &mdash; SETLyze v0.1.1 documentation</title>
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '1.0',
+        VERSION:     '0.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -22,7 +22,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SETLyze v1.0 documentation" href="index.html" />
+    <link rel="top" title="SETLyze v0.1.1 documentation" href="index.html" />
     <link rel="next" title="Use Cases for SETLyze" href="usecases.html" />
     <link rel="prev" title="Welcome to SETLyze’s documentation!" href="index.html" /> 
   </head>
@@ -44,7 +44,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze v0.1.1 documentation</a> &raquo;</li>
  
       </ul>
     </div>  
@@ -63,7 +63,7 @@ end user and explains how to use SETLyze.</p>
 <p>SETLyze is a part of the SETL-project, a fouling community study focussing on
 marine invasive species. The website describes the SETL-project as follows:</p>
 <blockquote>
-&#8220;Over the last ten years, marine invaders have had a dramatically
+<div>&#8220;Over the last ten years, marine invaders have had a dramatically
 increasing impact on temperate water ecosystems around the world.
 Substantial ecological and economical damage has been caused by the
 introduction of diseases, parasites, predators, invaders outcompeting
@@ -76,7 +76,7 @@ cooperation with the Smithsonian Marine Invasions Laboratory of
 Smithsonian Environmental Research Centre. In this project 14x14
 cm PVC-plates are hung 1 meter below the water surface, and refreshed
 and checked for species at least every three months.&#8221; &#8212;
-<a class="reference external" href="http://www.anemoon.org/">ANEMOON foundation</a></blockquote>
+<a class="reference external" href="http://www.anemoon.org/">ANEMOON foundation</a></div></blockquote>
 <p>Data collected from these SETL plates are stored in the SETL database. This
 database currently contains over 25000 records containing information of over
 200 species in different localities throughout the Netherlands. SETLyze is an
@@ -86,10 +86,10 @@ is capable of performing the following analyses:</p>
 <dt><em>Analysis 1 &#8220;Spot Preference&#8221;</em></dt>
 <dd>Determine a species’ preference for a specific location on a SETL plate.
 Species can be combined so that they are treated as a single species.</dd>
-<dt><em>Analysis 2 &#8220;Attraction of Species (intra-specific)&#8221;</em></dt>
+<dt><em>Analysis 2 &#8220;Attraction within Species&#8221;</em></dt>
 <dd>Determine if a species attracts or repels individuals of its own kind.
 Species can be combined so that they are treated as a single species.</dd>
-<dt><em>Analysis 3 &#8220;Attraction of Species (inter-specific)&#8221;</em></dt>
+<dt><em>Analysis 3 &#8220;Attraction between Species&#8221;</em></dt>
 <dd>Determine if two different species attract or repel each other. Species
 can be combined so that they are treated as a single species.</dd>
 </dl>
@@ -141,13 +141,13 @@ on SETL plates.</p>
 <dl class="docutils">
 <dt>Hardware</dt>
 <dd><ul class="first last simple">
-<li>Disk space: 2 MB (source) / 70+ MB (Windows® setup)</li>
+<li>Disk space: 2 MB (source) / 70+ MB (Windows setup)</li>
 <li>512 MB RAM</li>
 </ul>
 </dd>
 <dt>Software</dt>
 <dd><ul class="first last simple">
-<li>Microsoft® Windows® or GNU/Linux*</li>
+<li>Microsoft Windows or GNU/Linux*</li>
 </ul>
 </dd>
 </dl>
@@ -157,8 +157,8 @@ the &#8220;Installation&#8221; section below.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="microsoft-windows">
-<h3>Microsoft® Windows®<a class="headerlink" href="#microsoft-windows" title="Permalink to this headline">¶</a></h3>
-<p>For Windows® users, an installer is available that installs SETLyze together
+<h3>Microsoft Windows<a class="headerlink" href="#microsoft-windows" title="Permalink to this headline">¶</a></h3>
+<p>For Windows users, an installer is available that installs SETLyze together
 with the pre-requisites (<tt class="docutils literal"><span class="pre">setlyze-x.x-bundle-win32.exe</span></tt>).</p>
 </div>
 <div class="section" id="gnu-linux">
@@ -170,24 +170,10 @@ package manager to install the dependencies.</p>
 can be done with the following command:</p>
 <div class="highlight-python"><pre>sudo apt-get install python python-gtk2 python-rpy python-setuptools</pre>
 </div>
-<div class="section" id="system-wide-install-recommended">
-<h4>System-wide install (recommended)<a class="headerlink" href="#system-wide-install-recommended" title="Permalink to this headline">¶</a></h4>
-<p>To install system-wide, <tt class="docutils literal"><span class="pre">cd</span></tt> into the directory you extracted SETLyze into and
-run the following command which will install <tt class="docutils literal"><span class="pre">setlyze.pyw</span></tt> into the default
-location (traditionally <tt class="docutils literal"><span class="pre">/usr/local/bin</span></tt>):</p>
-<div class="highlight-python"><pre>sudo python setup.py install</pre>
-</div>
-<p>Once installed, SETLyze can be started from the command-line with,</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">setlyze</span><span class="o">.</span><span class="n">pyw</span>
-</pre></div>
-</div>
-</div>
-<div class="section" id="install-in-home-directory">
-<h4>Install in home directory<a class="headerlink" href="#install-in-home-directory" title="Permalink to this headline">¶</a></h4>
-<p>You can install SETLyze into your home directory, in <tt class="docutils literal"><span class="pre">~/bin</span></tt>. This method requires
-that <tt class="docutils literal"><span class="pre">~/bin</span></tt> is in your $PATH and that <tt class="docutils literal"><span class="pre">~/lib/python</span></tt> is in your $PYTHONPATH.</p>
-<div class="highlight-python"><pre>python setup.py install --home=~</pre>
-</div>
+<div class="section" id="system-wide-install">
+<h4>System-wide install<a class="headerlink" href="#system-wide-install" title="Permalink to this headline">¶</a></h4>
+<p>There is an INSTALL file in the source package. This file contains the
+instructions for installing SETLyze on Linux systems.</p>
 </div>
 <div class="section" id="run-from-source-directory">
 <h4>Run from source directory<a class="headerlink" href="#run-from-source-directory" title="Permalink to this headline">¶</a></h4>
@@ -543,7 +529,7 @@ species. Then all possible spot distances are calculated between the
 two species. The following figure shows an example with positive spots
 for two species (A and B) and all possible spot distnaces.</p>
 <div class="figure align-center" id="fig-spot-distances-inter">
-<a class="reference internal image-reference" href="_images/setl_plate_inter_distances.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances.png" style="width: 250.0px; height: 250.0px;" /></a>
+<a class="reference internal image-reference" href="_images/setl_plate_inter_distances.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances.png" style="width: 239.0px; height: 239.0px;" /></a>
 <p class="caption">Figure 12a. Spot distances on SETL plate (inter)</p>
 </div>
 <p>In the above figure, the distances are calculated the same way as for
@@ -551,7 +537,7 @@ analysis 2. Note however that only inter-specific distances are
 calculated (distances between two different species). This also makes it
 possible to have a distance of 0 as visualized in the next figure.</p>
 <div class="figure align-center" id="fig-spot-distances-inter2">
-<a class="reference internal image-reference" href="_images/setl_plate_inter_distances2.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances2.png" style="width: 250.0px; height: 250.0px;" /></a>
+<a class="reference internal image-reference" href="_images/setl_plate_inter_distances2.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances2.png" style="width: 239.0px; height: 239.0px;" /></a>
 <p class="caption">Figure 12b. Spot distances on SETL plate (inter)</p>
 </div>
 <p>The distances for this figure are calculated as follows:</p>
@@ -576,11 +562,11 @@ length as the observed spot distances.</p>
 <span id="results-wilcoxon-rank-sum-test"></span><h4>Results for Wilcoxon rank-sum tests (non-repeated)<a class="headerlink" href="#results-for-wilcoxon-rank-sum-tests-non-repeated" title="Permalink to this headline">¶</a></h4>
 <p>Shows the results for the non-repeated Wilcoxon rank-sum tests.</p>
 <blockquote>
-&#8220;In statistics, the Mann–Whitney U test (also called the
+<div>&#8220;In statistics, the Mann–Whitney U test (also called the
 Mann–Whitney–Wilcoxon (MWW) or Wilcoxon rank-sum test) is a non-parametric
 statistical hypothesis test for assessing whether two independent samples
 of observations have equally large values.&#8221; &#8212;
-<a class="reference external" href="http://en.wikipedia.org/wiki/Mann-Whitney-Wilcoxon_test">Mann–Whitney U (Wikipedia. 6 December 2010)</a></blockquote>
+<a class="reference external" href="http://en.wikipedia.org/wiki/Mann-Whitney-Wilcoxon_test">Mann–Whitney U (Wikipedia. 6 December 2010)</a></div></blockquote>
 <p>Tests showed that spot distances on a SETL plate are not normally
 distributed (see <a class="reference internal" href="testing_optimization.html#testing-spot-distances-normality"><em>Testing spot distances for normal distribution</em></a>), hence the Wilcoxon
 rank-sum test for unpaired data was chosen to test if observed and expected
@@ -651,17 +637,17 @@ in the list of results.</p>
 specific Wilcoxon test was performed is shown in the section name of the
 non-repeated Wilcoxon test.</p>
 <p>For more information about the Wilcoxon rank-sum test, see
-<em class="xref std std-ref">Results for Wilcoxon rank-sum tests (non-repeated)</em>.</p>
+<a class="reference internal" href="#results-wilcoxon-rank-sum-test"><em>Results for Wilcoxon rank-sum tests (non-repeated)</em></a>.</p>
 <p>The number of repeats to perform can be set in the <a class="reference internal" href="#dialog-preferences"><em>preferences dialog</em></a>.</p>
 <p>Each row for the results of the repeated Wicoxon test contains the results of
 repeated tests on a data group. Each row can have the following elements:</p>
 <dl class="docutils">
 <dt>Plate Area</dt>
-<dd>See description for <em class="xref std std-ref">Results for Wilcoxon rank-sum tests (non-repeated)</em></dd>
+<dd>See description for <a class="reference internal" href="#results-wilcoxon-rank-sum-test"><em>Results for Wilcoxon rank-sum tests (non-repeated)</em></a></dd>
 <dt>n (totals)</dt>
-<dd>See description for <em class="xref std std-ref">Results for Wilcoxon rank-sum tests (non-repeated)</em></dd>
+<dd>See description for <a class="reference internal" href="#results-wilcoxon-rank-sum-test"><em>Results for Wilcoxon rank-sum tests (non-repeated)</em></a></dd>
 <dt>n (observed species)</dt>
-<dd>See description for <em class="xref std std-ref">Results for Wilcoxon rank-sum tests (non-repeated)</em></dd>
+<dd>See description for <a class="reference internal" href="#results-wilcoxon-rank-sum-test"><em>Results for Wilcoxon rank-sum tests (non-repeated)</em></a></dd>
 <dt>n (significant)</dt>
 <dd>Shows how many times the test turned out significant for the repeats
 (P-value &lt; alpha level).</dd>
@@ -686,11 +672,11 @@ question.</dd>
 <span id="results-pearsons-chisq-test"></span><h4>Results for Pearson&#8217;s Chi-squared Test for Count Data<a class="headerlink" href="#results-for-pearson-s-chi-squared-test-for-count-data" title="Permalink to this headline">¶</a></h4>
 <p>Shows the results for Pearson&#8217;s Chi-squared Test for Count Data.</p>
 <blockquote>
-&#8220;Pearson&#8217;s chi-square (χ2) test is the
+<div>&#8220;Pearson&#8217;s chi-square (χ2) test is the
 best-known of several chi-square tests. It tests a null hypothesis
 stating that the frequency distribution of certain events observed
 in a sample is consistent with a particular theoretical distribution.&#8221;
-&#8212; <a class="reference external" href="http://en.wikipedia.org/wiki/Pearson's_chi-square_test">Pearson&#8217;s Chi-squared Test (Wikipedia. 23 December 2010)</a></blockquote>
+&#8212; <a class="reference external" href="http://en.wikipedia.org/wiki/Pearson's_chi-square_test">Pearson&#8217;s Chi-squared Test (Wikipedia. 23 December 2010)</a></div></blockquote>
 <p>The observed values are the frequencies of the observed spot distances. The
 expected values are calculated with the formula <img class="math" src="_images/math/f1b12e39d1a4bf9e332548bc624af6bf14e6ef8f.png" alt="e(d) = N * p(d)"/>
 where <em>N</em> is the total number of observed distances and <em>p</em> is the
@@ -1081,7 +1067,7 @@ biological questions regarding the settlement of species on SETL-plates.</p>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="index.html">
-              <img class="logo" src="_static/setl-logo.png" alt="Logo"/>
+              <img class="logo" src="_static/setlyze-logo.png" alt="Logo"/>
             </a></p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -1092,10 +1078,9 @@ biological questions regarding the settlement of species on SETL-plates.</p>
 </li>
 <li><a class="reference internal" href="#requirements">Requirements</a></li>
 <li><a class="reference internal" href="#installation">Installation</a><ul>
-<li><a class="reference internal" href="#microsoft-windows">Microsoft® Windows®</a></li>
+<li><a class="reference internal" href="#microsoft-windows">Microsoft Windows</a></li>
 <li><a class="reference internal" href="#gnu-linux">GNU/Linux</a><ul>
-<li><a class="reference internal" href="#system-wide-install-recommended">System-wide install (recommended)</a></li>
-<li><a class="reference internal" href="#install-in-home-directory">Install in home directory</a></li>
+<li><a class="reference internal" href="#system-wide-install">System-wide install</a></li>
 <li><a class="reference internal" href="#run-from-source-directory">Run from source directory</a></li>
 </ul>
 </li>
@@ -1194,13 +1179,13 @@ biological questions regarding the settlement of species on SETL-plates.</p>
              >previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze v1.0 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze v0.1.1 documentation</a> &raquo;</li>
  
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, GiMaRIS.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.4.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
     </div>
   </body>
 </html>

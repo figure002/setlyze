@@ -36,11 +36,11 @@ is capable of performing the following analyses:
     Determine a species’ preference for a specific location on a SETL plate.
     Species can be combined so that they are treated as a single species.
 
-*Analysis 2 "Attraction of Species (intra-specific)"*
+*Analysis 2 "Attraction within Species"*
     Determine if a species attracts or repels individuals of its own kind.
     Species can be combined so that they are treated as a single species.
 
-*Analysis 3 "Attraction of Species (inter-specific)"*
+*Analysis 3 "Attraction between Species"*
     Determine if two different species attract or repel each other. Species
     can be combined so that they are treated as a single species.
 
@@ -99,11 +99,11 @@ Requirements
 To use SETLyze you will need:
 
 Hardware
-    * Disk space: 2 MB (source) / 70+ MB (Windows® setup)
+    * Disk space: 2 MB (source) / 70+ MB (Windows setup)
     * 512 MB RAM
 
 Software
-    * Microsoft® Windows® or GNU/Linux*
+    * Microsoft Windows or GNU/Linux*
 
 \* Linux users will need to manually install the software dependencies. See
 the "Installation" section below.
@@ -112,10 +112,10 @@ the "Installation" section below.
 Installation
 ############
 
-Microsoft® Windows®
+Microsoft Windows
 ===================
 
-For Windows® users, an installer is available that installs SETLyze together
+For Windows users, an installer is available that installs SETLyze together
 with the pre-requisites (``setlyze-x.x-bundle-win32.exe``).
 
 GNU/Linux
@@ -130,26 +130,11 @@ can be done with the following command: ::
 
     sudo apt-get install python python-gtk2 python-rpy python-setuptools
 
-System-wide install (recommended)
----------------------------------
+System-wide install
+-------------------
 
-To install system-wide, ``cd`` into the directory you extracted SETLyze into and
-run the following command which will install ``setlyze.pyw`` into the default
-location (traditionally ``/usr/local/bin``): ::
-
-    sudo python setup.py install
-
-Once installed, SETLyze can be started from the command-line with, ::
-
-    setlyze.pyw
-
-Install in home directory
--------------------------
-
-You can install SETLyze into your home directory, in ``~/bin``. This method requires
-that ``~/bin`` is in your $PATH and that ``~/lib/python`` is in your $PYTHONPATH. ::
-
-    python setup.py install --home=~
+There is an INSTALL file in the source package. This file contains the
+instructions for installing SETLyze on Linux systems.
 
 Run from source directory
 -------------------------
@@ -743,7 +728,7 @@ specific Wilcoxon test was performed is shown in the section name of the
 non-repeated Wilcoxon test.
 
 For more information about the Wilcoxon rank-sum test, see
-:ref:`Results for Wilcoxon rank-sum tests (non-repeated) <results-wilcoxon-rank-sum>`.
+:ref:`Results for Wilcoxon rank-sum tests (non-repeated) <results-wilcoxon-rank-sum-test>`.
 
 The number of repeats to perform can be set in the :ref:`preferences dialog
 <dialog-preferences>`.
@@ -753,15 +738,15 @@ repeated tests on a data group. Each row can have the following elements:
 
 Plate Area
     See description for :ref:`Results for Wilcoxon rank-sum tests (non-repeated)
-    <results-wilcoxon-rank-sum>`
+    <results-wilcoxon-rank-sum-test>`
 
 n (totals)
     See description for :ref:`Results for Wilcoxon rank-sum tests (non-repeated)
-    <results-wilcoxon-rank-sum>`
+    <results-wilcoxon-rank-sum-test>`
 
 n (observed species)
     See description for :ref:`Results for Wilcoxon rank-sum tests (non-repeated)
-    <results-wilcoxon-rank-sum>`
+    <results-wilcoxon-rank-sum-test>`
 
 n (significant)
     Shows how many times the test turned out significant for the repeats
