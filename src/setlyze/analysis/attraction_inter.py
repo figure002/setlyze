@@ -240,7 +240,7 @@ class Begin(object):
         # Display the species selection window.
         select = setlyze.gui.SelectSpecies(width=500, slot=save_slot)
         select.set_title(setlyze.locale.text('analysis3'))
-        select.set_description( setlyze.locale.text('select-locations') + "\n\n" +
+        select.set_description( setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
             )
 
