@@ -27,10 +27,11 @@ Installation Instructions
 
 1) First make sure you have all dependencies installed (see above).
 
-The 'cmake' package is required to configure and build SETLyze from source. Make
-sure it's installed befor continuing with the next step.
+The 'cmake' and 'cmake-curses-gui' packages are required to configure and
+build SETLyze from source. Make sure they are installed before continuing
+with the next step.
 
-    sudo apt-get install cmake
+    sudo apt-get install cmake cmake-curses-gui
 
 
 2) Configuring the SETLyze build
