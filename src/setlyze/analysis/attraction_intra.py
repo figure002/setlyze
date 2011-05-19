@@ -46,7 +46,7 @@ can be broken down in the following steps:
    expected spot distances. Two tests of significance are performed:
    the Wilcoxon rank-sum test and the Chi-squared test.
 
-8. Generate the anayslis report.
+8. Generate the analysis report.
 
 9. Show the analysis report to the user.
 
@@ -226,7 +226,7 @@ class Start(threading.Thread):
        expected spot distances. Two tests of significance are performed:
        the Wilcoxon rank-sum test and the Chi-squared test.
 
-    6. Generate the anayslis report.
+    6. Generate the analysis report.
 
     Design Part: 1.4.2
     """

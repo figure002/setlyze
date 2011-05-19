@@ -33,7 +33,7 @@ can be broken down in the following steps:
 6. Calculate the expected species frequencies for the plate areas.
 7. Calculate the significance in difference between the observed and
    expected area totals. The Chi-squared test is used for this.
-8. Generate the anayslis report.
+8. Generate the analysis report.
 9. Show the analysis report to the user.
 
 """
@@ -242,7 +242,7 @@ class Start(threading.Thread):
     3. Calculate the expected species frequencies for the plate areas.
     4. Calculate the significance in difference between the observed and
        expected area totals. The Chi-squared test is used for this.
-    5. Generate the anayslis report.
+    5. Generate the analysis report.
 
     Design Part: 1.3.2
     """
