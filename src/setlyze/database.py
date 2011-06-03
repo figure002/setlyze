@@ -40,6 +40,7 @@ import threading
 import itertools
 from sqlite3 import dbapi2 as sqlite
 import time
+import xlrd
 
 import gobject
 
@@ -72,7 +73,7 @@ def get_database_accessor():
         db = AccessLocalDB()
     elif data_source == "setl-database":
         db = AccessRemoteDB()
-    elif data_source == "xls":								### aanpassen
+    elif data_source == "xls":
         db = AccessLocalDB()
     else:
         logging.error("setlyze.database.get_database_accessor: '%s' is not a valid data source." % data_source)
@@ -179,8 +180,8 @@ class MakeLocalDB(threading.Thread):
                 self.insert_from_db()
             elif setlyze.config.cfg.get('data-source') == "csv-msaccess":
                 self.insert_from_csv()
-            elif setlyze.config.cfg.get('data-source') == "xls":		### Toevoegen van xls
-                self.insert_from_xls()						### Run insert_fromxls()
+            elif setlyze.config.cfg.get('data-source') == "xls":
+                self.insert_from_xls()
             else:
                 raise ValueError("Encountered unknown data source '%s'" %
                     setlyze.config.cfg.get('data-source'))
@@ -380,7 +381,7 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the CSV file and insert that row
         # into the local database.
         for row in setl_reader:
-            if len(row) != 7:
+            if len(row) not in (6, 7):
                 raise ValueError("Expecting 7 fields per row for the "
                     "species CSV file, found %d fields." % len(row))
 
@@ -475,11 +476,346 @@ class MakeLocalDB(threading.Thread):
         # Commit the database changes.
         self.connection.commit()
 
-########################
     def insert_from_xls(self):
-        raise Exception("NOT implemented yet.")
+        #raise Exception("NOT implemented yet.")
+
+        """Create a new local database and load all SETL data from the
+        user selected Excel files into the local database.
+
+        The SETL data is loaded from four separate Excel files:
+            * localities_file, containing the SETL locations.
+            * species_file, containing the SETL species.
+            * records_file, containing the SETL records.
+            * plates_file, containing the SETL plates.
+
+        These files must be exported from the MS Access SETL database
+        and contain all fields. The Excel files have to be
+        delimited by semicolons (;) and double quotes (") as
+        the quote character for fields with special characters.
+
+        Design Part: ....
+        """
+        logging.info("Creating local database from Microsoft Excel spreadsheet files...")
+
+        # If data_source is not set to "xls", the required data
+        # files are probably not set by the user yet. ChangeDataSource
+        # must be called first.
+        if setlyze.config.cfg.get('data-source') != 'xls':
+            raise ValueError("Cannot run this function while 'data-source' is "
+                "set to '%s'." % setlyze.config.cfg.get('data-source'))
+
+        # First, create a new database file.
+        self.create_new_db()
+
+        # Create a connection with the local database.
+        self.connection = sqlite.connect(self.dbfile)
+        self.cursor = self.connection.cursor()
+
+        # Add some meta-data to a separate table in the local database.
+        # Add the data source we can figure out what kind of data is
+        # present.
+        self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)",
+            ( setlyze.config.cfg.get('data-source'), ) )
+        # Also insert the data of creation, so we can give the user an
+        # indication when this database was created.
+        self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
+
+        # Set the total number of times we're going to update the progress
+        # dialog.
+        self.pdialog_handler.set_total_steps(4)
+
+        # Insert the data from the xls files into the local database.
+        filename = os.path.split(setlyze.config.cfg.get('localities-file'))[1]
+        self.pdialog_handler.set_action("Importing %s" % filename)
+        try:
+            self.insert_localities_from_xls()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading localities data from %s failed." % filename)
+            return
+
+        filename = os.path.split(setlyze.config.cfg.get('plates-file'))[1]
+        self.pdialog_handler.increase("Importing %s" % filename)
+        try:
+            self.insert_plates_from_xls()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading plates data from %s failed." % filename)
+            return
+
+        filename = os.path.split(setlyze.config.cfg.get('records-file'))[1]
+        self.pdialog_handler.increase("Importing %s" % filename)
+        try:
+            self.insert_records_from_xls()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading records data from %s failed." % filename)
+            return
+
+        filename = os.path.split(setlyze.config.cfg.get('species-file'))[1]
+        self.pdialog_handler.increase("Importing %s" % filename)
+        try:
+            self.insert_species_from_xls()
+        except:
+            # Close the connection with the database.
+            self.cursor.close()
+            self.connection.close()
+            # Create a new database, because not all data could be imported.
+            self.create_new_db()
+            # Emit the signal that the import failed.
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
+                "Loading species data from %s failed." % filename)
+            return
+
+        # If we are here, the import was successful. Set the progress dialog
+        # to 100%.
+        self.pdialog_handler.increase("")
+
+        # Close the connection with the database.
+        self.cursor.close()
+        self.connection.close()
+
+        logging.info("Local database populated.")
+        setlyze.config.cfg.set('has-local-db', True)
+
+        return True
+
+    def insert_localities_from_xls(self, delimiter=';', quotechar='"'):		
+        """Insert the SETL localities from a CSV file into the local
+        database.
+
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.18`.
+
+        Design Part: 1.34
+        """
+        logging.info("Importing localities data from %s" % setlyze.config.cfg.get('localities-file'))
+
+        # Try to open the CSV file.
+        try:
+            f= xlrd.open_workbook(setlyze.config.cfg.get('localities-file'))
+        except IOError, e:
+            logging.error(e)
+            return False
+
+        # Use Python's CSV module to create a CSV reader.
+        setl_reader = f.sheet_by_index(0)
 
 
+        # Read through every row in the CSV file and insert that row
+        # into the local database.
+        for rownum in range(setl_reader.nrows):
+            if len(setl_reader.row_values(rownum)) != 5:
+                raise ValueError("Expecting 5 fields per row for the "
+                    "localities CSV file, found %d fields." % len(setl_reader.row_values(rownum)))
+
+            self.cursor.execute("INSERT INTO localities VALUES (?,?,?,?,?)",
+                (setl_reader.row_values(rownum)[0],
+                 setl_reader.row_values(rownum)[1],
+                 setl_reader.row_values(rownum)[2],
+                 setl_reader.row_values(rownum)[3],
+                 setl_reader.row_values(rownum)[4])
+                )
+
+        # Commit the database changes.
+        self.connection.commit()
+
+    def insert_plates_from_xls(self, delimiter=';', quotechar='"'):
+        """Insert the plates from a CSV file into the local database.
+
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.20`.
+
+        Design Part: ....
+        """
+        logging.info("Importing plates data from %s" % setlyze.config.cfg.get('plates-file'))
+
+        # Try to open the CSV file.
+        try:
+            f= xlrd.open_workbook(setlyze.config.cfg.get('plates-file'))
+        except IOError, e:
+            logging.error(e)
+            return False
+
+        # Use Python's CSV module to create a CSV reader.
+        setl_reader = f.sheet_by_index(0)
+
+
+        # Read through every row in the CSV file and insert that row
+        # into the local database.
+        for rownum in range(setl_reader.nrows):
+            if len(setl_reader.row_values(rownum)) != 10:
+                raise ValueError("Expecting 10 fields per row for the "
+                    "plates CSV file, found %d fields." % len(setl_reader.row_values(rownum)))
+
+            self.cursor.execute("INSERT INTO plates VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (setl_reader.row_values(rownum)[0],
+                 setl_reader.row_values(rownum)[1],
+                 setl_reader.row_values(rownum)[2],
+                 setl_reader.row_values(rownum)[3],
+                 setl_reader.row_values(rownum)[4],
+                 setl_reader.row_values(rownum)[5],
+                 setl_reader.row_values(rownum)[6],
+                 setl_reader.row_values(rownum)[7],
+                 setl_reader.row_values(rownum)[8],
+                 setl_reader.row_values(rownum)[9])
+                )
+
+        # Commit the database changes.
+        self.connection.commit()
+
+    def insert_records_from_xls(self, delimiter=';', quotechar='"'):
+        """Insert the records from a CSV file into the local database.
+
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.21`.
+
+        Design Part: 1.37
+        """
+        logging.info("Importing records data from %s" % setlyze.config.cfg.get('records-file'))
+
+        # Try to open the CSV file.
+        try:
+            f= xlrd.open_workbook(setlyze.config.cfg.get('records-file'))
+        except IOError, e:
+            logging.error(e)
+            return False
+
+        # Use Python's CSV module to create a CSV reader.
+        setl_reader = f.sheet_by_index(0)
+
+        # Read through every row in the CSV file and insert that row
+        # into the local database.
+        placeholders = ','.join('?' * 38)
+        for rownum in range(setl_reader.nrows):
+            if len(setl_reader.row_values(rownum)) != 40:
+                raise ValueError("Expecting 40 fields per row for the "
+                    "plates CSV file, found %d fields." % len(setl_reader.row_values(rownum)))
+
+            self.cursor.execute("INSERT INTO records VALUES (%s)" % placeholders,
+                (setl_reader.row_values(rownum)[0],
+                 setl_reader.row_values(rownum)[1],
+                 setl_reader.row_values(rownum)[2],
+                 setl_reader.row_values(rownum)[3],
+                 setl_reader.row_values(rownum)[4],
+                 setl_reader.row_values(rownum)[5],
+                 setl_reader.row_values(rownum)[6],
+                 setl_reader.row_values(rownum)[7],
+                 setl_reader.row_values(rownum)[8],
+                 setl_reader.row_values(rownum)[9],
+                 setl_reader.row_values(rownum)[10],
+                 setl_reader.row_values(rownum)[11],
+                 setl_reader.row_values(rownum)[12],
+                 setl_reader.row_values(rownum)[13],
+                 setl_reader.row_values(rownum)[14],
+                 setl_reader.row_values(rownum)[15],
+                 setl_reader.row_values(rownum)[16],
+                 setl_reader.row_values(rownum)[17],
+                 setl_reader.row_values(rownum)[18],
+                 setl_reader.row_values(rownum)[19],
+                 setl_reader.row_values(rownum)[20],
+                 setl_reader.row_values(rownum)[21],
+                 setl_reader.row_values(rownum)[22],
+                 setl_reader.row_values(rownum)[23],
+                 setl_reader.row_values(rownum)[24],
+                 setl_reader.row_values(rownum)[25],
+                 setl_reader.row_values(rownum)[26],
+                 setl_reader.row_values(rownum)[27],
+                 setl_reader.row_values(rownum)[28],
+                 setl_reader.row_values(rownum)[29],
+                 setl_reader.row_values(rownum)[30],
+                 setl_reader.row_values(rownum)[31],
+                 setl_reader.row_values(rownum)[32],
+                 setl_reader.row_values(rownum)[33],
+                 setl_reader.row_values(rownum)[34],
+                 setl_reader.row_values(rownum)[35],
+                 setl_reader.row_values(rownum)[36],
+                 setl_reader.row_values(rownum)[37])
+                )
+
+        # Commit the database changes.
+        self.connection.commit()
+
+    def insert_species_from_xls(self, delimiter=';', quotechar='"'):
+        """Insert the species from a CSV file into the local database.
+
+        `delimiter` is a one-character string used to separate fields
+        in the CSV file. `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file.
+        The default values for these two arguments are suited for CSV
+        files in Excel format.
+
+        For a description of the format for the localities file, refer
+        to :ref:`design-part-data-2.19`.
+
+        Design Part: 1.35
+        """
+        logging.info("Importing species data from %s" % setlyze.config.cfg.get('species-file'))
+
+        # Try to open the CSV file.
+        try:
+            f= xlrd.open_workbook(setlyze.config.cfg.get('species-file'))
+        except IOError, e:
+            logging.error(e)
+            return False
+
+        # Use Python's CSV module to create a CSV reader.
+        setl_reader = f.sheet_by_index(0)
+
+        # Read through every row in the CSV file and insert that row
+        # into the local database.
+        for rownum in range(setl_reader.nrows):
+            if len(setl_reader.row_values(rownum)) not in (6, 7):
+                raise ValueError("Expecting 7 fields per row for the "
+                    "species CSV file, found %d fields." % len(setl_reader.row_values(rownum)))
+
+            self.cursor.execute("INSERT INTO species VALUES (?,?,?,?,?,?)",
+                (setl_reader.row_values(rownum)[0],
+                 setl_reader.row_values(rownum)[1],
+                 setl_reader.row_values(rownum)[2],
+                 setl_reader.row_values(rownum)[3],
+                 setl_reader.row_values(rownum)[4],
+                 setl_reader.row_values(rownum)[5])
+                )
+
+        # Commit the database changes.
+        self.connection.commit()
 
     def insert_from_db(self):
         """Create a new local database and load localities and species

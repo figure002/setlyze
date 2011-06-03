@@ -51,13 +51,13 @@ gobject.threads_init()
 if setlyze.std.we_are_frozen():
     warnings.simplefilter('ignore')
 
-__author__ = "Serrano Pereira"
+__author__ = "Serrano Pereira, Adam van Adrichem and Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
     "Serrano Pereira <serrano.pereira@gmail.com>"]
 __license__ = "GPL3"
 __version__ = "0.1.1"
-__maintainer__ = "Serrano Pereira"
+__maintainer__ = "Serrano Pereira, Adam van Adrichem and Fedde Schaeffer"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
