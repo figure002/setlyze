@@ -72,6 +72,8 @@ def get_database_accessor():
         db = AccessLocalDB()
     elif data_source == "setl-database":
         db = AccessRemoteDB()
+    elif data_source == "xls":								### aanpassen
+        db = AccessLocalDB()
     else:
         logging.error("setlyze.database.get_database_accessor: '%s' is not a valid data source." % data_source)
         sys.exit(1)
@@ -140,6 +142,7 @@ class MakeLocalDB(threading.Thread):
     """
 
     def __init__(self):
+        logging.debug("MakeLocalDB.__init__ is called")        
         super(MakeLocalDB, self).__init__()
 
         self.cursor = None
@@ -176,6 +179,11 @@ class MakeLocalDB(threading.Thread):
                 self.insert_from_db()
             elif setlyze.config.cfg.get('data-source') == "csv-msaccess":
                 self.insert_from_csv()
+            elif setlyze.config.cfg.get('data-source') == "xls":		### Toevoegen van xls
+                self.insert_from_xls()						### Run insert_fromxls()
+            else:
+                raise ValueError("Encountered unknown data source '%s'" %
+                    setlyze.config.cfg.get('data-source'))
 
             # Emit the signal that the local database has been created.
             # Note that the signal will be sent from a separate thread,
@@ -466,6 +474,12 @@ class MakeLocalDB(threading.Thread):
 
         # Commit the database changes.
         self.connection.commit()
+
+########################
+    def insert_from_xls(self):
+        raise Exception("NOT implemented yet.")
+
+
 
     def insert_from_db(self):
         """Create a new local database and load localities and species

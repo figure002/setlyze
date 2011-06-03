@@ -99,6 +99,9 @@ ENGLISH = [
         "Load SETL data from CSV files. These data files must "
         "be exported from the Microsoft Access SETL database in CSV "
         "format. The user manual describes how to export these files."),
+    ('change-data-source-xls',
+        "Load SETL data from xls files. "
+        "The user manual describes how to export these files."),
     ('change-data-source-db',
         "Load SETL data from the remote SETL database. This requires a "
         "direct connection with the SETL database server. This feature "
@@ -130,6 +133,10 @@ ENGLISH = [
         "Significance results for repeated %s tests"),
     ('csv-files-not-selected',
         "You didn't select all CSV files. SETLyze requires four CSV files "
+        "as input. See the user manual for more information. Please select "
+        "all four files and try again."),
+    ('xls-files-not-selected',
+        "You didn't select all xls files. SETLyze requires four xls files "
         "as input. See the user manual for more information. Please select "
         "all four files and try again."),
     ('csv-import-failed',

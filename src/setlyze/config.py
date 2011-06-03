@@ -227,7 +227,7 @@ class ConfigManager(object):
         """
 
         # Legal data sources.
-        legal_sources = ("setl-database", "csv-msaccess")
+        legal_sources = ("setl-database", "csv-msaccess", "xls")		#### XLS toevoegen
 
         if source in legal_sources:
             # Set the new data source.
