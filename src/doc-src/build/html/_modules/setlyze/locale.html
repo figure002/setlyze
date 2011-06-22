@@ -1,0 +1,271 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.locale &mdash; SETLyze v0.1.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v0.1.1 documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../../index.html">SETLyze v0.1.1 documentation</a> &raquo;</li>
+
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for setlyze.locale</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
+<span class="c">#</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
+<span class="c">#  of species on SETL plates.</span>
+<span class="c">#</span>
+<span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
+<span class="c">#  it under the terms of the GNU General Public License as published by</span>
+<span class="c">#  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c">#  (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c">#  SETLyze is distributed in the hope that it will be useful,</span>
+<span class="c">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c">#  GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c">#  You should have received a copy of the GNU General Public License</span>
+<span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;This module is for storing and retrieving messages used in SETLyze.</span>
+<span class="sd">The purpose is to have a standard place for storing these messages. This was</span>
+<span class="sd">basically meant for convenience so the developer doesn&#39;t have to browse</span>
+<span class="sd">through SETLyze&#39;s code base just to change a sentence.</span>
+
+<span class="sd">This module wasn&#39;t created for adding multi-language support, though</span>
+<span class="sd">it can be easily expanded to do so.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, GiMaRIS&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1.1&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2011/05/03&quot;</span>
+
+<span class="n">ENGLISH</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">&#39;dummy&#39;</span><span class="p">,</span>
+        <span class="s">&quot;And tomorrow&#39;s forecast is, </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;use-saved-data&#39;</span><span class="p">,</span>
+        <span class="s">&quot;The SETL data from the last run is still on your computer. The &quot;</span>
+        <span class="s">&quot;data was loaded on </span><span class="si">%s</span><span class="s"> from </span><span class="si">%s</span><span class="s">.</span><span class="se">\n\n</span><span class="s">Select Yes to use this possibly old &quot;</span>
+        <span class="s">&quot;data, or select No to load up-to-date data from the remote SETL &quot;</span>
+        <span class="s">&quot;database (requires a direct connection with the SETL database server).&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;select-locations&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Below are the available locations. Please select the locations &quot;</span>
+        <span class="s">&quot;from which you want to select species.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;option-change-source&#39;</span><span class="p">,</span>
+        <span class="s">&quot;By default, the data is loaded from the remote SETL database. To load &quot;</span>
+        <span class="s">&quot;data from a different data source, click the </span><span class="se">\&quot;</span><span class="s">Change Data &quot;</span>
+        <span class="s">&quot;Source</span><span class="se">\&quot;</span><span class="s"> button below.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Tip: Hold Ctrl or Shift to select multiple items. To select all &quot;</span>
+        <span class="s">&quot;items, press Ctrl+A.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Below are the available species for the selected location(s). Please &quot;</span>
+        <span class="s">&quot;select the species to be included for the analysis.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Analysis 1 “Spot preference”&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis1-descr&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Determine if a species has preference for a specific area on SETL &quot;</span>
+        <span class="s">&quot;plates.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Analysis 2 “Attraction within species”&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis2-descr&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Determine if a species attracts or repels individuals of its &quot;</span>
+        <span class="s">&quot;own kind.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Analysis 3 “Attraction between species”&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis3-descr&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Determine if two different species attract or repel each other.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis4&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Analysis 4 “Relation between species”&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis4-descr&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Determine if there is a relation between the presence/absence of two &quot;</span>
+        <span class="s">&quot;species in a specific location.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;define-plate-areas&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Please define the plate areas for the Chi-squared test. You can keep &quot;</span>
+        <span class="s">&quot;the default setting, meaning that A, B, C and D are treated as &quot;</span>
+        <span class="s">&quot;separate plate areas, or you can combine specific areas by &quot;</span>
+        <span class="s">&quot;changing the setting below. Combining areas means that the &quot;</span>
+        <span class="s">&quot;combined areas are treated as a single plate area. Empty plate &quot;</span>
+        <span class="s">&quot;areas are ignored. This plate area definition will not be used for the &quot;</span>
+        <span class="s">&quot;Wilcoxon test because a fixed set of plate areas will be tested.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;error-single-plate-area&#39;</span><span class="p">,</span>
+        <span class="s">&quot;You&#39;ve chosen to combine all plate areas together, resulting &quot;</span>
+        <span class="s">&quot;in a single plate area. This analysis requires at least two plate &quot;</span>
+        <span class="s">&quot;areas. Please change your plate areas definition.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;change-data-source&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Click on one of the tabs below to change to a different data &quot;</span>
+        <span class="s">&quot;source.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;change-data-source-csv&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Load SETL data from CSV files. These data files must &quot;</span>
+        <span class="s">&quot;be exported from the Microsoft Access SETL database in CSV &quot;</span>
+        <span class="s">&quot;format. The user manual describes how to export these files.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;change-data-source-db&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Load SETL data from the remote SETL database. This requires a &quot;</span>
+        <span class="s">&quot;direct connection with the SETL database server. This feature &quot;</span>
+        <span class="s">&quot;has not been implemented yet.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis-running&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Please stand by while the analysis is running. This may take &quot;</span>
+        <span class="s">&quot;a while...&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;invalid-alpha-level&#39;</span><span class="p">,</span>
+        <span class="s">&quot;You entered an invalid alpha level. The alpha level must be a &quot;</span>
+        <span class="s">&quot;probability between 0 and 1.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;invalid-repeats-number&#39;</span><span class="p">,</span>
+        <span class="s">&quot;You entered an invalid repeats number. The number of repeats for &quot;</span>
+        <span class="s">&quot;statistical tests must be 2 or higher.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;empty-plate-areas&#39;</span><span class="p">,</span>
+        <span class="s">&quot;The selected species weren&#39;t found on any SETL-plates from the selected &quot;</span>
+        <span class="s">&quot;locations. Try again with different locations or select more &quot;</span>
+        <span class="s">&quot;locations.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;t-plate-areas-definition&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Plate Areas Definition for Chi-squared Test&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;t-plate-area-totals&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Species Totals per Plate Area for Chi-squared Test&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Results for Wilcoxon rank-sum tests (non-repeated)&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Results for Pearson&#39;s Chi-squared Tests for Count Data&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;t-results-shapiro-wilk&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Results for Shapiro-Wilk tests of normality&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Significance results for repeated </span><span class="si">%s</span><span class="s"> tests&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;csv-files-not-selected&#39;</span><span class="p">,</span>
+        <span class="s">&quot;You didn&#39;t select all CSV files. SETLyze requires four CSV files &quot;</span>
+        <span class="s">&quot;as input. See the user manual for more information. Please select &quot;</span>
+        <span class="s">&quot;all four files and try again.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Failed to load the SETL data from the CSV files. This is probably &quot;</span>
+        <span class="s">&quot;caused by an incorrect format of the input file. SETLyze requires &quot;</span>
+        <span class="s">&quot;the input files to be in a specific format. Please follow the &quot;</span>
+        <span class="s">&quot;instructions in the user manual on how to create the CSV files in &quot;</span>
+        <span class="s">&quot;the required format.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+        <span class="s">&quot;The error returned was: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+<span class="c"># Turn the list into a dictionary. This provides easier access to its</span>
+<span class="c"># items.</span>
+<span class="n">ENGLISH</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ENGLISH</span><span class="p">)</span>
+
+<div class="viewcode-block" id="text"><a class="viewcode-back" href="../../setlyze/locale.html#setlyze.locale.text">[docs]</a><span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the text string from the ``ENGLISH`` dictionary where key</span>
+<span class="sd">    is `key`.</span>
+
+<span class="sd">    A simple example:</span>
+
+<span class="sd">        &gt;&gt;&gt; import setlyze.locale</span>
+<span class="sd">        &gt;&gt;&gt; setlyze.locale.text(&#39;analysis-running&#39;)</span>
+<span class="sd">        &#39;Please stand by while the analysis is running. This may take a while...&#39;</span>
+
+<span class="sd">    Substitution is also supported:</span>
+
+<span class="sd">        &gt;&gt;&gt; import setlyze.locale</span>
+<span class="sd">        &gt;&gt;&gt; setlyze.locale.text(&#39;dummy&#39;, &quot;windy with a slight chance of rain&quot;)</span>
+<span class="sd">        &quot;And tomorrow&#39;s forecast is, windy with a slight chance of rain&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ENGLISH</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unknown key &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">ENGLISH</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">%</span> <span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">ENGLISH</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">text</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/setlyze-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../../index.html">SETLyze v0.1.1 documentation</a> &raquo;</li>
+
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, 2011, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>

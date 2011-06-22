@@ -1,0 +1,234 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.config — Configuration manager &mdash; SETLyze v0.1.1 documentation</title>
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze v0.1.1 documentation" href="../index.html" />
+    <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
+    <link rel="next" title="setlyze.database — Database access" href="database.html" />
+    <link rel="prev" title="SETLyze Standard Modules" href="../setlyze_modules.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="database.html" title="setlyze.database — Database access"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../setlyze_modules.html" title="SETLyze Standard Modules"
+             accesskey="P">previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../index.html">SETLyze v0.1.1 documentation</a> &raquo;</li>
+
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setlyze-config-configuration-manager">
+<h1><a class="reference internal" href="#module-setlyze.config" title="setlyze.config"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.config</span></tt></a> &#8212; Configuration manager<a class="headerlink" href="#setlyze-config-configuration-manager" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira</td>
+</tr>
+<tr class="field"><th class="field-name">Release:</th><td class="field-body">0.1.1</td>
+</tr>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">May 06, 2011</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="module-setlyze.config">
+<span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.config" title="Permalink to this headline">¶</a></h2>
+<p>This modules provides application-wide access to SETLyze&#8217;s
+configuration and data variables.</p>
+<p>This module provides an object <tt class="docutils literal"><span class="pre">cfg</span></tt> for handling a fixed set of
+configuration and data variables for SETLyze. The big advantage is that
+this makes the variables available across all modules. Here is a small
+usage example,</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.config</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span> <span class="n">slot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;The alpha level for the t-test and Wilcoxon test is set to&quot;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span>
+<span class="go">The alpha level for the t-test and Wilcoxon test is set to 0.01</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;The first species selection is&quot;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="go">The first species selection is [11, 12, 13, 14]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;The second species selection is&quot;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="go">The second species selection is [15, 16, 17]</span>
+</pre></div>
+</div>
+<p>Importing this module in a different module gives access to the same
+<tt class="docutils literal"><span class="pre">cfg</span></tt> object, and thus its variables can be obtained or manipulated
+using its get() and set() methods.</p>
+<dl class="class">
+<dt id="setlyze.config.ConfigManager">
+<em class="property">class </em><tt class="descclassname">setlyze.config.</tt><tt class="descname">ConfigManager</tt><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for managing SETLyze&#8217;s data and configuration variables.</p>
+<p>An instance of this class provides access to a fixed set of
+variables that need to be accessable across SETLyze&#8217;s modules. By
+importing this module, one instance of this class is created.
+Subsequent imports in other modules provides access to that same
+instance.</p>
+<p>The method set() is used to change the value of variables. The
+method get() is used to get the value of a variable.</p>
+<p>All variables and their default values can be found in the variable
+<tt class="docutils literal"><span class="pre">DEFAULT_CONFIG</span></tt> of this module.</p>
+<p>Design Part: 1.57</p>
+<dl class="method">
+<dt id="setlyze.config.ConfigManager.get">
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value for the configuration with name <cite>key</cite>.</p>
+<p>Some configurations have extra keyword arguments. These
+arguments are handled by <cite>kwargs</cite>. The configurations that have
+extra arguments are as follows:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">locations-selection</span></tt>, <tt class="docutils literal"><span class="pre">species-selection</span></tt></dt>
+<dd>If <cite>slot</cite> is set to 0 (default), the value of the
+first selection is returned. If set to 1,the second
+selection is returned.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.config.ConfigManager.set">
+<tt class="descname">set</tt><big>(</big><em>key</em>, <em>value</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the configuration with name <cite>key</cite> to <cite>value</cite>.</p>
+<p>Some configurations have extra keyword arguments. These
+arguments are handled by <cite>kwargs</cite>. The configurations that have
+extra arguments are as follows:</p>
+<blockquote>
+<div><dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">locations-selection</span></tt>, <tt class="docutils literal"><span class="pre">species-selection</span></tt></dt>
+<dd>If <cite>slot</cite> is set to 0 (default), the value is saved
+as the first selection. If set to 1, the value is saved
+as the second selection.</dd>
+</dl>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.config.ConfigManager.set_data_source">
+<tt class="descname">set_data_source</tt><big>(</big><em>source</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.set_data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.set_data_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the configuration with name <tt class="docutils literal"><span class="pre">data-source</span></tt> to <cite>source</cite>.</p>
+<p>Possible values for <cite>source</cite> are <tt class="docutils literal"><span class="pre">setl-database</span></tt> and
+<tt class="docutils literal"><span class="pre">csv-msaccess</span></tt>. The value of this configuration tells the
+application where to look for SETL data. This is especially used
+by the database module.</p>
+<p>If an unknown data source is given, an error is printed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/setlyze-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">setlyze.config</span></tt> &#8212; Configuration manager</a><ul>
+<li><a class="reference internal" href="#module-setlyze.config">Module Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../setlyze_modules.html"
+                        title="previous chapter">SETLyze Standard Modules</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="database.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/setlyze/config.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="database.html" title="setlyze.database — Database access"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../setlyze_modules.html" title="SETLyze Standard Modules"
+             >previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../index.html">SETLyze v0.1.1 documentation</a> &raquo;</li>
+
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, 2011, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+    </div>
+  </body>
+</html>
