@@ -19,30 +19,36 @@ Navigating the SETLyze folder
 
 The key files in SETLyze's root folder are:
 
-setlyze
+src/setlyze/
     This is SETLyze's main code base. This package folder contains
     all of SETLyze's modules. This is the folder where you'll be
     editing most Python source files for SETLyze.
 
-setlyze/docs
+src/setlyze.pyw
+    This is SETLyze's executable. This is what you'll run to start SETLyze.
+
+src/setlyze/docs/html/
     This folder contains the documentation for SETLyze. This includes
     the User Manual and the Developer Guide. You can view the manual
     by (double) clicking index.html. This should open the documentation
     in your web browser.
+
+src/doc-src/
+    This folder contains the files used to build the documentation. This is
+    done using Sphinx. Some parts of the documentation are from
+    ``.rst``-files within this folder, others are extracted from the
+    documentation strings within the program source code.
+
+README
+    This text file contains a short description of the program and directs
+    you to other documentation.
 
 COPYING
     This text file contains the license for SETLyze. SETLyze is released
     under the GNU General Public License version 3.
 
 INSTALL
-    Text file with installation instrutions for SETLyze.
-
-setlyze.pyw
-    This is SETLyze's executable. This is what you'll run to start SETLyze.
-
-setup.py
-    Installer script for SETLyze. Installs SETLyze system-wide or to your
-    home directory. For installation instructions, read the INSTALL file.
+    Text file with installation instructions for SETLyze.
 
 
 Technical Design

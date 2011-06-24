@@ -68,25 +68,30 @@ internals, its programming style, what&#8217;s unfinished, et cetera.</p>
 <h3>Navigating the SETLyze folder<a class="headerlink" href="#navigating-the-setlyze-folder" title="Permalink to this headline">¶</a></h3>
 <p>The key files in SETLyze&#8217;s root folder are:</p>
 <dl class="docutils">
-<dt>setlyze</dt>
+<dt>src/setlyze/</dt>
 <dd>This is SETLyze&#8217;s main code base. This package folder contains
 all of SETLyze&#8217;s modules. This is the folder where you&#8217;ll be
 editing most Python source files for SETLyze.</dd>
-<dt>setlyze/docs</dt>
+<dt>src/setlyze.pyw</dt>
+<dd>This is SETLyze&#8217;s executable. This is what you&#8217;ll run to start SETLyze.</dd>
+<dt>src/setlyze/docs/html/</dt>
 <dd>This folder contains the documentation for SETLyze. This includes
 the User Manual and the Developer Guide. You can view the manual
 by (double) clicking index.html. This should open the documentation
 in your web browser.</dd>
+<dt>src/doc-src/</dt>
+<dd>This folder contains the files used to build the documentation. This is
+done using Sphinx. Some parts of the documentation are from
+<tt class="docutils literal"><span class="pre">.rst</span></tt>-files within this folder, others are extracted from the
+documentation strings within the program source code.</dd>
+<dt>README</dt>
+<dd>This text file contains a short description of the program and directs
+you to other documentation.</dd>
 <dt>COPYING</dt>
 <dd>This text file contains the license for SETLyze. SETLyze is released
 under the GNU General Public License version 3.</dd>
 <dt>INSTALL</dt>
-<dd>Text file with installation instrutions for SETLyze.</dd>
-<dt>setlyze.pyw</dt>
-<dd>This is SETLyze&#8217;s executable. This is what you&#8217;ll run to start SETLyze.</dd>
-<dt>setup.py</dt>
-<dd>Installer script for SETLyze. Installs SETLyze system-wide or to your
-home directory. For installation instructions, read the INSTALL file.</dd>
+<dd>Text file with installation instructions for SETLyze.</dd>
 </dl>
 </div>
 <div class="section" id="technical-design">
