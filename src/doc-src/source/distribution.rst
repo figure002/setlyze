@@ -82,17 +82,20 @@ SETLyze, as RPy2 works slightly different.
 Running and Testing SETLyze
 ===========================
 
-Now that you have installed all of SETLyze's pre-requisites, you can try to
-run SETLyze. First obtain a copy SETLyze's Bazaar repository. Note: it is
-important that you get the Bazaar repository, not the code from the source
-package. The Bazaar repository contains a file ``src/setlyze.pyw``. This is
-the executable for SETLyze, so try to run it. On Windows, you should run
-``python setlyze.pyw`` from a DOS window so you can see any error/warning/info
-messages returned by SETLyze. If you've thoroughly tested SETLyze and found no
-problems or error messages, you can continue with the next step.
+Now that you have installed all of SETLyze's pre-requisites, you can try
+to run SETLyze. First obtain a copy SETLyze's Bazaar repository. Note:
+it is important that you get the full Bazaar repository, not just the
+code from the source package. The Bazaar repository contains a file
+``src/setlyze.pyw``. This is the executable for SETLyze, so try to run
+it. On Windows, you should run ``python setlyze.pyw`` from a DOS window
+so you can see any error/warning/info messages returned by SETLyze. If
+you've thoroughly tested SETLyze and found no problems or error messages,
+you can continue with the next step.
 
 Preparing the Distribution Folder
 =================================
+
+.. TODO Check if this is still correct
 
 Not all files required for creating distribution packages are included in
 the Bazaar repository for SETLyze. So you need to manually copy some extra
