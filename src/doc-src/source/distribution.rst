@@ -219,15 +219,12 @@ automatically copy the ``[setlyze-repo]\src\setlyze\docs\`` folder to the ``[set
 folder. This is not yet built into the `build-win32-exe.py`` script, so you'll have
 to copy-paste it manually.
 
-Copy the folder ``[setlyze-repo]\src\setlyze\docs\`` into the ``[setlyze-repo]\src\dist\`` folder. The contents
-of ``[setlyze-repo]\src\setlyze\docs\`` were originally copied from the ``[sphinx-repo]\build\html\`` folder
-in the Bazaar repository for SETLyze's documentation (see the Sphinx documentation on how to build the HTML documentation).
-The ``[sphinx-repo]\build\html\`` folder contains the built HTML documentation for SETLyze. So in the
-future, after you've updated the documentation, you rebuild the HTML
-documentation and copy the folder ``[sphinx-repo]\build\html\`` from the documentation
-to ``[setlyze-repo]\src\dist\`` and rename ``[setlyze-repo]\src\dist\html\`` to ``[setlyze-repo]\src\dist\docs\``. Again
-try one of SETLyze's Help buttons. The help contents should now open in your
-browser.
+Copy the folder ``[setlyze-repo]\src\setlyze\docs\`` into
+the ``[setlyze-repo]\src\dist\`` folder. The contents of
+``[setlyze-repo]\src\setlyze\docs\`` were originally compiled from the
+``[setlyze-repo]\src\doc-src\`` folder (see the Sphinx documentation on
+how to build the HTML documentation).  Again try one of SETLyze's Help
+buttons. The help contents should now open in your browser.
 
 At this point, the ``[setlyze-repo]\src\dist\`` folder contains almost all files required to
 run SETLyze. I say almost, because one still needs to have R installed to
