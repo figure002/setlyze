@@ -1840,6 +1840,10 @@ class DisplayReport(gtk.Window):
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
 
+        # Test if the cancel button is pressed and return to home.
+        if setlyze.config.cfg.get('cancel-pressed'):
+            logging.info("Foo- displayReport")
+
         # Handle window signals.
         self.connect('delete-event', on_quit)
 

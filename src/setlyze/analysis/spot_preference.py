@@ -339,21 +339,24 @@ class Start(threading.Thread):
             gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
             return
 
-        # Create log message and update progress dialog.
-        logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
-        self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
-        # Perform the repeats for the statistical tests. This will repeatedly
-        # calculate the expected totals, so we'll use the expected values
-        # of the last repeat for the non-repeated tests.
-        self.repeat_test(self.n_repeats)
+        # Test if the cancel buton is pressed:
+        if not setlyze.config.cfg.get('cancel-pressed'):
+            # Create log message and update progress dialog.
+            logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
+            self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
+            # Perform the repeats for the statistical tests. This will repeatedly
+            # calculate the expected totals, so we'll use the expected values
+            # of the last repeat for the non-repeated tests.
+            self.repeat_test(self.n_repeats)
 
-        # Create log message.
-        logging.info("\tPerforming statistical tests...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Performing statistical tests...")
-        # Performing the statistical tests.
-        self.calculate_significance_wilcoxon()
-        self.calculate_significance_chisq()
+        if not setlyze.config.cfg.get('cancel-pressed'):
+            # Create log message.
+            logging.info("\tPerforming statistical tests...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Performing statistical tests...")
+            # Performing the statistical tests.
+            self.calculate_significance_wilcoxon()
+            self.calculate_significance_chisq()
 
         # Update progress dialog.
         self.pdialog_handler.increase("Generating the analysis report...")
@@ -797,6 +800,10 @@ class Start(threading.Thread):
         Design Part: 1.65
         """
         for i in range(number):
+            # Test if the cancel buton is pressed.
+            if setlyze.config.cfg.get('cancel-pressed'):
+                return
+
             # Update the progess bar.
             self.pdialog_handler.increase()
 
