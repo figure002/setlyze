@@ -51,8 +51,8 @@ __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.1.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
+__maintainer__ = "Serrano Pereira", "Adam van Adrichem"
+__email__ = "serrano.pereira@gmail.com", "a.v.adrichem@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
@@ -124,13 +124,13 @@ DEFAULT_CONFIG = [
     # Species selections.
     # Design Part: 2.7
     ('species-selection', [None,None]),
-    # Path to localities CSV file.
+    # Path to localities CSV or XLS file.
     ('localities-file', None),
-    # Path to species CSV file.
+    # Path to species CSV or XLS file.
     ('species-file', None),
-    # Path to records CSV file.
+    # Path to records CSV or XLS file.
     ('records-file', None),
-    # Path to plates CSV file.
+    # Path to plates CSV or XLS file.
     ('plates-file', None),
     # Plate areas definition for analysis 1
     # Design Part: 2.24
@@ -218,7 +218,7 @@ class ConfigManager(object):
     def set_data_source(self, source):
         """Set the configuration with name ``data-source`` to `source`.
 
-        Possible values for `source` are ``setl-database`` and
+        Possible values for `source` are ``setl-database``,``MS XLS-files``  and
         ``csv-msaccess``. The value of this configuration tells the
         application where to look for SETL data. This is especially used
         by the database module.
@@ -227,7 +227,7 @@ class ConfigManager(object):
         """
 
         # Legal data sources.
-        legal_sources = ("setl-database", "csv-msaccess", "xls")		#### XLS toevoegen
+        legal_sources = ("setl-database", "csv-msaccess", "xls")
 
         if source in legal_sources:
             # Set the new data source.

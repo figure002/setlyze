@@ -54,10 +54,11 @@ if setlyze.std.we_are_frozen():
 __author__ = "Serrano Pereira, Adam van Adrichem and Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
-    "Serrano Pereira <serrano.pereira@gmail.com>"]
+    "Serrano Pereira <serrano.pereira@gmail.com>",
+    "Adam van Adrichem <a.v.adrichem@gmail.com>"]
 __license__ = "GPL3"
 __version__ = "0.1.1"
-__maintainer__ = "Serrano Pereira, Adam van Adrichem and Fedde Schaeffer"
+__maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"

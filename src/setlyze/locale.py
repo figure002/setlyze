@@ -31,12 +31,12 @@ it can be easily expanded to do so.
 import sys
 import logging
 
-__author__ = "Serrano Pereira"
+__author__ = "Serrano Pereira", "Adam van Adrichem"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.1.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
+__maintainer__ = "Serrano Pereira," "Adam van Adrichem"
+__email__ = "serrano.pereira@gmail.com", "a.v.adrichem@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
@@ -140,12 +140,12 @@ ENGLISH = [
         "as input. See the user manual for more information. Please select "
         "all four files and try again."),
     ('csv-import-failed',
-        "Failed to load the SETL data from the CSV files. This is probably "
-        "caused by an incorrect format of the input file. SETLyze requires "
-        "the input files to be in a specific format. Please follow the "
-        "instructions in the user manual on how to create the CSV files in "
-        "the required format.\n\n"
-        "The error returned was: %s"),
+        "Failed to load the SETL data from the CSV or XLS files. "
+        " This is probably caused by an incorrect format of the input file. "
+        " SETLyze requires the input files to be in a specific format. "
+        " Please follow the instructions in the user manual on how to "
+        " create the CSV files in the required format.\n\n"
+        " The error returned was: %s"),
     ]
 
 # Turn the list into a dictionary. This provides easier access to its

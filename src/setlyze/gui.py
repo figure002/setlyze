@@ -30,7 +30,8 @@ until an event occurs and control is passed to the appropriate function.
 To understand the code, it's important that you gain basic
 understanding of signals and callbacks, as these are used throughout
 the application (not just this module). The following tutorial is a good
-place to start: `Theory of Signals and Callbacks <http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html>`_
+place to start: `Theory of Signals and Callbacks 
+<http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html>`_
 
 Each class in this module represents a graphical dialog or window.
 Displaying one of these dialogs is as easy as instantiating the class.
@@ -62,12 +63,12 @@ import setlyze.config
 import setlyze.database
 from setlyze.std import make_remarks
 
-__authors__ = "Serrano Pereira, Adam van Adrichem"
+__authors__ = "Serrano Pereira", "Adam van Adrichem"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.1.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
+__maintainer__ = "Serrano Pereira", "Adam van Adrichem"
+__email__ = "serrano.pereira@gmail.com", "a.v.adrichem@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
@@ -78,9 +79,11 @@ def on_help(button, section):
 
     # Construct the path to the help file.
     if setlyze.std.we_are_frozen():
-        path = os.path.join(setlyze.std.module_path(), 'docs/user_manual.html#'+section)
+        path = os.path.join(setlyze.std.module_path(),
+            'docs/user_manual.html#'+section)
     else:
-        path = pkg_resources.resource_filename('setlyze', '/docs/user_manual.html#'+section)
+        path = pkg_resources.resource_filename('setlyze',
+            '/docs/user_manual.html#'+section)
 
     # Turn the path into an URL.
     if path.startswith('/'):
@@ -102,7 +105,7 @@ def on_quit(button, data=None):
     """Quit the application."""
     dialog = gtk.MessageDialog(parent=None, flags=0,
         type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO,
-        message_format="Are you sure you want to quit SETLyze?")
+            message_format="Are you sure you want to quit SETLyze?")
     dialog.set_position(gtk.WIN_POS_CENTER)
 
     response = dialog.run()
@@ -120,7 +123,7 @@ def on_quit(button, data=None):
 def on_not_implemented():
     dialog = gtk.MessageDialog(parent=None, flags=0,
         type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
-        message_format="Not yet implemented")
+            message_format="Not yet implemented")
     dialog.format_secondary_text("Sorry, the feature you're trying to "
         "access is not implemented yet. It will be implemented in the next "
         "version of SETLyze.")
@@ -153,9 +156,12 @@ class SelectAnalysis(gtk.Window):
         self.connect('destroy', gtk.main_quit)
 
         # Handle application signals.
-        self.handler1 = setlyze.std.sender.connect('beginning-analysis', self.on_analysis_started)
-        self.handler2 = setlyze.std.sender.connect('analysis-closed', self.on_analysis_closed)
-        self.handler3 = setlyze.std.sender.connect('local-db-created', self.on_continue)
+        self.handler1 = setlyze.std.sender.connect('beginning-analysis',
+            self.on_analysis_started)
+        self.handler2 = setlyze.std.sender.connect('analysis-closed',
+            self.on_analysis_closed)
+        self.handler3 = setlyze.std.sender.connect('local-db-created',
+            self.on_continue)
 
         # Add widgets to the GTK window.
         self.create_layout()
@@ -185,22 +191,26 @@ class SelectAnalysis(gtk.Window):
         vbox = gtk.VBox(homogeneous=True, spacing=5)
 
         # Create radio buttons.
-        self.radio_ana1 = gtk.RadioButton(None, setlyze.locale.text('analysis1'))
+        self.radio_ana1 = gtk.RadioButton(None,
+            setlyze.locale.text('analysis1'))
         self.radio_ana1.set_tooltip_text(setlyze.locale.text('analysis1-descr'))
         self.radio_ana1.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana1)
 
-        self.radio_ana2_1 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis2'))
+        self.radio_ana2_1 = gtk.RadioButton(self.radio_ana1,
+            setlyze.locale.text('analysis2'))
         self.radio_ana2_1.set_tooltip_text(setlyze.locale.text('analysis2-descr'))
         self.radio_ana2_1.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana2_1)
 
-        self.radio_ana2_2 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis3'))
+        self.radio_ana2_2 = gtk.RadioButton(self.radio_ana1,
+            setlyze.locale.text('analysis3'))
         self.radio_ana2_2.set_tooltip_text(setlyze.locale.text('analysis3-descr'))
         self.radio_ana2_2.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana2_2)
 
-        self.radio_ana3 = gtk.RadioButton(self.radio_ana1, setlyze.locale.text('analysis4'))
+        self.radio_ana3 = gtk.RadioButton(self.radio_ana1,
+            setlyze.locale.text('analysis4'))
         self.radio_ana3.set_tooltip_text(setlyze.locale.text('analysis4-descr'))
         self.radio_ana3.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana3)
@@ -213,9 +223,11 @@ class SelectAnalysis(gtk.Window):
         # Load an image for the logo.
         setl_logo = gtk.Image()
         if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(), 'images/setlyze-logo.png')
+            image_path = os.path.join(setlyze.std.module_path(),
+                'images/setlyze-logo.png')
         else:
-            image_path = pkg_resources.resource_filename('setlyze', 'images/setlyze-logo.png')
+            image_path = pkg_resources.resource_filename('setlyze',
+                'images/setlyze-logo.png')
         setl_logo.set_from_file(image_path)
         setl_logo_align = gtk.Alignment(xalign=1, yalign=0, xscale=0, yscale=1)
         setl_logo_align.add(setl_logo)
@@ -490,7 +502,8 @@ class SelectionWindow(gtk.Window):
         self.connect('delete-event', on_quit)
 
         # Handle application signals.
-        self.handler1 = setlyze.std.sender.connect('local-db-created', self.update_tree)
+        self.handler1 = setlyze.std.sender.connect('local-db-created',
+            self.update_tree)
 
         # Add widgets to the GTK window.
         self.create_layout()
@@ -591,7 +604,8 @@ class SelectionWindow(gtk.Window):
         # But the button in a horizontal button box.
         button_box_l = gtk.HButtonBox()
         button_box_l.set_layout(gtk.BUTTONBOX_START)
-        button_box_l.pack_start(self.button_chg_source, expand=True, fill=True, padding=0)
+        button_box_l.pack_start(self.button_chg_source, expand=True, fill=True,
+            padding=0)
 
         # Add the button box to the table.
         table.attach(button_box_l, left_attach=0, right_attach=1,
@@ -614,7 +628,8 @@ class SelectionWindow(gtk.Window):
         button_box_r.set_layout(gtk.BUTTONBOX_END)
         button_box_r.set_spacing(5)
         button_box_r.pack_start(button_back, expand=True, fill=True, padding=0)
-        button_box_r.pack_start(button_continue, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_continue, expand=True, fill=True,
+            padding=0)
 
         # Add the aligned button box to the table.
         table.attach(button_box_r, left_attach=1, right_attach=2,
@@ -927,7 +942,8 @@ class SelectSpecies(SelectionWindow):
         # Notice text=1, which means that we let the column display the
         # attribute values for the cell renderer from column 1 in the
         # TreeModel. Column 1 contains the species names (venacular).
-        column = gtk.TreeViewColumn("Species (venacular)", renderer_text, text=1)
+        column = gtk.TreeViewColumn("Species (venacular)", renderer_text,
+            text=1)
         # Sort on column 1 from the model.
         column.set_sort_column_id(1)
         column.set_resizable(True)
@@ -1055,9 +1071,11 @@ class DefinePlateAreas(gtk.Window):
         # Load an image of the SETL grid.
         setl_grid = gtk.Image()
         if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(), 'images/setl-grid.png')
+            image_path = os.path.join(setlyze.std.module_path(),
+                'images/setl-grid.png')
         else:
-            image_path = pkg_resources.resource_filename('setlyze', 'images/setl-grid.png')
+            image_path = pkg_resources.resource_filename('setlyze',
+                'images/setl-grid.png')
         setl_grid.set_from_file(image_path)
         # Add the image to the table.
         table.attach(setl_grid, left_attach=1, right_attach=2,
@@ -1086,8 +1104,10 @@ class DefinePlateAreas(gtk.Window):
         button_box_r = gtk.HButtonBox()
         button_box_r.set_layout(gtk.BUTTONBOX_END)
         button_box_r.set_spacing(5)
-        button_box_r.pack_start(button_back, expand=True, fill=True, padding=0)
-        button_box_r.pack_start(button_continue, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_back, expand=True,
+            fill=True, padding=0)
+        button_box_r.pack_start(button_continue, expand=True,
+            fill=True, padding=0)
 
         # Add the aligned box to the table
         table.attach(button_box_r, left_attach=1, right_attach=2,
@@ -1344,7 +1364,8 @@ class DefinePlateAreas(gtk.Window):
                 dialog = gtk.MessageDialog(parent=None, flags=0,
                     type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                     message_format="Invalid plate areas definition")
-                dialog.format_secondary_text( setlyze.locale.text('error-single-plate-area') )
+                dialog.format_secondary_text( setlyze.locale.text(
+                    'error-single-plate-area') )
                 dialog.set_position(gtk.WIN_POS_CENTER)
                 dialog.run()
                 dialog.destroy()
@@ -1430,7 +1451,7 @@ class ChangeDataSource(gtk.Window):
         * CSV files with SETL data exported from the MS Access SETL
           database.
 
-        * Import of XLS files
+        * Import of Microsoft Excel spread-sheet files.
 
         * TODO: The remote SETL database. This requires a direct
           connection with the SETL database server.
@@ -1472,7 +1493,7 @@ class ChangeDataSource(gtk.Window):
         # Create pages for the notebook.
         page_csv = self.create_page_csv()
         page_db = self.create_page_db()
-        page_xls = self.create_page_xls()                               #### AANPASSEN
+        page_xls = self.create_page_xls()
 
         # Add the pages to the notebook.
         label_csv = gtk.Label("CSV Files From Access DB")
@@ -1481,8 +1502,8 @@ class ChangeDataSource(gtk.Window):
         label_db = gtk.Label("Remote SETL DB")
         notebook.append_page(page_db, label_db)
 
-        label_xls = gtk.Label("XLS")                                    ### AANPASSEN
-        notebook.append_page(page_xls, label_xls)                       ### AANPASSEN
+        label_xls = gtk.Label("XLS") # Microsoft Excel spreadsheet files
+        notebook.append_page(page_xls, label_xls)
 
         # Add a header to the dialog.
         label_header = gtk.Label()
@@ -1566,7 +1587,8 @@ class ChangeDataSource(gtk.Window):
         self.loc_file_chooser = gtk.FileChooserButton('Select file...')
         self.loc_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
         self.loc_file_chooser.add_filter(csv_filter)
-        self.loc_file_chooser.connect('current-folder-changed', self.update_working_folder)
+        self.loc_file_chooser.connect('current-folder-changed',
+            self.update_working_folder)
 
         # Create a plates file chooser button.
         self.pla_file_chooser = gtk.FileChooserButton('Select file...')
@@ -1625,7 +1647,8 @@ class ChangeDataSource(gtk.Window):
         button_box_r = gtk.HButtonBox()
         button_box_r.set_layout(gtk.BUTTONBOX_END)
         button_box_r.set_spacing(5)
-        button_box_r.pack_start(button_cancel, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(button_cancel, expand=True, fill=True,
+            padding=0)
         button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
 
         # Add the aligned box to the table
@@ -1635,10 +1658,9 @@ class ChangeDataSource(gtk.Window):
 
         return table
 
-########################################
     def create_page_xls(self):
         """Return a notebook page for switching to SETL data from
-        csv files."""
+        XLS files."""
 
         # Create a table to organize the widgets in.
         table = gtk.Table(rows=6, columns=2, homogeneous=False)
@@ -1677,7 +1699,8 @@ class ChangeDataSource(gtk.Window):
         self.loc_xls_file_chooser = gtk.FileChooserButton('Select file...')
         self.loc_xls_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
         self.loc_xls_file_chooser.add_filter(xls_filter)
-        self.loc_xls_file_chooser.connect('current-folder-changed', self.update_working_folder)
+        self.loc_xls_file_chooser.connect('current-folder-changed',
+            self.update_working_folder)
 
         # Create a plates file chooser button.
         self.pla_xls_file_chooser = gtk.FileChooserButton('Select file...')
@@ -1722,10 +1745,10 @@ class ChangeDataSource(gtk.Window):
             top_attach=4, bottom_attach=5, xoptions=gtk.FILL|gtk.EXPAND,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
-        # OK button
+        # OK button for xls files.
         button_ok = gtk.Button(stock=gtk.STOCK_OK)
         button_ok.set_size_request(-1, -1)
-        button_ok.connect("clicked", self.on_xls_ok)				### Inlezen
+        button_ok.connect("clicked", self.on_xls_ok)
 
         # Cancel button
         button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
@@ -1745,7 +1768,6 @@ class ChangeDataSource(gtk.Window):
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         return table
-########################################
 
     def handle_application_signals(self):
         """Respond to signals emitted by the application."""
@@ -1778,17 +1800,22 @@ class ChangeDataSource(gtk.Window):
             dialog = gtk.MessageDialog(parent=None, flags=0,
                 type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                 message_format="Not all CSV files selected")
-            dialog.format_secondary_text( setlyze.locale.text('csv-files-not-selected') )
+            dialog.format_secondary_text( setlyze.locale.text(
+                'csv-files-not-selected') )
             dialog.set_position(gtk.WIN_POS_CENTER)
             dialog.run()
             dialog.destroy()
             return False
 
         # Save the paths.
-        setlyze.config.cfg.set('localities-file', self.loc_file_chooser.get_filename() )
-        setlyze.config.cfg.set('species-file', self.spe_file_chooser.get_filename() )
-        setlyze.config.cfg.set('records-file', self.rec_file_chooser.get_filename() )
-        setlyze.config.cfg.set('plates-file', self.pla_file_chooser.get_filename() )
+        setlyze.config.cfg.set('localities-file',
+            self.loc_file_chooser.get_filename() )
+        setlyze.config.cfg.set('species-file',
+            self.spe_file_chooser.get_filename() )
+        setlyze.config.cfg.set('records-file',
+            self.rec_file_chooser.get_filename() )
+        setlyze.config.cfg.set('plates-file',
+            self.pla_file_chooser.get_filename() )
 
         # Let the application know that we are now using user selected CSV files.
         setlyze.config.cfg.set('data-source', 'csv-msaccess')
@@ -1805,10 +1832,9 @@ class ChangeDataSource(gtk.Window):
         # Close the dialog.
         self.destroy()
 
-#######################################
     def on_xls_ok(self, widget, data=None):
-        """Save the paths to the CSV files, set the new value for the
-        data source configuration, load the SETL data from the CSV file
+        """Save the paths to the XLS files, set the new value for the
+        data source configuration, load the SETL data from the XLS file
         into the local database, and close the dialog.
         """
 
@@ -1820,20 +1846,25 @@ class ChangeDataSource(gtk.Window):
             dialog = gtk.MessageDialog(parent=None, flags=0,
                 type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                 message_format="Not all xls files selected")
-            dialog.format_secondary_text( setlyze.locale.text('xls-files-not-selected') )		### Text file aangepast
+            dialog.format_secondary_text( setlyze.locale.text(
+                'xls-files-not-selected') )
             dialog.set_position(gtk.WIN_POS_CENTER)
             dialog.run()
             dialog.destroy()
             return False
 
         # Save the paths.
-        setlyze.config.cfg.set('localities-file', self.loc_xls_file_chooser.get_filename() )
-        setlyze.config.cfg.set('species-file', self.spe_xls_file_chooser.get_filename() )
-        setlyze.config.cfg.set('records-file', self.rec_xls_file_chooser.get_filename() )
-        setlyze.config.cfg.set('plates-file', self.pla_xls_file_chooser.get_filename() )
+        setlyze.config.cfg.set('localities-file',
+            self.loc_xls_file_chooser.get_filename() )
+        setlyze.config.cfg.set('species-file',
+            self.spe_xls_file_chooser.get_filename() )
+        setlyze.config.cfg.set('records-file',
+            self.rec_xls_file_chooser.get_filename() )
+        setlyze.config.cfg.set('plates-file',
+            self.pla_xls_file_chooser.get_filename() )
 
         # Let the application know that we are now using user selected xls files.
-        setlyze.config.cfg.set('data-source', 'xls')						### aanpassen
+        setlyze.config.cfg.set('data-source', 'xls')
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Loading data",
@@ -1846,11 +1877,10 @@ class ChangeDataSource(gtk.Window):
 
         # Close the dialog.
         self.destroy()
-#####################################################
 
     def on_csv_import_failed(self, sender, error, data=None):
         """Display an error message showing the user that importing SETL data
-        from the selected CSV files failed.
+        from the selected CSV or XLS files failed.
         """
         self.destroy_handler_connections()
 
@@ -1860,7 +1890,8 @@ class ChangeDataSource(gtk.Window):
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
             message_format="Loading SETL data failed")
-        dialog.format_secondary_text( setlyze.locale.text('csv-import-failed', error) )
+        dialog.format_secondary_text( setlyze.locale.text('csv-import-failed',
+            error) )
         dialog.set_position(gtk.WIN_POS_CENTER)
         dialog.run()
         dialog.destroy()
@@ -1884,9 +1915,11 @@ class ChangeDataSource(gtk.Window):
         path = chooser.get_filename()
         if path:
             folder = os.path.dirname(path)
+            # For the CSV files
             self.spe_file_chooser.set_current_folder(folder)
             self.rec_file_chooser.set_current_folder(folder)
             self.pla_file_chooser.set_current_folder(folder)
+            # For the XLS files
             self.spe_xls_file_chooser.set_current_folder(folder)
             self.rec_xls_file_chooser.set_current_folder(folder)
             self.pla_xls_file_chooser.set_current_folder(folder)
@@ -1954,7 +1987,8 @@ class ProgressDialog(gtk.Window):
         self.pbar.set_fraction(0.0)
         self.pbar.set_orientation(gtk.PROGRESS_LEFT_TO_RIGHT)
 
-        pbar_align = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=1.0, yscale=0.0)
+        pbar_align = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=1.0,
+            yscale=0.0)
         pbar_align.add(self.pbar)
 
         # Close button
@@ -1969,7 +2003,8 @@ class ProgressDialog(gtk.Window):
         button_box_r = gtk.HButtonBox()
         button_box_r.set_layout(gtk.BUTTONBOX_END)
         button_box_r.set_spacing(5)
-        button_box_r.pack_start(self.button_close, expand=True, fill=True, padding=0)
+        button_box_r.pack_start(self.button_close, expand=True, fill=True,
+            padding=0)
 
         # Add the alignment objects to the vertical container.
         vbox.pack_start(self.descr_label, expand=False, fill=False, padding=5)
@@ -2345,7 +2380,8 @@ class DisplayReport(gtk.Window):
         tree.set_size_request(-1, 200)
         # Add columns to the tree view.
         cell = gtk.CellRendererText()
-        column = gtk.TreeViewColumn("Locations and Species Selections", cell, text=0)
+        column = gtk.TreeViewColumn("Locations and Species Selections", cell,
+            text=0)
         tree.append_column(column)
         # To store the data, we use the TreeStore object.
         treestore = gtk.TreeStore(gobject.TYPE_STRING)
@@ -2597,7 +2633,8 @@ class DisplayReport(gtk.Window):
         totals_observed = self.reader.get_area_totals_observed()
         totals_expected = self.reader.get_area_totals_expected()
         for area_id in sorted(totals_observed):
-            liststore.append([area_id, totals_observed[area_id], totals_expected[area_id]])
+            liststore.append([area_id, totals_observed[area_id],
+                totals_expected[area_id]])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -3110,7 +3147,8 @@ class DisplayReport(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
+        expander = gtk.Expander(setlyze.locale.text(
+            't-significance-results-repeats', testname))
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -3369,12 +3407,18 @@ class SelectExportElements(gtk.Dialog):
             'wilcoxon_spots': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
             'wilcoxon_ratios': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
             'wilcoxon_areas': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
-            'wilcoxon_spots_repeats': setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'),
-            'wilcoxon_ratios_repeats': setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'),
-            'wilcoxon_areas_repeats': setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'),
-            'chi_squared_spots': setlyze.locale.text('t-results-pearson-chisq'),
-            'chi_squared_ratios': setlyze.locale.text('t-results-pearson-chisq'),
-            'chi_squared_areas': setlyze.locale.text('t-results-pearson-chisq'),
+            'wilcoxon_spots_repeats': setlyze.locale.text(
+                't-significance-results-repeats', 'Wilcoxon'),
+            'wilcoxon_ratios_repeats': setlyze.locale.text(
+                't-significance-results-repeats', 'Wilcoxon'),
+            'wilcoxon_areas_repeats': setlyze.locale.text(
+                't-significance-results-repeats', 'Wilcoxon'),
+            'chi_squared_spots': setlyze.locale.text(
+                't-results-pearson-chisq'),
+            'chi_squared_ratios': setlyze.locale.text(
+                't-results-pearson-chisq'),
+            'chi_squared_areas': setlyze.locale.text(
+                't-results-pearson-chisq'),
             }
 
         # Create check buttons.
@@ -3629,9 +3673,11 @@ class About(gtk.AboutDialog):
 
         # Load the logo file.
         if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(), 'images/setlyze-logo.png')
+            image_path = os.path.join(setlyze.std.module_path(),
+                'images/setlyze-logo.png')
         else:
-            image_path = pkg_resources.resource_filename('setlyze', 'images/setlyze-logo.png')
+            image_path = pkg_resources.resource_filename('setlyze',
+                'images/setlyze-logo.png')
         logo = gtk.gdk.pixbuf_new_from_file(image_path)
 
         self.set_position(gtk.WIN_POS_CENTER)
