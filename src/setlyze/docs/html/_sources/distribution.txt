@@ -82,17 +82,20 @@ SETLyze, as RPy2 works slightly different.
 Running and Testing SETLyze
 ===========================
 
-Now that you have installed all of SETLyze's pre-requisites, you can try to
-run SETLyze. First obtain a copy SETLyze's Bazaar repository. Note: it is
-important that you get the Bazaar repository, not the code from the source
-package. The Bazaar repository contains a file ``src/setlyze.pyw``. This is
-the executable for SETLyze, so try to run it. On Windows, you should run
-``python setlyze.pyw`` from a DOS window so you can see any error/warning/info
-messages returned by SETLyze. If you've thoroughly tested SETLyze and found no
-problems or error messages, you can continue with the next step.
+Now that you have installed all of SETLyze's pre-requisites, you can try
+to run SETLyze. First obtain a copy SETLyze's Bazaar repository. Note:
+it is important that you get the full Bazaar repository, not just the
+code from the source package. The Bazaar repository contains a file
+``src/setlyze.pyw``. This is the executable for SETLyze, so try to run
+it. On Windows, you should run ``python setlyze.pyw`` from a DOS window
+so you can see any error/warning/info messages returned by SETLyze. If
+you've thoroughly tested SETLyze and found no problems or error messages,
+you can continue with the next step.
 
 Preparing the Distribution Folder
 =================================
+
+.. TODO Check if this is still correct
 
 Not all files required for creating distribution packages are included in
 the Bazaar repository for SETLyze. So you need to manually copy some extra
@@ -141,10 +144,6 @@ a path that points to the folder that contains setlyze's module folder
 Linux, "make.bat" on Windows) to generate the actual HTML documentation. Refer
 to the `Sphinx documentation <http://sphinx.pocoo.org/contents.html>`_
 for instructions.
-
-Each time you update the Sphinx documentation, you need to copy the contents of
-``[sphinx-repo]/build/html/`` to ``[setlyze-repo]/src/setlyze/docs/``, replacing
-the old documentation.
 
 To prepare the folder containing SETLyze's Bazaar repository for creating
 distributions, you need to opy the Windows installer for R 2.9.1 in the
@@ -220,15 +219,12 @@ automatically copy the ``[setlyze-repo]\src\setlyze\docs\`` folder to the ``[set
 folder. This is not yet built into the `build-win32-exe.py`` script, so you'll have
 to copy-paste it manually.
 
-Copy the folder ``[setlyze-repo]\src\setlyze\docs\`` into the ``[setlyze-repo]\src\dist\`` folder. The contents
-of ``[setlyze-repo]\src\setlyze\docs\`` were originally copied from the ``[sphinx-repo]\build\html\`` folder
-in the Bazaar repository for SETLyze's documentation (see the Sphinx documentation on how to build the HTML documentation).
-The ``[sphinx-repo]\build\html\`` folder contains the built HTML documentation for SETLyze. So in the
-future, after you've updated the documentation, you rebuild the HTML
-documentation and copy the folder ``[sphinx-repo]\build\html\`` from the documentation
-to ``[setlyze-repo]\src\dist\`` and rename ``[setlyze-repo]\src\dist\html\`` to ``[setlyze-repo]\src\dist\docs\``. Again
-try one of SETLyze's Help buttons. The help contents should now open in your
-browser.
+Copy the folder ``[setlyze-repo]\src\setlyze\docs\`` into
+the ``[setlyze-repo]\src\dist\`` folder. The contents of
+``[setlyze-repo]\src\setlyze\docs\`` were originally compiled from the
+``[setlyze-repo]\src\doc-src\`` folder (see the Sphinx documentation on
+how to build the HTML documentation).  Again try one of SETLyze's Help
+buttons. The help contents should now open in your browser.
 
 At this point, the ``[setlyze-repo]\src\dist\`` folder contains almost all files required to
 run SETLyze. I say almost, because one still needs to have R installed to
@@ -255,14 +251,16 @@ structure matches. ::
         │   ├── setlyze
         │   │   ├── analysis
         │   │   ├── docs
-        │   │   │   ├── about_us.html
-        │   │   │   ├── building_windows_installer.html
-        │   │   │   ├── design_parts_data.html
-        │   │   │   ├── design_parts_docs.html
-        │   │   │   ├── design_parts_index.html
-        │   │   │   ├── developer_guide.html
-        │   │   │   ├── distribution.html
-        │   │   │   └── ...
+        │   │   │   ├── html
+        │   │   │   │   ├── about_us.html
+        │   │   │   │   ├── building_windows_installer.html
+        │   │   │   │   ├── design_parts_data.html
+        │   │   │   │   ├── design_parts_docs.html
+        │   │   │   │   ├── design_parts_index.html
+        │   │   │   │   ├── developer_guide.html
+        │   │   │   │   ├── distribution.html
+        │   │   │   │   └── ...
+        │   │   │   └── ...
         │   │   └── images
         │   └── setlyze.pyw
         ├── test-data
