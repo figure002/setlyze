@@ -145,10 +145,6 @@ Linux, "make.bat" on Windows) to generate the actual HTML documentation. Refer
 to the `Sphinx documentation <http://sphinx.pocoo.org/contents.html>`_
 for instructions.
 
-Each time you update the Sphinx documentation, you need to copy the contents of
-``[sphinx-repo]/build/html/`` to ``[setlyze-repo]/src/setlyze/docs/``, replacing
-the old documentation.
-
 To prepare the folder containing SETLyze's Bazaar repository for creating
 distributions, you need to opy the Windows installer for R 2.9.1 in the
 ``[setlyze-repo]/win32/dependencies`` folder. The installer is called
