@@ -35,7 +35,7 @@
 ; Finish page
 !define MUI_FINISHPAGE_RUN "$INSTDIR\setlyze.exe"
 !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
-!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\docs\user_manual.html"
+!define MUI_FINISHPAGE_SHOWREADME "$INSTDIR\docs\html\user_manual.html"
 !define MUI_FINISHPAGE_RUN_NOTCHECKED
 !insertmacro MUI_PAGE_FINISH
 
@@ -67,7 +67,7 @@ Section "SETLyze Core" SEC01
   CreateDirectory "$SMPROGRAMS\GiMaRIS\SETLyze"
   CreateShortCut "$SMPROGRAMS\GiMaRIS\SETLyze\SETLyze.lnk" "$INSTDIR\setlyze.exe"
   CreateShortCut "$DESKTOP\SETLyze.lnk" "$INSTDIR\setlyze.exe"
-  CreateShortCut "$SMPROGRAMS\GiMaRIS\SETLyze\Documentation.lnk" "$INSTDIR\docs\index.html"
+  CreateShortCut "$SMPROGRAMS\GiMaRIS\SETLyze\Documentation.lnk" "$INSTDIR\docs\html\index.html"
 SectionEnd
 
 Section "R 2.9.1" SEC02
