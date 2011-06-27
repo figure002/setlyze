@@ -251,14 +251,16 @@ structure matches. ::
         │   ├── setlyze
         │   │   ├── analysis
         │   │   ├── docs
-        │   │   │   ├── about_us.html
-        │   │   │   ├── building_windows_installer.html
-        │   │   │   ├── design_parts_data.html
-        │   │   │   ├── design_parts_docs.html
-        │   │   │   ├── design_parts_index.html
-        │   │   │   ├── developer_guide.html
-        │   │   │   ├── distribution.html
-        │   │   │   └── ...
+        │   │   │   ├── html
+        │   │   │   │   ├── about_us.html
+        │   │   │   │   ├── building_windows_installer.html
+        │   │   │   │   ├── design_parts_data.html
+        │   │   │   │   ├── design_parts_docs.html
+        │   │   │   │   ├── design_parts_index.html
+        │   │   │   │   ├── developer_guide.html
+        │   │   │   │   ├── distribution.html
+        │   │   │   │   └── ...
+        │   │   │   └── ...
         │   │   └── images
         │   └── setlyze.pyw
         ├── test-data
