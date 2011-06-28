@@ -358,6 +358,14 @@ class Start(threading.Thread):
             self.calculate_significance_wilcoxon()
             self.calculate_significance_chisq()
 
+        # If the cancel buton is pressed don't finish this function
+        logging.info("Foo-update generate_report")
+        if setlyze.config.cfg.get('cancel-pressed'):
+            logging.info(setlyze.config.cfg.get('cancel-pressed'))
+            setlyze.config.cfg.set('cancel-pressed', False)
+            gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
+            return
+
         # Update progress dialog.
         self.pdialog_handler.increase("Generating the analysis report...")
         # Generate the report.
