@@ -63,14 +63,15 @@ import setlyze.config
 import setlyze.database
 from setlyze.std import make_remarks
 
-__authors__ = "Serrano Pereira", "Adam van Adrichem"
+__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.1.1"
-__maintainer__ = "Serrano Pereira", "Adam van Adrichem"
-__email__ = "serrano.pereira@gmail.com", "a.v.adrichem@gmail.com"
+__maintainer__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
+__email__ = ("serrano.pereira@gmail.com, a.v.adrichem@gmail.com, "
+    "fedde.schaeffer@gmail.com")
 __status__ = "Production"
-__date__ = "2011/05/03"
+__date__ = "2011/07/30"
 
 def on_help(button, section):
     """Display the help contents for `section` in the system's default
@@ -1991,13 +1992,10 @@ class ProgressDialog(gtk.Window):
             yscale=0.0)
         pbar_align.add(self.pbar)
 
-        # Close button
-        self.button_close = gtk.Button(stock=gtk.STOCK_CLOSE)
+        # Cancel button
+        self.button_close = gtk.Button(stock=gtk.STOCK_CANCEL)
         self.button_close.set_size_request(-1, -1)
         self.button_close.connect("clicked", self.on_close)
-        # Disable this button by default, because we don't want the user
-        # to press this button while a process is running.
-        self.button_close.set_sensitive(False)
 
         # But the button in a horizontal button box.
         button_box_r = gtk.HButtonBox()
@@ -2016,7 +2014,9 @@ class ProgressDialog(gtk.Window):
 
     def on_close(self, widget=None, data=None):
         """Destroy the dialog."""
+        logging.info("close button is pressed")
         self.destroy()
+        setlyze.config.cfg.set('cancel-pressed', True)
 
 class DisplayReport(gtk.Window):
     """Display a dialog visualizing the elements in the XML DOM analysis
@@ -2041,6 +2041,10 @@ class DisplayReport(gtk.Window):
         self.set_resizable(True)
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
+
+        # Test if the cancel button is pressed and return to home.
+        if setlyze.config.cfg.get('cancel-pressed'):
+            logging.info("Foo- displayReport")
 
         # Handle window signals.
         self.connect('delete-event', on_quit)

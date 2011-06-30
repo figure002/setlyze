@@ -141,11 +141,13 @@ ENGLISH = [
         "all four files and try again."),
     ('csv-import-failed',
         "Failed to load the SETL data from the CSV or XLS files. "
-        " This is probably caused by an incorrect format of the input file. "
-        " SETLyze requires the input files to be in a specific format. "
-        " Please follow the instructions in the user manual on how to "
-        " create the CSV files in the required format.\n\n"
-        " The error returned was: %s"),
+        "This is probably caused by an incorrect format of the input file. "
+        "SETLyze requires the input files to be in a specific format. "
+        "Please follow the instructions in the user manual on how to "
+        "create the CSV files in the required format.\n\n"
+        "The error returned was: %s"),
+    ('cancel-pressed',
+        "Analysis aborted by user"),
     ]
 
 # Turn the list into a dictionary. This provides easier access to its
