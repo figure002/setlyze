@@ -146,6 +146,10 @@ class Begin(object):
         self.handler12 = setlyze.std.sender.connect('analysis-finished',
             self.on_display_report)
 
+        # Handler 12: Cancel button
+        self.handler13 = setlyze.std.sender.connect('analysis-cancel-button',
+            self.on_cancel_button)
+
     def destroy_handler_connections(self):
         """Disconnect all signal connections with signal handlers
         created by this analysis.
@@ -162,6 +166,7 @@ class Begin(object):
         setlyze.std.sender.disconnect(self.handler10)
         setlyze.std.sender.disconnect(self.handler11)
         setlyze.std.sender.disconnect(self.handler12)
+        setlyze.std.sender.disconnect(self.handler13)
 
     def on_analysis_aborted(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
@@ -170,6 +175,20 @@ class Begin(object):
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="No species were found")
         dialog.format_secondary_text(setlyze.locale.text('empty-plate-areas'))
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
+
+        # Go back to the main window.
+        self.on_window_closed()
+
+    def on_cancel_button(self, sender):
+        setlyze.config.cfg.get('progress-dialog').destroy()
+
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            message_format="Analysis canceled")
+        dialog.format_secondary_text(setlyze.locale.text('cancel-pressed'))
         dialog.set_position(gtk.WIN_POS_CENTER)
         dialog.run()
         dialog.destroy()
@@ -362,7 +381,7 @@ class Start(threading.Thread):
         if setlyze.config.cfg.get('cancel-pressed'):
             # Set cancel-pressed back to default
             setlyze.config.cfg.set('cancel-pressed', False)
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
+            gobject.idle_add(setlyze.std.sender.emit, 'analysis-cancel-button')
             return
 
         # Update progress dialog.
