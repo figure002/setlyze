@@ -80,10 +80,10 @@ def on_help(button, section):
     # Construct the path to the help file.
     if setlyze.std.we_are_frozen():
         path = os.path.join(setlyze.std.module_path(),
-            'docs/user_manual.html#'+section)
+            'docs/html/user_manual.html#'+section)
     else:
         path = pkg_resources.resource_filename('setlyze',
-            '/docs/user_manual.html#'+section)
+            '/docs/html/user_manual.html#'+section)
 
     # Turn the path into an URL.
     if path.startswith('/'):
