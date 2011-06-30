@@ -139,6 +139,8 @@ ENGLISH = [
         "instructions in the user manual on how to create the CSV files in "
         "the required format.\n\n"
         "The error returned was: %s"),
+    ('cancel-pressed',
+        "Analysis aborted by user"),
     ]
 
 # Turn the list into a dictionary. This provides easier access to its

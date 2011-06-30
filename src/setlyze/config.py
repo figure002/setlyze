@@ -150,6 +150,8 @@ DEFAULT_CONFIG = [
     ('spot-dist-to-prob-inter', SPOT_DIST_TO_PROB_INTER),
     # Number of repeats to perform for statistical tests.
     ('test-repeats', 10),
+    # Is the cancel buton pressed ?
+    ('cancel-pressed', False),
 ]
 
 class ConfigManager(object):
