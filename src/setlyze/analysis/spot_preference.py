@@ -359,9 +359,8 @@ class Start(threading.Thread):
             self.calculate_significance_chisq()
 
         # If the cancel buton is pressed don't finish this function
-        logging.info("Foo-update generate_report")
         if setlyze.config.cfg.get('cancel-pressed'):
-            logging.info(setlyze.config.cfg.get('cancel-pressed'))
+            # Set cancel-pressed back to default
             setlyze.config.cfg.set('cancel-pressed', False)
             gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
             return

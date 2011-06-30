@@ -465,18 +465,32 @@ class Start(threading.Thread):
         # of the last repeat for the non-repeated tests.
         self.repeat_test(setlyze.config.cfg.get('test-repeats'))
 
-        # Create log message.
-        logging.info("\tPerforming statistical tests...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Performing statistical tests...")
-        # Performing the statistical tests. The expected values for the last
-        # repeat is used for this test.
-        self.calculate_significance()
+        # Test if cancel buton is pressed.
+        if not setlyze.config.cfg.get('cancel-pressed'):
+            # Create log message.
+            logging.info("\tPerforming statistical tests...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Performing statistical tests...")
+            # Performing the statistical tests. The expected values for the last
+            # repeat is used for this test.
+            self.calculate_significance()
 
-        # Create log message.
-        logging.info("\tGenerating the analysis report...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Generating the analysis report...")
+        # Test if cancel buton is pressed.
+        if not setlyze.config.cfg.get('cancel-pressed'):
+            # Create log message.
+            logging.info("\tGenerating the analysis report...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Generating the analysis report...")
+
+        # If the cancel buton is pressed don't finish this function
+        if setlyze.config.cfg.get('cancel-pressed'):
+            # Set cancel-pressed back to default
+            setlyze.config.cfg.set('cancel-pressed', False)
+            gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+            # gobject.idle_add(setlyze.std.sender.emit, 'report-dialog-closed')
+            #gobject.idle_add(setlyze.std.sender.emit, 'analysis-closed')
+            return
+
         # Generate the report.
         self.generate_report()
 
@@ -881,6 +895,9 @@ class Start(threading.Thread):
         Design Part: 1.105
         """
         for i in range(number):
+            if setlyze.config.cfg.get('cancel-pressed'):
+                return
+
             # Update the progess bar.
             self.pdialog_handler.increase()
 
