@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "SETLyze"
-!define PRODUCT_VERSION "0.1.1"
+!define PRODUCT_VERSION "0.2"
 !define PRODUCT_PUBLISHER "GiMaRIS"
 !define PRODUCT_WEB_SITE "http://www.gimaris.com/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\setlyze.exe"

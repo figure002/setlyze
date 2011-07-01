@@ -66,10 +66,9 @@ from setlyze.std import make_remarks
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
-__version__ = "0.1.1"
-__maintainer__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
-__email__ = ("serrano.pereira@gmail.com, a.v.adrichem@gmail.com, "
-    "fedde.schaeffer@gmail.com")
+__version__ = "0.2"
+__maintainer__ = "Serrano Pereira"
+__email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/07/30"
 
@@ -3692,7 +3691,9 @@ class About(gtk.AboutDialog):
             "\tArjan Gittenberger <gittenberger@gimaris.com>",
             "Application Developers:\n"
             "\tJonathan den Boer",
-            "\tSerrano Pereira <serrano.pereira@gmail.com>"])
+            "\tSerrano Pereira <serrano.pereira@gmail.com>",
+            "\tAdam van Adrichem <a.v.adrichem@gmail.com>",
+            "\tFedde Schaeffer <fedde.schaeffer@gmail.com>"])
         self.set_comments("A tool for analyzing the settlement of species \non SETL plates.")
         self.set_artists(["Serrano Pereira <serrano.pereira@gmail.com>"])
         self.set_license(license)
