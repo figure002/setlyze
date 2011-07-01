@@ -420,6 +420,17 @@ source. Two data sources are possible:
   :ref:`locations selection dialog <dialog-loc-selection>` will be
   updated with the new data.
 
+* XLS files exported from Microsoft Excel. One file for each of
+  the four tables: SETL_localities, SETL_plates, SETL_records, and
+  SETL_species. These files should have the same format as the CSV files
+  exported by Microsoft Access.
+
+  After selecting all four XLS files, press the OK button to load all
+  SETL data from these files. A progress dialog is shown while the data
+  is being loaded. Once the data has been loaded, the
+  :ref:`locations selection dialog <dialog-loc-selection>` will be
+  updated with the new data.
+
 * The remote SETL database. The remote SETL database has not been
   created yet, so this functionality is not implemented yet. The idea is
   to move the data from the Microsoft Access database to a PostgreSQL
@@ -434,7 +445,7 @@ source. Two data sources are possible:
   updated with the new data.
 
   The plates and records data will not be loaded directly (in contrast
-  to loading data from CSV files). The plates and record data will be
+  to loading data from CSV/XLS files). The plates and record data will be
   loaded when required by the analysis.
 
 .. _dialog-define-plate-areas:
