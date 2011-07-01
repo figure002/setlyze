@@ -73,7 +73,7 @@ SETLyze along with all its pre-requisites is required. This guide explains how
 to create the Windows installer for SETLyze using NSIS (Nullsoft Scriptable
 Install System), a professional open source system to create Windows installers.</p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/windows_installer.png"><img alt="Screenshot of the Windows installer for SETLyze" src="_images/windows_installer.png" /></a>
+<a class="reference internal image-reference" href="_images/windows_installer.png"><img alt="Screenshot of the Windows installer for SETLyze" src="_images/windows_installer.png" style="width: 516.0px; height: 406.0px;" /></a>
 <p class="caption">Screenshot of the Windows installer for SETLyze</p>
 </div>
 <p>To start off, you&#8217;ll need a Windows machine (preferably Windows XP or higher)
@@ -164,19 +164,11 @@ but SETLyze&#8217;s module folder (<tt class="docutils literal"><span class="pre
 in the same folder as this script.</p>
 </dd>
 </dl>
-<p>Next to SETLyze&#8217;s Bazaar repository, you&#8217;ll also need the Bazaar repository
-for SETLyze&#8217;s Sphinx documentation. The documentations repository contains
-the source of the Sphinx documentation for SETLyze. This repository is
-all you need to work on SETLyze&#8217;s documentation. The subfolder <tt class="docutils literal"><span class="pre">source</span></tt>
-contains the source files of the documentation. The source files end with
-the extension &#8221;.rst&#8221;. You can edit these with a text editor. The <tt class="docutils literal"><span class="pre">source</span></tt>
-folder also contains a file called <tt class="docutils literal"><span class="pre">conf.py</span></tt>. In this file you need to
-edit the line that starts with <tt class="docutils literal"><span class="pre">sys.path.insert</span></tt>. This line contains
-a path that points to the folder that contains setlyze&#8217;s module folder
-(<tt class="docutils literal"><span class="pre">[setlyze-repo]/src/setlyze/</span></tt>). So edit this path so it points to the
-<tt class="docutils literal"><span class="pre">src</span></tt> folder of the SETLyze repository. After editing the source files
-(<tt class="docutils literal"><span class="pre">*.rst</span></tt>) for the documentation, you can use the make files (&#8220;Makefile&#8221; on
-Linux, &#8220;make.bat&#8221; on Windows) to generate the actual HTML documentation. Refer
+<p>The folder <tt class="docutils literal"><span class="pre">[setlyze-repo]/src/doc-src/source</span></tt> contains the source files of
+the documentation. The source files end with the extension &#8221;.rst&#8221;. You can
+edit these with a text editor.  After editing the source files (<tt class="docutils literal"><span class="pre">*.rst</span></tt>)
+for the documentation, you can use the make files (&#8220;Makefile&#8221; on Linux,
+&#8220;make.bat&#8221; on Windows) to generate the actual HTML documentation. Refer
 to the <a class="reference external" href="http://sphinx.pocoo.org/contents.html">Sphinx documentation</a>
 for instructions.</p>
 <p>To prepare the folder containing SETLyze&#8217;s Bazaar repository for creating

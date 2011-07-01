@@ -130,19 +130,11 @@ folders.
     in the same folder as this script.
 
 
-Next to SETLyze's Bazaar repository, you'll also need the Bazaar repository
-for SETLyze's Sphinx documentation. The documentations repository contains
-the source of the Sphinx documentation for SETLyze. This repository is
-all you need to work on SETLyze's documentation. The subfolder ``source``
-contains the source files of the documentation. The source files end with
-the extension ".rst". You can edit these with a text editor. The ``source``
-folder also contains a file called ``conf.py``. In this file you need to
-edit the line that starts with ``sys.path.insert``. This line contains
-a path that points to the folder that contains setlyze's module folder
-(``[setlyze-repo]/src/setlyze/``). So edit this path so it points to the
-``src`` folder of the SETLyze repository. After editing the source files
-(``*.rst``) for the documentation, you can use the make files ("Makefile" on
-Linux, "make.bat" on Windows) to generate the actual HTML documentation. Refer
+The folder ``[setlyze-repo]/src/doc-src/source`` contains the source files of
+the documentation. The source files end with the extension ".rst". You can
+edit these with a text editor.  After editing the source files (``*.rst``)
+for the documentation, you can use the make files ("Makefile" on Linux,
+"make.bat" on Windows) to generate the actual HTML documentation. Refer
 to the `Sphinx documentation <http://sphinx.pocoo.org/contents.html>`_
 for instructions.
 
