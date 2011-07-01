@@ -39,7 +39,7 @@ import rpy
 
 import setlyze.config
 
-__author__ = "Serrano Pereira"
+__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.2"
