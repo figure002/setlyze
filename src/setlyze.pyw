@@ -57,7 +57,7 @@ __credits__ = ["Jonathan den Boer",
     "Serrano Pereira <serrano.pereira@gmail.com>",
     "Adam van Adrichem <a.v.adrichem@gmail.com>"]
 __license__ = "GPL3"
-__version__ = "0.1.1"
+__version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
