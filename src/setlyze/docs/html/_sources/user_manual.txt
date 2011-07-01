@@ -128,7 +128,7 @@ package manager to install the dependencies.
 On Ubuntu or other Debian derivatives, installing the dependencies
 can be done with the following command: ::
 
-    sudo apt-get install python python-gtk2 python-rpy python-setuptools
+    sudo apt-get install python python-gtk2 python-rpy python-setuptools python-xlrd
 
 System-wide install
 -------------------
