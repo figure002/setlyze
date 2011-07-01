@@ -2,7 +2,7 @@
 :mod:`setlyze.database` --- Database access
 ===========================================
 
-:Author: Serrano Pereira
+:Author: Serrano Pereira, Adam van Adrichem, Fedde Schaeffer
 :Release: |release|
 :Date: |today|
 

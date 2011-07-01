@@ -2,7 +2,7 @@
 About Us
 =========================================
 
-The following persons have been involved in the SETLyze project.
+The following people have been involved in the SETLyze project.
 
 Arjan Gittenberger
 ------------------
@@ -32,3 +32,20 @@ GiMaRIS.
 * Sphinx Documentation (User Manual, Developer Guide)
 * Technical Design
 * Distribution packages (source package, Windows installer)
+
+Adam van Adrichem and Fedde Schaeffer
+-------------------------------------
+
+Minor project / internship bioinformatics (Leiden University of Applied
+Science) students at GiMaRIS. Developed version 0.2
+
+* Reorganised the Bazaar repositories to be easier to copy, develop and track
+* Implemented the cancel button in the progress bar of the analyses
+* Implemented the possibility of reading Microsoft Office Excel 97–2004
+  workbooks
+* Tried to make a start making the technical design match the actual
+  implementation…
+* Looked into how the repetitions of Wilcoxon tests could be parallelised
+  using the multiprocessing module from Python’s standard library
+* Looked into how an analysis could be executed serially for all species in
+  the database, to find out which species should be investigated more
