@@ -1503,7 +1503,8 @@ class ChangeDataSource(gtk.Window):
         label_db = gtk.Label("Remote SETL DB")
         notebook.append_page(page_db, label_db)
 
-        label_xls = gtk.Label("XLS") # Microsoft Excel spreadsheet files
+        # Microsoft Excel spreadsheet files
+        label_xls = gtk.Label("XLS Files From Microsoft Excel") 
         notebook.append_page(page_xls, label_xls)
 
         # Add a header to the dialog.
