@@ -117,7 +117,7 @@ is digitally applied over the photograph. For each species the presence
 or absence on each of the 25 plate surfaces are filled in and saved
 to the database.</p>
 <div class="figure align-center" id="fig-plate-with-grid">
-<a class="reference internal image-reference" href="_images/setl_plate_with_grid.png"><img alt="SETL plate with a grid" src="_images/setl_plate_with_grid.png" style="width: 500.0px; height: 504.0px;" /></a>
+<a class="reference internal image-reference" href="_images/setl_plate_with_grid.png"><img alt="SETL plate with a grid" src="_images/setl_plate_with_grid.png" /></a>
 <p class="caption">Figure 1. SETL-plate with digitally applied grid</p>
 </div>
 <p>Each record in the database contains a species ID, a plate ID, and
@@ -168,7 +168,7 @@ doesn&#8217;t contain SETLyze&#8217;s dependencies. GNU/Linux user can use their
 package manager to install the dependencies.</p>
 <p>On Ubuntu or other Debian derivatives, installing the dependencies
 can be done with the following command:</p>
-<div class="highlight-python"><pre>sudo apt-get install python python-gtk2 python-rpy python-setuptools</pre>
+<div class="highlight-python"><pre>sudo apt-get install python python-gtk2 python-rpy python-setuptools python-xlrd</pre>
 </div>
 <div class="section" id="system-wide-install">
 <h4>System-wide install<a class="headerlink" href="#system-wide-install" title="Permalink to this headline">¶</a></h4>
@@ -266,7 +266,7 @@ dialogs. The dialogs are described in this section.</p>
 <div class="section" id="analysis-selection-dialog">
 <span id="dialog-analysis-selection"></span><h3>Analysis Selection dialog<a class="headerlink" href="#analysis-selection-dialog" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dialog_select_analysis.png"><img alt="Analysis Selection dialog" src="_images/dialog_select_analysis.png" style="width: 492.0px; height: 271.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dialog_select_analysis.png"><img alt="Analysis Selection dialog" src="_images/dialog_select_analysis.png" /></a>
 <p class="caption">Figure 2. Analysis Selection dialog</p>
 </div>
 <p>The analysis selection dialog is the first dialog you see when SETLyze
@@ -292,7 +292,7 @@ and contact information.</p>
 <div class="section" id="preferences-dialog">
 <span id="dialog-preferences"></span><h3>Preferences dialog<a class="headerlink" href="#preferences-dialog" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dialog_preferences.png"><img alt="Preferences dialog" src="_images/dialog_preferences.png" style="width: 492.0px; height: 271.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dialog_preferences.png"><img alt="Preferences dialog" src="_images/dialog_preferences.png" /></a>
 <p class="caption">Figure 15. Preferences dialog</p>
 </div>
 <p>The preferences dialog allows you to change SETLyze&#8217;s settings. At this point
@@ -325,7 +325,7 @@ many repeats (and an Abort button is not yet implemented).</dd>
 <div class="section" id="locations-selection-dialog">
 <span id="dialog-loc-selection"></span><h3>Locations Selection dialog<a class="headerlink" href="#locations-selection-dialog" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dialog_locations_selection.png"><img alt="Locations Selection dialog" src="_images/dialog_locations_selection.png" style="width: 383.0px; height: 439.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dialog_locations_selection.png"><img alt="Locations Selection dialog" src="_images/dialog_locations_selection.png" /></a>
 <p class="caption">Figure 3. Locations Selection dialog</p>
 </div>
 <p>The locations selection dialog shows a list of all SETL localities. This
@@ -356,7 +356,7 @@ at once, click on a location and press Ctrl+A.</p>
 <div class="section" id="species-selection-dialog">
 <span id="dialog-spe-selection"></span><h3>Species Selection dialog<a class="headerlink" href="#species-selection-dialog" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dialog_species_selection.png"><img alt="Species Selection dialog" src="_images/dialog_species_selection.png" style="width: 513.0px; height: 439.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dialog_species_selection.png"><img alt="Species Selection dialog" src="_images/dialog_species_selection.png" /></a>
 <p class="caption">Figure 4. Species Selection dialog</p>
 </div>
 <p>The species selection dialog shows a list of all SETL species that were
@@ -387,7 +387,7 @@ at once, click on a species and press Ctrl+A.</p>
 <div class="section" id="change-data-source-dialog">
 <span id="dialog-change-data-source"></span><h3>Change Data Source dialog<a class="headerlink" href="#change-data-source-dialog" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dialog_change_data_source.png"><img alt="Change Data Source dialog" src="_images/dialog_change_data_source.png" style="width: 396.0px; height: 382.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dialog_change_data_source.png"><img alt="Change Data Source dialog" src="_images/dialog_change_data_source.png" /></a>
 <p class="caption">Figure 5. Change Data Source dialog</p>
 </div>
 <p>The change data source dialog allows you to switch to a different data
@@ -405,6 +405,16 @@ is being loaded. Once the data has been loaded, the
 <a class="reference internal" href="#dialog-loc-selection"><em>locations selection dialog</em></a> will be
 updated with the new data.</p>
 </li>
+<li><p class="first">XLS files exported from Microsoft Excel. One file for each of
+the four tables: SETL_localities, SETL_plates, SETL_records, and
+SETL_species. These files should have the same format as the CSV files
+exported by Microsoft Access.</p>
+<p>After selecting all four XLS files, press the OK button to load all
+SETL data from these files. A progress dialog is shown while the data
+is being loaded. Once the data has been loaded, the
+<a class="reference internal" href="#dialog-loc-selection"><em>locations selection dialog</em></a> will be
+updated with the new data.</p>
+</li>
 <li><p class="first">The remote SETL database. The remote SETL database has not been
 created yet, so this functionality is not implemented yet. The idea is
 to move the data from the Microsoft Access database to a PostgreSQL
@@ -417,7 +427,7 @@ data has been loaded, the
 <a class="reference internal" href="#dialog-loc-selection"><em>locations selection dialog</em></a> will be
 updated with the new data.</p>
 <p>The plates and records data will not be loaded directly (in contrast
-to loading data from CSV files). The plates and record data will be
+to loading data from CSV/XLS files). The plates and record data will be
 loaded when required by the analysis.</p>
 </li>
 </ul>
@@ -425,7 +435,7 @@ loaded when required by the analysis.</p>
 <div class="section" id="define-plate-areas-dialog">
 <span id="dialog-define-plate-areas"></span><h3>Define Plate Areas dialog<a class="headerlink" href="#define-plate-areas-dialog" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dialog_define_plate_areas.png"><img alt="Define Plate Areas dialog" src="_images/dialog_define_plate_areas.png" style="width: 416.0px; height: 419.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dialog_define_plate_areas.png"><img alt="Define Plate Areas dialog" src="_images/dialog_define_plate_areas.png" /></a>
 <p class="caption">Figure 6. Define Plate Areas dialog</p>
 </div>
 <p>This dialog allows you to define the plate areas for analysis 1
@@ -436,18 +446,18 @@ the combined areas are treated as a single plate area.</p>
 <p>Below is a schematic SETL-plate with a grid. By default the plate is
 divided in four plate areas (A, B, C and D),</p>
 <div class="figure align-center" id="fig-plate-areas-default">
-<a class="reference internal image-reference" href="_images/plate_areas_default.png"><img alt="Figure 7. Default plate areas" src="_images/plate_areas_default.png" style="width: 200.0px; height: 200.0px;" /></a>
+<a class="reference internal image-reference" href="_images/plate_areas_default.png"><img alt="Figure 7. Default plate areas" src="_images/plate_areas_default.png" /></a>
 <p class="caption">Figure 7. Default plate areas</p>
 </div>
 <p>But sometimes it&#8217;s useful to combine plate areas. So if the user decides
 to combine area A and B, the areas selection would be set like this,</p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/plate_areas_selection_combined1.png"><img alt="Figure 8. Combined plate areas selection" src="_images/plate_areas_selection_combined1.png" style="width: 266.0px; height: 236.0px;" /></a>
+<a class="reference internal image-reference" href="_images/plate_areas_selection_combined1.png"><img alt="Figure 8. Combined plate areas selection" src="_images/plate_areas_selection_combined1.png" /></a>
 <p class="caption">Figure 8. Combined plate areas selection</p>
 </div>
 <p>And the resulting plate areas definition would look something like this,</p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/plate_areas_combined1.png"><img alt="Figure 9. Plate areas A and B combined." src="_images/plate_areas_combined1.png" style="width: 200.0px; height: 200.0px;" /></a>
+<a class="reference internal image-reference" href="_images/plate_areas_combined1.png"><img alt="Figure 9. Plate areas A and B combined." src="_images/plate_areas_combined1.png" /></a>
 <p class="caption">Figure 9. Plate areas A and B combined.</p>
 </div>
 <p>This would result in three plate areas. Analysis 1 would then determine
@@ -466,7 +476,7 @@ the dialog, and shows the next dialog.</p>
 <div class="section" id="analysis-report-dialog">
 <span id="dialog-analysis-report"></span><h3>Analysis Report dialog<a class="headerlink" href="#analysis-report-dialog" title="Permalink to this headline">¶</a></h3>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/dialog_analysis_report.png"><img alt="Analysis Report dialog" src="_images/dialog_analysis_report.png" style="width: 613.0px; height: 539.0px;" /></a>
+<a class="reference internal image-reference" href="_images/dialog_analysis_report.png"><img alt="Analysis Report dialog" src="_images/dialog_analysis_report.png" /></a>
 <p class="caption">Figure 10. Analysis Report dialog</p>
 </div>
 <p>The analysis report dialog shows the results for the anaylysis. The
@@ -506,7 +516,7 @@ are calculated is described below.</p>
 using the Pythagorean theorem. Consider the case of species A and the
 following plate:</p>
 <div class="figure align-center">
-<a class="reference internal image-reference" href="_images/setl_plate_intra_distances.png"><img alt="Figure 11. Spot distances on SETL plate (intra)" src="_images/setl_plate_intra_distances.png" style="width: 250.0px; height: 250.0px;" /></a>
+<a class="reference internal image-reference" href="_images/setl_plate_intra_distances.png"><img alt="Figure 11. Spot distances on SETL plate (intra)" src="_images/setl_plate_intra_distances.png" /></a>
 <p class="caption">Figure 11. Spot distances on SETL plate (intra)</p>
 </div>
 <p>As you can see from the figure, three positive spots results in three
@@ -529,7 +539,7 @@ species. Then all possible spot distances are calculated between the
 two species. The following figure shows an example with positive spots
 for two species (A and B) and all possible spot distnaces.</p>
 <div class="figure align-center" id="fig-spot-distances-inter">
-<a class="reference internal image-reference" href="_images/setl_plate_inter_distances.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances.png" style="width: 239.0px; height: 239.0px;" /></a>
+<a class="reference internal image-reference" href="_images/setl_plate_inter_distances.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances.png" /></a>
 <p class="caption">Figure 12a. Spot distances on SETL plate (inter)</p>
 </div>
 <p>In the above figure, the distances are calculated the same way as for
@@ -537,7 +547,7 @@ analysis 2. Note however that only inter-specific distances are
 calculated (distances between two different species). This also makes it
 possible to have a distance of 0 as visualized in the next figure.</p>
 <div class="figure align-center" id="fig-spot-distances-inter2">
-<a class="reference internal image-reference" href="_images/setl_plate_inter_distances2.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances2.png" style="width: 239.0px; height: 239.0px;" /></a>
+<a class="reference internal image-reference" href="_images/setl_plate_inter_distances2.png"><img alt="Figure 12. Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances2.png" /></a>
 <p class="caption">Figure 12b. Spot distances on SETL plate (inter)</p>
 </div>
 <p>The distances for this figure are calculated as follows:</p>

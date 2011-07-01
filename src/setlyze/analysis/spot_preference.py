@@ -358,7 +358,7 @@ class Start(threading.Thread):
             gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
             return
 
-        # Test if the cancel buton is pressed:
+        # Test if the cancel button is pressed:
         if not setlyze.config.cfg.get('cancel-pressed'):
             # Create log message and update progress dialog.
             logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
@@ -377,7 +377,7 @@ class Start(threading.Thread):
             self.calculate_significance_wilcoxon()
             self.calculate_significance_chisq()
 
-        # If the cancel buton is pressed don't finish this function
+        # If the cancel button is pressed don't finish this function
         if setlyze.config.cfg.get('cancel-pressed'):
             # Set cancel-pressed back to default
             setlyze.config.cfg.set('cancel-pressed', False)
@@ -826,7 +826,7 @@ class Start(threading.Thread):
         Design Part: 1.65
         """
         for i in range(number):
-            # Test if the cancel buton is pressed.
+            # Test if the cancel button is pressed.
             if setlyze.config.cfg.get('cancel-pressed'):
                 return
 

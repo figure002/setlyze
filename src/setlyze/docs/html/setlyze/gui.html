@@ -67,7 +67,7 @@
 </tr>
 <tr class="field"><th class="field-name">Release:</th><td class="field-body">0.1.1</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">June 27, 2011</td>
+<tr class="field"><th class="field-name">Date:</th><td class="field-body">July 01, 2011</td>
 </tr>
 </tbody>
 </table>
@@ -111,6 +111,7 @@ data source. The following data sources are supported:</p>
 <div><ul class="simple">
 <li>CSV files with SETL data exported from the MS Access SETL
 database.</li>
+<li>Import of Microsoft Excel spread-sheet files.</li>
 <li>TODO: The remote SETL database. This requires a direct
 connection with the SETL database server.</li>
 </ul>
@@ -137,6 +138,13 @@ the remote SETL database.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.gui.ChangeDataSource.create_page_xls">
+<tt class="descname">create_page_xls</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.ChangeDataSource.create_page_xls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a notebook page for switching to SETL data from
+XLS files.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.gui.ChangeDataSource.destroy_handler_connections">
 <tt class="descname">destroy_handler_connections</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.destroy_handler_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.destroy_handler_connections" title="Permalink to this definition">¶</a></dt>
 <dd><p>Disconnect all signal connections with signal handlers created by
@@ -159,7 +167,7 @@ this class.</p>
 <dt id="setlyze.gui.ChangeDataSource.on_csv_import_failed">
 <tt class="descname">on_csv_import_failed</tt><big>(</big><em>sender</em>, <em>error</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_csv_import_failed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_csv_import_failed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display an error message showing the user that importing SETL data
-from the selected CSV files failed.</p>
+from the selected CSV or XLS files failed.</p>
 </dd></dl>
 
 <dl class="method">
@@ -167,6 +175,14 @@ from the selected CSV files failed.</p>
 <tt class="descname">on_csv_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_csv_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_csv_ok" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the paths to the CSV files, set the new value for the
 data source configuration, load the SETL data from the CSV file
+into the local database, and close the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.ChangeDataSource.on_xls_ok">
+<tt class="descname">on_xls_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_xls_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the paths to the XLS files, set the new value for the
+data source configuration, load the SETL data from the XLS file
 into the local database, and close the dialog.</p>
 </dd></dl>
 
@@ -906,7 +922,7 @@ application for displaying HTML files (usually a web browser).</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="database.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="locale.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>

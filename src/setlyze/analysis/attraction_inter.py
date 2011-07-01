@@ -487,7 +487,7 @@ class Start(threading.Thread):
         # of the last repeat for the non-repeated tests.
         self.repeat_test(setlyze.config.cfg.get('test-repeats'))
 
-        # Test if cancel buton is pressed.
+        # Test if cancel button is pressed.
         if not setlyze.config.cfg.get('cancel-pressed'):
             # Create log message.
             logging.info("\tPerforming statistical tests...")
@@ -497,14 +497,14 @@ class Start(threading.Thread):
             # repeat is used for this test.
             self.calculate_significance()
 
-        # Test if cancel buton is pressed.
+        # Test if cancel button is pressed.
         if not setlyze.config.cfg.get('cancel-pressed'):
             # Create log message.
             logging.info("\tGenerating the analysis report...")
             # Update progress dialog.
             self.pdialog_handler.increase("Generating the analysis report...")
 
-        # If the cancel buton is pressed don't finish this function
+        # If the cancel button is pressed don't finish this function
         if setlyze.config.cfg.get('cancel-pressed'):
             # Set cancel-pressed back to default
             setlyze.config.cfg.set('cancel-pressed', False)

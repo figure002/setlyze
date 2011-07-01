@@ -60,6 +60,7 @@ have "win32" or "x86" (not "x86-64") in the filename.
 #. `PyCairo <http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/>`_ (>=1.8.6) *
 #. `PyGObject <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/>`_ (>=2.26) *
 #. `RPy <http://sourceforge.net/projects/rpy/files/rpy/>`_ (>=1.0.3) *
+#. `xlrd <http://pypi.python.org/pypi/xlrd>`_ (>=0.7.1) *
 #. `Python Win32 Extensions <http://sourceforge.net/projects/pywin32/files/pywin32/>`_ (>=214) *
 
 You might wonder why Python 2.6, and not the latest version, Python 3. The

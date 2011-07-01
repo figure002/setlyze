@@ -340,7 +340,7 @@ class Start(threading.Thread):
         # Calculate the observed spot distances.
         self.calculate_distances_intra()
 
-        # Test if cancel buton is pressed.
+        # Test if cancel button is pressed.
         if not setlyze.config.cfg.get('cancel-pressed'):
             # Create log message.
             logging.info("\tPerforming statistical tests with %d repeats..." %
@@ -363,7 +363,7 @@ class Start(threading.Thread):
             # repeat is used for this test.
             self.calculate_significance()
 
-        # If the cancel buton is pressed don't finish this function
+        # If the cancel button is pressed don't finish this function
         if setlyze.config.cfg.get('cancel-pressed'):
             # Set cancel-pressed back to default
             setlyze.config.cfg.set('cancel-pressed', False)
