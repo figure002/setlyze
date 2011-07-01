@@ -15,11 +15,12 @@ order to run SETLyze.
 * python-cairo
 * python-gobject
 * python-rpy
+* python-xlrd
 
 On Ubuntu or other Debian derivatives, installing the dependencies can be done
 with the following command:
 
-    sudo apt-get install python python-gtk2 python-rpy
+    sudo apt-get install python python-gtk2 python-rpy python-xlrd
 
 
 Installation Instructions

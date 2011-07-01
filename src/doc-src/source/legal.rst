@@ -65,6 +65,7 @@ is a list of the key third party software tools that SETLyze depends on:
 * `setuptools <http://pypi.python.org/pypi/setuptools>`_
 * `R <http://www.r-project.org/about.html>`_
 * `RPy <http://rpy.sourceforge.net/index.html>`_
+* `xlrd <http://pypi.python.org/pypi/xlrd>`_
 * `Python Win32 Extensions <http://starship.python.net/crew/mhammond/win32/Downloads.html>`_
 * and probably others I forgot to mention...
 
