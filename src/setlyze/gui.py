@@ -1681,10 +1681,9 @@ class ChangeDataSource(gtk.Window):
 
         # Create a filter for the file chooser.
         xls_filter = gtk.FileFilter()
-        xls_filter.set_name("Comma Separated File (*.xls, *.txt)")
+        xls_filter.set_name("Excel File (*.xls)")
         xls_filter.add_mime_type("text/xls")
         xls_filter.add_pattern("*.xls")
-        xls_filter.add_pattern("*.txt")
 
         # Create labels.
         label_localities = gtk.Label("Select localities file:")
