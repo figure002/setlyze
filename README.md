@@ -1,4 +1,4 @@
-# SETLyze 0.1
+# SETLyze 0.2
 
 The purpose of SETLyze is to provide the people involved with the SETL-project
 an easy and fast way of getting useful information from the data stored in the
@@ -11,11 +11,11 @@ the following set of analyses:
 Determine a species’ preference for a specific location on a SETL plate.
 Species can be combined so that they are treated as a single species.
 
-**Attraction of Species (intra-specific)**
+**Attraction within Species**
 Determine if a species attracts or repels individuals of its own kind.
 Species can be combined so that they are treated as a single species.
 
-**Attraction of Species (inter-specific)**
+**Attraction between Species**
 Determine if two different species attract or repel each other. Species
 can be combined so that they are treated as a single species.
 
@@ -35,3 +35,11 @@ SETLyze's documentation can be found in SETLyze's package folder. Open
 ## Installation
 
 See the INSTALL file for installation instructions.
+
+## License
+
+The source code for SETLyze is licensed under the GNU General Public License
+Version 3, which you can find in the COPYING file.
+
+All graphical assets are licensed under the
+[Creative Commons Attribution 3.0 Unported License](http://creativecommons.org/licenses/by/3.0/).
