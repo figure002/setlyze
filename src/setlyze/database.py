@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  Copyright 2010, GiMaRIS <info@gimaris.com>
+#  Copyright 2010, 2011, GiMaRIS <info@gimaris.com>
 #
 #  This file is part of SETLyze - A tool for analyzing the settlement
 #  of species on SETL plates.
@@ -130,7 +130,7 @@ class MakeLocalDB(threading.Thread):
     be exported by the MS Access SETL database.
     The second source is the PostgreSQL SETL database. This function
     requires a direct connection with the SETL database server.
-    The third source are XLS files containing SETL data. These files 
+    The third source are XLS files containing SETL data. These files
     must be exported by MS Excel 97/2000/xp.
 
     Because the import of SETL data into the local database can take
@@ -145,7 +145,7 @@ class MakeLocalDB(threading.Thread):
     """
 
     def __init__(self):
-        logging.debug("MakeLocalDB.__init__ is called")        
+        logging.debug("MakeLocalDB.__init__ is called")
         super(MakeLocalDB, self).__init__()
 
         self.cursor = None
@@ -600,7 +600,7 @@ class MakeLocalDB(threading.Thread):
 
         return True
 
-    def insert_localities_from_xls(self, delimiter=';', quotechar='"'):		
+    def insert_localities_from_xls(self, delimiter=';', quotechar='"'):
         """Insert the SETL localities from a XLS file into the local
         database.
 
@@ -829,7 +829,7 @@ class MakeLocalDB(threading.Thread):
 
         # Next time we run the tool, we'll know what data is in the
         # database.
-        self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)", 
+        self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)",
         (setlyze.config.cfg.get('data-source'),) )
         self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
 

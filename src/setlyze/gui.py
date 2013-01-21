@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  Copyright 2010, GiMaRIS <info@gimaris.com>
+#  Copyright 2010, 2011, GiMaRIS <info@gimaris.com>
 #
 #  This file is part of SETLyze - A tool for analyzing the settlement
 #  of species on SETL plates.
@@ -30,7 +30,7 @@ until an event occurs and control is passed to the appropriate function.
 To understand the code, it's important that you gain basic
 understanding of signals and callbacks, as these are used throughout
 the application (not just this module). The following tutorial is a good
-place to start: `Theory of Signals and Callbacks 
+place to start: `Theory of Signals and Callbacks
 <http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html>`_
 
 Each class in this module represents a graphical dialog or window.
@@ -1503,7 +1503,7 @@ class ChangeDataSource(gtk.Window):
         notebook.append_page(page_db, label_db)
 
         # Microsoft Excel spreadsheet files
-        label_xls = gtk.Label("XLS Files From Microsoft Excel") 
+        label_xls = gtk.Label("XLS Files From Microsoft Excel")
         notebook.append_page(page_xls, label_xls)
 
         # Add a header to the dialog.
