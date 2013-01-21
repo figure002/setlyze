@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.database — Database access &mdash; SETLyze v0.2 documentation</title>
+    <title>setlyze.database — Database access &mdash; SETLyze 0.2 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze v0.2 documentation" href="../index.html" />
+    <link rel="top" title="SETLyze 0.2 documentation" href="../index.html" />
     <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
     <link rel="next" title="setlyze.gui — Graphical interfaces" href="gui.html" />
     <link rel="prev" title="setlyze.config — Configuration manager" href="config.html" /> 
@@ -45,7 +48,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
@@ -63,11 +66,11 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Adam van Adrichem, Fedde Schaeffer</td>
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Adam van Adrichem, Fedde Schaeffer</td>
 </tr>
-<tr class="field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">July 01, 2011</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">January 21, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -429,7 +432,7 @@ the application.</p>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_from_xls">
-<tt class="descname">insert_from_xls</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_from_xls" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">insert_from_xls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_from_xls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_from_xls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new local database and load all SETL data from the
 user selected Excel files into the local database.</p>
 <dl class="docutils">
@@ -464,7 +467,7 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_localities_from_xls">
-<tt class="descname">insert_localities_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_localities_from_xls" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">insert_localities_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_localities_from_xls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_localities_from_xls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the SETL localities from a XLS file into the local
 database.</p>
 <p>For a description of the format for the localities file, refer
@@ -488,7 +491,7 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_plates_from_xls">
-<tt class="descname">insert_plates_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_plates_from_xls" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">insert_plates_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_plates_from_xls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_plates_from_xls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the plates from a XLS file into the local database.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-20"><em>2.20</em></a>.</p>
@@ -511,7 +514,7 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_records_from_xls">
-<tt class="descname">insert_records_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_records_from_xls" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">insert_records_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_records_from_xls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_records_from_xls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the records from a XLS file into the local database.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-21"><em>2.21</em></a>.</p>
@@ -534,7 +537,7 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_species_from_xls">
-<tt class="descname">insert_species_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_species_from_xls" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">insert_species_from_xls</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_species_from_xls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_species_from_xls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the species from a XLS file into the local database.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-19"><em>2.19</em></a>.</p>
@@ -558,8 +561,8 @@ should be called.</p>
 <p>This method first checks if SETLyze is configured to create
 a new local database. This is done by checking the value of
 <tt class="docutils literal"><span class="pre">setlyze.config.cfg.get('make-new-db')</span></tt>. If this is set to
-<tt class="xref docutils literal"><span class="pre">False</span></tt>, the method ends and the thread is destroyed. If set
-to <tt class="xref docutils literal"><span class="pre">True</span></tt>, a new local database is created based on the data
+<tt class="docutils literal"><span class="pre">False</span></tt>, the method ends and the thread is destroyed. If set
+to <tt class="docutils literal"><span class="pre">True</span></tt>, a new local database is created based on the data
 source configuration.</p>
 <p>The data source configuration is checked by calling
 <tt class="docutils literal"><span class="pre">setlyze.config.cfg.get('data-source')</span></tt>. If this is set to
@@ -631,7 +634,7 @@ and 1 for the second species selection.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -662,7 +665,7 @@ and 1 for the second species selection.</p>
              >previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
@@ -670,7 +673,7 @@ and 1 for the second species selection.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2010, 2011, GiMaRIS.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

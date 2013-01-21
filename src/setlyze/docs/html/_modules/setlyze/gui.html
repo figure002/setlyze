@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.gui &mdash; SETLyze v0.2 documentation</title>
+    <title>setlyze.gui &mdash; SETLyze 0.2 documentation</title>
+    
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze v0.2 documentation" href="../../index.html" />
+    <link rel="top" title="SETLyze 0.2 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -37,7 +40,7 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -81,7 +84,8 @@
 <span class="sd">To understand the code, it&#39;s important that you gain basic</span>
 <span class="sd">understanding of signals and callbacks, as these are used throughout</span>
 <span class="sd">the application (not just this module). The following tutorial is a good</span>
-<span class="sd">place to start: `Theory of Signals and Callbacks &lt;http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html&gt;`_</span>
+<span class="sd">place to start: `Theory of Signals and Callbacks </span>
+<span class="sd">&lt;http://www.pygtk.org/pygtk2tutorial/sec-TheoryOfSignalsAndCallbacks.html&gt;`_</span>
 
 <span class="sd">Each class in this module represents a graphical dialog or window.</span>
 <span class="sd">Displaying one of these dialogs is as easy as instantiating the class.</span>
@@ -113,14 +117,14 @@
 <span class="kn">import</span> <span class="nn">setlyze.database</span>
 <span class="kn">from</span> <span class="nn">setlyze.std</span> <span class="kn">import</span> <span class="n">make_remarks</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira, Adam van Adrichem, Fedde Schaeffer&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, 2011, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1.1&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.2&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2011/05/03&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2011/07/30&quot;</span>
 
 <div class="viewcode-block" id="on_help"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.on_help">[docs]</a><span class="k">def</span> <span class="nf">on_help</span><span class="p">(</span><span class="n">button</span><span class="p">,</span> <span class="n">section</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display the help contents for `section` in the system&#39;s default</span>
@@ -129,9 +133,11 @@
 
     <span class="c"># Construct the path to the help file.</span>
     <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;docs/user_manual.html#&#39;</span><span class="o">+</span><span class="n">section</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span>
+            <span class="s">&#39;docs/html/user_manual.html#&#39;</span><span class="o">+</span><span class="n">section</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;/docs/user_manual.html#&#39;</span><span class="o">+</span><span class="n">section</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
+            <span class="s">&#39;/docs/html/user_manual.html#&#39;</span><span class="o">+</span><span class="n">section</span><span class="p">)</span>
 
     <span class="c"># Turn the path into an URL.</span>
     <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">):</span>
@@ -153,7 +159,7 @@
     <span class="sd">&quot;&quot;&quot;Quit the application.&quot;&quot;&quot;</span>
     <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_QUESTION</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_YES_NO</span><span class="p">,</span>
-        <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Are you sure you want to quit SETLyze?&quot;</span><span class="p">)</span>
+            <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Are you sure you want to quit SETLyze?&quot;</span><span class="p">)</span>
     <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
 
     <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
@@ -171,7 +177,7 @@
 <span class="k">def</span> <span class="nf">on_not_implemented</span><span class="p">():</span>
     <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
-        <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Not yet implemented&quot;</span><span class="p">)</span>
+            <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Not yet implemented&quot;</span><span class="p">)</span>
     <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="s">&quot;Sorry, the feature you&#39;re trying to &quot;</span>
         <span class="s">&quot;access is not implemented yet. It will be implemented in the next &quot;</span>
         <span class="s">&quot;version of SETLyze.&quot;</span><span class="p">)</span>
@@ -204,9 +210,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;destroy&#39;</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">main_quit</span><span class="p">)</span>
 
         <span class="c"># Handle application signals.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handler1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_started</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handler2</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-closed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handler3</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;local-db-created&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_continue</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_started</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler2</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-closed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler3</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;local-db-created&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_continue</span><span class="p">)</span>
 
         <span class="c"># Add widgets to the GTK window.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_layout</span><span class="p">()</span>
@@ -236,22 +245,26 @@
         <span class="n">vbox</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">VBox</span><span class="p">(</span><span class="n">homogeneous</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 
         <span class="c"># Create radio buttons.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1-descr&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
         <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis2-descr&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
         <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_1</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3-descr&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
         <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana2_2</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis4&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RadioButton</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana1</span><span class="p">,</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis4&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="o">.</span><span class="n">set_tooltip_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis4-descr&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;clicked&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_toggled</span><span class="p">)</span>
         <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radio_ana3</span><span class="p">)</span>
@@ -264,9 +277,11 @@
         <span class="c"># Load an image for the logo.</span>
         <span class="n">setl_logo</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
-            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span>
+                <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
+                <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
         <span class="n">setl_logo</span><span class="o">.</span><span class="n">set_from_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
         <span class="n">setl_logo_align</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">setl_logo_align</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">setl_logo</span><span class="p">)</span>
@@ -465,6 +480,8 @@
                 <span class="n">source_str</span> <span class="o">=</span> <span class="s">&quot;the SETL database&quot;</span>
             <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s">&quot;csv-msaccess&quot;</span><span class="p">:</span>
                 <span class="n">source_str</span> <span class="o">=</span> <span class="s">&quot;MS Access exported CSV files&quot;</span>
+            <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s">&quot;xls&quot;</span><span class="p">:</span>
+                <span class="n">source_str</span> <span class="o">=</span> <span class="s">&quot;Microsoft Excel spreadsheet files&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unknown data source &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">source</span><span class="p">)</span>
 
@@ -539,7 +556,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;delete-event&#39;</span><span class="p">,</span> <span class="n">on_quit</span><span class="p">)</span>
 
         <span class="c"># Handle application signals.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">handler1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;local-db-created&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_tree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">handler1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;local-db-created&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_tree</span><span class="p">)</span>
 
         <span class="c"># Add widgets to the GTK window.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_layout</span><span class="p">()</span>
@@ -640,7 +658,8 @@
         <span class="c"># But the button in a horizontal button box.</span>
         <span class="n">button_box_l</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
         <span class="n">button_box_l</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_START</span><span class="p">)</span>
-        <span class="n">button_box_l</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_chg_source</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_l</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_chg_source</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c"># Add the button box to the table.</span>
         <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_l</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -663,7 +682,8 @@
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_END</span><span class="p">)</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_back</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_continue</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_continue</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c"># Add the aligned button box to the table.</span>
         <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_r</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -976,7 +996,8 @@
         <span class="c"># Notice text=1, which means that we let the column display the</span>
         <span class="c"># attribute values for the cell renderer from column 1 in the</span>
         <span class="c"># TreeModel. Column 1 contains the species names (venacular).</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Species (venacular)&quot;</span><span class="p">,</span> <span class="n">renderer_text</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Species (venacular)&quot;</span><span class="p">,</span> <span class="n">renderer_text</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="c"># Sort on column 1 from the model.</span>
         <span class="n">column</span><span class="o">.</span><span class="n">set_sort_column_id</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">column</span><span class="o">.</span><span class="n">set_resizable</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
@@ -1104,9 +1125,11 @@
         <span class="c"># Load an image of the SETL grid.</span>
         <span class="n">setl_grid</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Image</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
-            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;images/setl-grid.png&#39;</span><span class="p">)</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span>
+                <span class="s">&#39;images/setl-grid.png&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setl-grid.png&#39;</span><span class="p">)</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
+                <span class="s">&#39;images/setl-grid.png&#39;</span><span class="p">)</span>
         <span class="n">setl_grid</span><span class="o">.</span><span class="n">set_from_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
         <span class="c"># Add the image to the table.</span>
         <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">setl_grid</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -1135,8 +1158,10 @@
         <span class="n">button_box_r</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_END</span><span class="p">)</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_back</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_continue</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_back</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_continue</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c"># Add the aligned box to the table</span>
         <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_r</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -1393,7 +1418,8 @@
                 <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                     <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
                     <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Invalid plate areas definition&quot;</span><span class="p">)</span>
-                <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;error-single-plate-area&#39;</span><span class="p">)</span> <span class="p">)</span>
+                <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                    <span class="s">&#39;error-single-plate-area&#39;</span><span class="p">)</span> <span class="p">)</span>
                 <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
                 <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
                 <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
@@ -1479,6 +1505,8 @@
 <span class="sd">        * CSV files with SETL data exported from the MS Access SETL</span>
 <span class="sd">          database.</span>
 
+<span class="sd">        * Import of Microsoft Excel spread-sheet files.</span>
+
 <span class="sd">        * TODO: The remote SETL database. This requires a direct</span>
 <span class="sd">          connection with the SETL database server.</span>
 
@@ -1519,6 +1547,7 @@
         <span class="c"># Create pages for the notebook.</span>
         <span class="n">page_csv</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_page_csv</span><span class="p">()</span>
         <span class="n">page_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_page_db</span><span class="p">()</span>
+        <span class="n">page_xls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_page_xls</span><span class="p">()</span>
 
         <span class="c"># Add the pages to the notebook.</span>
         <span class="n">label_csv</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;CSV Files From Access DB&quot;</span><span class="p">)</span>
@@ -1526,6 +1555,10 @@
 
         <span class="n">label_db</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Remote SETL DB&quot;</span><span class="p">)</span>
         <span class="n">notebook</span><span class="o">.</span><span class="n">append_page</span><span class="p">(</span><span class="n">page_db</span><span class="p">,</span> <span class="n">label_db</span><span class="p">)</span>
+
+        <span class="c"># Microsoft Excel spreadsheet files</span>
+        <span class="n">label_xls</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;XLS Files From Microsoft Excel&quot;</span><span class="p">)</span> 
+        <span class="n">notebook</span><span class="o">.</span><span class="n">append_page</span><span class="p">(</span><span class="n">page_xls</span><span class="p">,</span> <span class="n">label_xls</span><span class="p">)</span>
 
         <span class="c"># Add a header to the dialog.</span>
         <span class="n">label_header</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">()</span>
@@ -1588,7 +1621,7 @@
             <span class="n">top_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
             <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-        <span class="c"># Create a filter fot the file chooser.</span>
+        <span class="c"># Create a filter for the file chooser.</span>
         <span class="n">csv_filter</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileFilter</span><span class="p">()</span>
         <span class="n">csv_filter</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s">&quot;Comma Separated File (*.csv, *.txt)&quot;</span><span class="p">)</span>
         <span class="n">csv_filter</span><span class="o">.</span><span class="n">add_mime_type</span><span class="p">(</span><span class="s">&quot;text/csv&quot;</span><span class="p">)</span>
@@ -1609,7 +1642,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileChooserButton</span><span class="p">(</span><span class="s">&#39;Select file...&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILE_CHOOSER_ACTION_OPEN</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">csv_filter</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;current-folder-changed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_working_folder</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;current-folder-changed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_working_folder</span><span class="p">)</span>
 
         <span class="c"># Create a plates file chooser button.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pla_file_chooser</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileChooserButton</span><span class="p">(</span><span class="s">&#39;Select file...&#39;</span><span class="p">)</span>
@@ -1668,6 +1702,117 @@
         <span class="n">button_box_r</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_END</span><span class="p">)</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_cancel</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_ok</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the aligned box to the table</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">button_box_r</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">table</span>
+</div>
+<div class="viewcode-block" id="ChangeDataSource.create_page_xls"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.create_page_xls">[docs]</a>    <span class="k">def</span> <span class="nf">create_page_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a notebook page for switching to SETL data from</span>
+<span class="sd">        XLS files.&quot;&quot;&quot;</span>
+
+        <span class="c"># Create a table to organize the widgets in.</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">homogeneous</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">set_col_spacings</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">set_row_spacings</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">set_border_width</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+        <span class="c"># Create a description label.</span>
+        <span class="n">label_descr</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;change-data-source-xls&#39;</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">label_descr</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">label_descr</span><span class="o">.</span><span class="n">set_line_wrap</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+        <span class="n">label_descr</span><span class="o">.</span><span class="n">set_justify</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">JUSTIFY_FILL</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">child</span><span class="o">=</span><span class="n">label_descr</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Create a filter for the file chooser.</span>
+        <span class="n">xls_filter</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileFilter</span><span class="p">()</span>
+        <span class="n">xls_filter</span><span class="o">.</span><span class="n">set_name</span><span class="p">(</span><span class="s">&quot;Excel File (*.xls)&quot;</span><span class="p">)</span>
+        <span class="n">xls_filter</span><span class="o">.</span><span class="n">add_mime_type</span><span class="p">(</span><span class="s">&quot;text/xls&quot;</span><span class="p">)</span>
+        <span class="n">xls_filter</span><span class="o">.</span><span class="n">add_pattern</span><span class="p">(</span><span class="s">&quot;*.xls&quot;</span><span class="p">)</span>
+
+        <span class="c"># Create labels.</span>
+        <span class="n">label_localities</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Select localities file:&quot;</span><span class="p">)</span>
+        <span class="n">label_localities</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">label_species</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Select species file:&quot;</span><span class="p">)</span>
+        <span class="n">label_species</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">label_records</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Select records file:&quot;</span><span class="p">)</span>
+        <span class="n">label_records</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">label_plates</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Label</span><span class="p">(</span><span class="s">&quot;Select plates file:&quot;</span><span class="p">)</span>
+        <span class="n">label_plates</span><span class="o">.</span><span class="n">set_alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+
+        <span class="c"># Create a localities file chooser button.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loc_xls_file_chooser</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileChooserButton</span><span class="p">(</span><span class="s">&#39;Select file...&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loc_xls_file_chooser</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILE_CHOOSER_ACTION_OPEN</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loc_xls_file_chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">xls_filter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loc_xls_file_chooser</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;current-folder-changed&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update_working_folder</span><span class="p">)</span>
+
+        <span class="c"># Create a plates file chooser button.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pla_xls_file_chooser</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileChooserButton</span><span class="p">(</span><span class="s">&#39;Select file...&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pla_xls_file_chooser</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILE_CHOOSER_ACTION_OPEN</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pla_xls_file_chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">xls_filter</span><span class="p">)</span>
+
+        <span class="c"># Create a records file chooser button.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rec_xls_file_chooser</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileChooserButton</span><span class="p">(</span><span class="s">&#39;Select file...&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rec_xls_file_chooser</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILE_CHOOSER_ACTION_OPEN</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rec_xls_file_chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">xls_filter</span><span class="p">)</span>
+
+        <span class="c"># Create a species file chooser button.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spe_xls_file_chooser</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">FileChooserButton</span><span class="p">(</span><span class="s">&#39;Select file...&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spe_xls_file_chooser</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILE_CHOOSER_ACTION_OPEN</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spe_xls_file_chooser</span><span class="o">.</span><span class="n">add_filter</span><span class="p">(</span><span class="n">xls_filter</span><span class="p">)</span>
+
+        <span class="c"># Add the labels to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">label_localities</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">label_plates</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">label_records</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="n">label_species</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># Add the file choosers to the table.</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loc_xls_file_chooser</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="o">|</span><span class="n">gtk</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pla_xls_file_chooser</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="o">|</span><span class="n">gtk</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rec_xls_file_chooser</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="o">|</span><span class="n">gtk</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">attach</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spe_xls_file_chooser</span><span class="p">,</span> <span class="n">left_attach</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">right_attach</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">top_attach</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">bottom_attach</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">xoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">FILL</span><span class="o">|</span><span class="n">gtk</span><span class="o">.</span><span class="n">EXPAND</span><span class="p">,</span>
+            <span class="n">yoptions</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">SHRINK</span><span class="p">,</span> <span class="n">xpadding</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ypadding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c"># OK button for xls files.</span>
+        <span class="n">button_ok</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_OK</span><span class="p">)</span>
+        <span class="n">button_ok</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">button_ok</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_xls_ok</span><span class="p">)</span>
+
+        <span class="c"># Cancel button</span>
+        <span class="n">button_cancel</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_CANCEL</span><span class="p">)</span>
+        <span class="n">button_cancel</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">button_cancel</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_cancel</span><span class="p">)</span>
+
+        <span class="c"># But the button in a horizontal button box.</span>
+        <span class="n">button_box_r</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_END</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_cancel</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="n">button_ok</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
@@ -1709,17 +1854,22 @@
             <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                 <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
                 <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Not all CSV files selected&quot;</span><span class="p">)</span>
-            <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;csv-files-not-selected&#39;</span><span class="p">)</span> <span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;csv-files-not-selected&#39;</span><span class="p">)</span> <span class="p">)</span>
             <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
             <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
             <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">False</span>
 
         <span class="c"># Save the paths.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spe_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">rec_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pla_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loc_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spe_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rec_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pla_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
 
         <span class="c"># Let the application know that we are now using user selected CSV files.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">,</span> <span class="s">&#39;csv-msaccess&#39;</span><span class="p">)</span>
@@ -1736,9 +1886,55 @@
         <span class="c"># Close the dialog.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
 </div>
+<div class="viewcode-block" id="ChangeDataSource.on_xls_ok"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.on_xls_ok">[docs]</a>    <span class="k">def</span> <span class="nf">on_xls_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the paths to the XLS files, set the new value for the</span>
+<span class="sd">        data source configuration, load the SETL data from the XLS file</span>
+<span class="sd">        into the local database, and close the dialog.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c"># Check if all files are selected.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">loc_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="ow">or</span> \
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spe_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="ow">or</span> \
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">rec_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="ow">or</span> \
+            <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">pla_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">():</span>
+            <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+                <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Not all xls files selected&quot;</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;xls-files-not-selected&#39;</span><span class="p">)</span> <span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+            <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+        <span class="c"># Save the paths.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loc_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spe_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rec_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pla_xls_file_chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span> <span class="p">)</span>
+
+        <span class="c"># Let the application know that we are now using user selected xls files.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">,</span> <span class="s">&#39;xls&#39;</span><span class="p">)</span>
+
+        <span class="c"># Show a progress dialog.</span>
+        <span class="n">pd</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Loading data&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s">&quot;Please wait while the data is being loaded...&quot;</span><span class="p">)</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="p">)</span>
+
+        <span class="c"># Make a new local database.</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">database</span><span class="o">.</span><span class="n">MakeLocalDB</span><span class="p">()</span>
+        <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="c"># Close the dialog.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
 <div class="viewcode-block" id="ChangeDataSource.on_csv_import_failed"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ChangeDataSource.on_csv_import_failed">[docs]</a>    <span class="k">def</span> <span class="nf">on_csv_import_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">error</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Display an error message showing the user that importing SETL data</span>
-<span class="sd">        from the selected CSV files failed.</span>
+<span class="sd">        from the selected CSV or XLS files failed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">destroy_handler_connections</span><span class="p">()</span>
 
@@ -1748,7 +1944,8 @@
         <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_ERROR</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
             <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Loading SETL data failed&quot;</span><span class="p">)</span>
-        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span>
+            <span class="n">error</span><span class="p">)</span> <span class="p">)</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
@@ -1772,9 +1969,14 @@
         <span class="n">path</span> <span class="o">=</span> <span class="n">chooser</span><span class="o">.</span><span class="n">get_filename</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">path</span><span class="p">:</span>
             <span class="n">folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="c"># For the CSV files</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">spe_file_chooser</span><span class="o">.</span><span class="n">set_current_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">rec_file_chooser</span><span class="o">.</span><span class="n">set_current_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pla_file_chooser</span><span class="o">.</span><span class="n">set_current_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+            <span class="c"># For the XLS files</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spe_xls_file_chooser</span><span class="o">.</span><span class="n">set_current_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rec_xls_file_chooser</span><span class="o">.</span><span class="n">set_current_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pla_xls_file_chooser</span><span class="o">.</span><span class="n">set_current_folder</span><span class="p">(</span><span class="n">folder</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="ProgressDialog"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ProgressDialog">[docs]</a><span class="k">class</span> <span class="nc">ProgressDialog</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Window</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display a progress dialog.</span>
@@ -1839,22 +2041,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pbar</span><span class="o">.</span><span class="n">set_fraction</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pbar</span><span class="o">.</span><span class="n">set_orientation</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">PROGRESS_LEFT_TO_RIGHT</span><span class="p">)</span>
 
-        <span class="n">pbar_align</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">pbar_align</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Alignment</span><span class="p">(</span><span class="n">xalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yalign</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">xscale</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+            <span class="n">yscale</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
         <span class="n">pbar_align</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pbar</span><span class="p">)</span>
 
-        <span class="c"># Close button</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">button_close</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_CLOSE</span><span class="p">)</span>
+        <span class="c"># Cancel button</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">button_close</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">stock</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">STOCK_CANCEL</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">button_close</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">button_close</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&quot;clicked&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_close</span><span class="p">)</span>
-        <span class="c"># Disable this button by default, because we don&#39;t want the user</span>
-        <span class="c"># to press this button while a process is running.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">button_close</span><span class="o">.</span><span class="n">set_sensitive</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
 
         <span class="c"># But the button in a horizontal button box.</span>
         <span class="n">button_box_r</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">HButtonBox</span><span class="p">()</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_layout</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONBOX_END</span><span class="p">)</span>
         <span class="n">button_box_r</span><span class="o">.</span><span class="n">set_spacing</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_close</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">button_box_r</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">button_close</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+            <span class="n">padding</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="c"># Add the alignment objects to the vertical container.</span>
         <span class="n">vbox</span><span class="o">.</span><span class="n">pack_start</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">descr_label</span><span class="p">,</span> <span class="n">expand</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -1866,7 +2067,9 @@
 </div>
 <div class="viewcode-block" id="ProgressDialog.on_close"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.ProgressDialog.on_close">[docs]</a>    <span class="k">def</span> <span class="nf">on_close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Destroy the dialog.&quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;close button is pressed&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="DisplayReport"><a class="viewcode-back" href="../../setlyze/gui.html#setlyze.gui.DisplayReport">[docs]</a><span class="k">class</span> <span class="nc">DisplayReport</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">Window</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display a dialog visualizing the elements in the XML DOM analysis</span>
@@ -1891,6 +2094,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_resizable</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_keep_above</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+
+        <span class="c"># Test if the cancel button is pressed and return to home.</span>
+        <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Foo- displayReport&quot;</span><span class="p">)</span>
 
         <span class="c"># Handle window signals.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;delete-event&#39;</span><span class="p">,</span> <span class="n">on_quit</span><span class="p">)</span>
@@ -2230,7 +2437,8 @@
         <span class="n">tree</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
         <span class="c"># Add columns to the tree view.</span>
         <span class="n">cell</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">CellRendererText</span><span class="p">()</span>
-        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Locations and Species Selections&quot;</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeViewColumn</span><span class="p">(</span><span class="s">&quot;Locations and Species Selections&quot;</span><span class="p">,</span> <span class="n">cell</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">append_column</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
         <span class="c"># To store the data, we use the TreeStore object.</span>
         <span class="n">treestore</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">TreeStore</span><span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">)</span>
@@ -2482,7 +2690,8 @@
         <span class="n">totals_observed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_area_totals_observed</span><span class="p">()</span>
         <span class="n">totals_expected</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reader</span><span class="o">.</span><span class="n">get_area_totals_expected</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">area_id</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">totals_observed</span><span class="p">):</span>
-            <span class="n">liststore</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">area_id</span><span class="p">,</span> <span class="n">totals_observed</span><span class="p">[</span><span class="n">area_id</span><span class="p">],</span> <span class="n">totals_expected</span><span class="p">[</span><span class="n">area_id</span><span class="p">]])</span>
+            <span class="n">liststore</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">area_id</span><span class="p">,</span> <span class="n">totals_observed</span><span class="p">[</span><span class="n">area_id</span><span class="p">],</span>
+                <span class="n">totals_expected</span><span class="p">[</span><span class="n">area_id</span><span class="p">]])</span>
 
         <span class="c"># Set the tree model.</span>
         <span class="n">tree</span><span class="o">.</span><span class="n">set_model</span><span class="p">(</span><span class="n">liststore</span><span class="p">)</span>
@@ -2995,7 +3204,8 @@
         <span class="n">scrolled_window</span><span class="o">.</span><span class="n">set_policy</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">,</span> <span class="n">gtk</span><span class="o">.</span><span class="n">POLICY_AUTOMATIC</span><span class="p">)</span>
 
         <span class="c"># Create the expander</span>
-        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="n">testname</span><span class="p">))</span>
+        <span class="n">expander</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">Expander</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="n">testname</span><span class="p">))</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">set_expanded</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
         <span class="c"># Add the scrolled window to the expander.</span>
         <span class="n">expander</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">scrolled_window</span><span class="p">)</span>
@@ -3254,12 +3464,18 @@
             <span class="s">&#39;wilcoxon_spots&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">),</span>
             <span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">),</span>
             <span class="s">&#39;wilcoxon_areas&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">),</span>
-            <span class="s">&#39;wilcoxon_spots_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
-            <span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
-            <span class="s">&#39;wilcoxon_areas_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
-            <span class="s">&#39;chi_squared_spots&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
-            <span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
-            <span class="s">&#39;chi_squared_areas&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_spots_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
+            <span class="s">&#39;wilcoxon_areas_repeats&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon&#39;</span><span class="p">),</span>
+            <span class="s">&#39;chi_squared_spots&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
+            <span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
+            <span class="s">&#39;chi_squared_areas&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">),</span>
             <span class="p">}</span>
 
         <span class="c"># Create check buttons.</span>
@@ -3514,9 +3730,11 @@
 
         <span class="c"># Load the logo file.</span>
         <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">we_are_frozen</span><span class="p">():</span>
-            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span> <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">module_path</span><span class="p">(),</span>
+                <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span> <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
+            <span class="n">image_path</span> <span class="o">=</span> <span class="n">pkg_resources</span><span class="o">.</span><span class="n">resource_filename</span><span class="p">(</span><span class="s">&#39;setlyze&#39;</span><span class="p">,</span>
+                <span class="s">&#39;images/setlyze-logo.png&#39;</span><span class="p">)</span>
         <span class="n">logo</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">gdk</span><span class="o">.</span><span class="n">pixbuf_new_from_file</span><span class="p">(</span><span class="n">image_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
@@ -3527,7 +3745,9 @@
             <span class="s">&quot;</span><span class="se">\t</span><span class="s">Arjan Gittenberger &lt;gittenberger@gimaris.com&gt;&quot;</span><span class="p">,</span>
             <span class="s">&quot;Application Developers:</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;</span><span class="se">\t</span><span class="s">Jonathan den Boer&quot;</span><span class="p">,</span>
-            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Adam van Adrichem &lt;a.v.adrichem@gmail.com&gt;&quot;</span><span class="p">,</span>
+            <span class="s">&quot;</span><span class="se">\t</span><span class="s">Fedde Schaeffer &lt;fedde.schaeffer@gmail.com&gt;&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_comments</span><span class="p">(</span><span class="s">&quot;A tool for analyzing the settlement of species </span><span class="se">\n</span><span class="s">on SETL plates.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_artists</span><span class="p">([</span><span class="s">&quot;Serrano Pereira &lt;serrano.pereira@gmail.com&gt;&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_license</span><span class="p">(</span><span class="n">license</span><span class="p">)</span>
@@ -3548,7 +3768,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -3573,14 +3793,14 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, 2011, GiMaRIS.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

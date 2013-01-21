@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.std — Standard functions and classes &mdash; SETLyze v0.2 documentation</title>
+    <title>setlyze.std — Standard functions and classes &mdash; SETLyze 0.2 documentation</title>
+    
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze v0.2 documentation" href="../index.html" />
+    <link rel="top" title="SETLyze 0.2 documentation" href="../index.html" />
     <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
     <link rel="next" title="Analysis Modules" href="../setlyze_modules_analysis.html" />
     <link rel="prev" title="setlyze.locale — English text retrieval" href="locale.html" /> 
@@ -45,7 +48,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
@@ -63,11 +66,11 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Adam van Adrichem, Fedde Schaeffer</td>
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Adam van Adrichem, Fedde Schaeffer</td>
 </tr>
-<tr class="field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
 </tr>
-<tr class="field"><th class="field-name">Date:</th><td class="field-body">July 01, 2011</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">January 21, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -265,7 +268,7 @@ file containing all data for the analysis.</p>
 advantages. Because the object can contain all analysis data, it&#8217;s
 easy to use Python&#8217;s XML parser to generate analysis reports. We can
 allow the user to choose which elements of the XML DOM object to
-export to say a LaTeX document. Also, <a class="reference external" href="http://docs.python.org/library/xml.dom.minidom.html#module-xml.dom.minidom" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">xml.dom.minidom</span></tt></a>
+export to say a LaTeX document. Also, <a class="reference external" href="http://docs.python.org/library/xml.dom.minidom.html#xml.dom.minidom" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">xml.dom.minidom</span></tt></a>
 provides methods for exporting this object to an XML file. This file
 by default contains all analysis data. This file can be easily
 loaded in SETLyze so we can display a dialog showing the analysis
@@ -874,7 +877,7 @@ method. To add a callback method for a specific signal, use the
 </div>
 <p>When you are done using that handler, be sure to destroy it as
 the handler will continue to exist if the callback function does not
-return <tt class="xref docutils literal"><span class="pre">False</span></tt>. To destroy a signal handler, use
+return <tt class="docutils literal"><span class="pre">False</span></tt>. To destroy a signal handler, use
 the <tt class="xref py py-meth docutils literal"><span class="pre">disconnect()</span></tt> method:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">handler_id</span><span class="p">)</span>
 </pre></div>
@@ -907,10 +910,8 @@ signal handling.</dd>
 <dl class="function">
 <dt id="setlyze.std.chisq_test">
 <tt class="descclassname">setlyze.std.</tt><tt class="descname">chisq_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>correct=True</em>, <em>p=None</em>, <em>rescale_p=False</em>, <em>simulate_p_value=False</em>, <em>b=2000</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#chisq_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.chisq_test" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>Performs chi-squared contingency table tests and</dt>
-<dd>goodness-of-fit tests.</dd>
-</dl>
+<dd><p>Performs chi-squared contingency table tests and
+goodness-of-fit tests.</p>
 <p>This is a wrapper function for the <tt class="docutils literal"><span class="pre">chisq.test</span></tt> function from R. It
 depends on R and RPy. The latter provides an interface to the R
 Programming Language.</p>
@@ -950,7 +951,7 @@ in sorted order.</p>
 <p>Elements are treated as unique based on their position, not on their
 value. So if the input elements are unique, the generated
 combinations will also be unique.</p>
-<p>This function was copied from the Python documentation for <a class="reference external" href="http://docs.python.org/library/itertools.html#module-itertools" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">itertools</span></tt></a>.</p>
+<p>This function was copied from the Python documentation for <a class="reference external" href="http://docs.python.org/library/itertools.html#itertools" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">itertools</span></tt></a>.</p>
 <p>A simple example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.std</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">i</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">combinations_with_replacement</span><span class="p">(</span><span class="s">&#39;ABCD&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
@@ -1020,8 +1021,8 @@ extensively tested random number generators in existence.</p>
 <div class="admonition-see-also admonition seealso">
 <p class="first admonition-title">See also</p>
 <dl class="last docutils">
-<dt>Module <a class="reference external" href="http://docs.python.org/library/random.html#module-random" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">random</span></tt></a></dt>
-<dd>Documentation of the <a class="reference external" href="http://docs.python.org/library/random.html#module-random" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">random</span></tt></a> standard module.</dd>
+<dt>Module <a class="reference external" href="http://docs.python.org/library/random.html#random" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">random</span></tt></a></dt>
+<dd>Documentation of the <a class="reference external" href="http://docs.python.org/library/random.html#random" title="(in Python v2.7)"><tt class="xref py py-mod docutils literal"><span class="pre">random</span></tt></a> standard module.</dd>
 </dl>
 </div>
 </dd></dl>
@@ -1092,31 +1093,31 @@ with the examples below:</p>
 <col width="20%" />
 </colgroup>
 <tbody valign="top">
-<tr><td>1</td>
+<tr class="row-odd"><td>1</td>
 <td>2</td>
 <td>3</td>
 <td>4</td>
 <td>5</td>
 </tr>
-<tr><td>6</td>
+<tr class="row-even"><td>6</td>
 <td>7</td>
 <td>8</td>
 <td>9</td>
 <td>10</td>
 </tr>
-<tr><td>11</td>
+<tr class="row-odd"><td>11</td>
 <td>12</td>
 <td>13</td>
 <td>14</td>
 <td>15</td>
 </tr>
-<tr><td>16</td>
+<tr class="row-even"><td>16</td>
 <td>17</td>
 <td>18</td>
 <td>19</td>
 <td>20</td>
 </tr>
-<tr><td>21</td>
+<tr class="row-odd"><td>21</td>
 <td>22</td>
 <td>23</td>
 <td>24</td>
@@ -1154,31 +1155,31 @@ difference (delta x and y) between spots <cite>s1</cite> and <cite>s2</cite>. <c
 <col width="20%" />
 </colgroup>
 <tbody valign="top">
-<tr><td>1</td>
+<tr class="row-odd"><td>1</td>
 <td>2</td>
 <td>3</td>
 <td>4</td>
 <td>5</td>
 </tr>
-<tr><td>6</td>
+<tr class="row-even"><td>6</td>
 <td>7</td>
 <td>8</td>
 <td>9</td>
 <td>10</td>
 </tr>
-<tr><td>11</td>
+<tr class="row-odd"><td>11</td>
 <td>12</td>
 <td>13</td>
 <td>14</td>
 <td>15</td>
 </tr>
-<tr><td>16</td>
+<tr class="row-even"><td>16</td>
 <td>17</td>
 <td>18</td>
 <td>19</td>
 <td>20</td>
 </tr>
-<tr><td>21</td>
+<tr class="row-odd"><td>21</td>
 <td>22</td>
 <td>23</td>
 <td>24</td>
@@ -1292,7 +1293,7 @@ documentation, type <tt class="docutils literal"><span class="pre">help(shapiro.
 
 <dl class="function">
 <dt id="setlyze.std.t_test">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">t_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>alternative='two.sided'</em>, <em>mu=0</em>, <em>paired=False</em>, <em>var_equal=False</em>, <em>conf_level=0.94999999999999996</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#t_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.t_test" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">t_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>alternative='two.sided'</em>, <em>mu=0</em>, <em>paired=False</em>, <em>var_equal=False</em>, <em>conf_level=0.95</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#t_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.t_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs one and two sample t-tests on sequences of data.</p>
 <p>This is a wrapper function for the <tt class="docutils literal"><span class="pre">t.test</span></tt> function from R. It
 depends on R and RPy. The latter provides an interface to the R
@@ -1337,7 +1338,7 @@ out where we are located.</p>
 
 <dl class="function">
 <dt id="setlyze.std.wilcox_test">
-<tt class="descclassname">setlyze.std.</tt><tt class="descname">wilcox_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>alternative='two.sided'</em>, <em>mu=0</em>, <em>paired=False</em>, <em>exact=None</em>, <em>correct=True</em>, <em>conf_int=False</em>, <em>conf_level=0.94999999999999996</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#wilcox_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.wilcox_test" title="Permalink to this definition">¶</a></dt>
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">wilcox_test</tt><big>(</big><em>x</em>, <em>y=None</em>, <em>alternative='two.sided'</em>, <em>mu=0</em>, <em>paired=False</em>, <em>exact=None</em>, <em>correct=True</em>, <em>conf_int=False</em>, <em>conf_level=0.95</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#wilcox_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.wilcox_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Performs one and two sample Wilcoxon tests on sequences of data;
 the latter is also known as ‘Mann-Whitney’ test.</p>
 <p>This is a wrapper function for the <tt class="docutils literal"><span class="pre">wilcox.test</span></tt> function from R.
@@ -1402,7 +1403,7 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -1433,7 +1434,7 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
              >previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
@@ -1441,7 +1442,7 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
     </div>
     <div class="footer">
         &copy; Copyright 2010, 2011, GiMaRIS.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>

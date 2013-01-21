@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.locale &mdash; SETLyze v0.2 documentation</title>
+    <title>setlyze.locale &mdash; SETLyze 0.2 documentation</title>
+    
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze v0.2 documentation" href="../../index.html" />
+    <link rel="top" title="SETLyze 0.2 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -37,7 +40,7 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -82,10 +85,10 @@
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 
-<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira, Adam van Adrichem, Fedde Schaeffer&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, 2011, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.1.1&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.2&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
@@ -150,6 +153,9 @@
         <span class="s">&quot;Load SETL data from CSV files. These data files must &quot;</span>
         <span class="s">&quot;be exported from the Microsoft Access SETL database in CSV &quot;</span>
         <span class="s">&quot;format. The user manual describes how to export these files.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;change-data-source-xls&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Load SETL data from xls files. &quot;</span>
+        <span class="s">&quot;The user manual describes how to export these files.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;change-data-source-db&#39;</span><span class="p">,</span>
         <span class="s">&quot;Load SETL data from the remote SETL database. This requires a &quot;</span>
         <span class="s">&quot;direct connection with the SETL database server. This feature &quot;</span>
@@ -183,13 +189,19 @@
         <span class="s">&quot;You didn&#39;t select all CSV files. SETLyze requires four CSV files &quot;</span>
         <span class="s">&quot;as input. See the user manual for more information. Please select &quot;</span>
         <span class="s">&quot;all four files and try again.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;xls-files-not-selected&#39;</span><span class="p">,</span>
+        <span class="s">&quot;You didn&#39;t select all xls files. SETLyze requires four xls files &quot;</span>
+        <span class="s">&quot;as input. See the user manual for more information. Please select &quot;</span>
+        <span class="s">&quot;all four files and try again.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Failed to load the SETL data from the CSV files. This is probably &quot;</span>
-        <span class="s">&quot;caused by an incorrect format of the input file. SETLyze requires &quot;</span>
-        <span class="s">&quot;the input files to be in a specific format. Please follow the &quot;</span>
-        <span class="s">&quot;instructions in the user manual on how to create the CSV files in &quot;</span>
-        <span class="s">&quot;the required format.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+        <span class="s">&quot;Failed to load the SETL data from the CSV or XLS files. &quot;</span>
+        <span class="s">&quot;This is probably caused by an incorrect format of the input file. &quot;</span>
+        <span class="s">&quot;SETLyze requires the input files to be in a specific format. &quot;</span>
+        <span class="s">&quot;Please follow the instructions in the user manual on how to &quot;</span>
+        <span class="s">&quot;create the CSV files in the required format.</span><span class="se">\n\n</span><span class="s">&quot;</span>
         <span class="s">&quot;The error returned was: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Analysis aborted by user&quot;</span><span class="p">),</span>
     <span class="p">]</span>
 
 <span class="c"># Turn the list into a dictionary. This provides easier access to its</span>
@@ -233,7 +245,7 @@
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -258,14 +270,14 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze v0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2010, 2011, GiMaRIS.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
     </div>
   </body>
 </html>
