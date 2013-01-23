@@ -220,7 +220,7 @@ class ConfigManager(object):
     def set_data_source(self, source):
         """Set the configuration with name ``data-source`` to `source`.
 
-        Possible values for `source` are ``setl-database``,``MS XLS-files``  and
+        Possible values for `source` are ``setl-database``, ``xls`` and
         ``csv-msaccess``. The value of this configuration tells the
         application where to look for SETL data. This is especially used
         by the database module.

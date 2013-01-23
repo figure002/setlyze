@@ -52,7 +52,7 @@ __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com", "a.v.adrichem@gmail.com "
+__email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
@@ -1708,7 +1708,7 @@ class AccessDBGeneric(object):
 class AccessLocalDB(AccessDBGeneric):
     """Provide standard methods for accessing data in the local
     SQLite database. These methods are only used when the data source
-    is set to ``csv-msaccess`` or to ``XLS``.
+    is set to ``csv-msaccess`` or to ``xls``.
 
     Inherits from :class:`AccessDBGeneric` which provides this
     class with methods that are not data source specific.
