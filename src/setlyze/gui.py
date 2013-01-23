@@ -1681,7 +1681,7 @@ class ChangeDataSource(gtk.Window):
         # Create a filter for the file chooser.
         xls_filter = gtk.FileFilter()
         xls_filter.set_name("Excel File (*.xls)")
-        xls_filter.add_mime_type("text/xls")
+        xls_filter.add_mime_type("application/vnd.ms-excel")
         xls_filter.add_pattern("*.xls")
 
         # Create labels.
