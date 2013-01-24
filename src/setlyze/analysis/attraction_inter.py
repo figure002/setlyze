@@ -110,12 +110,13 @@ class Begin(object):
     def __init__(self):
         self.last_window = None
         self.previous_window = None
+        self.signal_handlers = {}
 
         # Create log message.
         logging.info("Beginning Analysis 3 \"Attraction between species\"")
 
         # Bind handles to application signals.
-        self.handle_application_signals()
+        self.set_signal_handlers()
 
         # Reset the settings when an analysis is beginning.
         setlyze.config.cfg.set('locations-selection', None)
@@ -127,45 +128,43 @@ class Begin(object):
         # Emit the signal that an analysis has started.
         setlyze.std.sender.emit('beginning-analysis')
 
-    def handle_application_signals(self):
+    def set_signal_handlers(self):
         """Respond to signals emitted by the application."""
+        self.signal_handlers = {
+            # This analysis has just started.
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
 
-        # This analysis has just started.
-        self.handler1 = setlyze.std.sender.connect('beginning-analysis',
-            self.on_select_locations)
+            # The user pressed the X button of a locations/species selection window.
+            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
 
-        # The user pressed the X button of a locations/species
-        # selection window.
-        self.handler2 = setlyze.std.sender.connect('selection-dialog-closed',
-            self.on_analysis_closed)
+            # User pressed the Back button in the locations selection window.
+            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_locations_back),
 
-        # User pressed the Back button in the locations selection window.
-        self.handler3 = setlyze.std.sender.connect('locations-dialog-back',
-            self.on_locations_back)
+            # User pressed the Back button in the species selection window.
+            'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_species_back),
 
-        # User pressed the Back button in the species selection window.
-        self.handler4 = setlyze.std.sender.connect('species-dialog-back',
-            self.on_species_back)
+            # The user selected locations have been saved.
+            'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_locations_saved),
 
-        # The user selected locations have been saved.
-        self.handler5 = setlyze.std.sender.connect('locations-selection-saved',
-            self.on_locations_saved)
+            # The user selected species have been saved.
+            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_species_saved),
 
-        # The user selected species have been saved.
-        self.handler6 = setlyze.std.sender.connect('species-selection-saved',
-            self.on_species_saved)
+            # Display the report after the analysis has finished.
+            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
 
-        # Display the report after the analysis has finished.
-        self.handler7 = setlyze.std.sender.connect('analysis-finished',
-            self.on_display_report)
+            # The report window was closed.
+            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
 
-        # The report window was closed.
-        self.handler8 = setlyze.std.sender.connect('report-dialog-closed',
-            self.on_analysis_closed)
+            # Cancel button
+            'analysis-cancel-button': setlyze.std.sender.connect('analysis-cancel-button', self.on_cancel_button),
+        }
 
-        # Handler 9: Cancel button
-        self.handler9 = setlyze.std.sender.connect('analysis-cancel-button',
-            self.on_cancel_button)
+    def unset_signal_handlers(self):
+        """Disconnect all signal connections with signal handlers created
+        by this analysis.
+        """
+        for handler in self.signal_handlers.values():
+            setlyze.std.sender.disconnect(handler)
 
     def on_cancel_button(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
@@ -191,21 +190,7 @@ class Begin(object):
         # finished. If we don't do this, the same handlers will be
         # created again, resulting in copies of the same handlers, with
         # the result that callback functions are called multiple times.
-        self.destroy_handler_connections()
-
-    def destroy_handler_connections(self):
-        """Disconnect all signal connections with signal handlers created
-        by this analysis.
-        """
-        setlyze.std.sender.disconnect(self.handler1)
-        setlyze.std.sender.disconnect(self.handler2)
-        setlyze.std.sender.disconnect(self.handler3)
-        setlyze.std.sender.disconnect(self.handler4)
-        setlyze.std.sender.disconnect(self.handler5)
-        setlyze.std.sender.disconnect(self.handler6)
-        setlyze.std.sender.disconnect(self.handler7)
-        setlyze.std.sender.disconnect(self.handler8)
-        setlyze.std.sender.disconnect(self.handler9)
+        self.unset_signal_handlers()
 
     def on_locations_saved(self, sender, save_slot=0, data=None):
         # Make sure the second slot for the locations selection is the

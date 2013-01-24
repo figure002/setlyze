@@ -156,18 +156,29 @@ class SelectAnalysis(gtk.Window):
         self.connect('destroy', gtk.main_quit)
 
         # Handle application signals.
-        self.handler1 = setlyze.std.sender.connect('beginning-analysis',
-            self.on_analysis_started)
-        self.handler2 = setlyze.std.sender.connect('analysis-closed',
-            self.on_analysis_closed)
-        self.handler3 = setlyze.std.sender.connect('local-db-created',
-            self.on_continue)
+        self.signal_handlers = {
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_analysis_started),
+            'analysis-closed': setlyze.std.sender.connect('analysis-closed', self.on_analysis_closed),
+            'local-db-created': setlyze.std.sender.connect('local-db-created', self.on_continue),
+        }
 
         # Add widgets to the GTK window.
         self.create_layout()
 
         # Display all widgets.
         self.show_all()
+
+    def unset_signal_handlers(self):
+        """Disconnect all signal connections with signal handlers created
+        by this object.
+        """
+
+        # This handler is only needed once. We don't want
+        # self.on_continue to be called each time the local database
+        # is recreated.
+        if self.signal_handlers['local-db-created']:
+            setlyze.std.sender.disconnect(self.signal_handlers['local-db-created'])
+            self.signal_handlers['local-db-created'] = None
 
     def create_layout(self):
         """Construct the layout."""
@@ -320,25 +331,13 @@ class SelectAnalysis(gtk.Window):
             self.frame_descr.set_label("Analysis 4")
             self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
 
-    def destroy_handler_connections(self):
-        """Disconnect all signal connections with signal handlers created
-        by this object.
-        """
-
-        # This handler is only needed once. We don't want
-        # self.on_continue to be called each time the local database
-        # is recreated.
-        if self.handler3:
-            setlyze.std.sender.disconnect(self.handler3)
-            self.handler3 = None
-
     def on_analysis_started(self, sender):
         """Destroy this object's signal handlers and hide the dialog."""
 
         # Some handler are only needed once. Block subsequent execution
         # of these handler, as the signals will be emitted again from
         # different parts.
-        self.destroy_handler_connections()
+        self.unset_signal_handlers()
 
         # Hide this window when an analysis is running.
         self.hide()
@@ -502,8 +501,9 @@ class SelectionWindow(gtk.Window):
         self.connect('delete-event', on_quit)
 
         # Handle application signals.
-        self.handler1 = setlyze.std.sender.connect('local-db-created',
-            self.update_tree)
+        self.signal_handlers = {
+            'local-db-created': setlyze.std.sender.connect('local-db-created', self.update_tree)
+        }
 
         # Add widgets to the GTK window.
         self.create_layout()
@@ -639,9 +639,10 @@ class SelectionWindow(gtk.Window):
         # Add the table to the main window.
         self.add(table)
 
-    def destroy_handler_connections(self):
+    def unset_signal_handlers(self):
         """Disconnect all signal handlers created by this class."""
-        setlyze.std.sender.disconnect(self.handler1)
+        for handler in self.signal_handlers.values():
+            setlyze.std.sender.disconnect(handler)
 
     def set_header(self, header):
         """Set the header text to `header`."""
@@ -693,7 +694,7 @@ class SelectionWindow(gtk.Window):
         self.save_selection()
 
         # Destroy the handlers.
-        self.destroy_handler_connections()
+        self.unset_signal_handlers()
 
         # Then close this window.
         self.destroy()
@@ -741,7 +742,7 @@ class SelectionWindow(gtk.Window):
         self.destroy()
 
         # Destroy the handlers.
-        self.destroy_handler_connections()
+        self.unset_signal_handlers()
 
         # Emit the signal that a selection dialog was closed.
         setlyze.std.sender.emit('selection-dialog-closed')
@@ -784,7 +785,7 @@ class SelectLocations(SelectionWindow):
         self.destroy()
 
         # Destroy the handlers.
-        self.destroy_handler_connections()
+        self.unset_signal_handlers()
 
         # Emit the signal that the Back button was pressed.
         setlyze.std.sender.emit('locations-dialog-back', self.save_slot)
@@ -874,7 +875,7 @@ class SelectSpecies(SelectionWindow):
         self.destroy()
 
         # Destroy the handlers.
-        self.destroy_handler_connections()
+        self.unset_signal_handlers()
 
         # Emit the signal that the Back button was pressed.
         setlyze.std.sender.emit('species-dialog-back', self.save_slot)
@@ -1461,6 +1462,7 @@ class ChangeDataSource(gtk.Window):
 
     def __init__(self):
         super(ChangeDataSource, self).__init__()
+        self.signal_handlers = {}
 
         self.set_title("Change Data Source")
         self.set_size_request(-1, -1)
@@ -1474,10 +1476,27 @@ class ChangeDataSource(gtk.Window):
         self.create_layout()
 
         # Bind handles to application signals.
-        self.handle_application_signals()
+        self.set_signal_handlers()
 
         # Display all widgets.
         self.show_all()
+
+    def set_signal_handlers(self):
+        """Respond to signals emitted by the application."""
+        self.signal_handlers = {
+            # Show an epic fail message when import fails.
+            'csv-import-failed': setlyze.std.sender.connect('csv-import-failed', self.on_csv_import_failed),
+
+            # Make sure the above handle is disconnected when loading new SETL data succeeds.
+            'local-db-created': setlyze.std.sender.connect('local-db-created', self.unset_signal_handlers)
+        }
+
+    def unset_signal_handlers(self, sender=None, data=None):
+        """Disconnect all signal connections with signal handlers created by
+        this class.
+        """
+        for handler in self.signal_handlers.values():
+            setlyze.std.sender.disconnect(handler)
 
     def create_layout(self):
         """Construct the layout for the dialog."""
@@ -1769,23 +1788,6 @@ class ChangeDataSource(gtk.Window):
 
         return table
 
-    def handle_application_signals(self):
-        """Respond to signals emitted by the application."""
-        self.handler1 = setlyze.std.sender.connect('csv-import-failed',
-            self.on_csv_import_failed)
-
-        # Make sure the above handle is disconnected when loading new SETL
-        # data succeeds.
-        self.handler2 = setlyze.std.sender.connect('local-db-created',
-            self.destroy_handler_connections)
-
-    def destroy_handler_connections(self, sender=None, data=None):
-        """Disconnect all signal connections with signal handlers created by
-        this class.
-        """
-        setlyze.std.sender.disconnect(self.handler1)
-        setlyze.std.sender.disconnect(self.handler2)
-
     def on_csv_ok(self, widget, data=None):
         """Save the paths to the CSV files, set the new value for the
         data source configuration, load the SETL data from the CSV file
@@ -1882,7 +1884,7 @@ class ChangeDataSource(gtk.Window):
         """Display an error message showing the user that importing SETL data
         from the selected CSV or XLS files failed.
         """
-        self.destroy_handler_connections()
+        self.unset_signal_handlers()
 
         # Close the progress dialog.
         setlyze.config.cfg.get('progress-dialog').destroy()
@@ -1902,7 +1904,7 @@ class ChangeDataSource(gtk.Window):
 
     def on_cancel(self, widget, data=None):
         """Close the dialog."""
-        self.destroy_handler_connections()
+        self.unset_signal_handlers()
         self.destroy()
 
     def update_working_folder(self, chooser, data=None):
