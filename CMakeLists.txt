@@ -3,8 +3,8 @@ project (setlyze)
 
 # The version number.
 set (setlyze_VERSION_MAJOR 0)
-set (setlyze_VERSION_MINOR 1)
-set (setlyze_VERSION_PATCH 1)
+set (setlyze_VERSION_MINOR 2)
+set (setlyze_VERSION_PATCH 0)
 
 # Settings for creating the setlyze packages.
 include (cmake/cpack_setlyze.cmake)
