@@ -69,6 +69,7 @@ import setlyze.locale
 import setlyze.config
 import setlyze.gui
 import setlyze.std
+import setlyze.report
 
 __author__ = ("Jonathan den Boer, Serrano Pereira, Adam van Adrichem, "
     "Fedde Schaeffer")
@@ -761,7 +762,7 @@ class Start(threading.Thread):
 
         Design Part: 1.14
         """
-        report = setlyze.std.ReportGenerator()
+        report = setlyze.report.ReportGenerator()
         report.set_analysis('attraction_intra')
         report.set_location_selections()
         report.set_species_selections()

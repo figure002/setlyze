@@ -61,6 +61,7 @@ import pkg_resources
 import setlyze.locale
 import setlyze.config
 import setlyze.database
+import setlyze.report
 from setlyze.std import make_remarks
 
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
@@ -2022,9 +2023,9 @@ class ProgressDialog(gtk.Window):
 class DisplayReport(gtk.Window):
     """Display a dialog visualizing the elements in the XML DOM analysis
     data object. The argument `reader` is an instance of
-    :class:`setlyze.std.ReportReader`.
+    :class:`setlyze.report.ReportReader`.
 
-    This class uses :class:`~setlyze.std.ReportReader` to read the data
+    This class uses :class:`~setlyze.report.ReportReader` to read the data
     from the XML DOM analysis data object.
 
     Design Part: 1.89
@@ -2061,7 +2062,7 @@ class DisplayReport(gtk.Window):
         object `report` to the reader. `report` can also be the path to
         a report data XML file.
         """
-        self.reader = setlyze.std.ReportReader(report)
+        self.reader = setlyze.report.ReportReader(report)
 
     def create_layout(self):
         """Construct the layout for the dialog."""
@@ -2195,7 +2196,7 @@ class DisplayReport(gtk.Window):
 
             # File type = XML
             if "*.xml" in filter_name:
-                setlyze.std.export_report(self.reader, path, 'xml')
+                setlyze.report.export(self.reader, path, 'xml')
 
             # File type = text
             elif "*.txt" in filter_name:
@@ -2205,7 +2206,7 @@ class DisplayReport(gtk.Window):
 
                 # Export the selected report elements.
                 if response == gtk.RESPONSE_ACCEPT:
-                    setlyze.std.export_report(self.reader, path, 'txt',
+                    setlyze.report.export(self.reader, path, 'txt',
                         dialog.get_selected_elements())
                 dialog.destroy()
 
@@ -2217,7 +2218,7 @@ class DisplayReport(gtk.Window):
 
                 # Export the selected report elements.
                 if response == gtk.RESPONSE_ACCEPT:
-                    setlyze.std.export_report(self.reader, path, 'latex',
+                    setlyze.report.export(self.reader, path, 'latex',
                         dialog.get_selected_elements())
                 dialog.destroy()
         else:
@@ -3353,7 +3354,7 @@ class DisplayReport(gtk.Window):
 class SelectExportElements(gtk.Dialog):
     """Display a dialog for allowing the user to select which report
     elements to export. The argument `reader` is an instance of
-    :class:`setlyze.std.ReportReader`.
+    :class:`setlyze.report.ReportReader`.
     """
 
     def __init__(self, reader):
