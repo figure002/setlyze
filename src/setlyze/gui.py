@@ -62,7 +62,7 @@ import setlyze.locale
 import setlyze.config
 import setlyze.database
 import setlyze.report
-from setlyze.std import make_remarks
+from setlyze.std import module_path,make_remarks
 
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
@@ -227,6 +227,12 @@ class SelectAnalysis(gtk.Window):
         self.radio_ana3.connect('clicked', self.on_toggled)
         vbox.pack_start(self.radio_ana3)
 
+        self.radio_ana_batch = gtk.RadioButton(self.radio_ana1,
+            setlyze.locale.text('analysis-batch'))
+        self.radio_ana_batch.set_tooltip_text(setlyze.locale.text('analysis-batch-descr'))
+        self.radio_ana_batch.connect('clicked', self.on_toggled)
+        vbox.pack_start(self.radio_ana_batch)
+
         # Add the alignment widget to the table.
         table.attach(vbox, left_attach=0, right_attach=1,
             top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.EXPAND,
@@ -320,17 +326,20 @@ class SelectAnalysis(gtk.Window):
     def on_toggled(self, radiobutton=None):
         """Update the description frame."""
         if self.radio_ana1.get_active():
-            self.frame_descr.set_label("Analysis 1")
+            self.frame_descr.set_label("Spot preference")
             self.label_descr.set_text(setlyze.locale.text('analysis1-descr'))
         elif self.radio_ana2_1.get_active():
-            self.frame_descr.set_label("Analysis 2")
+            self.frame_descr.set_label("Attraction within species")
             self.label_descr.set_text(setlyze.locale.text('analysis2-descr'))
         elif self.radio_ana2_2.get_active():
-            self.frame_descr.set_label("Analysis 3")
+            self.frame_descr.set_label("Attraction within species")
             self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
         elif self.radio_ana3.get_active():
-            self.frame_descr.set_label("Analysis 4")
+            self.frame_descr.set_label("Attraction between species")
             self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
+        elif self.radio_ana_batch.get_active():
+            self.frame_descr.set_label("Batch mode")
+            self.label_descr.set_text(setlyze.locale.text('analysis-batch-descr'))
 
     def on_analysis_started(self, sender):
         """Destroy this object's signal handlers and hide the dialog."""
@@ -379,6 +388,9 @@ class SelectAnalysis(gtk.Window):
 
         elif self.radio_ana3.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'relations')
+
+        elif self.radio_ana_batch.get_active():
+            setlyze.std.sender.emit('on-start-analysis', 'batch')
 
         return False
 
@@ -478,6 +490,86 @@ class SelectAnalysis(gtk.Window):
         # Make the local database.
         t = setlyze.database.MakeLocalDB()
         t.start()
+
+class SelectBatchAnalysis(object):
+    """Display a window that allows the user to select an analysis for batch mode."""
+
+    def __init__(self):
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(module_path(), 'glade/window_select_analysis.glade'))
+
+        # Get some GTK objects.
+        self.window = self.builder.get_object('window_select_analysis')
+        self.radio_ana_spot_pref = self.builder.get_object('radio_ana_spot_pref')
+        self.radio_ana_attraction_intra = self.builder.get_object('radio_ana_attraction_intra')
+        self.radio_ana_attraction_inter = self.builder.get_object('radio_ana_attraction_inter')
+        self.radio_ana_relation = self.builder.get_object('radio_ana_relation')
+        self.frame_descr = self.builder.get_object('frame_descr')
+        self.label_descr = self.builder.get_object('label_descr')
+
+        # Handle window signals.
+        self.window.connect('delete-event', on_quit)
+
+        # Connect the window signals to the handlers.
+        self.builder.connect_signals(self)
+
+        # Updated the analysis description.
+        self.on_toggled()
+
+        # Handle application signals.
+        self.signal_handlers = {}
+
+        # Display all widgets.
+        self.window.show_all()
+
+    def on_toggled(self, radiobutton=None):
+        """Update the description frame."""
+        if self.radio_ana_spot_pref.get_active():
+            self.frame_descr.set_label("Spot preference")
+            self.label_descr.set_text(setlyze.locale.text('analysis1-descr'))
+
+        elif self.radio_ana_attraction_intra.get_active():
+            self.frame_descr.set_label("Attraction within species")
+            self.label_descr.set_text(setlyze.locale.text('analysis2-descr'))
+
+        elif self.radio_ana_attraction_inter.get_active():
+            self.frame_descr.set_label("Attraction between species")
+            self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
+
+        elif self.radio_ana_relation.get_active():
+            self.frame_descr.set_label("Relation between species")
+            self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
+
+    def on_ok(self, widget=None, data=None):
+        """Send the `on-start-analysis` signal with the selected analysis as
+        signal attribute.
+        """
+        if self.radio_ana_spot_pref.get_active():
+            setlyze.std.sender.emit('batch-analysis-selected', 'spot_preference')
+
+        elif self.radio_ana_attraction_intra.get_active():
+            setlyze.std.sender.emit('batch-analysis-selected', 'attraction_intra')
+
+        elif self.radio_ana_attraction_inter.get_active():
+            setlyze.std.sender.emit('batch-analysis-selected', 'attraction_inter')
+
+        elif self.radio_ana_relation.get_active():
+            setlyze.std.sender.emit('batch-analysis-selected', 'relations')
+
+        # Close the window.
+        self.window.destroy()
+
+    def on_back(self, widget, data=None):
+        """Go back to the main window."""
+
+        # Close the window.
+        self.window.destroy()
+
+        # Emit the signal that the Back button was pressed.
+        setlyze.std.sender.emit('select-batch-analysis-window-back')
+
+        # Prevent default action of the close button.
+        return False
 
 class SelectionWindow(gtk.Window):
     """Super class for :class:`SelectLocations` and :class:`SelectSpecies`."""

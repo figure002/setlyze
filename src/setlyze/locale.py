@@ -80,6 +80,10 @@ ENGLISH = [
     ('analysis4-descr',
         "Determine if there is a relation between the presence/absence of two "
         "species in a specific location."),
+    ('analysis-batch',
+        'Batch mode'),
+    ('analysis-batch-descr',
+        "Enter batch mode to repeat analyses for a selection of species."),
     ('define-plate-areas',
         "Please define the plate areas for the Chi-squared test. You can keep "
         "the default setting, meaning that A, B, C and D are treated as "

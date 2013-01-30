@@ -37,6 +37,7 @@ import setlyze.analysis.spot_preference
 import setlyze.analysis.attraction_intra
 import setlyze.analysis.attraction_inter
 import setlyze.analysis.relations
+import setlyze.analysis.batch
 
 # Allow only the main thread to touch the GUI (GTK) part, while letting other
 # threads do background work. For this to work, first call gobject.threads_init()
@@ -109,6 +110,8 @@ def on_start_analysis(sender, analysis, data=None):
         setlyze.analysis.attraction_inter.Begin()
     elif analysis == 'relations':
         setlyze.analysis.relations.Begin()
+    elif analysis == 'batch':
+        setlyze.analysis.batch.Begin()
 
     return False
 
