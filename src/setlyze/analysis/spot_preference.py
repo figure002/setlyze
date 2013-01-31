@@ -216,6 +216,10 @@ class Begin(object):
 
     def on_start_analysis(self, sender=None, data=None):
         """Start the analysis."""
+        lock = threading.Lock()
+        locations = setlyze.config.cfg.get('locations-selection', slot=0)
+        species = setlyze.config.cfg.get('species-selection', slot=0)
+        areas_definition = setlyze.config.cfg.get('plate-areas-definition')
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Performing analysis",
@@ -223,7 +227,7 @@ class Begin(object):
         setlyze.config.cfg.set('progress-dialog', pd)
 
         # Perform analysis...
-        t = Start()
+        t = Start(lock, locations, species, areas_definition)
         t.start()
 
     def on_display_report(self, sender):
@@ -247,9 +251,13 @@ class Start(threading.Thread):
     Design Part: 1.3.2
     """
 
-    def __init__(self):
+    def __init__(self, lock, locations_selection, species_selection, areas_definition):
         super(Start, self).__init__()
 
+        self.locations_selection = locations_selection
+        self.species_selection = species_selection
+        self.areas_definition = areas_definition
+        self.lock = lock
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
@@ -264,7 +272,36 @@ class Start(threading.Thread):
         setlyze.std.sender.emit('analysis-started')
 
     def __del__(self):
+        # Release the lock to shared resources.
+        self.lock.release()
         logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
+
+    def set_locations_selection(selection):
+        """Set the locations selection.
+
+        The locations selection `selection` is a list of integers. Each integer
+        is the primary key of the localities table in the database. Only
+        species records from the selected locations will be used for the
+        analysis.
+        """
+        self.locations_selection = selection
+
+    def set_species_selection(selection):
+        """Set the species selection.
+
+        The species selection `selection` is a list of integers. Each integer
+        is the primary key of the species table in the database. More than one
+        species means that they will be treated as a single species.
+        """
+        self.species_selection = selection
+
+    def set_areas_definition(definition):
+        """Set the plate areas definition.
+
+        The plate areas definition `definition` is a definition as saved by
+        :class:`setlyze.gui.DefinePlateAreas`.
+        """
+        self.areas_definition = definition
 
     def run(self):
         """Call the necessary methods for the analysis in the right order
@@ -290,6 +327,10 @@ class Start(threading.Thread):
         # properly.
         time.sleep(0.5)
 
+        # Lock access to the database while we're accessing the shared
+        # database resources.
+        self.lock.acquire()
+
         # Set the total number of times we decide to update the progress dialog.
         total_steps = 7 + self.n_repeats
         self.pdialog_handler.set_total_steps(total_steps)
@@ -298,9 +339,7 @@ class Start(threading.Thread):
         self.db = setlyze.database.get_database_accessor()
 
         # Get the record IDs that match the localities+species selection.
-        locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
-        species_selection = setlyze.config.cfg.get('species-selection', slot=0)
-        rec_ids = self.db.get_record_ids(locations_selection, species_selection)
+        rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
         # Create log message.
         logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
@@ -378,14 +417,15 @@ class Start(threading.Thread):
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
 
+        # Release the lock to shared resources.
+        #self.lock.release()
+
     def set_plate_area_totals_observed(self):
         """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"
         table in the local SQLite database.
 
         Design Part: 1.62
         """
-        locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
-        species_selection = setlyze.config.cfg.get('species-selection', slot=0)
 
         # From plate area to spot numbers.
         area2spots = {'A': (1,5,21,25),
@@ -831,7 +871,6 @@ class Start(threading.Thread):
 
         Design Part: 1.64
         """
-        areas_definition = setlyze.config.cfg.get('plate-areas-definition')
 
         # Dictionary which will contain the species total for each area.
         areas_totals_observed = {'area1': 0,
@@ -840,7 +879,7 @@ class Start(threading.Thread):
             'area4': 0,
             }
 
-        for area_name, area_group in areas_definition.iteritems():
+        for area_name, area_group in self.areas_definition.iteritems():
             # Get both sets of distances from plates per total spot numbers.
             observed = self.db.get_area_totals(
                 'plate_area_totals_observed', area_group)
@@ -852,7 +891,7 @@ class Start(threading.Thread):
         # Remove unused areas from the variable.
         delete = []
         for area in areas_totals_observed:
-            if area not in areas_definition:
+            if area not in self.areas_definition:
                 delete.append(area)
         for area in delete:
             del areas_totals_observed[area]
@@ -871,7 +910,6 @@ class Start(threading.Thread):
 
         Design Part: 1.101
         """
-        areas_definition = setlyze.config.cfg.get('plate-areas-definition')
 
         # The spot names, and how many times they occur on a plate.
         probabilities = {'A': 4/25.0,
@@ -883,14 +921,14 @@ class Start(threading.Thread):
         # Calculate what each spot area should be multiplied with, as
         # the spot areas can be combinations of spots.
         area_probabilities = { 'area1': 0, 'area2': 0, 'area3': 0, 'area4': 0 }
-        for area, spot_names in areas_definition.iteritems():
+        for area, spot_names in self.areas_definition.iteritems():
             for spot_name in spot_names:
                 area_probabilities[area] += probabilities[spot_name]
 
         # Remove unused areas.
         delete = []
         for area in area_probabilities:
-            if area not in areas_definition:
+            if area not in self.areas_definition:
                 delete.append(area)
 
         for area in delete:

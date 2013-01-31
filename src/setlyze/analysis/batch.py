@@ -125,7 +125,7 @@ class Begin(object):
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_window_closed),
 
             # The analysis was aborted.
-            'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
+            #'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
 
             # Display the report after the analysis has finished.
             'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
@@ -220,6 +220,11 @@ class Begin(object):
 
     def on_start_analysis(self, sender=None, data=None):
         """Start the analysis."""
+        self.start_time = time.time()
+        locations = setlyze.config.cfg.get('locations-selection', slot=0)
+        species = setlyze.config.cfg.get('species-selection', slot=0)
+        areas_definition = setlyze.config.cfg.get('plate-areas-definition')
+        lock = threading.Lock()
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Performing analysis",
@@ -228,7 +233,12 @@ class Begin(object):
 
         # Select the analysis.
         if self.analysis == 'spot_preference':
-            t = setlyze.analysis.spot_preference.Start()
+            # Repeat the analysis for each species separately.
+            for sp in species:
+                t = setlyze.analysis.spot_preference.Start(lock, locations,
+                    [sp], areas_definition)
+                t.pdialog_handler.autoclose = False
+                t.start()
         elif self.analysis == 'attraction_intra':
             return
         elif self.analysis == 'attraction_inter':
@@ -236,13 +246,11 @@ class Begin(object):
         elif self.analysis == 'relations':
             return
 
-        # Perform analysis...
-        t.start()
-
     def on_display_report(self, sender):
         """Display the report in a window.
 
         Design Part: 1.68
         """
-        report = setlyze.config.cfg.get('analysis-report')
-        setlyze.gui.DisplayReport(report)
+        #report = setlyze.config.cfg.get('analysis-report')
+        #setlyze.gui.DisplayReport(report)
+        logging.info( "Running time: %f" % (time.time() - self.start_time) )
