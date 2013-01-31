@@ -98,6 +98,7 @@ class Begin(object):
     """
 
     def __init__(self):
+        self.worker = None
         self.signal_handlers = {}
 
         # Create log message.
@@ -141,7 +142,7 @@ class Begin(object):
             'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
 
             # Cancel button
-            'analysis-cancel-button': setlyze.std.sender.connect('analysis-cancel-button', self.on_cancel_button),
+            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
         }
 
     def unset_signal_handlers(self):
@@ -153,6 +154,10 @@ class Begin(object):
 
     def on_cancel_button(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
+
+        # Stop the worker thread.
+        self.worker.stop()
+        self.worker.join()
 
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
@@ -199,6 +204,7 @@ class Begin(object):
 
     def start_analysis(self, obj=None, data=None):
         """Start the analysis."""
+        lock = threading.Lock()
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Performing Analysis",
@@ -206,8 +212,8 @@ class Begin(object):
         setlyze.config.cfg.set('progress-dialog', pd)
 
         # Perform analysis...
-        t = Start()
-        t.start()
+        self.worker = Worker(lock)
+        self.worker.start()
 
     def on_display_report(self, sender):
         """Display the report in a window.
@@ -217,7 +223,7 @@ class Begin(object):
         report = setlyze.config.cfg.get('analysis-report')
         setlyze.gui.DisplayReport(report)
 
-class Start(threading.Thread):
+class Worker(threading.Thread):
     """Perform the calculations for analysis 2.
 
     1. Get all SETL records that match the localities+species selection and
@@ -241,9 +247,11 @@ class Start(threading.Thread):
     Design Part: 1.4.2
     """
 
-    def __init__(self):
-        super(Start, self).__init__()
+    def __init__(self, lock):
+        super(Worker, self).__init__()
 
+        self._stop = threading.Event()
+        self._lock = lock
         # Path to the local database file.
         self.dbfile = setlyze.config.cfg.get('db-file')
         # Create progress dialog handler.
@@ -258,7 +266,17 @@ class Start(threading.Thread):
         setlyze.std.sender.emit('analysis-started')
 
     def __del__(self):
-        logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
+        if self._lock.locked():
+            # Release the lock to shared resources.
+            self._lock.release()
+
+    def stop(self):
+        """Stop this thread."""
+        self._stop.set()
+
+    def stopped(self):
+        """Check if this thread needs to be stopped."""
+        return self._stop.isSet()
 
     def run(self):
         """Call the necessary methods for the analysis in the right order:
@@ -280,56 +298,62 @@ class Start(threading.Thread):
         # display properly.
         time.sleep(0.5)
 
+        # Lock access to the database while we're accessing the shared
+        # database resources.
+        self._lock.acquire()
+
         # Set the total number of times we're going to update the progress
         # dialog during the analysis.
         total_steps = 10 + setlyze.config.cfg.get('test-repeats')
         self.pdialog_handler.set_total_steps(total_steps)
 
-        # Make an object that facilitates access to the database.
-        self.db = setlyze.database.get_database_accessor()
+        if not self.stopped():
+            # Make an object that facilitates access to the database.
+            self.db = setlyze.database.get_database_accessor()
 
-        # Get the record IDs that match the localities+species selection.
-        locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
-        species_selection = setlyze.config.cfg.get('species-selection', slot=0)
-        rec_ids = self.db.get_record_ids(locations_selection, species_selection)
-        # Create log message.
-        logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
+            # Get the record IDs that match the localities+species selection.
+            locations_selection = setlyze.config.cfg.get('locations-selection', slot=0)
+            species_selection = setlyze.config.cfg.get('species-selection', slot=0)
+            rec_ids = self.db.get_record_ids(locations_selection, species_selection)
+            # Create log message.
+            logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-        # Create log message.
-        logging.info("\tCreating table with species spots...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Creating table with species spots...")
-        # Make a spots table for the selected species.
-        self.db.set_species_spots(rec_ids, slot=0)
+            # Create log message.
+            logging.info("\tCreating table with species spots...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Creating table with species spots...")
+            # Make a spots table for the selected species.
+            self.db.set_species_spots(rec_ids, slot=0)
 
-        # Create log message.
-        logging.info("\tMaking plate IDs in species spots table unique...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-        # Make the plate IDs unique.
-        n_plates_unique = self.db.make_plates_unique(slot=0)
-        # Create log message.
-        logging.info("\t  %d records remaining." % (n_plates_unique))
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tMaking plate IDs in species spots table unique...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            n_plates_unique = self.db.make_plates_unique(slot=0)
+            # Create log message.
+            logging.info("\t  %d records remaining." % (n_plates_unique))
 
-        # Create log message.
-        logging.info("\tSaving the positive spot totals for each plate...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
-        # Save the positive spot totals for each plate to the database.
-        skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
-        # Create log message.
-        logging.info("\tSkipping %d records with too few positive spots." % skipped)
-        logging.info("\t  %d records remaining." % (n_plates_unique - skipped))
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tSaving the positive spot totals for each plate...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
+            # Save the positive spot totals for each plate to the database.
+            skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
+            # Create log message.
+            logging.info("\tSkipping %d records with too few positive spots." % skipped)
+            logging.info("\t  %d records remaining." % (n_plates_unique - skipped))
 
-        # Create log message.
-        logging.info("\tCalculating the intra-specific distances for the selected species...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Calculating the intra-specific distances for the selected species...")
-        # Calculate the observed spot distances.
-        self.calculate_distances_intra()
+            # Create log message.
+            logging.info("\tCalculating the intra-specific distances for the selected species...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Calculating the intra-specific distances for the selected species...")
+            # Calculate the observed spot distances.
+            self.calculate_distances_intra()
 
-        # Test if cancel button is pressed.
-        if not setlyze.config.cfg.get('cancel-pressed'):
+        if not self.stopped():
             # Create log message.
             logging.info("\tPerforming statistical tests with %d repeats..." %
                 setlyze.config.cfg.get('test-repeats'))
@@ -341,8 +365,7 @@ class Start(threading.Thread):
             # of the last repeat for the non-repeated tests.
             self.repeat_test(setlyze.config.cfg.get('test-repeats'))
 
-        # Test if cancel button is pressed.
-        if not setlyze.config.cfg.get('cancel-pressed'):
+        if not self.stopped():
             # Create log message.
             logging.info("\tPerforming statistical tests...")
             # Update progress dialog.
@@ -351,11 +374,12 @@ class Start(threading.Thread):
             # repeat is used for this test.
             self.calculate_significance()
 
-        # If the cancel button is pressed don't finish this function
-        if setlyze.config.cfg.get('cancel-pressed'):
-            # Set cancel-pressed back to default
-            setlyze.config.cfg.set('cancel-pressed', False)
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-cancel-button')
+        # If the cancel button is pressed don't finish this function.
+        if self.stopped():
+            logging.info("Analysis aborted by user")
+
+            # Release the lock to shared resources.
+            self._lock.release()
             return
 
         # Create log message.
@@ -372,6 +396,10 @@ class Start(threading.Thread):
         # Note that the signal will be sent from a separate thread,
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+        logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
+
+        # Release the lock to shared resources.
+        self._lock.release()
 
     def calculate_distances_intra(self):
         """Calculate the intra-specific spot distances for each plate
@@ -744,7 +772,7 @@ class Start(threading.Thread):
         """
 
         for i in range(number):
-            if setlyze.config.cfg.get('cancel-pressed'):
+            if self.stopped():
                 return
 
             # Update the progess bar.

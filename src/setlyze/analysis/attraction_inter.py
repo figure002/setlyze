@@ -110,6 +110,7 @@ class Begin(object):
     """
 
     def __init__(self):
+        self.worker = None
         self.last_window = None
         self.previous_window = None
         self.signal_handlers = {}
@@ -158,7 +159,7 @@ class Begin(object):
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
 
             # Cancel button
-            'analysis-cancel-button': setlyze.std.sender.connect('analysis-cancel-button', self.on_cancel_button),
+            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
         }
 
     def unset_signal_handlers(self):
@@ -170,6 +171,10 @@ class Begin(object):
 
     def on_cancel_button(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
+
+        # Stop the worker thread.
+        self.worker.stop()
+        self.worker.join()
 
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
@@ -264,6 +269,7 @@ class Begin(object):
 
     def on_start_analysis(self, sender=None):
         """Start the analysis."""
+        lock = threading.Lock()
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Performing Analysis",
@@ -271,8 +277,8 @@ class Begin(object):
         setlyze.config.cfg.set('progress-dialog', pd)
 
         # Perform analysis...
-        t = Start()
-        t.start()
+        self.worker = Worker(lock)
+        self.worker.start()
 
     def on_display_report(self, sender):
         """Display the report in a window.
@@ -282,7 +288,7 @@ class Begin(object):
         report = setlyze.config.cfg.get('analysis-report')
         setlyze.gui.DisplayReport(report)
 
-class Start(threading.Thread):
+class Worker(threading.Thread):
     """Perform the calculations for analysis 3.
 
     1. Get all SETL records that match the localities + first species
@@ -316,9 +322,11 @@ class Start(threading.Thread):
     Design Part: 1.5.2
     """
 
-    def __init__(self):
-        super(Start, self).__init__()
+    def __init__(self, lock):
+        super(Worker, self).__init__()
 
+        self._stop = threading.Event()
+        self._lock = lock
         # Path to the local database file.
         self.dbfile = setlyze.config.cfg.get('db-file')
         # Dictionary for the statistic test results.
@@ -333,7 +341,17 @@ class Start(threading.Thread):
         setlyze.std.sender.emit('analysis-started')
 
     def __del__(self):
-        logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
+        if self._lock.locked():
+            # Release the lock to shared resources.
+            self._lock.release()
+
+    def stop(self):
+        """Stop this thread."""
+        self._stop.set()
+
+    def stopped(self):
+        """Check if this thread needs to be stopped."""
+        return self._stop.isSet()
 
     def generate_spot_ratio_groups(self):
         """Return an iterator that returns the ratio groups.
@@ -389,6 +407,10 @@ class Start(threading.Thread):
         # display properly.
         time.sleep(0.5)
 
+        # Lock access to the database while we're accessing the shared
+        # database resources.
+        self._lock.acquire()
+
         # Set the total number of times we're going to update the progress
         # dialog during the analysis.
         total_steps = 12 + setlyze.config.cfg.get('test-repeats')
@@ -397,85 +419,87 @@ class Start(threading.Thread):
         # Make an object that facilitates access to the database.
         self.db = setlyze.database.get_database_accessor()
 
-        # SELECTION 1
+        if not self.stopped():
+            # SELECTION 1
 
-        # Update progress dialog.
-        self.pdialog_handler.increase("Creating first table with species spots...")
-        # Get the record IDs that match the selections.
-        locations_selection1 = setlyze.config.cfg.get('locations-selection', slot=0)
-        species_selection1 = setlyze.config.cfg.get('species-selection', slot=0)
-        rec_ids1 = self.db.get_record_ids(locations_selection1, species_selection1)
-        # Update progress dialog.
-        logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
+            # Update progress dialog.
+            self.pdialog_handler.increase("Creating first table with species spots...")
+            # Get the record IDs that match the selections.
+            locations_selection1 = setlyze.config.cfg.get('locations-selection', slot=0)
+            species_selection1 = setlyze.config.cfg.get('species-selection', slot=0)
+            rec_ids1 = self.db.get_record_ids(locations_selection1, species_selection1)
+            # Update progress dialog.
+            logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
 
-        # Create log message.
-        logging.info("\t\tCreating first table with species spots...")
-        # Make a spots table for both species selections.
-        self.db.set_species_spots(rec_ids1, slot=0)
+            # Create log message.
+            logging.info("\t\tCreating first table with species spots...")
+            # Make a spots table for both species selections.
+            self.db.set_species_spots(rec_ids1, slot=0)
 
-        # Update progress dialog.
-        self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-        # Create log message.
-        logging.info("\t\tMaking plate IDs in species spots table unique...")
-        # Make the plate IDs unique.
-        n_plates_unique = self.db.make_plates_unique(slot=0)
-        # Create log message.
-        logging.info("\t\t  %d records remaining." % (n_plates_unique))
+            # Update progress dialog.
+            self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
+            # Create log message.
+            logging.info("\t\tMaking plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            n_plates_unique = self.db.make_plates_unique(slot=0)
+            # Create log message.
+            logging.info("\t\t  %d records remaining." % (n_plates_unique))
 
-        # SELECTION 2
+        if not self.stopped():
+            # SELECTION 2
 
-        # Update progress dialog.
-        self.pdialog_handler.increase("Creating second table with species spots...")
-        # Get the record IDs that match the selections.
-        locations_selection2 = setlyze.config.cfg.get('locations-selection', slot=1)
-        species_selection2 = setlyze.config.cfg.get('species-selection', slot=1)
-        rec_ids2 = self.db.get_record_ids(locations_selection2, species_selection2)
-        # Create log message.
-        logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
+            # Update progress dialog.
+            self.pdialog_handler.increase("Creating second table with species spots...")
+            # Get the record IDs that match the selections.
+            locations_selection2 = setlyze.config.cfg.get('locations-selection', slot=1)
+            species_selection2 = setlyze.config.cfg.get('species-selection', slot=1)
+            rec_ids2 = self.db.get_record_ids(locations_selection2, species_selection2)
+            # Create log message.
+            logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
 
-        # Create log message.
-        logging.info("\t\tCreating second table with species spots...")
-        # Make a spots table for both species selections.
-        self.db.set_species_spots(rec_ids2, slot=1)
+            # Create log message.
+            logging.info("\t\tCreating second table with species spots...")
+            # Make a spots table for both species selections.
+            self.db.set_species_spots(rec_ids2, slot=1)
 
-        # Update progress dialog.
-        self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-        # Create log message.
-        logging.info("\t\tMaking plate IDs in species spots table unique...")
-        # Make the plate IDs unique.
-        n_plates_unique = self.db.make_plates_unique(slot=1)
-        # Create log message.
-        logging.info("\t\t  %d records remaining." % (n_plates_unique))
+            # Update progress dialog.
+            self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
+            # Create log message.
+            logging.info("\t\tMaking plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            n_plates_unique = self.db.make_plates_unique(slot=1)
+            # Create log message.
+            logging.info("\t\t  %d records remaining." % (n_plates_unique))
 
-        # GENERAL
+        if not self.stopped():
+            # GENERAL
 
-        # Create log message.
-        logging.info("\tSaving the positive spot totals for each plate...")
-        # Update progress dialog.
-        self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
-        # Save the positive spot totals for each plate to the database.
-        self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
+            # Create log message.
+            logging.info("\tSaving the positive spot totals for each plate...")
+            # Update progress dialog.
+            self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
+            # Save the positive spot totals for each plate to the database.
+            self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
 
-        # Update progress dialog.
-        self.pdialog_handler.increase("Calculating the inter-specific distances for the selected species...")
-        # Create log message.
-        logging.info("\tCalculating the inter-specific distances for the selected species...")
-        # Calculate the observed spot distances.
-        self.calculate_distances_inter()
+            # Update progress dialog.
+            self.pdialog_handler.increase("Calculating the inter-specific distances for the selected species...")
+            # Create log message.
+            logging.info("\tCalculating the inter-specific distances for the selected species...")
+            # Calculate the observed spot distances.
+            self.calculate_distances_inter()
 
-        # Create log message.
-        logging.info("\tPerforming statistical tests with %d repeats..." %
-            setlyze.config.cfg.get('test-repeats'))
-        # Update progress dialog.
-        self.pdialog_handler.increase("Performing statistical tests with %s repeats..." %
-            setlyze.config.cfg.get('test-repeats'))
-        # Perform the repeats for the statistical tests. This will repeatedly
-        # calculate the expected totals, so we'll use the expected values
-        # of the last repeat for the non-repeated tests.
-        self.repeat_test(setlyze.config.cfg.get('test-repeats'))
+            # Create log message.
+            logging.info("\tPerforming statistical tests with %d repeats..." %
+                setlyze.config.cfg.get('test-repeats'))
+            # Update progress dialog.
+            self.pdialog_handler.increase("Performing statistical tests with %s repeats..." %
+                setlyze.config.cfg.get('test-repeats'))
+            # Perform the repeats for the statistical tests. This will repeatedly
+            # calculate the expected totals, so we'll use the expected values
+            # of the last repeat for the non-repeated tests.
+            self.repeat_test(setlyze.config.cfg.get('test-repeats'))
 
-        # Test if cancel button is pressed.
-        if not setlyze.config.cfg.get('cancel-pressed'):
+        if not self.stopped():
             # Create log message.
             logging.info("\tPerforming statistical tests...")
             # Update progress dialog.
@@ -484,18 +508,17 @@ class Start(threading.Thread):
             # repeat is used for this test.
             self.calculate_significance()
 
-        # Test if cancel button is pressed.
-        if not setlyze.config.cfg.get('cancel-pressed'):
             # Create log message.
             logging.info("\tGenerating the analysis report...")
             # Update progress dialog.
             self.pdialog_handler.increase("Generating the analysis report...")
 
-        # If the cancel button is pressed don't finish this function
-        if setlyze.config.cfg.get('cancel-pressed'):
-            # Set cancel-pressed back to default
-            setlyze.config.cfg.set('cancel-pressed', False)
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-cancel-button')
+        # If the cancel button is pressed don't finish this function.
+        if self.stopped():
+            logging.info("Analysis aborted by user")
+
+            # Release the lock to shared resources.
+            self._lock.release()
             return
 
         # Generate the report.
@@ -508,6 +531,10 @@ class Start(threading.Thread):
         # Note that the signal will be sent from a separate thread,
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+        logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
+
+        # Release the lock to shared resources.
+        self._lock.release()
 
     def calculate_distances_inter(self):
         """Calculate the inter-specific spot distances for each plate
@@ -902,7 +929,7 @@ class Start(threading.Thread):
         Design Part: 1.105
         """
         for i in range(number):
-            if setlyze.config.cfg.get('cancel-pressed'):
+            if self.stopped():
                 return
 
             # Update the progess bar.

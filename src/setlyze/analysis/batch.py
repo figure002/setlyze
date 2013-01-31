@@ -132,7 +132,7 @@ class Begin(object):
             'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
 
             # Cancel button
-            'analysis-cancelled': setlyze.std.sender.connect('analysis-cancelled', self.on_cancel_button),
+            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
 
             # Progress dialog closed
             'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_window_closed),
@@ -248,7 +248,7 @@ class Begin(object):
             # Repeat the analysis for each species separately.
             for sp in species:
                 # Create a new thread for the analysis.
-                t = setlyze.analysis.spot_preference.Start(lock, locations,
+                t = setlyze.analysis.spot_preference.Worker(lock, locations,
                     [sp], areas_definition)
                 # Add it to the list of threads.
                 self.threads.append(t)

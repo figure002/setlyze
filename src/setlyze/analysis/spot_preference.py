@@ -82,6 +82,7 @@ class Begin(object):
     """
 
     def __init__(self):
+        self.worker = None
         self.signal_handlers = {}
 
         # Create log message.
@@ -139,7 +140,7 @@ class Begin(object):
             'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
 
             # Cancel button
-            'analysis-cancelled': setlyze.std.sender.connect('analysis-cancelled', self.on_cancel_button),
+            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
         }
 
     def unset_signal_handlers(self):
@@ -165,6 +166,10 @@ class Begin(object):
 
     def on_cancel_button(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
+
+        # Stop the worker thread.
+        self.worker.stop()
+        self.worker.join()
 
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
@@ -227,8 +232,8 @@ class Begin(object):
         setlyze.config.cfg.set('progress-dialog', pd)
 
         # Perform analysis...
-        t = Start(lock, locations, species, areas_definition)
-        t.start()
+        self.worker = Worker(lock, locations, species, areas_definition)
+        self.worker.start()
 
     def on_display_report(self, sender):
         """Display the report in a window.
@@ -238,7 +243,7 @@ class Begin(object):
         report = setlyze.config.cfg.get('analysis-report')
         setlyze.gui.DisplayReport(report)
 
-class Start(threading.Thread):
+class Worker(threading.Thread):
     """Perform the calculations for analysis 1.
 
     1. Calculate the observed species frequencies for the plate areas.
@@ -252,7 +257,7 @@ class Start(threading.Thread):
     """
 
     def __init__(self, lock, locations_selection, species_selection, areas_definition):
-        super(Start, self).__init__()
+        super(Worker, self).__init__()
 
         self._stop = threading.Event()
         self._lock = lock
@@ -412,7 +417,7 @@ class Start(threading.Thread):
 
         # If the cancel button is pressed don't finish this function.
         if self.stopped():
-            logging.info("The analysis was canceled by the user")
+            logging.info("Analysis aborted by user")
 
             # Release the lock to shared resources.
             self._lock.release()

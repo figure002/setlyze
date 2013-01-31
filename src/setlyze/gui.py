@@ -2110,7 +2110,7 @@ class ProgressDialog(gtk.Window):
         """Destroy the dialog and send cancel signal."""
         logging.info("Cancel button is pressed")
         self.destroy()
-        setlyze.std.sender.emit('analysis-cancelled')
+        setlyze.std.sender.emit('analysis-canceled')
 
     def on_close(self, widget=None, data=None):
         """Destroy the dialog."""
@@ -2141,10 +2141,6 @@ class DisplayReport(gtk.Window):
         self.set_resizable(True)
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
-
-        # Test if the cancel button is pressed and return to home.
-        if setlyze.config.cfg.get('cancel-pressed'):
-            logging.info("Foo- displayReport")
 
         # Handle window signals.
         self.connect('delete-event', on_quit)
