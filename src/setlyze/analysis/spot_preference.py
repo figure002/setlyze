@@ -139,7 +139,7 @@ class Begin(object):
             'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
 
             # Cancel button
-            'analysis-cancel-button': setlyze.std.sender.connect('analysis-cancel-button', self.on_cancel_button),
+            'analysis-cancelled': setlyze.std.sender.connect('analysis-cancelled', self.on_cancel_button),
         }
 
     def unset_signal_handlers(self):
@@ -254,10 +254,11 @@ class Start(threading.Thread):
     def __init__(self, lock, locations_selection, species_selection, areas_definition):
         super(Start, self).__init__()
 
+        self._stop = threading.Event()
+        self._lock = lock
         self.locations_selection = locations_selection
         self.species_selection = species_selection
         self.areas_definition = areas_definition
-        self.lock = lock
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
@@ -272,9 +273,17 @@ class Start(threading.Thread):
         setlyze.std.sender.emit('analysis-started')
 
     def __del__(self):
-        # Release the lock to shared resources.
-        self.lock.release()
-        logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
+        if self._lock.locked():
+            # Release the lock to shared resources.
+            self._lock.release()
+
+    def stop(self):
+        """Stop this thread."""
+        self._stop.set()
+
+    def stopped(self):
+        """Check if this thread needs to be stopped."""
+        return self._stop.isSet()
 
     def set_locations_selection(selection):
         """Set the locations selection.
@@ -329,57 +338,61 @@ class Start(threading.Thread):
 
         # Lock access to the database while we're accessing the shared
         # database resources.
-        self.lock.acquire()
+        self._lock.acquire()
 
         # Set the total number of times we decide to update the progress dialog.
         total_steps = 7 + self.n_repeats
         self.pdialog_handler.set_total_steps(total_steps)
 
-        # Make an object that facilitates access to the database.
-        self.db = setlyze.database.get_database_accessor()
+        if not self.stopped():
+            # Make an object that facilitates access to the database.
+            self.db = setlyze.database.get_database_accessor()
 
-        # Get the record IDs that match the localities+species selection.
-        rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
-        # Create log message.
-        logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
+            # Get the record IDs that match the localities+species selection.
+            rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
+            # Create log message.
+            logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-        # Create log message and update progress dialog.
-        logging.info("\tCreating table with species spots...")
-        self.pdialog_handler.increase("Creating table with species spots...")
-        # Make a spots table for the selected species.
-        self.db.set_species_spots(rec_ids, slot=0)
+            # Create log message and update progress dialog.
+            logging.info("\tCreating table with species spots...")
+            self.pdialog_handler.increase("Creating table with species spots...")
+            # Make a spots table for the selected species.
+            self.db.set_species_spots(rec_ids, slot=0)
 
-        # Create log message and update progress dialog.
-        logging.info("\tMaking plate IDs in species spots table unique...")
-        self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-        # Make the plate IDs unique.
-        n_plates_unique = self.db.make_plates_unique(slot=0)
-        # Create log message.
-        logging.info("\t  %d records remaining." % (n_plates_unique))
+            # Create log message and update progress dialog.
+            logging.info("\tMaking plate IDs in species spots table unique...")
+            self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            n_plates_unique = self.db.make_plates_unique(slot=0)
+            # Create log message.
+            logging.info("\t  %d records remaining." % (n_plates_unique))
 
-        # Create log message and update progress dialog.
-        logging.info("\tCalculating the observed plate area totals for each plate...")
-        self.pdialog_handler.increase("Calculating the observed plate area totals for each plate...")
-        # Calculate the expected totals.
-        self.set_plate_area_totals_observed()
+        if not self.stopped():
+            # Create log message and update progress dialog.
+            logging.info("\tCalculating the observed plate area totals for each plate...")
+            self.pdialog_handler.increase("Calculating the observed plate area totals for each plate...")
+            # Calculate the expected totals.
+            self.set_plate_area_totals_observed()
 
-        # Calculate the observed species encounters for the user defined plate
-        # areas.
-        self.chisq_observed = self.get_defined_areas_totals_observed()
+            # Calculate the observed species encounters for the user defined plate
+            # areas.
+            self.chisq_observed = self.get_defined_areas_totals_observed()
 
-        # Make sure that spot area totals are not all zero. If so, abort
-        # the analysis, because we can't devide by zero (unless you're
-        # Chuck Norris of course).
-        areas_total = 0
-        for area_total in self.chisq_observed.itervalues():
-            areas_total += area_total
-        if areas_total == 0:
-            logging.info("\tThe species was not found on any plates, aborting.")
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
-            return
+            # Make sure that spot area totals are not all zero. If so, abort
+            # the analysis, because we can't devide by zero (unless you're
+            # Chuck Norris of course).
+            areas_total = 0
+            for area_total in self.chisq_observed.itervalues():
+                areas_total += area_total
+            if areas_total == 0:
+                logging.info("\tThe species was not found on any plates, aborting.")
+                gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
 
-        # Test if the cancel button is pressed:
-        if not setlyze.config.cfg.get('cancel-pressed'):
+                # Release the lock to shared resources.
+                self._lock.release()
+                return
+
+        if not self.stopped():
             # Create log message and update progress dialog.
             logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
             self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
@@ -388,7 +401,7 @@ class Start(threading.Thread):
             # of the last repeat for the non-repeated tests.
             self.repeat_test(self.n_repeats)
 
-        if not setlyze.config.cfg.get('cancel-pressed'):
+        if not self.stopped():
             # Create log message.
             logging.info("\tPerforming statistical tests...")
             # Update progress dialog.
@@ -397,11 +410,12 @@ class Start(threading.Thread):
             self.calculate_significance_wilcoxon()
             self.calculate_significance_chisq()
 
-        # If the cancel button is pressed don't finish this function
-        if setlyze.config.cfg.get('cancel-pressed'):
-            # Set cancel-pressed back to default
-            setlyze.config.cfg.set('cancel-pressed', False)
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-cancel-button')
+        # If the cancel button is pressed don't finish this function.
+        if self.stopped():
+            logging.info("The analysis was canceled by the user")
+
+            # Release the lock to shared resources.
+            self._lock.release()
             return
 
         # Update progress dialog.
@@ -416,9 +430,10 @@ class Start(threading.Thread):
         # Note that the signal will be sent from a separate thread,
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+        logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
 
         # Release the lock to shared resources.
-        #self.lock.release()
+        self._lock.release()
 
     def set_plate_area_totals_observed(self):
         """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"
@@ -848,7 +863,7 @@ class Start(threading.Thread):
         """
         for i in range(number):
             # Test if the cancel button is pressed.
-            if setlyze.config.cfg.get('cancel-pressed'):
+            if self.stopped():
                 return
 
             # Update the progess bar.

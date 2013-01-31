@@ -746,7 +746,7 @@ class Sender(gobject.GObject):
         'batch-analysis-selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'analysis-aborted': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'analysis-cancel-button': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'analysis-cancelled': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'analysis-closed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'selection-dialog-closed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
         'define-areas-dialog-closed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
@@ -924,9 +924,12 @@ class ProgressDialogHandler(object):
             action = "<span style='italic'>%s</span>" % (action)
             self.pdialog.action.set_markup(action)
 
+        if fraction < 1.0:
+            self.pdialog.button_cancel.set_sensitive(True)
+
         if fraction == 1.0:
             self.pdialog.pbar.set_text("Finished!")
-            self.pdialog.button_close.set_sensitive(True)
+            self.pdialog.button_cancel.set_sensitive(False)
 
             if self.autoclose:
                 # Close the progress dialog when finished. We set a delay

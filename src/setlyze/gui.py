@@ -2087,15 +2087,15 @@ class ProgressDialog(gtk.Window):
         pbar_align.add(self.pbar)
 
         # Cancel button
-        self.button_close = gtk.Button(stock=gtk.STOCK_CANCEL)
-        self.button_close.set_size_request(-1, -1)
-        self.button_close.connect("clicked", self.on_close)
+        self.button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
+        self.button_cancel.set_size_request(-1, -1)
+        self.button_cancel.connect("clicked", self.on_cancel)
 
         # But the button in a horizontal button box.
         button_box_r = gtk.HButtonBox()
         button_box_r.set_layout(gtk.BUTTONBOX_END)
         button_box_r.set_spacing(5)
-        button_box_r.pack_start(self.button_close, expand=True, fill=True,
+        button_box_r.pack_start(self.button_cancel, expand=True, fill=True,
             padding=0)
 
         # Add the alignment objects to the vertical container.
@@ -2106,11 +2106,17 @@ class ProgressDialog(gtk.Window):
 
         self.add(vbox)
 
+    def on_cancel(self, widget=None, data=None):
+        """Destroy the dialog and send cancel signal."""
+        logging.info("Cancel button is pressed")
+        self.destroy()
+        setlyze.std.sender.emit('analysis-cancelled')
+
     def on_close(self, widget=None, data=None):
         """Destroy the dialog."""
-        logging.info("close button is pressed")
+        logging.info("Close button is pressed")
         self.destroy()
-        setlyze.config.cfg.set('cancel-pressed', True)
+        setlyze.std.sender.emit('progress-dialog-closed')
 
 class DisplayReport(gtk.Window):
     """Display a dialog visualizing the elements in the XML DOM analysis

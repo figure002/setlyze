@@ -67,6 +67,7 @@ class Begin(object):
     """
 
     def __init__(self):
+        self.threads = []
         self.analysis = None
         self.signal_handlers = {}
 
@@ -131,7 +132,10 @@ class Begin(object):
             'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
 
             # Cancel button
-            'analysis-cancel-button': setlyze.std.sender.connect('analysis-cancel-button', self.on_cancel_button),
+            'analysis-cancelled': setlyze.std.sender.connect('analysis-cancelled', self.on_cancel_button),
+
+            # Progress dialog closed
+            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_window_closed),
         }
 
     def unset_signal_handlers(self):
@@ -158,6 +162,9 @@ class Begin(object):
     def on_cancel_button(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
 
+        # Stop all analysis threads.
+        self.stop_all_threads()
+
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="Analysis canceled")
@@ -168,6 +175,11 @@ class Begin(object):
 
         # Go back to the main window.
         self.on_window_closed()
+
+    def stop_all_threads(self):
+        """Exit all analysis threads."""
+        for thread in self.threads:
+            thread.stop()
 
     def on_window_closed(self, sender=None, data=None):
         """Show the main window and destroy the handler connections."""
@@ -235,9 +247,14 @@ class Begin(object):
         if self.analysis == 'spot_preference':
             # Repeat the analysis for each species separately.
             for sp in species:
+                # Create a new thread for the analysis.
                 t = setlyze.analysis.spot_preference.Start(lock, locations,
                     [sp], areas_definition)
+                # Add it to the list of threads.
+                self.threads.append(t)
+                # Prevent the progress dialog from closing automatically.
                 t.pdialog_handler.autoclose = False
+                # Start the thread.
                 t.start()
         elif self.analysis == 'attraction_intra':
             return
