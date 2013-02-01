@@ -91,7 +91,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.worker = None
 
         # Create log message.
-        logging.info("Beginning Analysis ”Spot preference”")
+        logging.info("Beginning analysis ”Spot preference”")
 
         # Bind handles to application signals.
         self.set_signal_handlers()
@@ -260,7 +260,7 @@ class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
 
     def __init__(self):
         super(BeginBatch, self).__init__()
-        logging.info("Beginning Analysis ”Spot preference” in batch mode")
+        logging.info("Beginning analysis ”Spot preference” in batch mode")
 
         # Bind handles to application signals.
         self.set_signal_handlers()
@@ -407,7 +407,7 @@ class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
         # Spawn an analysis thread for each species.
         for sp in species:
             # Create a new analysis thread.
-            t = Worker(self.lock, locations, [sp], areas_definition)
+            t = Worker(self.lock, locations, sp, areas_definition)
             t.set_pdialog_handler(self.pdialog_handler)
 
             # Add it to the list of threads.

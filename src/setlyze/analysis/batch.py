@@ -90,6 +90,8 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
     def on_analysis_selected(self, sender, analysis):
         """Start the selected analysis in batch mode."""
+        # TODO: This is a workaround. Find a different way to close
+        # setlyze.gui.SelectBatchAnalysis when an analysis was selected.
         self.unset_signal_handlers()
 
         if analysis == 'spot_preference':
@@ -98,3 +100,5 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             setlyze.analysis.attraction_intra.BeginBatch()
         elif analysis == 'attraction_inter':
             setlyze.analysis.attraction_inter.BeginBatch()
+        elif analysis == 'relations':
+            setlyze.analysis.relations.BeginBatch()

@@ -1772,17 +1772,29 @@ class AccessLocalDB(AccessDBGeneric):
 
         return species
 
-    def get_record_ids(self, loc_ids, spe_ids):
-        """Return a list of record IDs that match the localities IDs
-        in the list `loc_ids` and the species IDs in the list `spe_ids`.
+    def get_record_ids(self, locations, species):
+        """Return records that match the locations and species.
+
+        Returns a list of record IDs that match the locations IDs
+        in the list `locations` and the species IDs in the list `species`.
+
+        Both `locations` and `species` can be an integer instead of a list with
+        a single integer.
 
         Design Part: 1.41
         """
 
         # Create strings containing all the selected locations and
         # species IDs. These will be part of the queries below.
-        loc_ids_str = ",".join([str(id) for id in loc_ids])
-        spe_ids_str = ",".join([str(id) for id in spe_ids])
+        if isinstance(locations, int):
+            loc_ids_str = str(locations)
+        else:
+            loc_ids_str = ",".join([str(id) for id in locations])
+
+        if isinstance(species, int):
+            spe_ids_str = str(species)
+        else:
+            spe_ids_str = ",".join([str(id) for id in species])
 
         # Make a connection with the local database.
         connection = sqlite.connect(self.dbfile)

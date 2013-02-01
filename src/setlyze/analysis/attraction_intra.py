@@ -107,7 +107,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.worker = None
 
         # Create log message.
-        logging.info("Beginning Analysis ”Attraction within species”")
+        logging.info("Beginning analysis ”Attraction within species”")
 
         # Bind handles to application signals.
         self.set_signal_handlers()
@@ -238,7 +238,7 @@ class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
 
     def __init__(self):
         super(BeginBatch, self).__init__()
-        logging.info("Beginning Analysis ”Attraction within species” in batch mode")
+        logging.info("Beginning analysis ”Attraction within species” in batch mode")
 
         # Bind handles to application signals.
         self.set_signal_handlers()
@@ -325,7 +325,7 @@ class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
         select.button_chg_source.hide()
 
     def on_start_analysis(self, sender=None, data=None):
-        """Run analysis Spot Preference in batch mode.
+        """Run the analysis in batch mode.
 
         Repeat the analysis for each species separately.
         """
