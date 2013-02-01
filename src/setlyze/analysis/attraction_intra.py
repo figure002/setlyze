@@ -202,14 +202,17 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
 
         # Create analysis instance.
-        self.threads[0] = Worker(self.lock, locations, species)
-        self.threads[0].set_pdialog_handler(self.pdialog_handler)
+        t = Worker(self.lock, locations, species)
+        t.set_pdialog_handler(self.pdialog_handler)
 
         # Set the update steps for the progress handler.
-        self.pdialog_handler.set_total_steps(self.threads[0].get_total_steps())
+        self.pdialog_handler.set_total_steps(t.get_total_steps())
+
+        # Add the thread to the threads list.
+        self.threads.append(t)
 
         # Start the analysis.
-        self.threads[0].start()
+        t.start()
 
     def on_display_report(self, sender):
         """Display the report in a window.
