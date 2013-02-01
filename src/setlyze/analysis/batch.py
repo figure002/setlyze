@@ -55,19 +55,15 @@ __status__ = "Production"
 __date__ = "2013/01/28"
 
 class Begin(setlyze.analysis.common.PrepareAnalysis):
-    """Make the preparations for batch analysis:
+    """Select which analysis to run in batch mode:
 
     1. Let the user select an analysis.
-    2. Run the analysis for all species in batch.
+    2. Run the analysis in batch mode.
     """
 
     def __init__(self):
         super(Begin, self).__init__()
-
-        self.analysis = None
-
-        # Create log message.
-        logging.info("Beginning batch analysis")
+        logging.info("Entering batch mode")
 
         # Bind handles to application signals.
         self.set_signal_handlers()
@@ -84,7 +80,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             # The batch analysis selection window back button was clicked.
             'select-batch-analysis-window-back': setlyze.std.sender.connect('select-batch-analysis-window-back', self.on_analysis_closed),
 
-            # The batch analysis was selected.
+            # An analysis was selected.
             'batch-analysis-selected': setlyze.std.sender.connect('batch-analysis-selected', self.on_analysis_selected),
         }
 
@@ -94,7 +90,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
     def on_analysis_selected(self, sender, analysis):
         """Start the selected analysis in batch mode."""
-        self.on_analysis_closed()
+        self.unset_signal_handlers()
 
         if analysis == 'spot_preference':
             setlyze.analysis.spot_preference.BeginBatch()

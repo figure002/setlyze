@@ -407,8 +407,7 @@ class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
         # Spawn an analysis thread for each species.
         for sp in species:
             # Create a new analysis thread.
-            t = setlyze.analysis.spot_preference.Worker(self.lock, locations,
-                [sp], areas_definition)
+            t = Worker(self.lock, locations, [sp], areas_definition)
             t.set_pdialog_handler(self.pdialog_handler)
 
             # Add it to the list of threads.

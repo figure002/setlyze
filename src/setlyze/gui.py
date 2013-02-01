@@ -579,8 +579,8 @@ class SelectBatchAnalysis(object):
 
     def close(self, widget=None, data=None):
         """Close the window and unset any signal handlers."""
-        self.window.destroy()
         self.unset_signal_handlers()
+        self.window.destroy()
 
 class SelectionWindow(gtk.Window):
     """Super class for :class:`SelectLocations` and :class:`SelectSpecies`."""
