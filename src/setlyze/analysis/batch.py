@@ -43,6 +43,7 @@ import setlyze.config
 import setlyze.gui
 import setlyze.std
 import setlyze.report
+import setlyze.analysis.common
 import setlyze.analysis.spot_preference
 
 __author__ = "Serrano Pereira"
@@ -54,24 +55,22 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2013/01/28"
 
-class Begin(object):
+class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Make the preparations for batch analysis:
 
     1. Let the user select an analysis.
-    1. Show a list of all localities and let the user perform a localities
+    2. Show a list of all localities and let the user perform a localities
        selection.
-    2. Show a list of all species that match the locations selection and
+    3. Show a list of all species that match the locations selection and
        let the user perform a species selection.
     4. Run the analysis for all species in batch.
     5. Show the analysis report to the user.
     """
 
     def __init__(self):
-        self.threads = []
-        self.lock = threading.Lock()
-        self.pdialog_handler = None
+        super(Begin, self).__init__()
+
         self.analysis = None
-        self.signal_handlers = {}
 
         # Create log message.
         logging.info("Beginning batch analysis")
@@ -94,17 +93,17 @@ class Begin(object):
             'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_analysis),
 
             # The batch analysis selection window back button was clicked.
-            'select-batch-analysis-window-back': setlyze.std.sender.connect('select-batch-analysis-window-back', self.on_window_closed),
+            'select-batch-analysis-window-back': setlyze.std.sender.connect('select-batch-analysis-window-back', self.on_analysis_closed),
 
             # The batch analysis was selected.
             'batch-analysis-selected': setlyze.std.sender.connect('batch-analysis-selected', self.on_analysis_selected),
 
             # The user pressed the X button of a locations/species
             # selection window.
-            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_window_closed),
+            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
 
             # The user pressed the X button of a define spots window.
-            'define-areas-dialog-closed': setlyze.std.sender.connect('define-areas-dialog-closed', self.on_window_closed),
+            'define-areas-dialog-closed': setlyze.std.sender.connect('define-areas-dialog-closed', self.on_analysis_closed),
 
             # User pressed the Back button in the locations selection window.
             'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_select_analysis),
@@ -125,10 +124,10 @@ class Begin(object):
             'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_start_analysis),
 
             # The report window was closed.
-            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_window_closed),
+            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
 
             # The analysis was aborted.
-            #'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
+            'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
 
             # Display the report after the analysis has finished.
             'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
@@ -137,19 +136,10 @@ class Begin(object):
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
 
             # Progress dialog closed
-            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_window_closed),
+            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_analysis_closed),
         }
 
-    def unset_signal_handlers(self):
-        """Disconnect all signal connections with signal handlers
-        created by this analysis.
-        """
-        for handler in self.signal_handlers.values():
-            setlyze.std.sender.disconnect(handler)
-
     def on_analysis_aborted(self, sender):
-        setlyze.config.cfg.get('progress-dialog').destroy()
-
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="No species were found")
@@ -158,10 +148,14 @@ class Begin(object):
         dialog.run()
         dialog.destroy()
 
-        # Go back to the main window.
-        self.on_window_closed()
-
     def on_cancel_button(self, sender):
+        """Callback function for the Cancel button.
+
+        * Close the progress dialog.
+        * Stop the worker progress.
+        * Show an info dialog.
+        * Show the main window.
+        """
         # Destroy the progress dialog.
         if self.pdialog_handler:
             self.pdialog_handler.pdialog.destroy()
@@ -178,24 +172,7 @@ class Begin(object):
         dialog.destroy()
 
         # Go back to the main window.
-        self.on_window_closed()
-
-    def stop_all_threads(self):
-        """Exit all analysis threads."""
-        for thread in self.threads:
-            thread.stop()
-
-    def on_window_closed(self, sender=None, data=None):
-        """Show the main window and destroy the handler connections."""
-
-        # This causes the main window to show.
-        setlyze.std.sender.emit('analysis-closed')
-
-        # Make sure all handlers are destroyed when this object is
-        # finished. If we don't do this, the same handlers will be
-        # created again, resulting in copies of the same handlers, with
-        # the result that callback functions are called multiple times.
-        self.unset_signal_handlers()
+        self.on_analysis_closed()
 
     def on_select_analysis(self, sender=None, data=None):
         """Display the window for selecting the locations."""

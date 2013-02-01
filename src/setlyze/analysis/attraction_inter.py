@@ -74,6 +74,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
+import setlyze.analysis.common
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -90,7 +91,10 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
-class Begin(object):
+# The number of progress steps for this analysis.
+PROGRESS_STEPS = 12
+
+class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Make the preparations for analysis 3:
 
     1. Show a list of all localities and let the user perform a localities
@@ -110,10 +114,9 @@ class Begin(object):
     """
 
     def __init__(self):
+        super(Begin, self).__init__()
+
         self.worker = None
-        self.last_window = None
-        self.previous_window = None
-        self.signal_handlers = {}
 
         # Create log message.
         logging.info("Beginning Analysis 3 \"Attraction between species\"")
@@ -162,20 +165,17 @@ class Begin(object):
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
         }
 
-    def unset_signal_handlers(self):
-        """Disconnect all signal connections with signal handlers created
-        by this analysis.
-        """
-        for handler in self.signal_handlers.values():
-            setlyze.std.sender.disconnect(handler)
-
     def on_cancel_button(self, sender):
-        setlyze.config.cfg.get('progress-dialog').destroy()
+        # Destroy the progress dialog.
+        if self.pdialog_handler:
+            self.pdialog_handler.pdialog.destroy()
 
         # Stop the worker thread.
         self.worker.stop()
+        # Wait for the thread to stop.
         self.worker.join()
 
+        # Show an info dialog.
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="Analysis canceled")
@@ -186,18 +186,6 @@ class Begin(object):
 
         # Go back to the main window.
         self.on_analysis_closed()
-
-    def on_analysis_closed(self, obj=None):
-        """Show the main window and destroy the handler connections."""
-
-        # This causes the main window to show.
-        setlyze.std.sender.emit('analysis-closed')
-
-        # Make sure all handlers are destroyed when this object is
-        # finished. If we don't do this, the same handlers will be
-        # created again, resulting in copies of the same handlers, with
-        # the result that callback functions are called multiple times.
-        self.unset_signal_handlers()
 
     def on_locations_saved(self, sender, save_slot=0, data=None):
         # Make sure the second slot for the locations selection is the
@@ -269,15 +257,24 @@ class Begin(object):
 
     def on_start_analysis(self, sender=None):
         """Start the analysis."""
-        lock = threading.Lock()
+        locations = setlyze.config.cfg.get('locations-selection')
+        species = setlyze.config.cfg.get('species-selection')
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Performing Analysis",
             description=setlyze.locale.text('analysis-running'))
-        setlyze.config.cfg.set('progress-dialog', pd)
 
-        # Perform analysis...
-        self.worker = Worker(lock)
+        # Create a progress dialog handler.
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+
+        # Create analysis instance.
+        self.worker = Worker(self.lock, locations, species)
+        self.worker.set_pdialog_handler(self.pdialog_handler)
+
+        # Set the update steps for the progress handler.
+        self.pdialog_handler.set_total_steps(self.worker.get_total_steps())
+
+        # Start the analysis.
         self.worker.start()
 
     def on_display_report(self, sender):
@@ -288,7 +285,7 @@ class Begin(object):
         report = setlyze.config.cfg.get('analysis-report')
         setlyze.gui.DisplayReport(report)
 
-class Worker(threading.Thread):
+class Worker(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 3.
 
     1. Get all SETL records that match the localities + first species
@@ -322,17 +319,12 @@ class Worker(threading.Thread):
     Design Part: 1.5.2
     """
 
-    def __init__(self, lock):
-        super(Worker, self).__init__()
+    def __init__(self, lock, locations_selection, species_selection):
+        super(Worker, self).__init__(lock)
 
-        self._stop = threading.Event()
-        self._lock = lock
-        # Path to the local database file.
-        self.dbfile = setlyze.config.cfg.get('db-file')
-        # Dictionary for the statistic test results.
+        self.locations_selection = locations_selection
+        self.species_selection = species_selection
         self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
-        # Create progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis3'))
@@ -340,18 +332,15 @@ class Worker(threading.Thread):
         # Emit the signal that an analysis has started.
         setlyze.std.sender.emit('analysis-started')
 
-    def __del__(self):
-        if self._lock.locked():
-            # Release the lock to shared resources.
-            self._lock.release()
+    def get_total_steps(self):
+        """Return the number of progress steps for this analysis.
 
-    def stop(self):
-        """Stop this thread."""
-        self._stop.set()
+        This equals to the total number of times we decide to update the
+        progress dialog for a single analysis.
 
-    def stopped(self):
-        """Check if this thread needs to be stopped."""
-        return self._stop.isSet()
+        Module constant `PROGRESS_STEPS` has to be set in the analysis module.
+        """
+        return PROGRESS_STEPS + self.n_repeats
 
     def generate_spot_ratio_groups(self):
         """Return an iterator that returns the ratio groups.
@@ -411,11 +400,6 @@ class Worker(threading.Thread):
         # database resources.
         self._lock.acquire()
 
-        # Set the total number of times we're going to update the progress
-        # dialog during the analysis.
-        total_steps = 12 + setlyze.config.cfg.get('test-repeats')
-        self.pdialog_handler.set_total_steps(total_steps)
-
         # Make an object that facilitates access to the database.
         self.db = setlyze.database.get_database_accessor()
 
@@ -425,9 +409,7 @@ class Worker(threading.Thread):
             # Update progress dialog.
             self.pdialog_handler.increase("Creating first table with species spots...")
             # Get the record IDs that match the selections.
-            locations_selection1 = setlyze.config.cfg.get('locations-selection', slot=0)
-            species_selection1 = setlyze.config.cfg.get('species-selection', slot=0)
-            rec_ids1 = self.db.get_record_ids(locations_selection1, species_selection1)
+            rec_ids1 = self.db.get_record_ids(self.locations_selection[0], self.species_selection[0])
             # Update progress dialog.
             logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
 
@@ -451,9 +433,7 @@ class Worker(threading.Thread):
             # Update progress dialog.
             self.pdialog_handler.increase("Creating second table with species spots...")
             # Get the record IDs that match the selections.
-            locations_selection2 = setlyze.config.cfg.get('locations-selection', slot=1)
-            species_selection2 = setlyze.config.cfg.get('species-selection', slot=1)
-            rec_ids2 = self.db.get_record_ids(locations_selection2, species_selection2)
+            rec_ids2 = self.db.get_record_ids(self.locations_selection[1], self.species_selection[1])
             # Create log message.
             logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
 

@@ -50,6 +50,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
+import setlyze.analysis.common
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -69,7 +70,7 @@ __date__ = "2011/05/03"
 # The number of progress steps for this analysis.
 PROGRESS_STEPS = 7
 
-class Begin(object):
+class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Make the preparations for analysis 1:
 
     1. Show a list of all localities and let the user perform a localities
@@ -85,9 +86,9 @@ class Begin(object):
     """
 
     def __init__(self):
+        super(Begin, self).__init__()
+
         self.worker = None
-        self.signal_handlers = {}
-        self.pdialog_handler = None
 
         # Create log message.
         logging.info("Beginning Analysis 1 \"Spot preference\"")
@@ -111,13 +112,13 @@ class Begin(object):
 
             # The user pressed the X button of a locations/species
             # selection window.
-            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_window_closed),
+            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
 
             # The user pressed the X button of a define spots window.
-            'define-areas-dialog-closed': setlyze.std.sender.connect('define-areas-dialog-closed', self.on_window_closed),
+            'define-areas-dialog-closed': setlyze.std.sender.connect('define-areas-dialog-closed', self.on_analysis_closed),
 
             # User pressed the Back button in the locations selection window.
-            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_window_closed),
+            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
 
             # User pressed the Back button in the species selection window.
             'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_select_locations),
@@ -135,7 +136,7 @@ class Begin(object):
             'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_start_analysis),
 
             # The report window was closed.
-            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_window_closed),
+            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
 
             # The analysis was finished.
             'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
@@ -146,13 +147,6 @@ class Begin(object):
             # Cancel button
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
         }
-
-    def unset_signal_handlers(self):
-        """Disconnect all signal connections with signal handlers
-        created by this analysis.
-        """
-        for handler in self.signal_handlers.values():
-            setlyze.std.sender.disconnect(handler)
 
     def on_analysis_aborted(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
@@ -166,9 +160,16 @@ class Begin(object):
         dialog.destroy()
 
         # Go back to the main window.
-        self.on_window_closed()
+        self.on_analysis_closed()
 
     def on_cancel_button(self, sender):
+        """Callback function for the Cancel button.
+
+        * Close the progress dialog.
+        * Stop the worker progress.
+        * Show an info dialog.
+        * Show the main window.
+        """
         # Destroy the progress dialog.
         if self.pdialog_handler:
             self.pdialog_handler.pdialog.destroy()
@@ -188,19 +189,7 @@ class Begin(object):
         dialog.destroy()
 
         # Go back to the main window.
-        self.on_window_closed()
-
-    def on_window_closed(self, sender=None, data=None):
-        """Show the main window and destroy the handler connections."""
-
-        # This causes the main window to show.
-        setlyze.std.sender.emit('analysis-closed')
-
-        # Make sure all handlers are destroyed when this object is
-        # finished. If we don't do this, the same handlers will be
-        # created again, resulting in copies of the same handlers, with
-        # the result that callback functions are called multiple times.
-        self.unset_signal_handlers()
+        self.on_analysis_closed()
 
     def on_select_locations(self, sender=None, data=None):
         """Display the window for selecting the locations."""
@@ -229,7 +218,6 @@ class Begin(object):
 
     def on_start_analysis(self, sender=None, data=None):
         """Start the analysis."""
-        lock = threading.Lock()
         locations = setlyze.config.cfg.get('locations-selection', slot=0)
         species = setlyze.config.cfg.get('species-selection', slot=0)
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
@@ -242,7 +230,7 @@ class Begin(object):
         self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
 
         # Create analysis instance.
-        self.worker = Worker(lock, locations, species, areas_definition)
+        self.worker = Worker(self.lock, locations, species, areas_definition)
         self.worker.set_pdialog_handler(self.pdialog_handler)
 
         # Set the update steps for the progress handler.
@@ -259,7 +247,7 @@ class Begin(object):
         report = setlyze.config.cfg.get('analysis-report')
         setlyze.gui.DisplayReport(report)
 
-class Worker(threading.Thread):
+class Worker(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 1.
 
     1. Calculate the observed species frequencies for the plate areas.
@@ -273,13 +261,7 @@ class Worker(threading.Thread):
     """
 
     def __init__(self, lock, locations_selection, species_selection, areas_definition):
-        super(Worker, self).__init__()
-
-        self._stop = threading.Event()
-        self._lock = lock
-        self.pdialog_handler = None
-        self.n_repeats = setlyze.config.cfg.get('test-repeats')
-        self.dbfile = setlyze.config.cfg.get('db-file')
+        super(Worker, self).__init__(lock)
 
         self.locations_selection = locations_selection
         self.species_selection = species_selection
@@ -294,47 +276,6 @@ class Worker(threading.Thread):
         # Emit the signal that an analysis has started.
         setlyze.std.sender.emit('analysis-started')
 
-    def __del__(self):
-        # Release the lock to shared resources.
-        if self._lock.locked(): self._lock.release()
-
-    def stop(self):
-        """Stop this thread."""
-        self._stop.set()
-
-    def stopped(self):
-        """Check if this thread needs to be stopped."""
-        return self._stop.isSet()
-
-    def set_pdialog_handler(self, handler):
-        """Set the progress dialog handler.
-
-        The progress dialog handler is an instance of
-        :class:`setlyze.std.ProgressDialogHandler`.
-        """
-        if not isinstance(handler, setlyze.std.ProgressDialogHandler):
-             raise ValueError("Invalid object type passed.")
-        self.pdialog_handler = handler
-
-    def set_locations_selection(self, selection):
-        """Set the locations selection.
-
-        The locations selection `selection` is a list of integers. Each integer
-        is the primary key of the localities table in the database. Only
-        species records from the selected locations will be used for the
-        analysis.
-        """
-        self.locations_selection = selection
-
-    def set_species_selection(self, selection):
-        """Set the species selection.
-
-        The species selection `selection` is a list of integers. Each integer
-        is the primary key of the species table in the database. More than one
-        species means that they will be treated as a single species.
-        """
-        self.species_selection = selection
-
     def set_areas_definition(self, definition):
         """Set the plate areas definition.
 
@@ -348,6 +289,8 @@ class Worker(threading.Thread):
 
         This equals to the total number of times we decide to update the
         progress dialog for a single analysis.
+
+        Module constant `PROGRESS_STEPS` has to be set in the analysis module.
         """
         return PROGRESS_STEPS + self.n_repeats
 

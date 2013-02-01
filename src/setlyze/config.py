@@ -257,8 +257,9 @@ class ConfigManager(object):
             raise ValueError("Unknown key '%s'" % key)
 
         if key in ('locations-selection', 'species-selection'):
-            slot = kwargs.get('slot', 0)
-            return self._conf[key][slot]
+            slot = kwargs.get('slot', None)
+            if isinstance(slot, int):
+                return self._conf[key][slot]
 
         return self._conf.get(key)
 

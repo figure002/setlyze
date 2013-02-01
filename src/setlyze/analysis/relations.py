@@ -22,6 +22,7 @@
 import logging
 import threading
 
+import setlyze.analysis.common
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -35,7 +36,7 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
-class Begin(object):
+class Begin(setlyze.analysis.common.PrepareAnalysis):
     def __init__(self):
         # Create log message.
         logging.info("Beginning Analysis 4 \"Relation between species\"")
