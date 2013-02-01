@@ -115,10 +115,6 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
     def __init__(self):
         super(Begin, self).__init__()
-
-        self.worker = None
-
-        # Create log message.
         logging.info("Beginning Analysis ”Attraction between species”")
 
         # Bind handles to application signals.
@@ -144,194 +140,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
 
             # User pressed the Back button in the locations selection window.
-            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_locations_back),
-
-            # User pressed the Back button in the species selection window.
-            'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_species_back),
-
-            # The user selected locations have been saved.
-            'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_locations_saved),
-
-            # The user selected species have been saved.
-            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_species_saved),
-
-            # Display the report after the analysis has finished.
-            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
-
-            # The report window was closed.
-            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
-
-            # Cancel button
-            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
-        }
-
-    def on_cancel_button(self, sender):
-        # Destroy the progress dialog.
-        if self.pdialog_handler:
-            self.pdialog_handler.pdialog.destroy()
-
-        # Stop the worker thread.
-        self.worker.stop()
-        # Wait for the thread to stop.
-        self.worker.join()
-
-        # Show an info dialog.
-        dialog = gtk.MessageDialog(parent=None, flags=0,
-            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
-            message_format="Analysis canceled")
-        dialog.format_secondary_text(setlyze.locale.text('cancel-pressed'))
-        dialog.set_position(gtk.WIN_POS_CENTER)
-        dialog.run()
-        dialog.destroy()
-
-        # Go back to the main window.
-        self.on_analysis_closed()
-
-    def on_locations_saved(self, sender, save_slot=0, data=None):
-        # Make sure the second slot for the locations selection is the
-        # same as the first slot, as the same selections should be used
-        # for both species selections.
-        selection = setlyze.config.cfg.get('locations-selection', slot=0)
-        setlyze.config.cfg.set('locations-selection', selection, slot=1)
-
-        # Show species selection dialog.
-        self.on_select_species()
-
-    def on_species_saved(self, sender, save_slot=0, data=None):
-        if save_slot == 0:
-            sender.set_property('save-slot', 1)
-            self.on_select_species()
-            return
-        elif save_slot == 1:
-            self.on_start_analysis()
-            return
-
-    def on_locations_back(self, sender, save_slot=0, data=None):
-        self.on_analysis_closed()
-
-    def on_species_back(self, sender, save_slot=0, data=None):
-        if save_slot == 0:
-            self.on_select_locations()
-            return
-        elif save_slot == 1:
-            sender.set_property('save-slot', 0)
-            self.on_select_species()
-            return
-
-    def on_select_locations(self, sender=None, data=None):
-        """Display the window for selecting the locations."""
-
-        # Display the species selection window.
-        select = setlyze.gui.SelectLocations(width=370, slot=0)
-        select.set_title(setlyze.locale.text('analysis3'))
-
-        # Change the header text.
-        select.set_header("Locations Selection")
-        select.set_description(setlyze.locale.text('select-locations') + "\n" +
-            setlyze.locale.text('option-change-source') + "\n\n" +
-            setlyze.locale.text('selection-tips')
-            )
-
-    def on_select_species(self, sender=None, data=None):
-        """Display the window for selecting the species."""
-
-        # Find out to which selection slot this species selection
-        # should be saved.
-        save_slot = setlyze.std.sender.get_property('save-slot')
-
-        # Display the species selection window.
-        select = setlyze.gui.SelectSpecies(width=500, slot=save_slot)
-        select.set_title(setlyze.locale.text('analysis3'))
-        select.set_description( setlyze.locale.text('select-species') + "\n\n" +
-            setlyze.locale.text('selection-tips')
-            )
-
-        # Change the header text.
-        if save_slot == 0:
-            select.set_header("First Species Selection")
-        elif save_slot == 1:
-            select.set_header("Second Species Selection")
-
-        # This button should not be pressed now, so hide it.
-        select.button_chg_source.hide()
-
-    def on_start_analysis(self, sender=None):
-        """Start the analysis."""
-        locations = setlyze.config.cfg.get('locations-selection')
-        species = setlyze.config.cfg.get('species-selection')
-
-        # Show a progress dialog.
-        pd = setlyze.gui.ProgressDialog(title="Performing Analysis",
-            description=setlyze.locale.text('analysis-running'))
-
-        # Create a progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
-
-        # Create analysis instance.
-        self.worker = Worker(self.lock, locations, species)
-        self.worker.set_pdialog_handler(self.pdialog_handler)
-
-        # Set the update steps for the progress handler.
-        self.pdialog_handler.set_total_steps(self.worker.get_total_steps())
-
-        # Start the analysis.
-        self.worker.start()
-
-    def on_display_report(self, sender):
-        """Display the report in a window.
-
-        Design Part: 1.68
-        """
-        report = setlyze.config.cfg.get('analysis-report')
-        setlyze.gui.DisplayReport(report)
-
-class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
-    """Make the preparations for batch analysis:
-
-    1. Show a list of all localities and let the user perform a localities
-       selection.
-
-    2. Show a list of all species that match the locations selection and
-       let the user perform the first species selection.
-
-    3. Show a list of all species that match the locations selection and
-       let the user perform the second species selection.
-
-    4. Start the analysis.
-
-    5. Show the analysis report to the user.
-
-    Design Part: 1.5.1
-    """
-
-    def __init__(self):
-        super(BeginBatch, self).__init__()
-        logging.info("Beginning analysis ”Attraction between species” in batch mode")
-
-        # Bind handles to application signals.
-        self.set_signal_handlers()
-
-        # Reset the settings when an analysis is beginning.
-        setlyze.config.cfg.set('locations-selection', None)
-        setlyze.config.cfg.set('species-selection', None)
-
-        # Reset the save slot.
-        setlyze.std.sender.set_property('save-slot', 0)
-
-        # Emit the signal that an analysis has started.
-        setlyze.std.sender.emit('beginning-analysis')
-
-    def set_signal_handlers(self):
-        """Respond to signals emitted by the application."""
-        self.signal_handlers = {
-            # This analysis has just started.
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
-
-            # The user pressed the X button of a locations/species selection window.
-            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
-
-            # User pressed the Back button in the locations selection window.
-            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_locations_back),
+            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
 
             # User pressed the Back button in the species selection window.
             'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_species_back),
@@ -394,9 +203,6 @@ class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
             self.on_start_analysis()
             return
 
-    def on_locations_back(self, sender, save_slot=0, data=None):
-        self.on_analysis_closed()
-
     def on_species_back(self, sender, save_slot=0, data=None):
         if save_slot == 0:
             self.on_select_locations()
@@ -442,6 +248,57 @@ class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
 
         # This button should not be pressed now, so hide it.
         select.button_chg_source.hide()
+
+    def on_start_analysis(self, sender=None):
+        """Start the analysis."""
+        locations = setlyze.config.cfg.get('locations-selection')
+        species = setlyze.config.cfg.get('species-selection')
+
+        # Show a progress dialog.
+        pd = setlyze.gui.ProgressDialog(title="Performing Analysis",
+            description=setlyze.locale.text('analysis-running'))
+
+        # Create a progress dialog handler.
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+
+        # Create analysis instance.
+        self.threads[0] = Worker(self.lock, locations, species)
+        self.threads[0].set_pdialog_handler(self.pdialog_handler)
+
+        # Set the update steps for the progress handler.
+        self.pdialog_handler.set_total_steps(self.threads[0].get_total_steps())
+
+        # Start the analysis.
+        self.threads[0].start()
+
+    def on_display_report(self, sender):
+        """Display the report in a window.
+
+        Design Part: 1.68
+        """
+        report = setlyze.config.cfg.get('analysis-report')
+        setlyze.gui.DisplayReport(report)
+
+class BeginBatch(Begin):
+    """Make the preparations for batch analysis:
+
+    1. Show a list of all localities and let the user perform a localities
+       selection.
+
+    2. Show a list of all species that match the locations selection and
+       let the user perform the first species selection.
+
+    3. Show a list of all species that match the locations selection and
+       let the user perform the second species selection.
+
+    4. Start the analysis.
+
+    5. Show the analysis report to the user.
+    """
+
+    def __init__(self):
+        super(BeginBatch, self).__init__()
+        logging.info("Initializing batch mode")
 
     def on_start_analysis(self, sender=None, data=None):
         """Run the analysis in batch mode.
