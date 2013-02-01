@@ -91,7 +91,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.worker = None
 
         # Create log message.
-        logging.info("Beginning Analysis 1 \"Spot preference\"")
+        logging.info("Beginning Analysis ”Spot preference”")
 
         # Bind handles to application signals.
         self.set_signal_handlers()
@@ -246,6 +246,180 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         """
         report = setlyze.config.cfg.get('analysis-report')
         setlyze.gui.DisplayReport(report)
+
+class BeginBatch(setlyze.analysis.common.PrepareAnalysis):
+    """Make the preparations for batch analysis:
+
+    1. Show a list of all localities and let the user perform a localities
+       selection.
+    2. Show a list of all species that match the locations selection and
+       let the user perform a species selection.
+    3. Run the analysis for all species in batch.
+    4. Show the analysis report to the user.
+    """
+
+    def __init__(self):
+        super(BeginBatch, self).__init__()
+        logging.info("Beginning Analysis ”Spot preference” in batch mode")
+
+        # Bind handles to application signals.
+        self.set_signal_handlers()
+
+        # Reset the settings when an analysis is beginning.
+        setlyze.config.cfg.set('locations-selection', None)
+        setlyze.config.cfg.set('species-selection', None)
+        setlyze.config.cfg.set('plate-areas-definition', None)
+
+        # Emit the signal that we are beginning with an analysis.
+        setlyze.std.sender.emit('beginning-analysis')
+
+    def set_signal_handlers(self):
+        """Respond to signals emitted by the application."""
+        self.signal_handlers = {
+            # This analysis has just started.
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
+
+            # The user pressed the X button of a locations/species
+            # selection window.
+            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
+
+            # The user pressed the X button of a define spots window.
+            'define-areas-dialog-closed': setlyze.std.sender.connect('define-areas-dialog-closed', self.on_analysis_closed),
+
+            # User pressed the Back button in the locations selection window.
+            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
+
+            # User pressed the Back button in the species selection window.
+            'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_select_locations),
+
+            # User pressed the Back button in the define spots window.
+            'define-areas-dialog-back': setlyze.std.sender.connect('define-areas-dialog-back', self.on_select_species),
+
+            # The user selected locations have been saved.
+            'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_select_species),
+
+            # The user selected species have been saved.
+            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_define_plate_areas),
+
+            # The spots have been defined by the user.
+            'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_start_analysis),
+
+            # The report window was closed.
+            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
+
+            # The analysis was aborted.
+            'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
+
+            # Display the report after the analysis has finished.
+            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
+
+            # Cancel button
+            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
+
+            # Progress dialog closed
+            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_analysis_closed),
+        }
+
+    def on_analysis_aborted(self, sender):
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            message_format="No species were found")
+        dialog.format_secondary_text(setlyze.locale.text('empty-plate-areas'))
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
+
+    def on_cancel_button(self, sender):
+        """Callback function for the Cancel button.
+
+        * Close the progress dialog.
+        * Stop the worker threads.
+        * Show an info dialog.
+        * Wrap it up.
+        """
+        # Destroy the progress dialog.
+        if self.pdialog_handler:
+            self.pdialog_handler.pdialog.destroy()
+
+        # Stop all analysis threads.
+        self.stop_all_threads()
+
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            message_format="Analysis canceled")
+        dialog.format_secondary_text(setlyze.locale.text('cancel-pressed'))
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
+
+        # Go back to the main window.
+        self.on_analysis_closed()
+
+    def on_select_locations(self, sender=None, data=None):
+        """Display the window for selecting the locations."""
+        select = setlyze.gui.SelectLocations(width=370, slot=0)
+        select.set_title(setlyze.locale.text('analysis1'))
+        select.set_description(setlyze.locale.text('select-locations') + "\n\n" +
+            setlyze.locale.text('option-change-source') + "\n\n" +
+            setlyze.locale.text('selection-tips')
+            )
+
+    def on_select_species(self, sender=None, data=None):
+        """Display the window for selecting the species."""
+        select = setlyze.gui.SelectSpecies(width=500, slot=0)
+        select.set_title(setlyze.locale.text('analysis1'))
+        select.set_description(setlyze.locale.text('select-species') + "\n\n" +
+            setlyze.locale.text('selection-tips')
+            )
+
+        # This button should not be pressed now, so hide it.
+        select.button_chg_source.hide()
+
+    def on_define_plate_areas(self, sender=None, data=None):
+        """Display the window for defining the plate areas."""
+        spots = setlyze.gui.DefinePlateAreas()
+        spots.set_title(setlyze.locale.text('analysis1'))
+
+    def on_start_analysis(self, sender=None, data=None):
+        """Run analysis Spot Preference in batch mode.
+
+        Repeat the analysis for each species separately.
+        """
+        locations = setlyze.config.cfg.get('locations-selection', slot=0)
+        species = setlyze.config.cfg.get('species-selection', slot=0)
+        areas_definition = setlyze.config.cfg.get('plate-areas-definition')
+        self.start_time = time.time()
+
+        # Show a progress dialog.
+        pd = setlyze.gui.ProgressDialog(title="Performing analysis",
+            description=setlyze.locale.text('analysis-running'))
+
+        # Create a progress dialog handler.
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+        self.pdialog_handler.autoclose = False
+
+        # Set the total number of times we decide to update the progress dialog.
+        self.pdialog_handler.set_total_steps(
+            (PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')) *
+            len(species)
+            )
+
+        # Spawn an analysis thread for each species.
+        for sp in species:
+            # Create a new analysis thread.
+            t = setlyze.analysis.spot_preference.Worker(self.lock, locations,
+                [sp], areas_definition)
+            t.set_pdialog_handler(self.pdialog_handler)
+
+            # Add it to the list of threads.
+            self.threads.append(t)
+
+            # Start the thread.
+            t.start()
+
+    def on_display_report(self, sender):
+        """Display the report in a window."""
+        logging.info( "Running time: %f" % (time.time() - self.start_time) )
 
 class Worker(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 1.
@@ -947,5 +1121,3 @@ class Worker(setlyze.analysis.common.AnalysisWorker):
 
         # Create global a link to the report.
         setlyze.config.cfg.set('analysis-report', report.get_report())
-
-

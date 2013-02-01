@@ -517,10 +517,19 @@ class SelectBatchAnalysis(object):
         self.on_toggled()
 
         # Handle application signals.
-        self.signal_handlers = {}
+        self.signal_handlers = {
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.close),
+        }
 
         # Display all widgets.
         self.window.show_all()
+
+    def unset_signal_handlers(self):
+        """Disconnect all signal connections with signal handlers
+        created by this analysis.
+        """
+        for handler in self.signal_handlers.values():
+            setlyze.std.sender.disconnect(handler)
 
     def on_toggled(self, radiobutton=None):
         """Update the description frame."""
@@ -556,20 +565,22 @@ class SelectBatchAnalysis(object):
         elif self.radio_ana_relation.get_active():
             setlyze.std.sender.emit('batch-analysis-selected', 'relations')
 
-        # Close the window.
-        self.window.destroy()
-
     def on_back(self, widget, data=None):
         """Go back to the main window."""
 
         # Close the window.
-        self.window.destroy()
+        self.close()
 
         # Emit the signal that the Back button was pressed.
         setlyze.std.sender.emit('select-batch-analysis-window-back')
 
         # Prevent default action of the close button.
         return False
+
+    def close(self, widget=None, data=None):
+        """Close the window and unset any signal handlers."""
+        self.window.destroy()
+        self.unset_signal_handlers()
 
 class SelectionWindow(gtk.Window):
     """Super class for :class:`SelectLocations` and :class:`SelectSpecies`."""
