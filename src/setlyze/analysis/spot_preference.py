@@ -66,6 +66,9 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
+# The number of progress steps for this analysis.
+PROGRESS_STEPS = 7
+
 class Begin(object):
     """Make the preparations for analysis 1:
 
@@ -84,6 +87,7 @@ class Begin(object):
     def __init__(self):
         self.worker = None
         self.signal_handlers = {}
+        self.pdialog_handler = None
 
         # Create log message.
         logging.info("Beginning Analysis 1 \"Spot preference\"")
@@ -165,12 +169,16 @@ class Begin(object):
         self.on_window_closed()
 
     def on_cancel_button(self, sender):
-        setlyze.config.cfg.get('progress-dialog').destroy()
+        # Destroy the progress dialog.
+        if self.pdialog_handler:
+            self.pdialog_handler.pdialog.destroy()
 
         # Stop the worker thread.
         self.worker.stop()
+        # Wait for the thread to stop.
         self.worker.join()
 
+        # Show an info dialog.
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="Analysis canceled")
@@ -229,10 +237,18 @@ class Begin(object):
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Performing analysis",
             description=setlyze.locale.text('analysis-running'))
-        setlyze.config.cfg.set('progress-dialog', pd)
 
-        # Perform analysis...
+        # Create a progress dialog handler.
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+
+        # Create analysis instance.
         self.worker = Worker(lock, locations, species, areas_definition)
+        self.worker.set_pdialog_handler(self.pdialog_handler)
+
+        # Set the update steps for the progress handler.
+        self.pdialog_handler.set_total_steps(self.worker.get_total_steps())
+
+        # Start the analysis.
         self.worker.start()
 
     def on_display_report(self, sender):
@@ -261,14 +277,15 @@ class Worker(threading.Thread):
 
         self._stop = threading.Event()
         self._lock = lock
+        self.pdialog_handler = None
+        self.n_repeats = setlyze.config.cfg.get('test-repeats')
+        self.dbfile = setlyze.config.cfg.get('db-file')
+
         self.locations_selection = locations_selection
         self.species_selection = species_selection
         self.areas_definition = areas_definition
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
-        self.n_repeats = setlyze.config.cfg.get('test-repeats')
-        self.dbfile = setlyze.config.cfg.get('db-file')
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
         self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
 
         # Create log message.
@@ -278,9 +295,8 @@ class Worker(threading.Thread):
         setlyze.std.sender.emit('analysis-started')
 
     def __del__(self):
-        if self._lock.locked():
-            # Release the lock to shared resources.
-            self._lock.release()
+        # Release the lock to shared resources.
+        if self._lock.locked(): self._lock.release()
 
     def stop(self):
         """Stop this thread."""
@@ -290,7 +306,17 @@ class Worker(threading.Thread):
         """Check if this thread needs to be stopped."""
         return self._stop.isSet()
 
-    def set_locations_selection(selection):
+    def set_pdialog_handler(self, handler):
+        """Set the progress dialog handler.
+
+        The progress dialog handler is an instance of
+        :class:`setlyze.std.ProgressDialogHandler`.
+        """
+        if not isinstance(handler, setlyze.std.ProgressDialogHandler):
+             raise ValueError("Invalid object type passed.")
+        self.pdialog_handler = handler
+
+    def set_locations_selection(self, selection):
         """Set the locations selection.
 
         The locations selection `selection` is a list of integers. Each integer
@@ -300,7 +326,7 @@ class Worker(threading.Thread):
         """
         self.locations_selection = selection
 
-    def set_species_selection(selection):
+    def set_species_selection(self, selection):
         """Set the species selection.
 
         The species selection `selection` is a list of integers. Each integer
@@ -309,13 +335,21 @@ class Worker(threading.Thread):
         """
         self.species_selection = selection
 
-    def set_areas_definition(definition):
+    def set_areas_definition(self, definition):
         """Set the plate areas definition.
 
         The plate areas definition `definition` is a definition as saved by
         :class:`setlyze.gui.DefinePlateAreas`.
         """
         self.areas_definition = definition
+
+    def get_total_steps(self):
+        """Return the number of progress steps for this analysis.
+
+        This equals to the total number of times we decide to update the
+        progress dialog for a single analysis.
+        """
+        return PROGRESS_STEPS + self.n_repeats
 
     def run(self):
         """Call the necessary methods for the analysis in the right order
@@ -344,10 +378,6 @@ class Worker(threading.Thread):
         # Lock access to the database while we're accessing the shared
         # database resources.
         self._lock.acquire()
-
-        # Set the total number of times we decide to update the progress dialog.
-        total_steps = 7 + self.n_repeats
-        self.pdialog_handler.set_total_steps(total_steps)
 
         if not self.stopped():
             # Make an object that facilitates access to the database.

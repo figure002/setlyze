@@ -837,11 +837,23 @@ class ProgressDialogHandler(object):
 
     """
 
-    def __init__(self):
+    def __init__(self, pdialog=None):
         self.total_steps = None
         self.current_step = 0
         self.autoclose = True
-        self.pdialog = setlyze.config.cfg.get('progress-dialog')
+        self.pdialog = None
+
+        if pdialog: self.set_pdialog(pdialog)
+
+    def set_pdialog(self, pdialog):
+        """Set the progress dialog.
+
+        The progress dialog must be an instance of
+        :class:`setlyze.gui.ProgressDialog`.
+        """
+        if not isinstance(pdialog, setlyze.gui.ProgressDialog):
+             raise ValueError("Invalid object type passed.")
+        self.pdialog = pdialog
 
     def set_total_steps(self, number):
         """Set the total number of steps for the progress."""

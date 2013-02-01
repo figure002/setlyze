@@ -68,6 +68,8 @@ class Begin(object):
 
     def __init__(self):
         self.threads = []
+        self.lock = threading.Lock()
+        self.pdialog_handler = None
         self.analysis = None
         self.signal_handlers = {}
 
@@ -160,7 +162,9 @@ class Begin(object):
         self.on_window_closed()
 
     def on_cancel_button(self, sender):
-        setlyze.config.cfg.get('progress-dialog').destroy()
+        # Destroy the progress dialog.
+        if self.pdialog_handler:
+            self.pdialog_handler.pdialog.destroy()
 
         # Stop all analysis threads.
         self.stop_all_threads()
@@ -233,35 +237,51 @@ class Begin(object):
     def on_start_analysis(self, sender=None, data=None):
         """Start the analysis."""
         self.start_time = time.time()
-        locations = setlyze.config.cfg.get('locations-selection', slot=0)
-        species = setlyze.config.cfg.get('species-selection', slot=0)
-        areas_definition = setlyze.config.cfg.get('plate-areas-definition')
-        lock = threading.Lock()
 
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Performing analysis",
             description=setlyze.locale.text('analysis-running'))
-        setlyze.config.cfg.set('progress-dialog', pd)
+
+        # Create a progress dialog handler.
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+        self.pdialog_handler.autoclose = False
 
         # Select the analysis.
         if self.analysis == 'spot_preference':
-            # Repeat the analysis for each species separately.
-            for sp in species:
-                # Create a new thread for the analysis.
-                t = setlyze.analysis.spot_preference.Worker(lock, locations,
-                    [sp], areas_definition)
-                # Add it to the list of threads.
-                self.threads.append(t)
-                # Prevent the progress dialog from closing automatically.
-                t.pdialog_handler.autoclose = False
-                # Start the thread.
-                t.start()
+            self.batch_run_spot_preference()
         elif self.analysis == 'attraction_intra':
             return
         elif self.analysis == 'attraction_inter':
             return
         elif self.analysis == 'relations':
             return
+
+    def batch_run_spot_preference(self):
+        """Run analysis Spot Preference in batch mode.
+
+        Repeat the analysis for each species separately.
+        """
+        locations = setlyze.config.cfg.get('locations-selection', slot=0)
+        species = setlyze.config.cfg.get('species-selection', slot=0)
+        areas_definition = setlyze.config.cfg.get('plate-areas-definition')
+
+        # Set the total number of times we decide to update the progress dialog.
+        self.pdialog_handler.set_total_steps(
+            (setlyze.analysis.spot_preference.PROGRESS_STEPS +
+            setlyze.config.cfg.get('test-repeats')) * len(species)
+            )
+
+        for sp in species:
+            # Create a new analysis thread.
+            t = setlyze.analysis.spot_preference.Worker(self.lock, locations,
+                [sp], areas_definition)
+            t.set_pdialog_handler(self.pdialog_handler)
+
+            # Add it to the list of threads.
+            self.threads.append(t)
+
+            # Start the thread.
+            t.start()
 
     def on_display_report(self, sender):
         """Display the report in a window.
