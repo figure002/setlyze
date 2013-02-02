@@ -33,7 +33,7 @@ import gtk
 import setlyze.config
 import setlyze.std
 
-__author__ = ("Serrano Pereira")
+__author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.2"

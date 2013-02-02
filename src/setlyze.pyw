@@ -52,7 +52,7 @@ gobject.threads_init()
 if setlyze.std.we_are_frozen():
     warnings.simplefilter('ignore')
 
-__author__ = "Serrano Pereira, Adam van Adrichem and Fedde Schaeffer"
+__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
     "Serrano Pereira <serrano.pereira@gmail.com>",
