@@ -40,7 +40,7 @@ __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2013/02/01"
+__date__ = "2013/02/02"
 
 # The timeout in seconds a queue get should block when no item are available in
 # a queue.
@@ -127,9 +127,9 @@ class Worker(threading.Thread):
     """Worker thread for usage in a thread pool.
 
     This class can be used to create a number of worker threads which will each
-    execute jobs from a queue (instance of Queue.Queue). Each job is a tuple
-    with function/class pointer followed by arguments (in that order). Each
-    instance of this thread will obtain a job from the queue and
+    execute jobs from a queue (instance of :py:class:`Queue.Queue`). Each job
+    is a tuple with function/class pointer followed by arguments (in that
+    order). Each instance of this thread will obtain a job from the queue and
     execute the function/instantiate the class that was passed (the first
     item in the tuple) with the arguments from the tuple.
 
@@ -189,7 +189,10 @@ class AnalysisWorker(threading.Thread):
 
     def __del__(self):
         # Release the lock to shared resources.
-        if self._lock.locked(): self._lock.release()
+        try:
+            self._lock.release()
+        except:
+            return
 
     def stop(self):
         """Stop this thread."""

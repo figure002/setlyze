@@ -62,7 +62,7 @@ __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/05/03"
+__date__ = "2013/02/02"
 
 # The number of progress steps for this analysis.
 PROGRESS_STEPS = 7
@@ -278,7 +278,7 @@ class BeginBatch(Begin):
 
     def on_display_report(self, sender):
         """Display the report in a window."""
-        logging.info( "Running time: %f" % (time.time() - self.start_time) )
+        logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
 class Analysis(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 1.
@@ -398,9 +398,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if areas_total == 0:
                 logging.info("\tThe species was not found on any plates, aborting.")
                 gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
-
-                # Release the lock to shared resources.
-                self._lock.release()
                 return
 
         if not self.stopped():
@@ -424,9 +421,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # If the cancel button is pressed don't finish this function.
         if self.stopped():
             logging.info("Analysis aborted by user")
-
-            # Release the lock to shared resources.
-            self._lock.release()
             return
 
         # Update progress dialog.
@@ -442,9 +436,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
         logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
-
-        # Release the lock to shared resources.
-        self._lock.release()
 
     def set_plate_area_totals_observed(self):
         """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"

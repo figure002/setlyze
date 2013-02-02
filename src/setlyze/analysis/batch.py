@@ -43,7 +43,7 @@ __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2013/01/28"
+__date__ = "2013/02/02"
 
 class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Select which analysis to run in batch mode:

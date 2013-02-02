@@ -43,7 +43,7 @@ __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/05/03"
+__date__ = "2013/02/01"
 
 def we_are_frozen():
     """Returns whether we are frozen via py2exe. This will affect how we find

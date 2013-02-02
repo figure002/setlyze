@@ -54,7 +54,7 @@ __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/05/03"
+__date__ = "2013/02/01"
 
 def get_database_accessor():
     """Return an object that facilitates access to either the local or

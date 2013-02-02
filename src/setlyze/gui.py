@@ -71,7 +71,7 @@ __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/07/30"
+__date__ = "2013/02/02"
 
 def on_help(button, section):
     """Display the help contents for `section` in the system's default
