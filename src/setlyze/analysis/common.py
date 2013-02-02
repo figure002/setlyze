@@ -176,7 +176,7 @@ class Worker(threading.Thread):
             self.queue.task_done()
 
 class AnalysisWorker(threading.Thread):
-    """Super class for analysis Worker classes."""
+    """Super class for Analysis classes."""
 
     def __init__(self, lock):
         super(AnalysisWorker, self).__init__()
