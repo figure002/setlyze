@@ -19,24 +19,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module performs existing analyses in batch.
+"""This module starts analyses in batch mode.
 
 The selected analysis is repeated for a selection of species. If all species
 are selected by the user, the analysis is repeated for each species and the
 results are displayed in a single report.
 """
 
-import sys
 import logging
-import math
-import threading
-import time
-from sqlite3 import dbapi2 as sqlite
-
-import gobject
-import pygtk
-pygtk.require('2.0')
-import gtk
 
 import setlyze.gui
 import setlyze.std
@@ -44,6 +34,7 @@ import setlyze.analysis.common
 import setlyze.analysis.spot_preference
 import setlyze.analysis.attraction_intra
 import setlyze.analysis.attraction_inter
+import setlyze.analysis.relations
 
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
