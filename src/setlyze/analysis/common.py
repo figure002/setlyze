@@ -42,8 +42,8 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2013/02/02"
 
-# The timeout in seconds a queue get should block when no item are available in
-# a queue.
+# The maximum timeout in seconds a queue.get() should block when no items are
+# available in the queue.
 QUEUE_GET_TIMEOUT = 1
 
 class PrepareAnalysis(object):
@@ -186,13 +186,6 @@ class AnalysisWorker(threading.Thread):
         self.pdialog_handler = None
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.dbfile = setlyze.config.cfg.get('db-file')
-
-    def __del__(self):
-        # Release the lock to shared resources.
-        try:
-            self._lock.release()
-        except:
-            return
 
     def stop(self):
         """Stop this thread."""

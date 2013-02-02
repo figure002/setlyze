@@ -67,8 +67,8 @@ import setlyze.gui
 import setlyze.std
 import setlyze.report
 
-__author__ = "Jonathan den Boer, Serrano Pereira, Adam van Adrichem, "
-    "Fedde Schaeffer"
+__author__ = ("Jonathan den Boer, Serrano Pereira, Adam van Adrichem, "
+    "Fedde Schaeffer")
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.1.1"
@@ -246,6 +246,7 @@ class BeginBatch(Begin):
         self.threads.append(t)
 
         # Populate the job queue.
+        logging.info("Adding %d jobs to the queue" % len(species))
         for sp in species:
             self.add_job(Analysis, self.lock, locations, sp)
 
@@ -392,6 +393,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # If the cancel button is pressed don't finish this function.
         if self.stopped():
             logging.info("Analysis aborted by user")
+
+            # Release the lock to shared resources.
+            self._lock.release()
             return
 
         # Create log message.
@@ -409,6 +413,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
         logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
+
+        # Release the lock to shared resources.
+        self._lock.release()
 
     def calculate_distances_intra(self):
         """Calculate the intra-specific spot distances for each plate

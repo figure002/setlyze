@@ -314,6 +314,7 @@ class BeginBatch(Begin):
         self.threads.append(t)
 
         # Populate the job queue.
+        logging.info("Adding %d jobs to the queue" % (len(species[0]) * len(species[1])))
         for sp_combo in species_combos:
             self.add_job(Analysis, self.lock, locations, sp_combo)
 
@@ -532,6 +533,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # If the cancel button is pressed don't finish this function.
         if self.stopped():
             logging.info("Analysis aborted by user")
+
+            # Release the lock to shared resources.
+            self._lock.release()
             return
 
         # Generate the report.
@@ -545,6 +549,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
         logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
+
+        # Release the lock to shared resources.
+        self._lock.release()
 
     def calculate_distances_inter(self):
         """Calculate the inter-specific spot distances for each plate

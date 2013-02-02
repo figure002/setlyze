@@ -54,8 +54,8 @@ import setlyze.gui
 import setlyze.std
 import setlyze.report
 
-__author__ = "Jonathan den Boer, Serrano Pereira, Adam van Adrichem, "
-        "Fedde Schaeffer"
+__author__ = ("Jonathan den Boer, Serrano Pereira, Adam van Adrichem, "
+        "Fedde Schaeffer")
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "0.2"
@@ -273,6 +273,7 @@ class BeginBatch(Begin):
         self.threads.append(t)
 
         # Populate the job queue.
+        logging.info("Adding %d jobs to the queue" % len(species))
         for sp in species:
             self.add_job(Analysis, self.lock, locations, sp, areas_definition)
 
@@ -396,8 +397,11 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             for area_total in self.chisq_observed.itervalues():
                 areas_total += area_total
             if areas_total == 0:
-                logging.info("\tThe species was not found on any plates, aborting.")
+                logging.info("The species was not found on any plates, aborting.")
                 gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
+
+                # Release the lock to shared resources.
+                self._lock.release()
                 return
 
         if not self.stopped():
@@ -421,6 +425,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # If the cancel button is pressed don't finish this function.
         if self.stopped():
             logging.info("Analysis aborted by user")
+
+            # Release the lock to shared resources.
+            self._lock.release()
             return
 
         # Update progress dialog.
@@ -436,6 +443,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # so we must use gobject.idle_add.
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
         logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
+
+        # Release the lock to shared resources.
+        self._lock.release()
 
     def set_plate_area_totals_observed(self):
         """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"
