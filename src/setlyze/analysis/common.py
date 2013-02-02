@@ -52,6 +52,7 @@ class PrepareAnalysis(object):
     def __init__(self):
         self.lock = threading.Lock()
         self.queue = Queue.Queue()
+        self.thread_pool_size = 1
         self.threads = []
         self.signal_handlers = {}
         self.pdialog = None

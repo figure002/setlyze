@@ -306,9 +306,10 @@ class BeginBatch(Begin):
             len(species[0]) * len(species[1])
             )
 
-        # Spawn a single worker thread.
-        t = setlyze.analysis.common.Worker(self.queue, pdialog_handler)
-        t.start()
+        # Spawn worker threads.
+        for i in range(self.thread_pool_size):
+            t = setlyze.analysis.common.Worker(self.queue, pdialog_handler)
+            t.start()
 
         # Add the thread to the threads list.
         self.threads.append(t)
