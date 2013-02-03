@@ -45,6 +45,10 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2013/02/01"
 
+# Suppress warnings from R. Last occurred warnings can still be obtained with
+# the `warnings` function.
+rpy.r['options'](warn=-1)
+
 def we_are_frozen():
     """Returns whether we are frozen via py2exe. This will affect how we find
     out where we are located.
@@ -117,18 +121,18 @@ def remove_items_from_list(a,b):
             pass
 
 def combinations_with_replacement(iterable, r):
-    """Return r length subsequences of elements from the input iterable
+    """Return `r` length subsequences of elements from the input `iterable`
     allowing individual elements to be repeated more than once.
 
     Combinations are emitted in lexicographic sort order. So, if the
-    input iterable is sorted, the combination tuples will be produced
+    input `iterable` is sorted, the combination tuples will be produced
     in sorted order.
 
     Elements are treated as unique based on their position, not on their
     value. So if the input elements are unique, the generated
     combinations will also be unique.
 
-    This function was copied from the Python documentation for :mod:`itertools`.
+    This function was copied from the Python documentation for :py:mod:`itertools`.
 
     A simple example:
 
