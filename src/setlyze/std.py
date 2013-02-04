@@ -284,7 +284,7 @@ def get_spot_combinations_from_record(record1, record2=None):
     if not record2:
         # Create a generator with all the possible positive spot
         # combinations within a record.
-        if len(spots1) > 1:
+        if len(spots1) > 1: # For Python 2.6
             combos = itertools.combinations(spots1,2)
         else:
             combos = []
