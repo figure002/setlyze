@@ -2056,7 +2056,7 @@ class ProgressDialog(gtk.Window):
         self.set_size_request(400, -1)
         self.set_title(title)
         self.set_border_width(0)
-        self.set_deletable(False)
+        self.set_deletable(True)
         self.set_resizable(False)
         self.set_modal(True)
         self.set_keep_above(True)
