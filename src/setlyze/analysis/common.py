@@ -57,6 +57,10 @@ class PrepareAnalysis(object):
         self.signal_handlers = {}
         self.pdialog = None
 
+    def in_batch_mode(self):
+        """Return True if we are in batch mode."""
+        return self.__class__.__name__ == 'BeginBatch'
+
     def stop_all_threads(self, block=True):
         """Exit all analysis threads.
 

@@ -217,10 +217,11 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             )
 
         # Change the header text.
-        if save_slot == 0:
-            select.set_header("First Species Selection")
-        elif save_slot == 1:
-            select.set_header("Second Species Selection")
+        if not self.in_batch_mode():
+            if save_slot == 0:
+                select.set_header("First Species Selection")
+            elif save_slot == 1:
+                select.set_header("Second Species Selection")
 
         # This button should not be pressed now, so hide it.
         select.button_chg_source.hide()
@@ -279,6 +280,40 @@ class BeginBatch(Begin):
         super(BeginBatch, self).__init__()
         logging.info("We are in batch mode")
 
+    def set_signal_handlers(self):
+        """Respond to signals emitted by the application."""
+        self.signal_handlers = {
+            # This analysis has just started.
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
+
+            # The user pressed the X button of a locations/species selection window.
+            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
+
+            # User pressed the Back button in the locations selection window.
+            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
+
+            # User pressed the Back button in the species selection window.
+            'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_select_locations),
+
+            # The user selected locations have been saved.
+            'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_locations_saved),
+
+            # The user selected species have been saved.
+            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_start_analysis),
+
+            # The report window was closed.
+            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
+
+            # Display the report after the analysis has finished.
+            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
+
+            # Cancel button
+            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
+
+            # Progress dialog closed
+            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_analysis_closed),
+        }
+
     def on_start_analysis(self, sender=None, data=None):
         """Run the analysis in batch mode.
 
@@ -286,11 +321,11 @@ class BeginBatch(Begin):
         the two species selections.
         """
         locations = setlyze.config.cfg.get('locations-selection')
-        species = setlyze.config.cfg.get('species-selection')
+        species = setlyze.config.cfg.get('species-selection', slot=0)
         self.start_time = time.time()
 
         # Get all species combinations for the two species selections.
-        species_combos = itertools.product(species[0], species[1])
+        species_combos = tuple(itertools.combinations(species, 2))
 
         # Show a progress dialog.
         self.pdialog = setlyze.gui.ProgressDialog(title="Performing analysis",
@@ -303,7 +338,7 @@ class BeginBatch(Begin):
         # Set the total number of times we decide to update the progress dialog.
         pdialog_handler.set_total_steps(
             (PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')) *
-            len(species[0]) * len(species[1])
+            len(species_combos)
             )
 
         # Spawn worker threads.
@@ -315,9 +350,9 @@ class BeginBatch(Begin):
         self.threads.append(t)
 
         # Populate the job queue.
-        logging.info("Adding %d jobs to the queue" % (len(species[0]) * len(species[1])))
-        for sp_combo in species_combos:
-            self.add_job(Analysis, self.lock, locations, sp_combo)
+        logging.info("Adding %d jobs to the queue" % len(species_combos))
+        for sp_comb in species_combos:
+            self.add_job(Analysis, self.lock, locations, sp_comb)
 
     def on_display_report(self, sender):
         """Display the report in a window."""
