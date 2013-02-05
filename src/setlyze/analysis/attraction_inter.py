@@ -88,7 +88,7 @@ __status__ = "Production"
 __date__ = "2013/02/02"
 
 # The number of progress steps for this analysis.
-PROGRESS_STEPS = 12
+PROGRESS_STEPS = 11
 
 class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Make the preparations for analysis 3:
@@ -392,11 +392,11 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
     Design Part: 1.5.2
     """
 
-    def __init__(self, lock, locations_selection, species_selection):
+    def __init__(self, lock, locations_selections, species_selections):
         super(Analysis, self).__init__(lock)
 
-        self.locations_selection = locations_selection
-        self.species_selection = species_selection
+        self.locations_selections = locations_selections
+        self.species_selections = species_selections
         self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
 
         # Create log message.
@@ -482,7 +482,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Update progress dialog.
             self.pdialog_handler.increase("Creating first table with species spots...")
             # Get the record IDs that match the selections.
-            rec_ids1 = self.db.get_record_ids(self.locations_selection[0], self.species_selection[0])
+            rec_ids1 = self.db.get_record_ids(self.locations_selections[0], self.species_selections[0])
             # Update progress dialog.
             logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
 
@@ -506,7 +506,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Update progress dialog.
             self.pdialog_handler.increase("Creating second table with species spots...")
             # Get the record IDs that match the selections.
-            rec_ids2 = self.db.get_record_ids(self.locations_selection[1], self.species_selection[1])
+            rec_ids2 = self.db.get_record_ids(self.locations_selections[1], self.species_selections[1])
             # Create log message.
             logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
 
@@ -574,6 +574,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             self._lock.release()
             return
 
+        # Update progress dialog.
+        self.pdialog_handler.increase("Generating the analysis report...")
         # Generate the report.
         self.generate_report()
 
@@ -1001,18 +1003,11 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         Design Part: 1.15
         """
         report = setlyze.report.ReportGenerator()
-        report.set_analysis('attraction_inter')
-        report.set_location_selections()
-        report.set_species_selections()
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Generating the analysis report...")
+        report.set_analysis("Attraction between Species")
+        report.set_location_selections(self.locations_selections)
+        report.set_species_selections(self.species_selections)
 
         report.set_spot_distances_observed()
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Generating the analysis report...")
-
         report.set_spot_distances_expected()
 
         report.set_statistics('wilcoxon_ratios', self.statistics['wilcoxon'])

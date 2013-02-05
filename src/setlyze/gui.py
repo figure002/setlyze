@@ -2129,6 +2129,1047 @@ class ProgressDialog(gtk.Window):
         self.destroy()
         setlyze.std.sender.emit('progress-dialog-closed')
 
+class Report(gtk.Window):
+    """Display a dialog visualizing the elements in a report object.
+
+    The argument `report` must be an instance of
+    :class:`setlyze.report.Report`
+    """
+
+    def __init__(self, report):
+        super(Report, self).__init__()
+
+        self.report = report
+        self.set_title("Analysis Report")
+        self.set_size_request(600, 500)
+        self.set_border_width(0)
+        self.set_resizable(True)
+        self.set_keep_above(False)
+        self.set_position(gtk.WIN_POS_CENTER)
+
+        # Handle window signals.
+        self.connect('delete-event', on_quit)
+
+        # Add widgets to the GTK window.
+        self.create_layout()
+
+        # Display all widgets.
+        self.show_all()
+
+    def create_layout(self):
+        """Construct the layout for the dialog."""
+
+        # Create a table to organize the widgets.
+        table = gtk.Table(rows=4, columns=2, homogeneous=False)
+        table.set_col_spacings(10)
+        table.set_row_spacings(10)
+
+        # Create a toolbar.
+        toolbar = gtk.Toolbar()
+        toolbar.set_style(gtk.TOOLBAR_BOTH)
+        toolbar.set_icon_size(gtk.ICON_SIZE_SMALL_TOOLBAR)
+        toolbar.set_tooltips(True)
+
+        # Create buttons for the toolbar.
+        button_home = gtk.ToolButton(gtk.STOCK_HOME)
+        button_save = gtk.ToolButton(gtk.STOCK_SAVE_AS)
+        button_save.set_label("Save Report")
+        sep = gtk.SeparatorToolItem()
+        button_help = gtk.ToolButton(gtk.STOCK_HELP)
+
+        # Add the buttons to the toolbar.
+        toolbar.insert(button_home, 0)
+        toolbar.insert(button_save, 1)
+        toolbar.insert(sep, 2)
+        toolbar.insert(button_help, 3)
+
+        # Handle button signals.
+        button_home.connect("clicked", self.on_close)
+        button_save.connect("clicked", self.on_save)
+        button_help.connect("clicked", on_help, 'analysis-report-dialog')
+
+        # Add the toolbar to the vertical box.
+        table.attach(toolbar, left_attach=0, right_attach=2,
+            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create a vertical box for widgets that go on the top of the
+        # report window, like the report header.
+        self.vbox_top = gtk.VBox(homogeneous=False, spacing=1)
+
+        # Add the vbox_top to the table.
+        table.attach(self.vbox_top, left_attach=0, right_attach=2,
+            top_attach=1, bottom_attach=2,
+            xoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
+            yoptions=gtk.SHRINK | gtk.FILL,
+            xpadding=10, ypadding=0)
+
+        # Create a vertical box for the differenct report elements like
+        # locations/species selection, significance results, etc.
+        self.vbox = gtk.VBox(homogeneous=False, spacing=1)
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE) # Has no effect.
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        # Add the vertical box to the scrolled window. A gtk.VBox
+        # doesn't have native scrolling capabilities, so we use
+        # add_with_viewport() instead of the usual add().
+        scrolled_window.add_with_viewport(self.vbox)
+
+        # Add the scrolled window to the table.
+        table.attach(scrolled_window, left_attach=0, right_attach=2,
+            top_attach=2, bottom_attach=3,
+            xoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
+            yoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
+            xpadding=10, ypadding=0)
+
+        # Add report elements.
+        self.add_report_elements()
+
+        # Add the table to the window.
+        self.add(table)
+
+    def on_close(self, obj, data=None):
+        """Close the dialog and emit the `report-dialog-closed` signal."""
+
+        # Close the report window.
+        self.destroy()
+
+        # Emit the signal that an analysis report window was closed.
+        setlyze.std.sender.emit('report-dialog-closed')
+
+    def on_save(self, obj, data=None):
+        """Display a dialog that allows the user to save the report to
+        a file.
+        """
+
+        # Create a file chooser dialog.
+        chooser = gtk.FileChooserDialog(title="Save Analysis Report As...",
+            parent=None,
+            action=gtk.FILE_CHOOSER_ACTION_SAVE,
+            buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                    gtk.STOCK_SAVE, gtk.RESPONSE_OK),
+            backend=None)
+        chooser.set_default_response(gtk.RESPONSE_OK)
+        chooser.set_do_overwrite_confirmation(True)
+
+        # Create a filter for the file chooser.
+        xml_filter = gtk.FileFilter()
+        xml_filter.set_name("XML Document (*.xml)")
+        xml_filter.add_mime_type("text/xml")
+        xml_filter.add_pattern("*.xml")
+
+        txt_filter = gtk.FileFilter()
+        txt_filter.set_name("Plain Text Document (*.txt)")
+        txt_filter.add_pattern("*.txt")
+
+        tex_filter = gtk.FileFilter()
+        tex_filter.set_name("LaTeX Document (*.tex, *.latex)")
+        tex_filter.add_mime_type("application/x-tex")
+        tex_filter.add_mime_type("application/x-latex")
+        tex_filter.add_pattern("*.tex")
+        tex_filter.add_pattern("*.latex")
+
+        chooser.add_filter(txt_filter)
+        #chooser.add_filter(tex_filter)
+        chooser.add_filter(xml_filter)
+
+        response = chooser.run()
+        if response == gtk.RESPONSE_OK:
+            # Get the filename to which the data should be exported.
+            path = chooser.get_filename()
+
+            # Get the name of the selected file type.
+            filter_name = chooser.get_filter().get_name()
+
+            # Close the filechooser.
+            chooser.destroy()
+
+            # File type = XML
+            if "*.xml" in filter_name:
+                setlyze.report.export(self.reader, path, 'xml')
+
+            # File type = text
+            elif "*.txt" in filter_name:
+                # Let the user select which elements to export.
+                dialog = SelectExportElements(self.reader)
+                response = dialog.run()
+
+                # Export the selected report elements.
+                if response == gtk.RESPONSE_ACCEPT:
+                    setlyze.report.export(self.reader, path, 'txt',
+                        dialog.get_selected_elements())
+                dialog.destroy()
+
+            # File type = LaTeX
+            elif "*.tex" in filter_name:
+                # Let the user select which elements to export.
+                dialog = SelectExportElements(self.reader)
+                response = dialog.run()
+
+                # Export the selected report elements.
+                if response == gtk.RESPONSE_ACCEPT:
+                    setlyze.report.export(self.reader, path, 'latex',
+                        dialog.get_selected_elements())
+                dialog.destroy()
+        else:
+            chooser.destroy()
+
+    def add_report_elements(self):
+        """Add the report elements present in the XML DOM object to the
+        report dialog.
+        """
+        if not self.report:
+            return
+
+        if hasattr(self.report, 'analysis_name'):
+            self.add_title_header(self.report.analysis_name)
+
+        if hasattr(self.report, 'locations_selections') and \
+            hasattr(self.report, 'species_selections'):
+            self.add_selections(self.report.locations_selections, self.report.species_selections)
+
+        if hasattr(self.report, 'plate_areas_definition'):
+            self.add_plate_areas_definition(self.report.plate_areas_definition)
+
+        if hasattr(self.report, 'area_totals_observed') and \
+            hasattr(self.report, 'area_totals_expected'):
+            self.add_area_totals(self.report.area_totals_observed, self.report.area_totals_expected)
+
+        if 'chi_squared_areas' in self.report.statistics:
+            self.add_statistics_chisq_areas(self.report.statistics['chi_squared_areas'][0])
+
+        if 'wilcoxon_spots' in self.report.statistics:
+            self.add_statistics_wilcoxon_spots()
+
+        if 'wilcoxon_spots_repeats' in self.report.statistics:
+            self.add_statistics_repeats_spots('wilcoxon_spots_repeats', 'Wilcoxon')
+
+        if 'wilcoxon_ratios' in self.report.statistics:
+            self.add_statistics_wilcoxon_ratios()
+
+        if 'wilcoxon_ratios_repeats' in self.report.statistics:
+            self.add_statistics_repeats_ratios('wilcoxon_ratios_repeats', 'Wilcoxon')
+
+        if 'wilcoxon_areas' in self.report.statistics:
+            self.add_statistics_wilcoxon_areas()
+
+        if 'wilcoxon_areas_repeats' in self.report.statistics:
+            self.add_statistics_repeats_areas('wilcoxon_areas_repeats', 'Wilcoxon')
+
+        if 'chi_squared_spots' in self.report.statistics:
+            self.add_statistics_chisq_spots()
+
+        if 'chi_squared_ratios' in self.report.statistics:
+            self.add_statistics_chisq_ratios()
+
+    def add_title_header(self, analysis_name):
+        """Add a header text to the report dialog.
+
+        The header contains the name of the analysis.
+        """
+        header = gtk.Label()
+        header.set_alignment(xalign=0, yalign=0)
+        header.set_line_wrap(False)
+        header.set_markup(markup_header("Analysis Report: %s" % analysis_name))
+        self.vbox_top.pack_start(header, expand=False, fill=True, padding=0)
+
+    def add_selections(self, locations, species):
+        """Add the location + species selections to the report dialog."""
+
+        # Create a scrolled window.
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Locations and Species Selections")
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 200)
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+        column = gtk.TreeViewColumn("Locations and Species Selections", cell,
+            text=0)
+        tree.append_column(column)
+        # To store the data, we use the TreeStore object.
+        treestore = gtk.TreeStore(gobject.TYPE_STRING)
+
+        # Add the species selection to the model.
+        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
+        check = 0
+        for id, spe in species[0].iteritens():
+            species = "%s (%s)" % (spe['name_latin'], spe['name_common'])
+            treestore.append(parent=treeiter, row=[species])
+            check = 1
+        if not check:
+            treestore.remove(treeiter)
+
+        # Add the second species selection to the model.
+        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
+        check = 0
+        for id, spe in species[1].iteritens():
+            species = "%s (%s)" % (spe['name_latin'], spe['name_common'])
+            treestore.append(parent=treeiter, row=[species])
+            check = 1
+        if not check:
+            treestore.remove(treeiter)
+
+        # Add the locations selection to the model.
+        treeiter = treestore.append(parent=None, row=["Locations selection (1)"])
+        check = 0
+        for id, loc in locations[0].iteritens():
+            location = loc['name']
+            treestore.append(parent=treeiter, row=[location])
+            check = 1
+        if not check:
+            treestore.remove(treeiter)
+
+        # Add the second locations selection to the model.
+        treeiter = treestore.append(parent=None, row=["Locations selection (2)"])
+        check = 0
+        for id, loc in locations[1].iteritens():
+            location = loc['name']
+            treestore.append(parent=treeiter, row=[location])
+            check = 1
+        if not check:
+            treestore.remove(treeiter)
+
+        # Set the tree model.
+        tree.set_model(treestore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the scorred window to the vertical box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_plate_areas_definition(self, definition):
+        """Add the plate areas definition to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-plate-areas-definition'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 120)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column = gtk.TreeViewColumn("Area ID", cell, text=0)
+        tree.append_column(column)
+
+        column = gtk.TreeViewColumn("Plate Area Surfaces", cell, text=1)
+        tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(gobject.TYPE_STRING, gobject.TYPE_STRING)
+
+        for area_id, spots in sorted(definition.iteritems()):
+            spots = ", ".join(spots)
+            liststore.append([area_id, spots])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_area_totals(self, observed, expected):
+        """Add the species totals per plate area to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-plate-area-totals'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 120)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column = gtk.TreeViewColumn("Area ID", cell, text=0)
+        tree.append_column(column)
+
+        column = gtk.TreeViewColumn("Observed Totals", cell, text=1)
+        tree.append_column(column)
+
+        column = gtk.TreeViewColumn("Expected Totals", cell, text=2)
+        tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(gobject.TYPE_STRING,
+            gobject.TYPE_STRING, gobject.TYPE_STRING)
+
+        # Add the distances to the model.
+        for area_id in sorted(observed):
+            liststore.append([area_id, observed[area_id], expected[area_id]])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_wilcoxon_spots(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 270)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Positive Spots','n (plates)',
+            'n (distances)','P-value','Mean Observed','Mean Expected',
+            'Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('wilcoxon_spots')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = make_remarks(items,attr)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                int(attr['n_positive_spots']),
+                int(attr['n_plates']),
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_wilcoxon_ratios(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 190)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Ratio Group','n (plates)',
+            'n (distances)','P-value','Mean Observed','Mean Expected',
+            'Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('wilcoxon_ratios')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = make_remarks(items,attr)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                int(attr['ratio_group']),
+                int(attr['n_plates']),
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_wilcoxon_areas(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 220)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Plate Area','n (totals)','n (observed species)',
+            'n (expected species)', 'P-value','Mean Observed','Mean Expected',
+            'Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('wilcoxon_areas')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = make_remarks(items,attr)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                attr['plate_area'],
+                int(attr['n']),
+                int(attr['n_sp_observed']),
+                int(attr['n_sp_expected']),
+                float(items['p_value']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_chisq_spots(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 270)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Positive Spots','n (plates)',
+            'n (distances)','P-value','Chi squared','df',
+            'Mean Observed','Mean Expected','Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('chi_squared_spots')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = make_remarks(items,attr)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                int(attr['n_positive_spots']),
+                int(attr['n_plates']),
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['chi_squared']),
+                float(items['df']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_chisq_areas(self, statistics):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 100)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['P-value','Chi squared','df','Remarks']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_INT,
+            gobject.TYPE_STRING,
+            )
+
+        # Create a remarks string which allows for easy recognition
+        # of interesting results.
+        remarks = make_remarks(statistics['results'], statistics['attr'])
+
+        # Add all result items to the tree model.
+        liststore.append([
+            float(statistics['results']['p_value']),
+            float(statistics['results']['chi_squared']),
+            float(statistics['results']['df']),
+            remarks,
+            ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_chisq_ratios(self):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 190)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ('Ratio Group','n (plates)',
+            'n (distances)','P-value','Chi squared','df',
+            'Mean Observed','Mean Expected','Remarks')
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_INT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_FLOAT,
+            gobject.TYPE_STRING,
+            )
+
+        # Add the distances to the model.
+        statistics = self.reader.get_statistics('chi_squared_ratios')
+
+        for attr,items in statistics:
+            # Create a remarks string which allows for easy recognition
+            # of interesting results.
+            remarks = make_remarks(items,attr)
+
+            # Add all result items to the tree model.
+            liststore.append([
+                int(attr['ratio_group']),
+                int(attr['n_plates']),
+                int(attr['n']),
+                float(items['p_value']),
+                float(items['chi_squared']),
+                float(items['df']),
+                float(items['mean_observed']),
+                float(items['mean_expected']),
+                remarks,
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_repeats_areas(self, element_name, testname):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text(
+            't-significance-results-repeats', testname))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 220)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Plate Area','n (totals)','n (observed species)',
+            'n (significant)','n (non-significant)','n (preference)',
+            'n (rejection)']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            )
+
+        # Add the results to the model.
+        statistics = self.reader.get_statistics(element_name)
+        statistics_repeats = self.reader.get_statistics_repeats(element_name)
+
+        for attr,items in statistics:
+            plate_area = attr['plate_area']
+            liststore.append([
+                plate_area,
+                int(attr['n']),
+                int(attr['n_sp_observed']),
+                int(statistics_repeats[plate_area]['n_significant']),
+                int(int(statistics_repeats['repeats']) - int(statistics_repeats[plate_area]['n_significant'])),
+                int(statistics_repeats[plate_area]['n_preference']),
+                int(statistics_repeats[plate_area]['n_rejection']),
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_repeats_spots(self, element_name, testname):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 270)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Positive Spots','n (plates)','n (distances)',
+            'n (significant)','n (non-significant)','n (attraction)',
+            'n (repulsion)']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            )
+
+        # Add the results to the model.
+        statistics = self.reader.get_statistics(element_name)
+        statistics_repeats = self.reader.get_statistics_repeats(element_name)
+
+        for attr,items in statistics:
+            n_spots = attr['n_positive_spots']
+
+            liststore.append([
+                n_spots,
+                int(attr['n_plates']),
+                int(attr['n']),
+                int(statistics_repeats[n_spots]['n_significant']),
+                int(int(statistics_repeats['repeats']) - int(statistics_repeats[n_spots]['n_significant'])),
+                int(statistics_repeats[n_spots]['n_attraction']),
+                int(statistics_repeats[n_spots]['n_repulsion']),
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_repeats_ratios(self, element_name, testname):
+        """Add the statistic results to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
+        expander.set_expanded(False)
+        # Add the scrolled window to the expander.
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 190)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Ratio Group','n (plates)','n (distances)',
+            'n (significant)','n (non-significant)','n (attraction)',
+            'n (repulsion)']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            gobject.TYPE_INT,
+            )
+
+        # Add the results to the model.
+        statistics = self.reader.get_statistics(element_name)
+        statistics_repeats = self.reader.get_statistics_repeats(element_name)
+
+        for attr,items in statistics:
+            ratio_group = attr['ratio_group']
+
+            liststore.append([
+                ratio_group,
+                int(attr['n_plates']),
+                int(attr['n']),
+                int(statistics_repeats[ratio_group]['n_significant']),
+                int(int(statistics_repeats['repeats']) - int(statistics_repeats[ratio_group]['n_significant'])),
+                int(statistics_repeats[ratio_group]['n_attraction']),
+                int(statistics_repeats[ratio_group]['n_repulsion']),
+                ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
 class DisplayReport(gtk.Window):
     """Display a dialog visualizing the elements in the XML DOM analysis
     data object. The argument `reader` is an instance of

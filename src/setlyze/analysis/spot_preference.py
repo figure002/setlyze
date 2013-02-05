@@ -303,7 +303,11 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         self.areas_definition = areas_definition
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
-        self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
+        self.statistics = {
+            'wilcoxon': {'attr': None, 'results':{}},
+            'chi_squared': {'attr': None, 'results':{}},
+            'wilcoxon_repeats': {'attr': None, 'results':{}}
+        }
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis1'))
@@ -655,7 +659,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             ('A','B','C'),('B','C','D')]
 
         for area_group in area_groups:
-            # Get both sets of distances from plates per total spot numbers.
+            # Get area totals per area group per plate.
             observed = self.db.get_area_totals(
                 'plate_area_totals_observed', area_group)
             expected = self.db.get_area_totals(
@@ -666,18 +670,15 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             observed = list(observed)
             expected = list(expected)
 
-            # Perform a consistency check. The number of observed and
-            # expected spot distances must always be the same.
-            count_observed = len(observed)
-            count_expected = len(expected)
-
             # Calculate the number of species encounters for the current
             # area group.
             species_encouters_observed = sum(observed)
             species_encouters_expected = sum(expected)
 
-            # A minimum of 2 observed distances is required for the
+            # A minimum of two positive spots totals are required for the
             # significance test. So skip this spots number if it's less.
+            count_observed = len(observed)
+            count_expected = len(expected)
             if count_observed < 2 or count_expected < 2:
                 continue
 
@@ -691,29 +692,38 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
-            # Save the significance result.
-            data = {}
-            data['attr'] = {
-                'plate_area': area_group_str,
-                'n': count_observed,
+            # Set the attributes for the tests.
+            if not self.statistics['wilcoxon_repeats']['attr']:
+                self.statistics['wilcoxon_repeats']['attr'] = {
+                    'method': sig_result['method'],
+                    'alternative': sig_result['alternative'],
+                    'conf_level': 1 - self.alpha_level,
+                    'paired': False,
+                    'groups': "areas",
+                    'repeats': self.n_repeats,
+                }
+
+            if not self.statistics['wilcoxon']['attr']:
+                self.statistics['wilcoxon']['attr'] = {
+                    'method': sig_result['method'],
+                    'alternative': sig_result['alternative'],
+                    'conf_level': 1 - self.alpha_level,
+                    'paired': False,
+                    'groups': "areas",
+                }
+
+            # Save the results for each test.
+            self.statistics['wilcoxon']['results'][area_group_str] = {
+                'n_values': count_observed,
                 'n_sp_observed': species_encouters_observed,
                 'n_sp_expected': species_encouters_expected,
-                'method': sig_result['method'],
-                'alternative': sig_result['alternative'],
-                'conf_level': 1 - setlyze.config.cfg.get('alpha-level'),
-                'paired': False,
-                }
-            data['results'] = {
                 'p_value': sig_result['p.value'],
                 'mean_observed': mean_observed,
                 'mean_expected': mean_expected,
-                }
-
-            # Append the result to the list of results.
-            self.statistics['wilcoxon'].append(data)
+            }
 
     def calculate_significance_chisq(self):
         """Perform statistical tests to check if the differences between
@@ -813,11 +823,14 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
             # Check if this area group is present in the statistics variable.
             # If not, create it.
-            if area_group_str not in self.statistics['repeats']:
-                self.statistics['repeats'][area_group_str] = {'n_significant': 0,
-                    'n_preference': 0, 'n_rejection': 0}
+            if area_group_str not in self.statistics['wilcoxon_repeats']['results']:
+                self.statistics['wilcoxon_repeats']['results'][area_group_str] = {
+                    'n_significant': 0,
+                    'n_preference': 0,
+                    'n_rejection': 0
+                }
 
-            # Get both sets of distances from plates per total spot numbers.
+            # Get area totals per area group per plate.
             observed = self.db.get_area_totals(
                 'plate_area_totals_observed', area_group)
             expected = self.db.get_area_totals(
@@ -828,13 +841,10 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             observed = list(observed)
             expected = list(expected)
 
-            # Perform a consistency check. The number of observed and
-            # expected spot distances must always be the same.
+            # A minimum of two positive spots totals are required for the
+            # significance test. So skip this spots number if it's less.
             count_observed = len(observed)
             count_expected = len(expected)
-
-            # A minimum of 2 observed distances is required for the
-            # significance test. So skip this spots number if it's less.
             if count_observed < 2 or count_expected < 2:
                 continue
 
@@ -845,24 +855,24 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
             # Save basic results for this repeated test.
             # Check if the result was significant (P-value < alpha-level).
             p_value = float(sig_result['p.value'])
-            if p_value < setlyze.config.cfg.get('alpha-level') and p_value != 'nan':
+            if p_value < self.alpha_level and p_value != 'nan':
                 # If so, increase significant counter with one.
-                self.statistics['repeats'][area_group_str]['n_significant'] += 1
+                self.statistics['wilcoxon_repeats']['results'][area_group_str]['n_significant'] += 1
 
                 # If significant, also check if there is preference or
                 # rejection for this plate area.
                 if mean_observed > mean_expected:
                     # Increase preference counter with one.
-                    self.statistics['repeats'][area_group_str]['n_preference'] += 1
+                    self.statistics['wilcoxon_repeats']['results'][area_group_str]['n_preference'] += 1
                 else:
                     # Increase rejection counter with one.
-                    self.statistics['repeats'][area_group_str]['n_rejection'] += 1
+                    self.statistics['wilcoxon_repeats']['results'][area_group_str]['n_rejection'] += 1
 
     def repeat_test(self, number):
         """Repeats the siginificance test `number` times. The significance
@@ -969,16 +979,16 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         Design Part: 1.13
         """
-        report = setlyze.report.ReportGenerator()
-        report.set_analysis('spot_preference')
-        report.set_location_selections()
-        report.set_species_selections()
-        report.set_plate_areas_definition()
+        report = setlyze.report.Report()
+        report.set_analysis("Spot Preference")
+        report.set_location_selections([self.locations_selection])
+        report.set_species_selections([self.species_selection])
+        report.set_plate_areas_definition(self.areas_definition)
         report.set_area_totals_observed(self.chisq_observed)
         report.set_area_totals_expected(self.chisq_expected)
         report.set_statistics('chi_squared_areas', self.statistics['chi_squared'])
         report.set_statistics('wilcoxon_areas', self.statistics['wilcoxon'])
-        report.set_statistics_repeats('wilcoxon_areas', self.statistics['repeats'])
+        report.set_statistics('wilcoxon_areas_repeats', self.statistics['wilcoxon_repeats'])
 
         # Create global a link to the report.
-        setlyze.config.cfg.set('analysis-report', report.get_report())
+        setlyze.config.cfg.set('analysis-report', report)

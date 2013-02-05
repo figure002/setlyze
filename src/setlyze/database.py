@@ -1663,7 +1663,14 @@ class AccessDBGeneric(object):
         connection.close()
 
     def get_area_totals(self, plate_area_totals_table, area_group):
-        """TODO"""
+        """Return total number of positive spots per area group per plate.
+
+        Argument `plate_area_totals_table` is either
+        ``plate_area_totals_observed`` or ``plate_area_totals_expected``.
+        The area group `area_group` can be a sequence containing a
+        combination of the letters A, B, C, and D. Each letter is one of
+        the default areas on a SETL plate.
+        """
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
 
@@ -1685,20 +1692,15 @@ class AccessDBGeneric(object):
                         (fields_str, plate_area_totals_table)
                         )
 
-        # Return all matching distances. Two for-loops are created to make
-        # this function as fast as possible.
         if len(fields) > 1:
-            # More then one total is returned at each iter, so we need to
-            # unpack all items per iter and yield those.
+            # More then one total is returned at each row, so we will return
+            # each total separately.
             for totals in cursor:
                 for total in totals:
-                    #if total == 0: continue
                     yield total
         else:
-            # One field, so one total is returned at a time (no nested for-loop
-            # required here).
+            # One field, so one total is returned per row.
             for total in cursor:
-                #if total[0] == 0: continue
                 yield total[0]
 
         # Close connection with the local database.

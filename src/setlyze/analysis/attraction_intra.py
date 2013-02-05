@@ -78,7 +78,7 @@ __status__ = "Production"
 __date__ = "2013/02/02"
 
 # The number of progress steps for this analysis.
-PROGRESS_STEPS = 10
+PROGRESS_STEPS = 8
 
 class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Make the preparations for analysis 2:
@@ -399,8 +399,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             self._lock.release()
             return
 
-        # Create log message.
-        logging.info("\tGenerating the analysis report...")
         # Update progress dialog.
         self.pdialog_handler.increase("Generating the analysis report...")
         # Generate the report.
@@ -808,20 +806,11 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         Design Part: 1.14
         """
         report = setlyze.report.ReportGenerator()
-        report.set_analysis('attraction_intra')
-        report.set_location_selections()
-        report.set_species_selections()
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Generating the analysis report...")
-
-        report.set_spot_distances_observed()
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Generating the analysis report...")
-
-        report.set_spot_distances_expected()
-
+        report.set_analysis("Attraction within Species")
+        report.set_location_selections([self.locations_selection])
+        report.set_species_selections([self.species_selection])
+        #report.set_spot_distances_observed()
+        #report.set_spot_distances_expected()
         report.set_statistics('wilcoxon_spots', self.statistics['wilcoxon'])
         report.set_statistics_repeats('wilcoxon_spots', self.statistics['repeats'])
         report.set_statistics('chi_squared_spots', self.statistics['chi_squared'])

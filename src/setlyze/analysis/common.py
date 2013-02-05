@@ -183,12 +183,14 @@ class Worker(threading.Thread):
 class AnalysisWorker(threading.Thread):
     """Super class for Analysis classes."""
 
-    def __init__(self, lock):
+    def __init__(self, lock, reports = None):
         super(AnalysisWorker, self).__init__()
 
         self._stop = threading.Event()
         self._lock = lock
         self.pdialog_handler = None
+        self.reports = reports
+        self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.dbfile = setlyze.config.cfg.get('db-file')
 
@@ -197,7 +199,7 @@ class AnalysisWorker(threading.Thread):
         self._stop.set()
 
     def stopped(self):
-        """Check if this thread needs to be stopped."""
+        """Return True if this thread needs to be stopped."""
         return self._stop.isSet()
 
     def set_pdialog_handler(self, handler):

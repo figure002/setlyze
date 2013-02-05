@@ -83,6 +83,339 @@ def export(reader, path, type, elements=None):
 
     logging.info("Analysis report saved to %s" % path)
 
+class Report(object):
+    """Create a report object."""
+
+    def __init__(self):
+        self.dbfile = setlyze.config.cfg.get('db-file')
+        self.statistics = {}
+
+    def set_analysis(self, name):
+        """Set the analysis name to `name`."""
+        self.analysis_name = name
+
+    def set_location_selections(self, selections):
+        """Set the locations selections.
+
+        This element will be filled with the locations selections `selections`,
+        a list with location ID lists (e.g. [[1,2], ..., [3]]).
+
+        The selections will be saved as follows: ::
+
+            self.locations_selections = [
+                {
+                    1: {'nr':100, 'name':"Location A"},
+                    2: {'nr':200, 'name':"Location B"},
+                },
+                ...
+                {
+                    3: {'nr':300, 'name':"Location C"},
+                }
+            ]
+        """
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
+        self.locations_selections = []
+        for selection in selections:
+            if not isinstance(selection, (list, tuple)):
+                continue
+
+            # Fetch all information about the locations selection.
+            selection_str = ",".join([str(id) for id in selection])
+            cursor.execute( "SELECT loc_id,loc_nr,loc_name "
+                            "FROM localities "
+                            "WHERE loc_id IN (%s)" %
+                            (selection_str)
+                            )
+
+            # Create a dictionary for the selection.
+            selection_dict = {}
+            for loc_id,loc_nr,loc_name in cursor:
+                selection_dict[loc_id] = {'nr':loc_nr, 'name':loc_name}
+
+            # Add the selection to the main variable.
+            self.locations_selections.append(selection_dict)
+
+        # Close connection with the local database.
+        cursor.close()
+        connection.close()
+
+    def set_species_selections(self, selections):
+        """Set the species selections.
+
+        This element will be filled with the species selections `selections`,
+        a list with location ID lists (e.g. [[1,2], ..., [3]]).
+
+        The selections will be saved as follows: ::
+
+            self.species_selections = [
+                {
+                    1: {'name_latin':"Ectopleura larynx", 'name_common':"Gorgelpijp"},
+                    2: {'name_latin':"Metridium senile", 'name_common':"Zeeanjelier"},
+                },
+                ...
+                {
+                    3: {'name_latin':"Balanus improvisus", 'name_common':"Brakwaterpok"},
+                }
+            ]
+        """
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
+        self.species_selections = []
+        for selection in selections:
+            if not isinstance(selection, (list, tuple)):
+                continue
+
+            # Fetch all information about the locations selection.
+            selection_str = ",".join([str(id) for id in selection])
+            cursor.execute( "SELECT spe_id,spe_name_latin,spe_name_venacular "
+                            "FROM species "
+                            "WHERE spe_id IN (%s)" %
+                            (selection_str)
+                            )
+
+            # Create a dictionary for the selection.
+            selection_dict = {}
+            for spe_id,name_latin,name_common in cursor:
+                selection_dict[spe_id] = {'name_latin':name_latin, 'name_common':name_common}
+
+            # Add the selection to the main variable.
+            self.species_selections.append(selection_dict)
+
+        # Close connection with the local database.
+        cursor.close()
+        connection.close()
+
+    def set_spot_distances_observed(self):
+        """Set the observed spot distances.
+
+        This element will be filled with the observed spot distances.
+
+        The spot distances will be saved as follows ::
+
+            self.spot_distances_observed = {
+                63: [1.0, 2.0, ...],
+                229: [3.16, ...],
+                ...
+            }
+
+        Where the dictionary keys are plate numbers and the values are lists
+        with distances for the corresponding plates.
+        """
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
+        # Fetch all the observed distances.
+        cursor.execute( "SELECT rec_pla_id,distance "
+                        "FROM spot_distances_observed"
+                        )
+
+        # Populate the main variable.
+        self.spot_distances_observed = {}
+        for pla_id,distance in cursor:
+            if pla_id in self.spot_distances_observed:
+                self.spot_distances_observed[pla_id].append(distance)
+            else:
+                self.spot_distances_observed[pla_id] = [distance]
+
+        # Close connection with the local database.
+        cursor.close()
+        connection.close()
+
+    def set_spot_distances_expected(self):
+        """Set the expected spot distances.
+
+        This element will be filled with the expected spot distances.
+
+        The spot distances will be saved as follows ::
+
+            self.spot_distances_expected = {
+                63: [1.0, 3.16, ...],
+                229: [4.47, ...],
+                ...
+            }
+
+        Where the dictionary keys are plate numbers and the values are lists
+        with distances for the corresponding plates.
+        """
+        connection = sqlite.connect(self.dbfile)
+        cursor = connection.cursor()
+
+        # Fetch all the expected distances.
+        cursor.execute( "SELECT rec_pla_id,distance "
+                        "FROM spot_distances_expected"
+                        )
+
+        # Populate the main variable.
+        self.spot_distances_expected = {}
+        for pla_id,distance in cursor:
+            if pla_id in self.spot_distances_expected:
+                self.spot_distances_expected[pla_id].append(distance)
+            else:
+                self.spot_distances_expected[pla_id] = [distance]
+
+        # Close connection with the local database.
+        cursor.close()
+        connection.close()
+
+    def set_plate_areas_definition(self, definition):
+        """Set the plate areas definition `definition`.
+
+        Examples of `definition` ::
+
+            {
+                'area1': ['A'],
+                'area2': ['B'],
+                'area3': ['C'],
+                'area3': ['D']
+            }
+
+            {
+                'area1': ['A'],
+                'area2': ['B'],
+                'area3': ['C', 'D']
+            }
+        """
+        self.plate_areas_definition = definition
+
+    def set_area_totals_observed(self, totals):
+        """Set the observed plate area totals.
+
+
+        Examples of `totals` ::
+
+            {
+                'area1': 261,
+                'area2': 943,
+                'area3': 2837,
+                'area4': 1858,
+            }
+
+            {
+                'area1': 261,
+                'area2': 943,
+                'area3': 2837,
+            }
+        """
+        self.area_totals_observed = totals
+
+    def set_area_totals_expected(self, totals):
+        """Set the expected plate area totals.
+
+
+        Examples of `totals` ::
+
+            {
+                'area1': 235.96,
+                'area2': 943.84,
+                'area3': 2831.52,
+                'area4': 1887.68,
+            }
+
+            {
+                'area1': 235.96,
+                'area2': 943.84,
+                'area3': 2831.52,
+            }
+        """
+        self.area_totals_expected = totals
+
+    def set_statistics(self, name, data):
+        """Set statistics results `data` under key `name`.
+
+        This method is used to save results from statistical tests. The results
+        must be supplied with the `data` argument. The `data` argument is a
+        list containing dictionaries in the format
+        {'attr': {'<name>': <value>, ...}, 'results': {'<name>': <value>, ...}}
+        where the value for 'attr' is a dictionary with the attributes for the
+        test and 'results' is a dictionary with elements of the results.
+
+        Examples of `data` ::
+
+            {
+                'attr': {
+                    'method': "Chi-squared test for given probabilities"
+                },
+                'results': {
+                    'df': 3.0,
+                    'p_value': 0.37,
+                    'chi_squared': 3.13
+                }
+            }
+
+            {
+                'attr': {
+                    'method': "Chi-squared test for given probabilities",
+                    'groups': "ratios",
+                },
+                'results': {
+                    1: {
+                        'n_plates': 2,
+                        'n_distances': 56,
+                        'df': 14.0,
+                        'p_value': 0.90,
+                        'chi_squared': 7.75,
+                        'mean_expected': 2.77,
+                        'mean_observed': 2.50
+                    },
+                    ...
+                }
+            }
+
+            {
+                'attr': {
+                    'method': "Wilcoxon rank sum test with continuity correction",
+                    'alternative': "two.sided",
+                    'conf_level': 0.95,
+                    'paired': False,
+                    'groups': "areas",
+                },
+                'results': {
+                    'A': {'p_value': 0.67, 'mean_expected': 1.33, 'mean_observed': 1.35},
+                    'B': {'p_value': 0.97, 'mean_expected': 4.08, 'mean_observed': 4.07},
+                    'A+B': {'p_value': 0.97, 'mean_expected': 2.70, 'mean_observed': 2.71},
+                    ...
+                }
+            }
+
+        Of repeated tests ::
+
+            {
+                'attr': {
+                    'method': "Wilcoxon rank sum test with continuity correction",
+                    'groups': "areas",
+                    'alpha_level': 0.05,
+                    'repeats': 10,
+                },
+                'results': {
+                    'A': {'n_significant': 10, 'n_preference': 10, 'n_rejection': 0},
+                    'B': {'n_significant': 1, 'n_preference': 0, 'n_rejection': 1},
+                    'A+B': {'n_significant': 9, 'n_preference': 9, 'n_rejection': 0},
+                    ...
+                }
+            }
+
+            {
+                'attr': {
+                    'method': "Wilcoxon rank sum test with continuity correction",
+                    'groups': "spots|ratios",
+                    'alpha_level': 0.05,
+                    'repeats': 10,
+                },
+                'results': {
+                    2: {'n_significant': 10, 'n_attraction': 10, 'n_repulsion': 0},
+                    3: {'n_significant': 1, 'n_attraction': 0, 'n_repulsion': 1},
+                    ...
+                }
+            }
+        """
+        if name in self.statistics:
+            self.statistics[name].append(data)
+        else:
+            self.statistics[name] = [data]
+
 class ReportGenerator(object):
     """Create a XML DOM (Document Object Model) object of the analysis
     settings, data and results. The DOM can then be exported to an XML
@@ -94,8 +427,8 @@ class ReportGenerator(object):
     allow the user to choose which elements of the XML DOM object to
     export to say a LaTeX document. Also, :py:mod:`xml.dom.minidom`
     provides methods for exporting this object to an XML file. This file
-    by default contains all analysis data. This file can be easily
-    loaded in SETLyze so we can display a dialog showing the analysis
+    by default contains all analysis data. This file can be loaded back into
+    SETLyze so we can display a dialog showing the analysis
     data and results present in that XML file. The XML file can be used
     as a backup file of the analysis data.
 
@@ -106,7 +439,7 @@ class ReportGenerator(object):
     """
 
     def __init__(self):
-        self.ns = "http://www.gimaris.com/setlyze/"
+        self.ns = "http://www.gimaris.com/setlyze/xmlns/"
         self.dbfile = setlyze.config.cfg.get('db-file')
 
         # Create a new XML DOM object (Design Part: 2.17).
@@ -235,41 +568,18 @@ class ReportGenerator(object):
         report.
 
         This element describes to which analysis this report belongs. So
-        `name` is just a string with the title of an analysis. However,
-        if the value of `name` exists as a key in the ``analysis_names``
-        dictionary, the corresponding value from that dictionary will
-        be used as the value for the element instead.
+        `name` is just a string with the title of an analysis.
 
         Design Part: 1.72
         """
+        self.create_element(parent=self.report, name="analysis", text=name)
 
-        # A dictinary with all the known analysis.
-        analysis_names = {'spot_preference': "Spot Preference",
-            'attraction_intra': "Attraction within Species",
-            'attraction_inter': "Attraction between Species",
-            'relations': "Relation between Species",
-            }
-
-        # Check if the provided name is present in the list of
-        # analysis names. If so, use the name from the list.
-        # If 'name' is not in the list, do nothing and just use the
-        # name as it is.
-        if name in analysis_names:
-            name = analysis_names[name]
-
-        # Create the element.
-        self.create_element(parent=self.report,
-            name="analysis",
-            text=name
-            )
-
-    def set_location_selections(self):
+    def set_location_selections(self, selections):
         """Add the element ``location_selections`` to the XML DOM
         report.
 
-        This element will be filled with the locations selections. If
-        two locations selections were made, both will be added to the
-        element.
+        This element will be filled with the location selections `selections`,
+        a list with location ID lists (e.g. [[1,2,3], ..., [5,6,7]]).
 
         The XML representation looks like this: ::
 
@@ -309,22 +619,16 @@ class ReportGenerator(object):
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
 
-        for slot in (0,1):
-            # Get the locations selection for each slot.
-            loc_ids = setlyze.config.cfg.get('locations-selection',
-                slot=slot)
-
-            # Skip to the next slot if this selection is not set.
-            if not loc_ids:
+        for i, loc_ids in selections.enumerate():
+            if not isinstance(loc_ids, (list, tuple)):
                 continue
 
             # Create a 'locations_selection' child element for each
-            # selection. We give each selection element a 'slot'
-            # attribute.
+            # selection. We give each selection element a 'slot' attribute.
             loc_selection_element = self.create_element(
                 parent=location_selections,
                 name="selection",
-                attributes={'slot': slot}
+                attributes={'slot': i}
                 )
 
             # Fetch all information about the locations selection.
@@ -346,13 +650,12 @@ class ReportGenerator(object):
         cursor.close()
         connection.close()
 
-    def set_species_selections(self):
+    def set_species_selections(self, selections):
         """Add the element ``species_selections`` to the XML DOM
         report.
 
-        This element will be filled with the species selections. If
-        two species selections were made, both will be added to the
-        element.
+        This element will be filled with the species selections `selections`,
+        a list with species ID lists (e.g. [[1,2,3], ..., [5,6,7]]).
 
         The XML representation looks like this: ::
 
@@ -392,13 +695,8 @@ class ReportGenerator(object):
         connection = sqlite.connect(self.dbfile)
         cursor = connection.cursor()
 
-        for slot in (0,1):
-            # Get the species selection for each slot.
-            spe_ids = setlyze.config.cfg.get('species-selection',
-                slot=slot)
-
-            # Skip to the next slot if this selection is not set.
-            if not spe_ids:
+        for i, spe_ids in selections.enumerate():
+            if not isinstance(spe_ids, (list, tuple)):
                 continue
 
             # Create a 'species_selection' child element for each
@@ -407,7 +705,7 @@ class ReportGenerator(object):
             spe_selection_element = self.create_element(
                 parent=species_selections,
                 name="selection",
-                attributes={'slot': slot}
+                attributes={'slot': i}
                 )
 
             # Fetch all information about the species selection.
@@ -527,12 +825,12 @@ class ReportGenerator(object):
         cursor.close()
         connection.close()
 
-    def set_plate_areas_definition(self):
+    def set_plate_areas_definition(self, definition):
         """Add the element ``plate_areas_definition`` to the XML DOM
         report.
 
         This element will be filled with the user defined spot areas
-        definition.
+        definition `definition`.
 
         The XML representation looks like this: ::
 
@@ -559,11 +857,6 @@ class ReportGenerator(object):
 
         Design Part: 1.54
         """
-
-        # Get the spot areas definition.
-        definition = setlyze.config.cfg.get('plate-areas-definition')
-
-        # Create a new element for the areas definition.
         areas_definition_element = self.create_element(
             parent=self.report,
             name="plate_areas_definition"
