@@ -2338,31 +2338,40 @@ class Report(gtk.Window):
             self.add_area_totals(self.report.area_totals_observed, self.report.area_totals_expected)
 
         if 'chi_squared_areas' in self.report.statistics:
-            self.add_statistics_chisq_areas(self.report.statistics['chi_squared_areas'][0])
+            for stats in self.report.statistics['chi_squared_areas']:
+                self.add_statistics_chisq_areas(stats)
 
         if 'wilcoxon_spots' in self.report.statistics:
-            self.add_statistics_wilcoxon_spots(self.report.statistics['wilcoxon_spots'][0])
+            for stats in self.report.statistics['wilcoxon_spots']:
+                self.add_statistics_wilcoxon_spots(stats)
 
         if 'wilcoxon_spots_repeats' in self.report.statistics:
-            self.add_statistics_repeats_spots(self.report.statistics['wilcoxon_spots_repeats'][0])
+            for stats in self.report.statistics['wilcoxon_spots_repeats']:
+                self.add_statistics_repeats_spots(stats)
 
         if 'wilcoxon_ratios' in self.report.statistics:
-            self.add_statistics_wilcoxon_ratios(self.report.statistics['wilcoxon_ratios'][0])
+            for stats in self.report.statistics['wilcoxon_ratios']:
+                self.add_statistics_wilcoxon_ratios(stats)
 
         if 'wilcoxon_ratios_repeats' in self.report.statistics:
-            self.add_statistics_repeats_ratios(self.report.statistics['wilcoxon_ratios_repeats'][0])
+            for stats in self.report.statistics['wilcoxon_ratios_repeats']:
+                self.add_statistics_repeats_ratios(stats)
 
         if 'wilcoxon_areas' in self.report.statistics:
-            self.add_statistics_wilcoxon_areas(self.report.statistics['wilcoxon_areas'][0])
+            for stats in self.report.statistics['wilcoxon_areas']:
+                self.add_statistics_wilcoxon_areas(stats)
 
         if 'wilcoxon_areas_repeats' in self.report.statistics:
-            self.add_statistics_repeats_areas(self.report.statistics['wilcoxon_areas_repeats'][0])
+            for stats in self.report.statistics['wilcoxon_areas_repeats']:
+                self.add_statistics_repeats_areas(stats)
 
         if 'chi_squared_spots' in self.report.statistics:
-            self.add_statistics_chisq_spots(self.report.statistics['chi_squared_spots'][0])
+            for stats in self.report.statistics['chi_squared_spots']:
+                self.add_statistics_chisq_spots(stats)
 
         if 'chi_squared_ratios' in self.report.statistics:
-            self.add_statistics_chisq_ratios(self.report.statistics['chi_squared_ratios'][0])
+            for stats in self.report.statistics['chi_squared_ratios']:
+                self.add_statistics_chisq_ratios(stats)
 
     def add_title_header(self, analysis_name):
         """Add a header text to the report dialog.
@@ -2530,7 +2539,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+        expander = gtk.Expander(statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2594,7 +2603,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+        expander = gtk.Expander(statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2658,7 +2667,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+        expander = gtk.Expander(statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2724,7 +2733,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
+        expander = gtk.Expander(statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2792,7 +2801,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
+        expander = gtk.Expander(statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -2847,7 +2856,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-results-pearson-chisq'))
+        expander = gtk.Expander(statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -3074,10 +3083,6 @@ class Report(gtk.Window):
             gobject.TYPE_INT,
             gobject.TYPE_INT,
             )
-
-        # Add the results to the model.
-        statistics = self.reader.get_statistics(element_name)
-        statistics_repeats = self.reader.get_statistics_repeats(element_name)
 
         for ratio_group, stats in statistics['results'].iteritems():
             liststore.append([

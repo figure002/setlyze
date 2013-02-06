@@ -257,7 +257,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         Design Part: 1.68
         """
         report = setlyze.config.cfg.get('analysis-report')
-        setlyze.gui.DisplayReport(report)
+        setlyze.gui.Report(report)
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -397,7 +397,11 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         self.locations_selections = locations_selections
         self.species_selections = species_selections
-        self.statistics = {'wilcoxon':[], 'chi_squared':[], 'repeats':{}}
+        self.statistics = {
+            'wilcoxon_ratios': {'attr': None, 'results':{}},
+            'chi_squared_ratios': {'attr': None, 'results':{}},
+            'wilcoxon_ratios_repeats': {'attr': None, 'results':{}}
+        }
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis3'))
@@ -832,30 +836,36 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
             # Save the significance result.
-            data = {}
-            data['attr'] = {
-                'ratio_group': n_group,
-                'n_plates': n_plates,
-                'n': count_observed,
-                'method': sig_result['method'],
-                'alternative': sig_result['alternative'],
-                'conf_level': 1 - setlyze.config.cfg.get('alpha-level'),
-                'paired': False,
+            if not self.statistics['wilcoxon_ratios_repeats']['attr']:
+                self.statistics['wilcoxon_ratios_repeats']['attr'] = {
+                    'method': sig_result['method'],
+                    'alternative': sig_result['alternative'],
+                    'conf_level': 1 - self.alpha_level,
+                    'paired': False,
+                    'repeats': self.n_repeats,
                 }
-            data['results'] = {
+
+            if not self.statistics['wilcoxon_ratios']['attr']:
+                self.statistics['wilcoxon_ratios']['attr'] = {
+                    'method': sig_result['method'],
+                    'alternative': sig_result['alternative'],
+                    'conf_level': 1 - self.alpha_level,
+                    'paired': False,
+                }
+
+            self.statistics['wilcoxon_ratios']['results'][n_group] = {
+                'n_plates': n_plates,
+                'n_values': count_observed,
                 'p_value': sig_result['p.value'],
                 'mean_observed': mean_observed,
                 'mean_expected': mean_expected,
                 #'conf_int_start': sig_result['conf.int'][0],
                 #'conf_int_end': sig_result['conf.int'][1],
-                }
-
-            # Append the result to the list of results.
-            self.statistics['wilcoxon'].append(data)
+            }
 
             # Get the probability for each spot distance. Required for
             # the Chi-squared test.
@@ -870,23 +880,20 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 p = spot_dist_to_prob.values())
 
             # Save the significance result.
-            data = {}
-            data['attr'] = {
-                'ratio_group': n_group,
-                'n_plates': n_plates,
-                'n': count_observed,
-                'method': sig_result['method'],
+            if not self.statistics['chi_squared_ratios']['attr']:
+                self.statistics['chi_squared_ratios']['attr'] = {
+                    'method': sig_result['method'],
                 }
-            data['results'] = {
+
+            self.statistics['chi_squared_ratios']['results'][n_group] = {
+                'n_plates': n_plates,
+                'n_values': count_observed,
                 'chi_squared': sig_result['statistic']['X-squared'],
                 'p_value': sig_result['p.value'],
                 'df': sig_result['parameter']['df'],
                 'mean_observed': mean_observed,
                 'mean_expected': mean_expected,
-                }
-
-            # Append the result to the list of results.
-            self.statistics['chi_squared'].append(data)
+            }
 
     def calculate_significance_for_repeats(self):
         """This method does the same Wilcoxon test from :meth:`calculate_significance`,
@@ -916,12 +923,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if n_group == 6:
                 n_group = -5
 
-            # Check if this ratios group is present in the statistics variable.
-            # If not, create it.
-            if n_group not in self.statistics['repeats']:
-                self.statistics['repeats'][n_group] = {'n_significant': 0,
-                    'n_attraction': 0, 'n_repulsion': 0}
-
             # Get both sets of distances from plates per total spot numbers.
             observed = self.db.get_distances_matching_ratios(
                 'spot_distances_observed', ratio_group)
@@ -947,6 +948,17 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if count_observed < 2:
                 continue
 
+            # Check if this ratios group is present in the statistics variable.
+            # If not, create it.
+            if n_group not in self.statistics['wilcoxon_ratios_repeats']['results']:
+                self.statistics['wilcoxon_ratios_repeats']['results'][n_group] = {
+                    'n_plates': self.db.matching_plates_total,
+                    'n_values': count_observed,
+                    'n_significant': 0,
+                    'n_attraction': 0,
+                    'n_repulsion': 0
+                }
+
             # Calculate the means.
             mean_observed = setlyze.std.mean(observed)
             mean_expected = setlyze.std.mean(expected)
@@ -954,24 +966,24 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
             # Save basic results for this repeated test.
             # Check if the result was significant (P-value < alpha-level).
             p_value = float(sig_result['p.value'])
-            if p_value < setlyze.config.cfg.get('alpha-level') and p_value != 'nan':
+            if p_value < self.alpha_level and p_value != 'nan':
                 # If so, increase significant counter with one.
-                self.statistics['repeats'][n_group]['n_significant'] += 1
+                self.statistics['wilcoxon_ratios_repeats']['results'][n_group]['n_significant'] += 1
 
                 # If significant, also check if there is preference or
                 # rejection for this plate area.
                 if mean_observed < mean_expected:
                     # Increase attracion counter with one.
-                    self.statistics['repeats'][n_group]['n_attraction'] += 1
+                    self.statistics['wilcoxon_ratios_repeats']['results'][n_group]['n_attraction'] += 1
                 else:
                     # Increase repulsion counter with one.
-                    self.statistics['repeats'][n_group]['n_repulsion'] += 1
+                    self.statistics['wilcoxon_ratios_repeats']['results'][n_group]['n_repulsion'] += 1
 
     def repeat_test(self, number):
         """Repeats the siginificance test `number` times. The significance
@@ -1002,17 +1014,15 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         Design Part: 1.15
         """
-        report = setlyze.report.ReportGenerator()
+        report = setlyze.report.Report()
         report.set_analysis("Attraction between Species")
         report.set_location_selections(self.locations_selections)
         report.set_species_selections(self.species_selections)
-
-        report.set_spot_distances_observed()
-        report.set_spot_distances_expected()
-
-        report.set_statistics('wilcoxon_ratios', self.statistics['wilcoxon'])
-        report.set_statistics_repeats('wilcoxon_ratios', self.statistics['repeats'])
-        report.set_statistics('chi_squared_ratios', self.statistics['chi_squared'])
+        #report.set_spot_distances_observed()
+        #report.set_spot_distances_expected()
+        report.set_statistics('wilcoxon_ratios', self.statistics['wilcoxon_ratios'])
+        report.set_statistics('wilcoxon_ratios_repeats', self.statistics['wilcoxon_ratios_repeats'])
+        report.set_statistics('chi_squared_ratios', self.statistics['chi_squared_ratios'])
 
         # Create a global link to the report.
-        setlyze.config.cfg.set('analysis-report', report.get_report())
+        setlyze.config.cfg.set('analysis-report', report)

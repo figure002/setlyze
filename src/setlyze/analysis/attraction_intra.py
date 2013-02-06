@@ -643,7 +643,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
             # Save the significance result.
@@ -651,7 +651,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 self.statistics['wilcoxon_spots_repeats']['attr'] = {
                     'method': sig_result['method'],
                     'alternative': sig_result['alternative'],
-                    'conf_level': 1 - setlyze.config.cfg.get('alpha-level'),
+                    'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'repeats': self.n_repeats,
                 }
@@ -660,7 +660,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 self.statistics['wilcoxon_spots']['attr'] = {
                     'method': sig_result['method'],
                     'alternative': sig_result['alternative'],
-                    'conf_level': 1 - setlyze.config.cfg.get('alpha-level'),
+                    'conf_level': 1 - self.alpha_level,
                     'paired': False,
                 }
 
@@ -767,13 +767,13 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Perform two sample Wilcoxon tests.
             sig_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
-                conf_level = 1 - setlyze.config.cfg.get('alpha-level'),
+                conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
             # Save basic results for this repeated test.
             # Check if the result was significant (7P-value < alpha-level).
             p_value = float(sig_result['p.value'])
-            if p_value < setlyze.config.cfg.get('alpha-level') and p_value != 'nan':
+            if p_value < self.alpha_level and p_value != 'nan':
                 # If so, increase significant counter with one.
                 self.statistics['wilcoxon_spots_repeats']['results'][n_spots]['n_significant'] += 1
 
