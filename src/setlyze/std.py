@@ -75,39 +75,37 @@ def make_remarks(results, attributes):
             conclusions = ('Rejection','Preference')
         elif attributes['groups'] in ('ratios','spots'):
             conclusions = ('Attraction','Repulsion')
-        else:
-            conclusions = ('Attraction','Repulsion')
     else:
         conclusions = ('Attraction','Repulsion')
 
     if 'p_value' in results:
         if results['p_value'] == 'nan':
             remarks.append("Not significant")
-        elif float(results['p_value']) > setlyze.config.cfg.get('alpha-level'):
+        elif results['p_value'] > setlyze.config.cfg.get('alpha-level'):
             remarks.append("Not significant")
         else:
             remarks.append("Significant")
 
             # If significant, also add attraction/repulsion.
             if 'mean_observed' in results and 'mean_expected' in results:
-                if float(results['mean_observed']) < float(results['mean_expected']):
+                if results['mean_observed'] < results['mean_expected']:
                     remarks.append(conclusions[0])
                 else:
                     remarks.append(conclusions[1])
 
         if results['p_value'] == 'nan':
             pass
-        elif float(results['p_value']) < 0.001:
+        elif results['p_value'] < 0.001:
             remarks.append("P < 0.001")
-        elif float(results['p_value']) < 0.01:
+        elif results['p_value'] < 0.01:
             remarks.append("P < 0.01")
-        elif float(results['p_value']) < 0.05:
+        elif results['p_value'] < 0.05:
             remarks.append("P < 0.05")
         else:
             remarks.append("P > 0.05")
 
     if 'n_values' in results:
-        if int(results['n_values']) > 20:
+        if results['n_values'] > 20:
             remarks.append("n > 20")
         else:
             remarks.append("n < 20")
