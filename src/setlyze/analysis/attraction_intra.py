@@ -243,8 +243,8 @@ class BeginBatch(Begin):
             t = setlyze.analysis.common.Worker(self.queue, pdialog_handler)
             t.start()
 
-        # Add the thread to the threads list.
-        self.threads.append(t)
+            # Add the thread to the threads list.
+            self.threads.append(t)
 
         # Populate the job queue.
         logging.info("Adding %d jobs to the queue" % len(species))
