@@ -2341,28 +2341,28 @@ class Report(gtk.Window):
             self.add_statistics_chisq_areas(self.report.statistics['chi_squared_areas'][0])
 
         if 'wilcoxon_spots' in self.report.statistics:
-            self.add_statistics_wilcoxon_spots()
+            self.add_statistics_wilcoxon_spots(self.report.statistics['wilcoxon_spots'][0])
 
         if 'wilcoxon_spots_repeats' in self.report.statistics:
-            self.add_statistics_repeats_spots('wilcoxon_spots_repeats', 'Wilcoxon')
+            self.add_statistics_repeats_spots(self.report.statistics['wilcoxon_spots_repeats'][0])
 
         if 'wilcoxon_ratios' in self.report.statistics:
-            self.add_statistics_wilcoxon_ratios()
+            self.add_statistics_wilcoxon_ratios(self.report.statistics['wilcoxon_ratios'][0])
 
         if 'wilcoxon_ratios_repeats' in self.report.statistics:
-            self.add_statistics_repeats_ratios('wilcoxon_ratios_repeats', 'Wilcoxon')
+            self.add_statistics_repeats_ratios(self.report.statistics['wilcoxon_ratios_repeats'][0])
 
         if 'wilcoxon_areas' in self.report.statistics:
-            self.add_statistics_wilcoxon_areas()
+            self.add_statistics_wilcoxon_areas(self.report.statistics['wilcoxon_areas'][0])
 
         if 'wilcoxon_areas_repeats' in self.report.statistics:
-            self.add_statistics_repeats_areas('wilcoxon_areas_repeats', 'Wilcoxon')
+            self.add_statistics_repeats_areas(self.report.statistics['wilcoxon_areas_repeats'][0])
 
         if 'chi_squared_spots' in self.report.statistics:
-            self.add_statistics_chisq_spots()
+            self.add_statistics_chisq_spots(self.report.statistics['chi_squared_spots'][0])
 
         if 'chi_squared_ratios' in self.report.statistics:
-            self.add_statistics_chisq_ratios()
+            self.add_statistics_chisq_ratios(self.report.statistics['chi_squared_ratios'][0])
 
     def add_title_header(self, analysis_name):
         """Add a header text to the report dialog.
@@ -2375,7 +2375,7 @@ class Report(gtk.Window):
         header.set_markup(markup_header("Analysis Report: %s" % analysis_name))
         self.vbox_top.pack_start(header, expand=False, fill=True, padding=0)
 
-    def add_selections(self, locations, species):
+    def add_selections(self, locations_selections, species_selections):
         """Add the location + species selections to the report dialog."""
 
         # Create a scrolled window.
@@ -2401,44 +2401,26 @@ class Report(gtk.Window):
         treestore = gtk.TreeStore(gobject.TYPE_STRING)
 
         # Add the species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Species selection (1)"])
-        check = 0
-        for id, spe in species[0].iteritens():
-            species = "%s (%s)" % (spe['name_latin'], spe['name_common'])
-            treestore.append(parent=treeiter, row=[species])
-            check = 1
-        if not check:
-            treestore.remove(treeiter)
-
-        # Add the second species selection to the model.
-        treeiter = treestore.append(parent=None, row=["Species selection (2)"])
-        check = 0
-        for id, spe in species[1].iteritens():
-            species = "%s (%s)" % (spe['name_latin'], spe['name_common'])
-            treestore.append(parent=treeiter, row=[species])
-            check = 1
-        if not check:
-            treestore.remove(treeiter)
+        for i, species in enumerate(species_selections, start=1):
+            treeiter = treestore.append(parent=None, row=["Species selection (%d)" % i])
+            check = 0
+            for id, spe in species.iteritems():
+                species = "%s (%s)" % (spe['name_latin'], spe['name_common'])
+                treestore.append(parent=treeiter, row=[species])
+                check = 1
+            if not check:
+                treestore.remove(treeiter)
 
         # Add the locations selection to the model.
-        treeiter = treestore.append(parent=None, row=["Locations selection (1)"])
-        check = 0
-        for id, loc in locations[0].iteritens():
-            location = loc['name']
-            treestore.append(parent=treeiter, row=[location])
-            check = 1
-        if not check:
-            treestore.remove(treeiter)
-
-        # Add the second locations selection to the model.
-        treeiter = treestore.append(parent=None, row=["Locations selection (2)"])
-        check = 0
-        for id, loc in locations[1].iteritens():
-            location = loc['name']
-            treestore.append(parent=treeiter, row=[location])
-            check = 1
-        if not check:
-            treestore.remove(treeiter)
+        for i, locations in enumerate(locations_selections, start=1):
+            treeiter = treestore.append(parent=None, row=["Locations selection (%d)" % i])
+            check = 0
+            for id, loc in locations.iteritems():
+                location = loc['name']
+                treestore.append(parent=treeiter, row=[location])
+                check = 1
+            if not check:
+                treestore.remove(treeiter)
 
         # Set the tree model.
         tree.set_model(treestore)
@@ -2539,7 +2521,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_wilcoxon_spots(self):
+    def add_statistics_wilcoxon_spots(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2582,24 +2564,17 @@ class Report(gtk.Window):
             gobject.TYPE_STRING,
             )
 
-        # Add the distances to the model.
-        statistics = self.reader.get_statistics('wilcoxon_spots')
-
-        for attr,items in statistics:
-            # Create a remarks string which allows for easy recognition
-            # of interesting results.
-            remarks = make_remarks(items,attr)
-
+        for positive_spots,stats in statistics['results'].iteritems():
             # Add all result items to the tree model.
             liststore.append([
-                int(attr['n_positive_spots']),
-                int(attr['n_plates']),
-                int(attr['n']),
-                float(items['p_value']),
-                float(items['mean_observed']),
-                float(items['mean_expected']),
-                remarks,
-                ])
+                positive_spots,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2610,7 +2585,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_wilcoxon_ratios(self):
+    def add_statistics_wilcoxon_ratios(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2653,24 +2628,17 @@ class Report(gtk.Window):
             gobject.TYPE_STRING,
             )
 
-        # Add the distances to the model.
-        statistics = self.reader.get_statistics('wilcoxon_ratios')
-
-        for attr,items in statistics:
-            # Create a remarks string which allows for easy recognition
-            # of interesting results.
-            remarks = make_remarks(items,attr)
-
+        for ratio_group,stats in statistics['results'].iteritems():
             # Add all result items to the tree model.
             liststore.append([
-                int(attr['ratio_group']),
-                int(attr['n_plates']),
-                int(attr['n']),
-                float(items['p_value']),
-                float(items['mean_observed']),
-                float(items['mean_expected']),
-                remarks,
-                ])
+                ratio_group,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2681,7 +2649,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_wilcoxon_areas(self):
+    def add_statistics_wilcoxon_areas(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2725,25 +2693,18 @@ class Report(gtk.Window):
             gobject.TYPE_STRING,
             )
 
-        # Add the distances to the model.
-        statistics = self.reader.get_statistics('wilcoxon_areas')
-
-        for attr,items in statistics:
-            # Create a remarks string which allows for easy recognition
-            # of interesting results.
-            remarks = make_remarks(items,attr)
-
+        for plate_area,stats in statistics['results'].iteritems():
             # Add all result items to the tree model.
             liststore.append([
-                attr['plate_area'],
-                int(attr['n']),
-                int(attr['n_sp_observed']),
-                int(attr['n_sp_expected']),
-                float(items['p_value']),
-                float(items['mean_observed']),
-                float(items['mean_expected']),
-                remarks,
-                ])
+                plate_area,
+                stats['n_values'],
+                stats['n_sp_observed'],
+                stats['n_sp_expected'],
+                stats['p_value'],
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2754,7 +2715,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_chisq_spots(self):
+    def add_statistics_chisq_spots(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2799,26 +2760,19 @@ class Report(gtk.Window):
             gobject.TYPE_STRING,
             )
 
-        # Add the distances to the model.
-        statistics = self.reader.get_statistics('chi_squared_spots')
-
-        for attr,items in statistics:
-            # Create a remarks string which allows for easy recognition
-            # of interesting results.
-            remarks = make_remarks(items,attr)
-
+        for positive_spots,stats in statistics['results'].iteritems():
             # Add all result items to the tree model.
             liststore.append([
-                int(attr['n_positive_spots']),
-                int(attr['n_plates']),
-                int(attr['n']),
-                float(items['p_value']),
-                float(items['chi_squared']),
-                float(items['df']),
-                float(items['mean_observed']),
-                float(items['mean_expected']),
-                remarks,
-                ])
+                positive_spots,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['chi_squared'],
+                stats['df'],
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2867,17 +2821,13 @@ class Report(gtk.Window):
             gobject.TYPE_STRING,
             )
 
-        # Create a remarks string which allows for easy recognition
-        # of interesting results.
-        remarks = make_remarks(statistics['results'], statistics['attr'])
-
         # Add all result items to the tree model.
         liststore.append([
-            float(statistics['results']['p_value']),
-            float(statistics['results']['chi_squared']),
-            float(statistics['results']['df']),
-            remarks,
-            ])
+            statistics['results']['p_value'],
+            statistics['results']['chi_squared'],
+            statistics['results']['df'],
+            make_remarks(statistics['results'], statistics['attr']),
+        ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2888,7 +2838,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_chisq_ratios(self):
+    def add_statistics_chisq_ratios(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2933,26 +2883,19 @@ class Report(gtk.Window):
             gobject.TYPE_STRING,
             )
 
-        # Add the distances to the model.
-        statistics = self.reader.get_statistics('chi_squared_ratios')
-
-        for attr,items in statistics:
-            # Create a remarks string which allows for easy recognition
-            # of interesting results.
-            remarks = make_remarks(items,attr)
-
+        for ratio_group, stats in statistics['results'].iteritems():
             # Add all result items to the tree model.
             liststore.append([
-                int(attr['ratio_group']),
-                int(attr['n_plates']),
-                int(attr['n']),
-                float(items['p_value']),
-                float(items['chi_squared']),
-                float(items['df']),
-                float(items['mean_observed']),
-                float(items['mean_expected']),
-                remarks,
-                ])
+                ratio_group,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['chi_squared'],
+                stats['df'],
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2963,7 +2906,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_repeats_areas(self, element_name, testname):
+    def add_statistics_repeats_areas(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -2972,8 +2915,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text(
-            't-significance-results-repeats', testname))
+        expander = gtk.Expander("%s (repeats)" % statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -3007,21 +2949,16 @@ class Report(gtk.Window):
             gobject.TYPE_INT,
             )
 
-        # Add the results to the model.
-        statistics = self.reader.get_statistics(element_name)
-        statistics_repeats = self.reader.get_statistics_repeats(element_name)
-
-        for attr,items in statistics:
-            plate_area = attr['plate_area']
+        for plate_area, stats in statistics['results'].iteritems():
             liststore.append([
                 plate_area,
-                int(attr['n']),
-                int(attr['n_sp_observed']),
-                int(statistics_repeats[plate_area]['n_significant']),
-                int(int(statistics_repeats['repeats']) - int(statistics_repeats[plate_area]['n_significant'])),
-                int(statistics_repeats[plate_area]['n_preference']),
-                int(statistics_repeats[plate_area]['n_rejection']),
-                ])
+                stats['n_values'],
+                stats['n_sp_observed'],
+                stats['n_significant'],
+                statistics['attr']['repeats'] - stats['n_significant'],
+                stats['n_preference'],
+                stats['n_rejection'],
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -3032,7 +2969,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_repeats_spots(self, element_name, testname):
+    def add_statistics_repeats_spots(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -3041,7 +2978,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
+        expander = gtk.Expander("%s (repeats)" % statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -3075,22 +3012,16 @@ class Report(gtk.Window):
             gobject.TYPE_INT,
             )
 
-        # Add the results to the model.
-        statistics = self.reader.get_statistics(element_name)
-        statistics_repeats = self.reader.get_statistics_repeats(element_name)
-
-        for attr,items in statistics:
-            n_spots = attr['n_positive_spots']
-
+        for positive_spots, stats in statistics['results'].iteritems():
             liststore.append([
-                n_spots,
-                int(attr['n_plates']),
-                int(attr['n']),
-                int(statistics_repeats[n_spots]['n_significant']),
-                int(int(statistics_repeats['repeats']) - int(statistics_repeats[n_spots]['n_significant'])),
-                int(statistics_repeats[n_spots]['n_attraction']),
-                int(statistics_repeats[n_spots]['n_repulsion']),
-                ])
+                positive_spots,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['n_significant'],
+                statistics['attr']['repeats'] - stats['n_significant'],
+                stats['n_attraction'],
+                stats['n_repulsion'],
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -3101,7 +3032,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_repeats_ratios(self, element_name, testname):
+    def add_statistics_repeats_ratios(self, statistics):
         """Add the statistic results to the report dialog."""
 
         # Create a Scrolled Window
@@ -3110,7 +3041,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-significance-results-repeats', testname))
+        expander = gtk.Expander("%s (repeats)" % statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -3148,18 +3079,16 @@ class Report(gtk.Window):
         statistics = self.reader.get_statistics(element_name)
         statistics_repeats = self.reader.get_statistics_repeats(element_name)
 
-        for attr,items in statistics:
-            ratio_group = attr['ratio_group']
-
+        for ratio_group, stats in statistics['results'].iteritems():
             liststore.append([
                 ratio_group,
-                int(attr['n_plates']),
-                int(attr['n']),
-                int(statistics_repeats[ratio_group]['n_significant']),
-                int(int(statistics_repeats['repeats']) - int(statistics_repeats[ratio_group]['n_significant'])),
-                int(statistics_repeats[ratio_group]['n_attraction']),
-                int(statistics_repeats[ratio_group]['n_repulsion']),
-                ])
+                stats['n_plates'],
+                stats['n_values'],
+                stats['n_significant'],
+                statistics['attr']['repeats'] - stats['n_significant'],
+                stats['n_attraction'],
+                stats['n_repulsion'],
+            ])
 
         # Set the tree model.
         tree.set_model(liststore)

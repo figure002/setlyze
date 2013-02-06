@@ -215,7 +215,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         Design Part: 1.68
         """
         report = setlyze.config.cfg.get('analysis-report')
-        setlyze.gui.DisplayReport(report)
+        setlyze.gui.Report(report)
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -304,9 +304,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
         self.statistics = {
-            'wilcoxon': {'attr': None, 'results':{}},
-            'chi_squared': {'attr': None, 'results':{}},
-            'wilcoxon_repeats': {'attr': None, 'results':{}}
+            'wilcoxon_areas': {'attr': None, 'results':{}},
+            'chi_squared_areas': {'attr': None, 'results':{}},
+            'wilcoxon_areas_repeats': {'attr': None, 'results':{}}
         }
 
         # Create log message.
@@ -696,8 +696,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 conf_int = False)
 
             # Set the attributes for the tests.
-            if not self.statistics['wilcoxon_repeats']['attr']:
-                self.statistics['wilcoxon_repeats']['attr'] = {
+            if not self.statistics['wilcoxon_areas_repeats']['attr']:
+                self.statistics['wilcoxon_areas_repeats']['attr'] = {
                     'method': sig_result['method'],
                     'alternative': sig_result['alternative'],
                     'conf_level': 1 - self.alpha_level,
@@ -706,8 +706,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     'repeats': self.n_repeats,
                 }
 
-            if not self.statistics['wilcoxon']['attr']:
-                self.statistics['wilcoxon']['attr'] = {
+            if not self.statistics['wilcoxon_areas']['attr']:
+                self.statistics['wilcoxon_areas']['attr'] = {
                     'method': sig_result['method'],
                     'alternative': sig_result['alternative'],
                     'conf_level': 1 - self.alpha_level,
@@ -716,7 +716,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 }
 
             # Save the results for each test.
-            self.statistics['wilcoxon']['results'][area_group_str] = {
+            self.statistics['wilcoxon_areas']['results'][area_group_str] = {
                 'n_values': count_observed,
                 'n_sp_observed': species_encouters_observed,
                 'n_sp_expected': species_encouters_expected,
@@ -776,11 +776,10 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             p = probabilities.values())
 
         # Save the significance result.
-        data = {}
-        data['attr'] = {
+        self.statistics['chi_squared_areas']['attr'] = {
             'method': sig_result['method'],
             }
-        data['results'] = {
+        self.statistics['chi_squared_areas']['results'] = {
             'chi_squared': sig_result['statistic']['X-squared'],
             'p_value': sig_result['p.value'],
             'df': sig_result['parameter']['df'],
@@ -790,9 +789,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         self.chisq_expected = {}
         for i, area in enumerate(self.chisq_observed):
             self.chisq_expected[area] = sig_result['expected'][i]
-
-        # Append the result to the list of results.
-        self.statistics['chi_squared'].append(data)
 
     def calculate_significance_wilcoxon_repeats(self):
         """This method does the same as :meth:`calculate_significance_wilcoxon`,
@@ -821,15 +817,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Create a human readable string with the areas in the area group.
             area_group_str = "+".join(area_group)
 
-            # Check if this area group is present in the statistics variable.
-            # If not, create it.
-            if area_group_str not in self.statistics['wilcoxon_repeats']['results']:
-                self.statistics['wilcoxon_repeats']['results'][area_group_str] = {
-                    'n_significant': 0,
-                    'n_preference': 0,
-                    'n_rejection': 0
-                }
-
             # Get area totals per area group per plate.
             observed = self.db.get_area_totals(
                 'plate_area_totals_observed', area_group)
@@ -848,6 +835,17 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if count_observed < 2 or count_expected < 2:
                 continue
 
+            # Check if this area group is present in the statistics variable.
+            # If not, create it.
+            if area_group_str not in self.statistics['wilcoxon_areas_repeats']['results']:
+                self.statistics['wilcoxon_areas_repeats']['results'][area_group_str] = {
+                    'n_values': count_observed,
+                    'n_sp_observed': sum(observed),
+                    'n_significant': 0,
+                    'n_preference': 0,
+                    'n_rejection': 0
+                }
+
             # Calculate the means.
             mean_observed = setlyze.std.mean(observed)
             mean_expected = setlyze.std.mean(expected)
@@ -863,16 +861,16 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             p_value = float(sig_result['p.value'])
             if p_value < self.alpha_level and p_value != 'nan':
                 # If so, increase significant counter with one.
-                self.statistics['wilcoxon_repeats']['results'][area_group_str]['n_significant'] += 1
+                self.statistics['wilcoxon_areas_repeats']['results'][area_group_str]['n_significant'] += 1
 
                 # If significant, also check if there is preference or
                 # rejection for this plate area.
                 if mean_observed > mean_expected:
                     # Increase preference counter with one.
-                    self.statistics['wilcoxon_repeats']['results'][area_group_str]['n_preference'] += 1
+                    self.statistics['wilcoxon_areas_repeats']['results'][area_group_str]['n_preference'] += 1
                 else:
                     # Increase rejection counter with one.
-                    self.statistics['wilcoxon_repeats']['results'][area_group_str]['n_rejection'] += 1
+                    self.statistics['wilcoxon_areas_repeats']['results'][area_group_str]['n_rejection'] += 1
 
     def repeat_test(self, number):
         """Repeats the siginificance test `number` times. The significance
@@ -986,9 +984,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         report.set_plate_areas_definition(self.areas_definition)
         report.set_area_totals_observed(self.chisq_observed)
         report.set_area_totals_expected(self.chisq_expected)
-        report.set_statistics('chi_squared_areas', self.statistics['chi_squared'])
-        report.set_statistics('wilcoxon_areas', self.statistics['wilcoxon'])
-        report.set_statistics('wilcoxon_areas_repeats', self.statistics['wilcoxon_repeats'])
+        report.set_statistics('chi_squared_areas', self.statistics['chi_squared_areas'])
+        report.set_statistics('wilcoxon_areas', self.statistics['wilcoxon_areas'])
+        report.set_statistics('wilcoxon_areas_repeats', self.statistics['wilcoxon_areas_repeats'])
 
         # Create global a link to the report.
         setlyze.config.cfg.set('analysis-report', report)

@@ -70,10 +70,13 @@ def make_remarks(results, attributes):
     remarks = []
 
     # Decide which conclusions to use based on the attributes.
-    if 'plate_area' in attributes:
-        conclusions = ('Rejection','Preference')
-    elif 'n_positive_spots' in attributes or 'ratios_group' in attributes:
-        conclusions = ('Attraction','Repulsion')
+    if 'groups' in attributes:
+        if attributes['groups'] in ('areas'):
+            conclusions = ('Rejection','Preference')
+        elif attributes['groups'] in ('ratios','spots'):
+            conclusions = ('Attraction','Repulsion')
+        else:
+            conclusions = ('Attraction','Repulsion')
     else:
         conclusions = ('Attraction','Repulsion')
 
@@ -103,8 +106,8 @@ def make_remarks(results, attributes):
         else:
             remarks.append("P > 0.05")
 
-    if 'n' in attributes:
-        if int(attributes['n']) > 20:
+    if 'n_values' in results:
+        if int(results['n_values']) > 20:
             remarks.append("n > 20")
         else:
             remarks.append("n < 20")
