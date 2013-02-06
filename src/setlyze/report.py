@@ -36,21 +36,17 @@ __version__ = "0.2"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/05/03"
+__date__ = "2013/02/06"
 
-def export(reader, path, type, elements=None):
-    """Save the data from the XML DOM report to a data file or an
-    analysis report document. The file is saved to `path` in a
-    format specified by `type`. Possible values for `type` are
-    ``xml``, ``txt`` or ``latex``.
+def export(report, path, type, elements=None):
+    """Save the data from a :class:`Report` object `reader` to a data file.
 
-    If `type` is ``xml``, all data from the DOM object is
-    saved to an XML file. If `type` is ``txt`` or ``latex``,
-    the report elements specified by the user will be saved to a
-    human readable document.
+    The file is saved to `path` in a format specified by `type`. Possible
+    values for `type` are ``xml``, ``txt`` or ``latex``. The report elements
+    to be exported are specified by `elements`.
 
     .. todo::
-       Implement methods for generating text and LaTeX reports.
+       Make this work with the new report model.
 
     Design Part: 1.17
     """
@@ -61,30 +57,35 @@ def export(reader, path, type, elements=None):
         # Add the extension if it's missing from the filename.
         if not path.endswith(".xml"):
             path += ".xml"
-        reader.export_xml(path)
+        dom_report = DOMReport(report)
+        dom_report.export_xml(path, elements)
 
     elif type == 'txt':
         # Add the extension if it's missing from the filename.
         if not path.endswith(".txt"):
             path += ".txt"
-        exporter = ExportTextReport(reader)
+        exporter = ExportTextReport(report)
         exporter.export(path, elements)
 
     elif type == 'latex':
         # Add the extension if it's missing from the filename.
         if not path.endswith(".tex") and not path.endswith(".latex"):
             path += ".tex"
-        exporter = ExportLatexReport(reader)
+        exporter = ExportLatexReport(report)
         exporter.export(path, elements)
 
     else:
-        raise ValueError("Unknow value for 'type'. Must be either "
-            "'xml', 'txt' or 'latex'")
+        raise ValueError("Unsupported file type specified.")
 
     logging.info("Analysis report saved to %s" % path)
 
 class Report(object):
-    """Create a report object."""
+    """Create a report object.
+
+    The results for an analysis are saved to an instance of this class using
+    the set methods. An instance of this class is passed to an instance of
+    :class:`setlyze.gui.Report` to display the results graphically.
+    """
 
     def __init__(self):
         self.dbfile = setlyze.config.cfg.get('db-file')
@@ -416,24 +417,13 @@ class Report(object):
         else:
             self.statistics[name] = [data]
 
-class ReportGenerator(object):
-    """Create a XML DOM (Document Object Model) object of the analysis
-    settings, data and results. The DOM can then be exported to an XML
-    file containing all data for the analysis.
+class DOMReport(object):
+    """Create an XML DOM object from a :class:`Report` object.
 
-    Using XML DOM objects for storing analysis data has great
-    advantages. Because the object can contain all analysis data, it's
-    easy to use Python's XML parser to generate analysis reports. We can
-    allow the user to choose which elements of the XML DOM object to
-    export to say a LaTeX document. Also, :py:mod:`xml.dom.minidom`
-    provides methods for exporting this object to an XML file. This file
-    by default contains all analysis data. This file can be loaded back into
-    SETLyze so we can display a dialog showing the analysis
-    data and results present in that XML file. The XML file can be used
-    as a backup file of the analysis data.
+    The DOM can be exported to an XML file.
 
-    So too the class :class:`ReportReader` uses this XML DOM object
-    to access the analysis data.
+    .. todo::
+       Make this work with the new report model.
 
     Design Part: 1.48
     """
@@ -1083,17 +1073,17 @@ class ReportGenerator(object):
         self.doc.writexml(f, encoding="utf-8")
         f.close()
 
-class ReportReader(object):
-    """Provide standard methods for extracting data from the XML
-    DOM object containing analysis data.
+class DOMReportConvert(object):
+    """Convert a :class:`DOMReport` report to a :class:`Report` report.
 
-    This class can also export the XML DOM object to an XML document.
+    .. todo::
+       Make this work with the new report model.
 
     Design Part: 1.49
     """
 
     def __init__(self, report = None):
-        self.ns = "http://www.gimaris.com/setlyze/"
+        self.ns = "http://www.gimaris.com/setlyze/xmlns/"
         self.doc = None
 
         if report:
@@ -1524,7 +1514,8 @@ class ReportReader(object):
 class ExportLatexReport(object):
     """Generate an analysis report in LaTeX format.
 
-    Design Part:
+    .. todo::
+       Complete this class.
     """
 
     def __init__(self, reader = None):
@@ -1543,7 +1534,8 @@ class ExportLatexReport(object):
 class ExportTextReport(object):
     """Generate an analysis report in text format.
 
-    Design Part:
+    .. todo::
+       Make this work with the new report model.
     """
 
     def __init__(self, reader = None):
