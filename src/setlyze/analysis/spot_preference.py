@@ -138,7 +138,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
 
             # A thread pool job was completed.
-            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_collect_results),
+            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
 
             # The thread pool has finished processing all jobs.
             'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
@@ -229,7 +229,7 @@ class BeginBatch(Begin):
         logging.info("We are in batch mode")
 
         # Print elapsed time after each sub-analysis.
-        self.signal_handlers['analysis-finished'] = setlyze.std.sender.connect('analysis-finished', self.print_elapsed_time),
+        self.signal_handlers['analysis-finished'] = setlyze.std.sender.connect('analysis-finished', self.print_elapsed_time)
 
     def on_analysis_aborted(self, sender):
         dialog = gtk.MessageDialog(parent=None, flags=0,

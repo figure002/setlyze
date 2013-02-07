@@ -164,7 +164,7 @@ class PrepareAnalysis(object):
         self.signal_handlers = {}
         self.pdialog = None
         self.pool = None
-        self.job_results = []
+        self.results = []
 
     def in_batch_mode(self):
         """Return True if we are in batch mode."""
@@ -217,16 +217,17 @@ class PrepareAnalysis(object):
         # the result that callback functions are called multiple times.
         self.unset_signal_handlers()
 
-    def on_collect_results(self, sender, data):
+    def on_thread_pool_job_completed(self, sender, result):
         """Save the results of individual thread pool jobs."""
-        self.job_results.append(data)
+        self.results.append(result)
 
     def on_thread_pool_finished(self, sender):
         """Display the results."""
         if self.pool.stopped():
             return
-        for report in self.job_results:
+        for report in self.results:
             setlyze.gui.Report(report)
+            break
 
 class AnalysisWorker(threading.Thread):
     """Super class for Analysis classes."""
