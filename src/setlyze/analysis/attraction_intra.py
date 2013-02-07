@@ -249,7 +249,7 @@ class BeginBatch(Begin):
         # Populate the job queue.
         logging.info("Adding %d jobs to the queue" % len(species))
         for sp in species:
-            self.add_job(Analysis, self.lock, locations, sp)
+            self.add_job(Analysis, self.lock, locations, [sp])
 
     def on_display_report(self, sender):
         """Display the report in a window."""

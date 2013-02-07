@@ -134,14 +134,14 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             # The analysis was finished.
             'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
 
-            # Display the report after the analysis has finished.
-            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
-
             # Cancel button
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
 
-            # Progress dialog closed
-            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_analysis_closed),
+            # A thread pool job was completed.
+            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_collect_results),
+
+            # The thread pool has finished processing all jobs.
+            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
         }
 
     def on_analysis_aborted(self, sender):
@@ -190,32 +190,28 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
 
         # Show a progress dialog.
-        pd = setlyze.gui.ProgressDialog(title="Performing analysis",
+        self.pdialog = setlyze.gui.ProgressDialog(title="Performing analysis",
             description=setlyze.locale.text('analysis-running'))
 
         # Create a progress dialog handler.
-        pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+        pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
-        # Create analysis instance.
-        t = Analysis(self.lock, locations, species, areas_definition)
-        t.set_pdialog_handler(pdialog_handler)
+        # Set the total number of times we decide to update the progress dialog.
+        pdialog_handler.set_total_steps(
+            PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')
+        )
 
-        # Set the update steps for the progress handler.
-        pdialog_handler.set_total_steps(t.get_total_steps())
+        # Create a thread pool with a single thread.
+        self.pool = setlyze.analysis.common.Pool(
+            size=1,
+            pdialog_handler=pdialog_handler
+        )
 
-        # Add the thread to the threads list.
-        self.threads.append(t)
+        # Add the job to the pool.
+        self.pool.add_job(Analysis, self.lock, locations, species, areas_definition)
 
-        # Start the analysis.
-        t.start()
-
-    def on_display_report(self, sender):
-        """Display the report in a window.
-
-        Design Part: 1.68
-        """
-        report = setlyze.config.cfg.get('analysis-report')
-        setlyze.gui.Report(report)
+        # Start all threads in the pool.
+        self.pool.start()
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -231,6 +227,9 @@ class BeginBatch(Begin):
     def __init__(self):
         super(BeginBatch, self).__init__()
         logging.info("We are in batch mode")
+
+        # Print elapsed time after each sub-analysis.
+        self.signal_handlers['analysis-finished'] = setlyze.std.sender.connect('analysis-finished', self.print_elapsed_time),
 
     def on_analysis_aborted(self, sender):
         dialog = gtk.MessageDialog(parent=None, flags=0,
@@ -257,7 +256,6 @@ class BeginBatch(Begin):
 
         # Create a progress dialog handler.
         pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
-        pdialog_handler.autoclose = False
 
         # Set the total number of times we decide to update the progress dialog.
         pdialog_handler.set_total_steps(
@@ -265,21 +263,22 @@ class BeginBatch(Begin):
             len(species)
             )
 
-        # Spawn worker threads.
-        for i in range(self.thread_pool_size):
-            t = setlyze.analysis.common.Worker(self.queue, pdialog_handler)
-            t.start()
+        # Create a thread pool.
+        self.pool = setlyze.analysis.common.Pool(
+            size=self.thread_pool_size,
+            pdialog_handler=pdialog_handler
+        )
 
-            # Add the thread to the threads list.
-            self.threads.append(t)
-
-        # Populate the job queue.
+        # Add jobs to the thread pool.
         logging.info("Adding %d jobs to the queue" % len(species))
         for sp in species:
-            self.add_job(Analysis, self.lock, locations, sp, areas_definition)
+            self.pool.add_job(Analysis, self.lock, locations, [sp], areas_definition)
 
-    def on_display_report(self, sender):
-        """Display the report in a window."""
+        # Start all threads in the thread pool.
+        self.pool.start()
+
+    def print_elapsed_time(self, sender):
+        """Print elapsed time since start of the analysis."""
         logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
 class Analysis(setlyze.analysis.common.AnalysisWorker):
@@ -977,16 +976,15 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         Design Part: 1.13
         """
-        report = setlyze.report.Report()
-        report.set_analysis("Spot Preference")
-        report.set_location_selections([self.locations_selection])
-        report.set_species_selections([self.species_selection])
-        report.set_plate_areas_definition(self.areas_definition)
-        report.set_area_totals_observed(self.chisq_observed)
-        report.set_area_totals_expected(self.chisq_expected)
-        report.set_statistics('chi_squared_areas', self.statistics['chi_squared_areas'])
-        report.set_statistics('wilcoxon_areas', self.statistics['wilcoxon_areas'])
-        report.set_statistics('wilcoxon_areas_repeats', self.statistics['wilcoxon_areas_repeats'])
+        self.result.set_analysis("Spot Preference")
+        self.result.set_location_selections([self.locations_selection])
+        self.result.set_species_selections([self.species_selection])
+        self.result.set_plate_areas_definition(self.areas_definition)
+        self.result.set_area_totals_observed(self.chisq_observed)
+        self.result.set_area_totals_expected(self.chisq_expected)
+        self.result.set_statistics('chi_squared_areas', self.statistics['chi_squared_areas'])
+        self.result.set_statistics('wilcoxon_areas', self.statistics['wilcoxon_areas'])
+        self.result.set_statistics('wilcoxon_areas_repeats', self.statistics['wilcoxon_areas_repeats'])
 
         # Create global a link to the report.
-        setlyze.config.cfg.set('analysis-report', report)
+        setlyze.config.cfg.set('analysis-report', self.result)
