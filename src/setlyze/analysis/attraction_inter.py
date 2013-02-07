@@ -131,33 +131,26 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.signal_handlers = {
             # This analysis has just started.
             'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
-
             # The user pressed the X button of a locations/species selection window.
             'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
-
             # User pressed the Back button in the locations selection window.
             'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
-
             # User pressed the Back button in the species selection window.
             'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_species_back),
-
             # The user selected locations have been saved.
             'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_locations_saved),
-
             # The user selected species have been saved.
             'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_species_saved),
-
-            # Display the report after the analysis has finished.
-            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
-
             # The report window was closed.
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
-
-            # Cancel button
+            # Cancel button pressed.
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
-
             # Progress dialog closed
-            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_analysis_closed),
+            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
+            # A thread pool job was completed.
+            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
+            # The thread pool has finished processing all jobs.
+            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
         }
 
     def on_locations_saved(self, sender, save_slot=0, data=None):
@@ -238,26 +231,22 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         # Create a progress dialog handler.
         pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
-        # Create analysis instance.
-        t = Analysis(self.lock, locations, species)
-        t.set_pdialog_handler(pdialog_handler)
+        # Set the total number of times we decide to update the progress dialog.
+        pdialog_handler.set_total_steps(
+            PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')
+        )
 
-        # Set the update steps for the progress handler.
-        pdialog_handler.set_total_steps(t.get_total_steps())
+        # Create a thread pool with a single thread.
+        self.pool = setlyze.analysis.common.Pool(
+            size=1,
+            pdialog_handler=pdialog_handler
+        )
 
-        # Add the thread to the threads list.
-        self.threads.append(t)
+        # Add the job to the pool.
+        self.pool.add_job(Analysis, self.lock, locations, species)
 
-        # Start the analysis.
-        t.start()
-
-    def on_display_report(self, sender):
-        """Display the report in a window.
-
-        Design Part: 1.68
-        """
-        report = setlyze.config.cfg.get('analysis-report')
-        setlyze.gui.Report(report)
+        # Start all threads in the pool.
+        self.pool.start()
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -285,34 +274,57 @@ class BeginBatch(Begin):
         self.signal_handlers = {
             # This analysis has just started.
             'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
-
             # The user pressed the X button of a locations/species selection window.
             'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
-
             # User pressed the Back button in the locations selection window.
             'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
-
             # User pressed the Back button in the species selection window.
             'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_select_locations),
-
             # The user selected locations have been saved.
             'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_locations_saved),
-
             # The user selected species have been saved.
             'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_start_analysis),
-
             # The report window was closed.
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
-
-            # Display the report after the analysis has finished.
-            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.on_display_report),
-
-            # Cancel button
+            # Print elapsed time after each sub-analysis.
+            'analysis-finished': setlyze.std.sender.connect('analysis-finished', self.print_elapsed_time),
+            # Cancel button pressed.
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
-
             # Progress dialog closed
-            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_analysis_closed),
+            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
+            # A thread pool job was completed.
+            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
+            # The thread pool has finished processing all jobs.
+            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
         }
+
+    def on_select_species(self, sender=None, data=None):
+        """Display the window for selecting the species."""
+
+        # Find out to which selection slot this species selection
+        # should be saved.
+        save_slot = setlyze.std.sender.get_property('save-slot')
+
+        # Display the species selection window.
+        select = setlyze.gui.SelectSpecies(width=500, slot=save_slot)
+        select.set_title(setlyze.locale.text('analysis3'))
+        select.set_description( setlyze.locale.text('select-species') + "\n\n" +
+            setlyze.locale.text('selection-tips')
+            )
+
+        # At least two species must be selected.
+        select.set_selection_minimum(2,
+            "Please select at least two species from the list.")
+
+        # Change the header text.
+        if not self.in_batch_mode():
+            if save_slot == 0:
+                select.set_header("First Species Selection")
+            elif save_slot == 1:
+                select.set_header("Second Species Selection")
+
+        # This button should not be pressed now, so hide it.
+        select.button_chg_source.hide()
 
     def on_start_analysis(self, sender=None, data=None):
         """Run the analysis in batch mode.
@@ -333,7 +345,6 @@ class BeginBatch(Begin):
 
         # Create a progress dialog handler.
         pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
-        pdialog_handler.autoclose = False
 
         # Set the total number of times we decide to update the progress dialog.
         pdialog_handler.set_total_steps(
@@ -341,21 +352,22 @@ class BeginBatch(Begin):
             len(species_combos)
             )
 
-        # Spawn worker threads.
-        for i in range(self.thread_pool_size):
-            t = setlyze.analysis.common.Worker(self.queue, pdialog_handler)
-            t.start()
+        # Create a thread pool.
+        self.pool = setlyze.analysis.common.Pool(
+            size=self.thread_pool_size,
+            pdialog_handler=pdialog_handler
+        )
 
-            # Add the thread to the threads list.
-            self.threads.append(t)
-
-        # Populate the job queue.
+        # Add jobs to the thread pool.
         logging.info("Adding %d jobs to the queue" % len(species_combos))
         for sp_comb in species_combos:
-            self.add_job(Analysis, self.lock, locations, sp_comb)
+            self.pool.add_job(Analysis, self.lock, locations, sp_comb)
 
-    def on_display_report(self, sender):
-        """Display the report in a window."""
+        # Start all threads in the thread pool.
+        self.pool.start()
+
+    def print_elapsed_time(self, sender):
+        """Print elapsed time since start of the analysis."""
         logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
 class Analysis(setlyze.analysis.common.AnalysisWorker):
@@ -1014,15 +1026,11 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         Design Part: 1.15
         """
-        report = setlyze.report.Report()
-        report.set_analysis("Attraction between Species")
-        report.set_location_selections(self.locations_selections)
-        report.set_species_selections(self.species_selections)
-        #report.set_spot_distances_observed()
-        #report.set_spot_distances_expected()
-        report.set_statistics('wilcoxon_ratios', self.statistics['wilcoxon_ratios'])
-        report.set_statistics('wilcoxon_ratios_repeats', self.statistics['wilcoxon_ratios_repeats'])
-        report.set_statistics('chi_squared_ratios', self.statistics['chi_squared_ratios'])
-
-        # Create a global link to the report.
-        setlyze.config.cfg.set('analysis-report', report)
+        self.result.set_analysis("Attraction between Species")
+        self.result.set_location_selections(self.locations_selections)
+        self.result.set_species_selections(self.species_selections)
+        #self.result.set_spot_distances_observed()
+        #self.result.set_spot_distances_expected()
+        self.result.set_statistics('wilcoxon_ratios', self.statistics['wilcoxon_ratios'])
+        self.result.set_statistics('wilcoxon_ratios_repeats', self.statistics['wilcoxon_ratios_repeats'])
+        self.result.set_statistics('chi_squared_ratios', self.statistics['chi_squared_ratios'])

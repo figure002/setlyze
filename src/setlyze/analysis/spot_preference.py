@@ -87,6 +87,18 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         logging.info("Beginning analysis ”Spot preference”")
 
         # Bind handles to application signals.
+        self.set_signal_handlers()
+
+        # Reset the settings when an analysis is beginning.
+        setlyze.config.cfg.set('locations-selection', None)
+        setlyze.config.cfg.set('species-selection', None)
+        setlyze.config.cfg.set('plate-areas-definition', None)
+
+        # Emit the signal that we are beginning with an analysis.
+        setlyze.std.sender.emit('beginning-analysis')
+
+    def set_signal_handlers(self):
+        """Respond to signals emitted by the application."""
         self.signal_handlers = {
             # This analysis has just started.
             'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
@@ -112,19 +124,13 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
             # Cancel button pressed.
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
+            # Progress dialog closed
+            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
             # A thread pool job was completed.
             'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
             # The thread pool has finished processing all jobs.
             'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
         }
-
-        # Reset the settings when an analysis is beginning.
-        setlyze.config.cfg.set('locations-selection', None)
-        setlyze.config.cfg.set('species-selection', None)
-        setlyze.config.cfg.set('plate-areas-definition', None)
-
-        # Emit the signal that we are beginning with an analysis.
-        setlyze.std.sender.emit('beginning-analysis')
 
     def on_analysis_aborted(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()
@@ -254,7 +260,7 @@ class BeginBatch(Begin):
         # Add jobs to the thread pool.
         logging.info("Adding %d jobs to the queue" % len(species))
         for sp in species:
-            self.pool.add_job(Analysis, self.lock, locations, [sp], areas_definition)
+            self.pool.add_job(Analysis, self.lock, locations, sp, areas_definition)
 
         # Start all threads in the thread pool.
         self.pool.start()
@@ -967,6 +973,3 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         self.result.set_statistics('chi_squared_areas', self.statistics['chi_squared_areas'])
         self.result.set_statistics('wilcoxon_areas', self.statistics['wilcoxon_areas'])
         self.result.set_statistics('wilcoxon_areas_repeats', self.statistics['wilcoxon_areas_repeats'])
-
-        # Create global a link to the report.
-        setlyze.config.cfg.set('analysis-report', self.result)

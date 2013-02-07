@@ -49,8 +49,8 @@ class Pool(threading.Thread):
 
     def __init__(self, size, pdialog_handler=None):
         threading.Thread.__init__(self)
-        self.queue = Queue.Queue()
         self._stop = threading.Event()
+        self.queue = Queue.Queue()
         self.threads = []
 
         # Spawn threads, but don't start them yet.
@@ -108,8 +108,7 @@ class Worker(threading.Thread):
     execute the function/instantiate the class that was passed (the first
     item in the tuple) with the arguments from the tuple.
 
-    An instance of this class will wait for a maximum of `QUEUE_GET_TIMEOUT`
-    seconds when the queue is empty, after which it will exit.
+    An instance of this class will exit immediately when the queue is empty.
     """
 
     def __init__(self, queue, pdialog_handler = None):
@@ -125,7 +124,6 @@ class Worker(threading.Thread):
             try:
                 func, args, kargs = self.queue.get(False)
             except:
-                # Exit if no jobs are found for `QUEUE_GET_TIMEOUT` seconds.
                 logging.info("Worker %d got bored and quit" % self.ident)
                 return
 

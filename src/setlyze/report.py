@@ -166,8 +166,14 @@ class Report(object):
 
         self.species_selections = []
         for selection in selections:
-            if not isinstance(selection, (list, tuple)):
+            if not isinstance(selection, (list, tuple, int)):
                 continue
+
+            # Allow an integer to be passed, meaning that just one species was
+            # selected. But we have to put it in a list in order to work with
+            # it.
+            if isinstance(selection, int):
+                selection = [selection]
 
             # Fetch all information about the locations selection.
             selection_str = ",".join([str(id) for id in selection])
@@ -412,6 +418,8 @@ class Report(object):
                 }
             }
         """
+        if not data['attr']:
+            return
         if name in self.statistics:
             self.statistics[name].append(data)
         else:

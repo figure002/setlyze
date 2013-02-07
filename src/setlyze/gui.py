@@ -592,6 +592,9 @@ class SelectionWindow(gtk.Window):
         self.description = description
         self.width = width
         self.selection = []
+        self.selection_minimum = 1
+        self.selection_minimum_msg = ("No items were selected. Please "
+                "select at least one item from the list.")
         self.set_save_slot(slot)
 
         self.set_title(title)
@@ -614,6 +617,15 @@ class SelectionWindow(gtk.Window):
 
         # Display all widgets.
         self.show_all()
+
+    def set_selection_minimum(self, n, message):
+        """Set the minimum number of options `n` that must be selected.
+
+        Display an error message containing the message `message` when too
+        few items are selected.
+        """
+        self.selection_minimum = int(n)
+        self.selection_minimum_msg = message
 
     def create_layout(self):
         """Construct the layout for the selection dialog."""
@@ -779,15 +791,14 @@ class SelectionWindow(gtk.Window):
         Design Part: 1.44
         """
 
-        # Check if something was selected. If not, display a dialog.
-        if len(self.selection) == 0:
+        # Display an error dialog if too few items were selected.
+        if len(self.selection) < self.selection_minimum:
             dialog = gtk.MessageDialog(parent=None, flags=0,
                 type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                message_format="No items selected")
-            dialog.format_secondary_text("No items were selected. Please "
-                "select at least one item from the list.\n\n"
+                message_format="Not enough items selected")
+            dialog.format_secondary_text("%s\n\n"
                 "Tip: Hold Ctrl or Shift to select multiple items. To "
-                "select all items, press Ctrl+A.")
+                "select all items, press Ctrl+A." % self.selection_minimum_msg)
             dialog.set_position(gtk.WIN_POS_CENTER)
             dialog.run()
             dialog.destroy()
@@ -2413,7 +2424,7 @@ class Report(gtk.Window):
         for i, species in enumerate(species_selections, start=1):
             treeiter = treestore.append(parent=None, row=["Species selection (%d)" % i])
             check = 0
-            for id, spe in species.iteritems():
+            for spe_id, spe in species.iteritems():
                 species = "%s (%s)" % (spe['name_latin'], spe['name_common'])
                 treestore.append(parent=treeiter, row=[species])
                 check = 1
@@ -2424,7 +2435,7 @@ class Report(gtk.Window):
         for i, locations in enumerate(locations_selections, start=1):
             treeiter = treestore.append(parent=None, row=["Locations selection (%d)" % i])
             check = 0
-            for id, loc in locations.iteritems():
+            for loc_id, loc in locations.iteritems():
                 location = loc['name']
                 treestore.append(parent=treeiter, row=[location])
                 check = 1
