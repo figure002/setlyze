@@ -67,12 +67,14 @@ class Pool(threading.Thread):
 
         Only call this method after calling :meth:`add_job` at least once.
         The signal ``thread-pool-finished`` is sent when all threads have
-        stopped.
+        finished.
         """
         for thread in self.threads:
             thread.start()
+        # Wait for all threads to finish.
         for thread in self.threads:
             thread.join()
+        # Send the signal that all threads have finished.
         gobject.idle_add(setlyze.std.sender.emit, 'thread-pool-finished')
 
     def stop(self, block=True):

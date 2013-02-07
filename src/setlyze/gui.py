@@ -3153,46 +3153,42 @@ class Report(gtk.Window):
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
         tree.set_size_request(-1, 500)
-        # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
+        # Create cell renderers.
+        render_text = gtk.CellRendererText()
+        render_toggle = gtk.CellRendererToggle()
+
         # Add columns to the tree view.
-        cell = gtk.CellRendererText()
-
         column_names = ['Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq']
-
         for i, name in enumerate(column_names):
-            column = gtk.TreeViewColumn(name, cell, text=i)
-            column.set_sort_column_id(i) # Make column sortable.
+            if i > 1:
+                column = gtk.TreeViewColumn(name, render_toggle)
+                column.add_attribute(render_toggle, "active", i)
+            else:
+                column = gtk.TreeViewColumn(name, render_text, text=i)
+            column.set_sort_column_id(i)
+            if i == 0: column.set_expand(True)
             tree.append_column(column)
 
         # To store the data, we use the ListStore object.
         liststore = gtk.ListStore(
             gobject.TYPE_STRING,
             gobject.TYPE_INT,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            )
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+        )
 
         for species, row in statistics['results'].iteritems():
             items = [species]
-            for item in row:
-                if isinstance(item, bool):
-                    if item:
-                        items.append('yes')
-                    else:
-                        items.append('no')
-                elif item == None:
-                    items.append('')
-                else:
-                    items.append(item)
+            items.extend(row)
             liststore.append(items)
 
         # Set the tree model.
