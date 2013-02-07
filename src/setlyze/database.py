@@ -929,8 +929,6 @@ class MakeLocalDB(threading.Thread):
 
         Design Part: 1.75
         """
-        db_version = 0.1
-
         self.cursor.execute("CREATE TABLE info (\
             id INTEGER PRIMARY KEY, \
             name VARCHAR, \
@@ -938,7 +936,7 @@ class MakeLocalDB(threading.Thread):
             )
 
         self.cursor.execute("INSERT INTO info "
-            "VALUES (null, 'version', ?)", [db_version])
+            "VALUES (null, 'version', ?)", [__version__])
 
     def create_table_localities(self):
         """Create a table for the SETL localities.

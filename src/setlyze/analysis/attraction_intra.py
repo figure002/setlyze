@@ -344,9 +344,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Update progress dialog.
             self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
             # Make the plate IDs unique.
-            n_plates_unique = self.db.make_plates_unique(slot=0)
+            self.n_plates_unique = self.db.make_plates_unique(slot=0)
             # Create log message.
-            logging.info("\t  %d records remaining." % (n_plates_unique))
+            logging.info("\t  %d records remaining." % (self.n_plates_unique))
 
         if not self.stopped():
             # Create log message.
@@ -357,7 +357,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
             # Create log message.
             logging.info("\tSkipping %d records with too few positive spots." % skipped)
-            logging.info("\t  %d records remaining." % (n_plates_unique - skipped))
+            logging.info("\t  %d records remaining." % (self.n_plates_unique - skipped))
 
             # Create log message.
             logging.info("\tCalculating the intra-specific distances for the selected species...")

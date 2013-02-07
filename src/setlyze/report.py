@@ -91,6 +91,10 @@ class Report(object):
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.statistics = {}
 
+    def is_empty(self):
+        """Return True if this is an empty report."""
+        return self.statistics == {}
+
     def set_analysis(self, name):
         """Set the analysis name to `name`."""
         self.analysis_name = name
@@ -418,7 +422,7 @@ class Report(object):
                 }
             }
         """
-        if not data['attr']:
+        if not data.get('attr', False):
             return
         if name in self.statistics:
             self.statistics[name].append(data)

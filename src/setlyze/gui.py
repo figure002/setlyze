@@ -2147,7 +2147,7 @@ class Report(gtk.Window):
     :class:`setlyze.report.Report`
     """
 
-    def __init__(self, report):
+    def __init__(self, report, header=None):
         super(Report, self).__init__()
 
         self.report = report
@@ -2163,6 +2163,8 @@ class Report(gtk.Window):
 
         # Add widgets to the GTK window.
         self.create_layout()
+        if header:
+            self.set_header(header)
 
         # Display all widgets.
         self.show_all()
@@ -2240,6 +2242,14 @@ class Report(gtk.Window):
 
         # Add the table to the window.
         self.add(table)
+
+    def set_header(self, title):
+        """Set the header of the report dialog to `title`."""
+        header = gtk.Label()
+        header.set_alignment(xalign=0, yalign=0)
+        header.set_line_wrap(False)
+        header.set_markup(markup_header(title))
+        self.vbox_top.pack_start(header, expand=False, fill=True, padding=0)
 
     def on_close(self, obj, data=None):
         """Close the dialog and emit the `report-dialog-closed` signal."""
@@ -2383,6 +2393,10 @@ class Report(gtk.Window):
         if 'chi_squared_ratios' in self.report.statistics:
             for stats in self.report.statistics['chi_squared_ratios']:
                 self.add_statistics_chisq_ratios(stats)
+
+        if 'spot_preference_batch' in self.report.statistics:
+            for stats in self.report.statistics['spot_preference_batch']:
+                self.add_statistics_spot_preference_batch(stats)
 
     def add_title_header(self, analysis_name):
         """Add a header text to the report dialog.
@@ -3114,6 +3128,81 @@ class Report(gtk.Window):
 
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+
+    def add_statistics_spot_preference_batch(self, statistics):
+        """Add a summary report for spot preference to the displayer.
+
+        This report cannot be combined with other report elements in the
+        in the displayer.
+
+        Data is passed in the following format ::
+
+            {
+                'attr': {'format': ['n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']},
+                'results': {
+                    'Asterias rubens': [289, False, False, False, False, False, False, False, False, False],
+                    'Aurelia aurita': [381, False, False, False, False, False, False, False, False, True],
+                    ...
+                }
+            }
+        """
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 500)
+        # Set horizontal rules, makes it easier to read items.
+        tree.set_rules_hint(True)
+
+        # Add columns to the tree view.
+        cell = gtk.CellRendererText()
+
+        column_names = ['Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq']
+
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, cell, text=i)
+            column.set_sort_column_id(i) # Make column sortable.
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            )
+
+        for species, row in statistics['results'].iteritems():
+            items = [species]
+            for item in row:
+                if isinstance(item, bool):
+                    if item:
+                        items.append('yes')
+                    else:
+                        items.append('no')
+                elif item == None:
+                    items.append('')
+                else:
+                    items.append(item)
+            liststore.append(items)
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(scrolled_window, expand=True, fill=True, padding=0)
 
 class SelectExportElements(gtk.Dialog):
     """Display a dialog for allowing the user to select which report

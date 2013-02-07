@@ -140,7 +140,8 @@ class Worker(threading.Thread):
 
             # Emit the signal that a job was completed. Send the results along
             # with the signal.
-            gobject.idle_add(setlyze.std.sender.emit, 'thread-pool-job-completed', self.thread.result)
+            if not self.thread.result.is_empty():
+                gobject.idle_add(setlyze.std.sender.emit, 'thread-pool-job-completed', self.thread.result)
 
             # Signal to queue that the job is done.
             self.queue.task_done()
@@ -162,6 +163,8 @@ class PrepareAnalysis(object):
         self.signal_handlers = {}
         self.pdialog = None
         self.pool = None
+        self.alpha_level = setlyze.config.cfg.get('alpha-level')
+        self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.results = []
 
     def in_batch_mode(self):
@@ -181,7 +184,6 @@ class PrepareAnalysis(object):
         * Close the progress dialog.
         * Stop the worker processes.
         * Show an info dialog.
-        * Wrap it up and leave.
         """
         # Destroy the progress dialog.
         if self.pdialog:
@@ -200,9 +202,6 @@ class PrepareAnalysis(object):
         dialog.run()
         dialog.destroy()
 
-        # Go back to the main window.
-        self.on_analysis_closed()
-
     def on_analysis_closed(self, sender=None, data=None):
         """Show the main window and unset the signal handler."""
 
@@ -219,10 +218,16 @@ class PrepareAnalysis(object):
         """Save the results of individual thread pool jobs."""
         self.results.append(result)
 
-    def on_thread_pool_finished(self, sender):
-        """Display the results."""
-        if self.pool.stopped():
+    def on_thread_pool_finished(self, sender=None):
+        """Display the results.
+
+        If there are no results, return to the main window.
+        """
+        # Check if there are any reports to display. If not, leave.
+        if len(self.results) == 0:
+            self.on_analysis_closed()
             return
+        # Display the reports.
         for report in self.results:
             setlyze.gui.Report(report)
 

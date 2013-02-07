@@ -120,8 +120,6 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_start_analysis),
             # The report window was closed.
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
-            # The analysis was finished.
-            'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
             # Cancel button pressed.
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
             # Progress dialog closed
@@ -131,20 +129,6 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             # The thread pool has finished processing all jobs.
             'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
         }
-
-    def on_analysis_aborted(self, sender):
-        setlyze.config.cfg.get('progress-dialog').destroy()
-
-        dialog = gtk.MessageDialog(parent=None, flags=0,
-            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
-            message_format="No species were found")
-        dialog.format_secondary_text(setlyze.locale.text('empty-plate-areas'))
-        dialog.set_position(gtk.WIN_POS_CENTER)
-        dialog.run()
-        dialog.destroy()
-
-        # Go back to the main window.
-        self.on_analysis_closed()
 
     def on_select_locations(self, sender=None, data=None):
         """Display the window for selecting the locations."""
@@ -269,6 +253,83 @@ class BeginBatch(Begin):
         """Print elapsed time since start of the analysis."""
         logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
+    def summarize_results(self, results):
+        """Join results from multiple analyses to a single report.
+
+        Creates a dictionary in the following format ::
+
+            {
+                'attr': {'format': ['n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']},
+                'results': {
+                    'Asterias rubens': [289, False, False, False, False, False, False, False, False, False],
+                    'Aurelia aurita': [381, False, False, False, False, False, False, False, False, True],
+                    ...
+                }
+            }
+        """
+        report = {
+            'attr': {'format': ['n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq']},
+            'results': {}
+        }
+        for result in results:
+            species_selection = [s for s in result.species_selections[0].values()]
+            species = species_selection[0]['name_latin']
+            wilcoxon = result.statistics['wilcoxon_areas_repeats'][0]
+            chi_squared = result.statistics['chi_squared_areas'][0]
+
+            # Figure out for which plate areas the result was significant. A
+            # result is considered significant if 95% of the tests for a plate
+            # area were significant.
+            areas = ['A','B','C','D','A+B','C+D','A+B+C','B+C+D']
+            bools = []
+            for plate_area in areas:
+                stats = wilcoxon['results'].get(plate_area, None)
+                if stats:
+                    boolean = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    bools.append(boolean)
+                else:
+                    bools.append(None)
+
+            # At the boolean for the Chi squared test. This is either
+            # significant or not.
+            boolean = chi_squared['results']['p_value'] < self.alpha_level
+            bools.append(boolean)
+
+            # Only add the row to the report if one item in the row was
+            # significant.
+            for b in bools:
+                if b:
+                    report['results'][species] = []
+                    # Add the plate numbers.
+                    report['results'][species].append(wilcoxon['attr']['n_plates'])
+                    # Add the booleans.
+                    report['results'][species].extend(bools)
+                    break
+
+        return report
+
+    def on_thread_pool_finished(self, sender=None):
+        """Display the results."""
+        # The progress dialog may not hit 100% if one of the jobs are aborted
+        # because of not enough data.
+        if self.pdialog:
+            self.pdialog.destroy()
+
+        # Check if there are any reports to display. If not, leave.
+        if len(self.results) == 0:
+            self.on_analysis_closed()
+            return
+
+        # Create a summary from all results.
+        summary = self.summarize_results(self.results)
+
+        # Create a report object from the dictionary.
+        report = setlyze.report.Report()
+        report.set_statistics('spot_preference_batch', summary)
+
+        # Display the report.
+        setlyze.gui.Report(report, "Results")
+
 class Analysis(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 1.
 
@@ -367,9 +428,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             logging.info("\tMaking plate IDs in species spots table unique...")
             self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
             # Make the plate IDs unique.
-            n_plates_unique = self.db.make_plates_unique(slot=0)
+            self.n_plates_unique = self.db.make_plates_unique(slot=0)
             # Create log message.
-            logging.info("\t  %d records remaining." % (n_plates_unique))
+            logging.info("\t  %d records remaining." % (self.n_plates_unique))
 
         if not self.stopped():
             # Create log message and update progress dialog.
@@ -636,7 +697,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         of a SETL-plate, then you would expect to find low p-values for group
         1 (preference). But also low P-values for groups 3, 4, 6 and 8
         because of rejection. If group 2 would not be significant, then group
-        7 wouldn't be either, because areas A and C neutralize eachother.
+        7 wouldn't be either, because areas A and C neutralize each other.
 
         Design Part: 1.98
         """
@@ -697,6 +758,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     'paired': False,
                     'groups': "areas",
                     'repeats': self.n_repeats,
+                    'n_plates': self.n_plates_unique,
                 }
 
             if not self.statistics['wilcoxon_areas']['attr']:
@@ -706,6 +768,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'groups': "areas",
+                    'n_plates': self.n_plates_unique,
                 }
 
             # Save the results for each test.
