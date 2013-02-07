@@ -832,9 +832,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             count_observed = len(observed)
             count_expected = len(expected)
             if count_observed != count_expected:
-                raise ValueError("Number of observed and expected spot "
-                    "distances are not equal. This indicates a bug "
-                    "in the application.")
+                raise ValueError("Number of observed and expected values "
+                    "are not equal. This indicates an error in the algorithm.")
 
             # A minimum of 2 observed distances is required for the
             # significance test. So skip this ratio group if it's less.

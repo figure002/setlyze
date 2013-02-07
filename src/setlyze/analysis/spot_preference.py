@@ -662,11 +662,17 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             species_encouters_observed = sum(observed)
             species_encouters_expected = sum(expected)
 
-            # A minimum of two positive spots totals are required for the
-            # significance test. So skip this spots number if it's less.
+            # Perform a consistency check. The number of observed and
+            # expected plate area totals must always be the same.
             count_observed = len(observed)
             count_expected = len(expected)
-            if count_observed < 2 or count_expected < 2:
+            if count_observed != count_expected:
+                raise ValueError("Number of observed and expected values "
+                    "are not equal. This indicates an error in the algorithm.")
+
+            # A minimum of two positive spots totals are required for the
+            # significance test. So skip this spots number if it's less.
+            if count_observed < 2:
                 continue
 
             # Calculate the means.
