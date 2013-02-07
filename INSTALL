@@ -29,11 +29,10 @@ Installation Instructions
 1) First make sure you have all dependencies installed (see above).
 
 The 'cmake' and 'cmake-curses-gui' packages are required to configure and
-build SETLyze from source. Make sure they are installed before continuing
+install SETLyze from source. Make sure they are installed before continuing
 with the next step.
 
     sudo apt-get install cmake cmake-curses-gui
-
 
 2) Configuring the SETLyze build
 
@@ -44,22 +43,23 @@ commands:
     cd build/
     ccmake ..
 
-This will present you with a simple console based GUI of options for SETLyze.
-First press 'c' to run the configure script. Review the options and change what
-you think is necessary. It is recommended to set CMAKE_INSTALL_PREFIX to '/usr'
-instead of '/usr/local'. Again press 'c' to run the configure script. Then
-press 'g' to generate the make files and exit.
+This will present you with a simple console based GUI of options for installing
+SETLyze. First press 'c' to run the configure script. Review the options and
+change what you think is necessary (the default options are recommended). Again
+press 'c' to confirm the options. Then press 'g' to generate the make files and
+exit.
 
+3) Installing
 
-3) Compiling and installing
-
-As usual, type:
-
-    make
-
-followed by (as root):
+Run the following command (as root) to install SETLyze:
 
     make install
+
+
+Running SETLyze
+===============
+
+To run SETLyze, execute the command `setlyze` from the command line.
 
 
 Uninstallation Instructions
@@ -85,4 +85,3 @@ Alternatively, you can remove the files listed in the install_manifest.txt file
 which has the same result as the 'make uninstall' command.
 
     xargs -d "\n" rm < install_manifest.txt
-
