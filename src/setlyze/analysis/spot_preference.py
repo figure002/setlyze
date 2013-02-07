@@ -87,7 +87,36 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         logging.info("Beginning analysis ”Spot preference”")
 
         # Bind handles to application signals.
-        self.set_signal_handlers()
+        self.signal_handlers = {
+            # This analysis has just started.
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
+            # The user pressed the X button of a locations/species selection window.
+            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
+            # The user pressed the X button of a define spots window.
+            'define-areas-dialog-closed': setlyze.std.sender.connect('define-areas-dialog-closed', self.on_analysis_closed),
+            # User pressed the Back button in the locations selection window.
+            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
+            # User pressed the Back button in the species selection window.
+            'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_select_locations),
+            # User pressed the Back button in the define spots window.
+            'define-areas-dialog-back': setlyze.std.sender.connect('define-areas-dialog-back', self.on_select_species),
+            # The user selected locations have been saved.
+            'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_select_species),
+            # The user selected species have been saved.
+            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_define_plate_areas),
+            # The spots have been defined by the user.
+            'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_start_analysis),
+            # The report window was closed.
+            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
+            # The analysis was finished.
+            'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
+            # Cancel button pressed.
+            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
+            # A thread pool job was completed.
+            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
+            # The thread pool has finished processing all jobs.
+            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
+        }
 
         # Reset the settings when an analysis is beginning.
         setlyze.config.cfg.set('locations-selection', None)
@@ -96,53 +125,6 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
         # Emit the signal that we are beginning with an analysis.
         setlyze.std.sender.emit('beginning-analysis')
-
-    def set_signal_handlers(self):
-        """Respond to signals emitted by the application."""
-        self.signal_handlers = {
-            # This analysis has just started.
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
-
-            # The user pressed the X button of a locations/species
-            # selection window.
-            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
-
-            # The user pressed the X button of a define spots window.
-            'define-areas-dialog-closed': setlyze.std.sender.connect('define-areas-dialog-closed', self.on_analysis_closed),
-
-            # User pressed the Back button in the locations selection window.
-            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
-
-            # User pressed the Back button in the species selection window.
-            'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_select_locations),
-
-            # User pressed the Back button in the define spots window.
-            'define-areas-dialog-back': setlyze.std.sender.connect('define-areas-dialog-back', self.on_select_species),
-
-            # The user selected locations have been saved.
-            'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_select_species),
-
-            # The user selected species have been saved.
-            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_define_plate_areas),
-
-            # The spots have been defined by the user.
-            'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_start_analysis),
-
-            # The report window was closed.
-            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
-
-            # The analysis was finished.
-            'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
-
-            # Cancel button
-            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
-
-            # A thread pool job was completed.
-            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
-
-            # The thread pool has finished processing all jobs.
-            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
-        }
 
     def on_analysis_aborted(self, sender):
         setlyze.config.cfg.get('progress-dialog').destroy()

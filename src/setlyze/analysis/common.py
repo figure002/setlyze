@@ -227,7 +227,6 @@ class PrepareAnalysis(object):
             return
         for report in self.results:
             setlyze.gui.Report(report)
-            break
 
 class AnalysisWorker(threading.Thread):
     """Super class for Analysis classes."""
