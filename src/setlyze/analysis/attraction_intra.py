@@ -247,6 +247,83 @@ class BeginBatch(Begin):
         """Print elapsed time since start of the analysis."""
         logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
+    def summarize_results(self, results):
+        """Join results from multiple analyses to a single report.
+
+        Creates a dictionary in the following format ::
+
+            {
+                'attr': {
+                    'format': ['Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24']
+                },
+                'results': [
+                    ['Obelia dichotoma', 143, True, False, False, False, False, False, True, True, False, False, False, False, False, False, False, True, False, False, None, False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, False, True, False, True, True, True, False, False, None, False, False, False, False, False],
+                    ['Obelia geniculata', 62, True, False, False, True, False, False, False, False, False, None, False, True, True, None, True, True, None, None, None, None, None, None, None, None, True, True, False, True, False, False, False, True, True, None, True, True, True, None, True, True, None, None, None, None, None, None, None, None],
+                    ...
+                ]
+            }
+        """
+        report = {
+            'attr': {'columns': ['Species','n (plates)','Wilcoxon 2-24','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','Chi sq 2-24','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']},
+            'results': []
+        }
+        for result in results:
+            species_selection = [s for s in result.species_selections[0].values()]
+            species = species_selection[0]['name_latin']
+            wilcoxon = result.statistics['wilcoxon_spots_repeats'][0]
+            chi_squared = result.statistics['chi_squared_spots'][0]
+
+            # Figure out for which positive spots number the result was
+            # significant. A result is considered significant if 95% of the
+            # tests for a plate area were significant.
+            positive_spots = [-24,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
+            bools = []
+            for spots in positive_spots:
+                stats = wilcoxon['results'].get(spots, None)
+                if stats:
+                    boolean = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    bools.append(boolean)
+                else:
+                    bools.append(None)
+
+            # At the booleans for the Chi squared tests.
+            for spots in positive_spots:
+                stats = chi_squared['results'].get(spots, None)
+                if stats:
+                    boolean = stats['p_value'] < self.alpha_level
+                    bools.append(boolean)
+                else:
+                    bools.append(None)
+
+            # Only add the row to the report if one item in the row was
+            # significant.
+            for b in bools:
+                if b:
+                    row = [species, wilcoxon['attr']['n_plates']]
+                    row.extend(bools)
+                    report['results'].append(row)
+                    break
+
+        return report
+
+    def on_thread_pool_finished(self, sender=None):
+        """Display the results."""
+        # Check if there are any reports to display. If not, leave.
+        if len(self.results) == 0:
+            self.on_analysis_closed()
+            return
+
+        # Create a summary from all results.
+        summary = self.summarize_results(self.results)
+
+        # Create a report object from the dictionary.
+        report = setlyze.report.Report()
+        report.set_statistics('positive_spots_summary', summary)
+
+        # Display the report.
+        w = setlyze.gui.Report(report, "Results")
+        w.set_size_request(700, 500)
+
 class Analysis(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 2.
 
@@ -354,10 +431,10 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Update progress dialog.
             self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
             # Save the positive spot totals for each plate to the database.
-            skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
+            self.skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
             # Create log message.
-            logging.info("\tSkipping %d records with too few positive spots." % skipped)
-            logging.info("\t  %d records remaining." % (self.n_plates_unique - skipped))
+            logging.info("\tSkipping %d records with too few positive spots." % self.skipped)
+            logging.info("\t  %d records remaining." % (self.n_plates_unique - self.skipped))
 
             # Create log message.
             logging.info("\tCalculating the intra-specific distances for the selected species...")
@@ -645,6 +722,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'repeats': self.n_repeats,
+                    'n_plates': self.n_plates_unique - self.skipped,
                 }
 
             if not self.statistics['wilcoxon_spots']['attr']:
@@ -681,6 +759,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if not self.statistics['chi_squared_spots']['attr']:
                 self.statistics['chi_squared_spots']['attr'] = {
                     'method': sig_result['method'],
+                    'n_plates': self.n_plates_unique - self.skipped,
                 }
 
             self.statistics['chi_squared_spots']['results'][n_spots] = {

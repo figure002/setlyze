@@ -259,17 +259,19 @@ class BeginBatch(Begin):
         Creates a dictionary in the following format ::
 
             {
-                'attr': {'format': ['n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']},
-                'results': {
-                    'Asterias rubens': [289, False, False, False, False, False, False, False, False, False],
-                    'Aurelia aurita': [381, False, False, False, False, False, False, False, False, True],
+                'attr': {
+                    'columns': ['Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']
+                },
+                'results': [
+                    ['Obelia dichotoma', 166, True, False, True, True, True, True, False, True, True],
+                    ['Obelia geniculata', 88, False, False, True, True, False, True, False, True, True],
                     ...
-                }
+                ]
             }
         """
         report = {
-            'attr': {'format': ['n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq']},
-            'results': {}
+            'attr': {'columns': ['Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq']},
+            'results': []
         }
         for result in results:
             species_selection = [s for s in result.species_selections[0].values()]
@@ -299,11 +301,9 @@ class BeginBatch(Begin):
             # significant.
             for b in bools:
                 if b:
-                    report['results'][species] = []
-                    # Add the plate numbers.
-                    report['results'][species].append(wilcoxon['attr']['n_plates'])
-                    # Add the booleans.
-                    report['results'][species].extend(bools)
+                    row = [species, wilcoxon['attr']['n_plates']]
+                    row.extend(bools)
+                    report['results'].append(row)
                     break
 
         return report
@@ -325,10 +325,11 @@ class BeginBatch(Begin):
 
         # Create a report object from the dictionary.
         report = setlyze.report.Report()
-        report.set_statistics('spot_preference_batch', summary)
+        report.set_statistics('plate_areas_summary', summary)
 
         # Display the report.
-        setlyze.gui.Report(report, "Results")
+        w = setlyze.gui.Report(report, "Results")
+        w.set_size_request(700, 500)
 
 class Analysis(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 1.
@@ -732,7 +733,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     "are not equal. This indicates an error in the algorithm.")
 
             # A minimum of two positive spots totals are required for the
-            # significance test. So skip this spots number if it's less.
+            # significance test. So skip this plate area if it's less.
             if count_observed < 2:
                 continue
 

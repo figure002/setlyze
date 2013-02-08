@@ -2394,9 +2394,13 @@ class Report(gtk.Window):
             for stats in self.report.statistics['chi_squared_ratios']:
                 self.add_statistics_chisq_ratios(stats)
 
-        if 'spot_preference_batch' in self.report.statistics:
-            for stats in self.report.statistics['spot_preference_batch']:
-                self.add_statistics_spot_preference_batch(stats)
+        if 'plate_areas_summary' in self.report.statistics:
+            for stats in self.report.statistics['plate_areas_summary']:
+                self.add_plate_areas_summary(stats)
+
+        if 'positive_spots_summary' in self.report.statistics:
+            for stats in self.report.statistics['positive_spots_summary']:
+                self.add_positive_spots_summary(stats)
 
     def add_title_header(self, analysis_name):
         """Add a header text to the report dialog.
@@ -3129,7 +3133,7 @@ class Report(gtk.Window):
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
 
-    def add_statistics_spot_preference_batch(self, statistics):
+    def add_plate_areas_summary(self, statistics):
         """Add a summary report for spot preference to the displayer.
 
         This report cannot be combined with other report elements in the
@@ -3138,12 +3142,14 @@ class Report(gtk.Window):
         Data is passed in the following format ::
 
             {
-                'attr': {'format': ['n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']},
-                'results': {
-                    'Asterias rubens': [289, False, False, False, False, False, False, False, False, False],
-                    'Aurelia aurita': [381, False, False, False, False, False, False, False, False, True],
+                'attr': {
+                    'columns': ['Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']
+                },
+                'results': [
+                    ['Obelia dichotoma', 166, True, False, True, True, True, True, False, True, True],
+                    ['Obelia geniculata', 88, False, False, True, True, False, True, False, True, True],
                     ...
-                }
+                ]
             }
         """
         scrolled_window = gtk.ScrolledWindow()
@@ -3152,7 +3158,7 @@ class Report(gtk.Window):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 500)
+        tree.set_size_request(-1, -1)
         tree.set_rules_hint(True)
 
         # Create cell renderers.
@@ -3160,11 +3166,10 @@ class Report(gtk.Window):
         render_toggle = gtk.CellRendererToggle()
 
         # Add columns to the tree view.
-        column_names = ['Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq']
+        column_names = statistics['attr']['columns']
         for i, name in enumerate(column_names):
             if i > 1:
-                column = gtk.TreeViewColumn(name, render_toggle)
-                column.add_attribute(render_toggle, "active", i)
+                column = gtk.TreeViewColumn(name, render_toggle, active=i)
             else:
                 column = gtk.TreeViewColumn(name, render_text, text=i)
             column.set_sort_column_id(i)
@@ -3186,10 +3191,117 @@ class Report(gtk.Window):
             gobject.TYPE_BOOLEAN,
         )
 
-        for species, row in statistics['results'].iteritems():
-            items = [species]
-            items.extend(row)
-            liststore.append(items)
+        for row in statistics['results']:
+            liststore.append(row)
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+
+    def add_positive_spots_summary(self, statistics):
+        """Add a summary report for spot preference to the displayer.
+
+        This report cannot be combined with other report elements in the
+        in the displayer.
+
+        Data is passed in the following format ::
+
+            {
+                'attr': {
+                    'columns': ['Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24']
+                },
+                'results': [
+                    ['Obelia dichotoma', 143, True, False, False, False, False, False, True, True, False, False, False, False, False, False, False, True, False, False, None, False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, False, True, False, True, True, True, False, False, None, False, False, False, False, False],
+                    ['Obelia geniculata', 62, True, False, False, True, False, False, False, False, False, None, False, True, True, None, True, True, None, None, None, None, None, None, None, None, True, True, False, True, False, False, False, True, True, None, True, True, True, None, True, True, None, None, None, None, None, None, None, None],
+                    ...
+                ]
+            }
+        """
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, -1)
+        tree.set_rules_hint(True)
+
+        # Create cell renderers.
+        render_text = gtk.CellRendererText()
+        render_toggle = gtk.CellRendererToggle()
+
+        # Add columns to the tree view.
+        column_names = statistics['attr']['columns']
+        for i, name in enumerate(column_names):
+            if i > 1:
+                column = gtk.TreeViewColumn(name, render_toggle, active=i)
+            else:
+                column = gtk.TreeViewColumn(name, render_text, text=i)
+            column.set_sort_column_id(i)
+            if i == 0: column.set_expand(True)
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+        )
+
+        for row in statistics['results']:
+            liststore.append(row)
 
         # Set the tree model.
         tree.set_model(liststore)
