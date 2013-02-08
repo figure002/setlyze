@@ -27,7 +27,7 @@ import xml.dom.minidom
 from sqlite3 import dbapi2 as sqlite
 
 import setlyze.config
-import setlyze.std
+from setlyze.std import make_remarks
 
 __author__ = "Serrano Pereira"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
@@ -42,7 +42,7 @@ def export(report, path, type, elements=None):
     """Save the data from a :class:`Report` object `reader` to a data file.
 
     The file is saved to `path` in a format specified by `type`. Possible
-    values for `type` are ``xml``, ``txt`` or ``latex``. The report elements
+    values for `type` are ``xml``, ``rst`` or ``latex``. The report elements
     to be exported are specified by `elements`.
 
     .. todo::
@@ -60,12 +60,12 @@ def export(report, path, type, elements=None):
         dom_report = DOMReport(report)
         dom_report.export_xml(path, elements)
 
-    elif type == 'txt':
+    elif type == 'rst':
         # Add the extension if it's missing from the filename.
-        if not path.endswith(".txt"):
-            path += ".txt"
-        exporter = ExportTextReport(report)
-        exporter.export(path, elements)
+        if not path.endswith(".rst"):
+            path += ".rst"
+        exporter = ExportRstReport(report)
+        exporter.export(path)
 
     elif type == 'latex':
         # Add the extension if it's missing from the filename.
@@ -667,9 +667,9 @@ class DOMReport(object):
                         <name_latin>
                             Ectopleura larynx
                         </name_latin>
-                        <name_venacular>
+                        <name_common>
                             Gorgelpijp
-                        </name_venacular>
+                        </name_common>
                     </species>
                 </selection>
                 <selection slot="1">
@@ -677,9 +677,9 @@ class DOMReport(object):
                         <name_latin>
                             Metridium senile
                         </name_latin>
-                        <name_venacular>
+                        <name_common>
                             Zeeanjelier
-                        </name_venacular>
+                        </name_common>
                     </species>
                 </selection>
             </species_selections>
@@ -721,7 +721,7 @@ class DOMReport(object):
             for row in cursor:
                 self.create_element(parent=spe_selection_element,
                     name="species",
-                    child_elements={'name_venacular': row[1],'name_latin': row[2]},
+                    child_elements={'name_common': row[1],'name_latin': row[2]},
                     attributes={'id':row[0]}
                     )
 
@@ -1223,13 +1223,13 @@ class DOMReportConvert(object):
 
         This is a generator, meaning that this function returns an
         iterator. This iterator returns dictionaries in the format
-        ``{'name_latin': <value>, 'name_venacular': <value>}``.
+        ``{'name_latin': <value>, 'name_common': <value>}``.
 
         Usage example: ::
 
             species_selection = reader.get_species_selection(slot=0)
             for spe in species_selection:
-                print spe['name_latin'], spe['name_venacular']
+                print spe['name_latin'], spe['name_common']
         """
         species_selection = None
 
@@ -1543,19 +1543,22 @@ class ExportLatexReport(object):
     def export(self, path, elements=None):
         pass
 
-class ExportTextReport(object):
-    """Generate an analysis report in text format.
+class ExportRstReport(object):
+    """Export an analysis report in reStructuredText format.
 
-    .. todo::
-       Make this work with the new report model.
+    The input is a :class:`Report` object.
     """
 
-    def __init__(self, reader = None):
-        self.set_report_reader(reader)
+    def __init__(self, report):
+        self.report = None
+        self.set_report(report)
 
-    def set_report_reader(self, reader):
-        """Set the report reader."""
-        self.reader = reader
+    def set_report(self, report):
+        """Set the report object `report`."""
+        if isinstance(report, setlyze.report.Report):
+            self.report = report
+        else:
+            ValueError("Report must be an instance of setlyze.report.Report")
 
     def part(self, header):
         """Return `header` marked up as a header for parts in
@@ -1602,7 +1605,7 @@ class ExportTextReport(object):
         text = text.replace('<hr>', "^"*len(header))
         return text
 
-    def table(self, headers):
+    def table(self, headers, minimum_col_length = 1):
         """Return a table header with column names from `headers` in
         reStructuredText format.
 
@@ -1612,11 +1615,18 @@ class ExportTextReport(object):
         header_lengths = []
         header_placeholders = []
         row_placeholders = []
-        predefined_lengths = {"df": 6,
+
+        predefined_lengths = {
+            "df": 6,
             "Remarks": 40,
+            "Species": 50,
+            "Species A": 50,
+            "Species B": 50,
             "W": 6,
-            }
-        predefined_fields = {"Plate Area": "%%-%ds",
+        }
+
+        predefined_fields = {
+            "Plate Area": "%%-%ds",
             "Area ID": "%%-%ds",
             "P-value": "%%%d.4f",
             "Chi squared": "%%%d.4f",
@@ -1625,7 +1635,10 @@ class ExportTextReport(object):
             "Mean Observed": "%%%d.4f",
             "Mean Expected": "%%%d.4f",
             "Remarks": "%%-%ds",
-            }
+            "Species": "%%-%ds",
+            "Species A": "%%-%ds",
+            "Species B": "%%-%ds",
+        }
 
         # Generate a placeholder strings for the column names and the fields.
         for name in headers:
@@ -1633,6 +1646,9 @@ class ExportTextReport(object):
                 length = len(name)
             else:
                 length = predefined_lengths[name]
+
+            if length < minimum_col_length:
+                length = minimum_col_length
 
             # Save the lengths of all column names. This is needed for
             # generating the table rules.
@@ -1677,432 +1693,445 @@ class ExportTextReport(object):
             format.append("="*n)
         return "  ".join(format) + "\n"
 
-    def generate(self, elements=None):
-        """Generate analysis report in text format."""
+    def get_lines(self):
+        """Return the analysis report in reStructuredText format."""
 
-        # Get the child element names of the report root.
-        report_elements = self.reader.get_child_names()
+        # Title
+        analysis_name = getattr(self.report, 'analysis_name', None)
+        if analysis_name:
+            yield self.part("SETLyze Analysis Report - %s" % analysis_name)
+        else:
+            yield self.part("SETLyze Analysis Report")
 
-        # Add the child element names of the 'statistics' element to the
-        # list of root element names.
-        stats = self.reader.get_element(self.reader.doc, 'statistics')
-        if stats:
-            report_elements.extend(self.reader.get_child_names(stats))
+        # Locations and species selections
+        locations_selections = getattr(self.report, 'locations_selections', None)
+        species_selections = getattr(self.report, 'species_selections', None)
+        if locations_selections and species_selections:
+            for line in self.add_selections(locations_selections, species_selections):
+                yield line
 
-        # If 'elements' argument was provided, create a new 'report_elements'
-        # list containing only the elements that are present in both lists.
-        report_elements_new = []
-        if elements:
-            for element in elements:
-                for r_element in report_elements:
-                    # Now check if string 'element' is part of string
-                    # r_element. Note that they don't have to be exactly the
-                    # same, e.g. if 'spot_distances' is present in 'elements',
-                    # both 'spot_distances_observed' and
-                    # 'spot_distances_expected' will be added to
-                    # 'report_elements_new'.
-                    if element in r_element:
-                        report_elements_new.append(r_element)
-            report_elements = report_elements_new
+        # Plate areas definition
+        plate_areas_definition = getattr(self.report, 'plate_areas_definition', None)
+        if plate_areas_definition:
+            for line in self.add_plate_areas_definition(plate_areas_definition):
+                yield line
 
-        # Write the header for the report which includes the analysis
-        # name.
-        header = "SETLyze Analysis Report - %s" % self.reader.get_analysis_name()
-        yield self.part(header)
+        # Species Totals per Plate Area
+        area_totals_observed = getattr(self.report, 'area_totals_observed', None)
+        area_totals_expected = getattr(self.report, 'area_totals_expected', None)
+        if area_totals_observed and area_totals_expected:
+            for line in self.add_area_totals(area_totals_observed,area_totals_expected):
+                yield line
 
-        # Add species selections.
-        if 'species_selections' in report_elements:
-            yield self.section("Locations and Species Selections")
+        # chi_squared_areas
+        chi_squared_areas = self.report.statistics.get('chi_squared_areas', [])
+        for stats in chi_squared_areas:
+            for line in self.add_statistics_chisq_areas(stats):
+                yield line
 
-            species_selection = self.reader.get_species_selection(slot=0)
-            yield self.subsection("Species Selection [1]")
-            for spe in species_selection:
-                if not len(spe['name_latin']):
-                    yield "* %s\n" % (spe['name_venacular'])
-                elif not len(spe['name_venacular']):
-                    yield "* %s\n" % (spe['name_latin'])
+        # wilcoxon_spots
+        wilcoxon_spots = self.report.statistics.get('wilcoxon_spots', [])
+        for stats in wilcoxon_spots:
+            for line in self.add_statistics_wilcoxon_spots(stats):
+                yield line
+
+        # wilcoxon_spots_repeats
+        wilcoxon_spots_repeats = self.report.statistics.get('wilcoxon_spots_repeats', [])
+        for stats in wilcoxon_spots_repeats:
+            for line in self.add_statistics_repeats_spots(stats):
+                yield line
+
+        # wilcoxon_ratios
+        wilcoxon_ratios = self.report.statistics.get('wilcoxon_ratios', [])
+        for stats in wilcoxon_ratios:
+            for line in self.add_statistics_wilcoxon_ratios(stats):
+                yield line
+
+        # wilcoxon_ratios_repeats
+        wilcoxon_ratios_repeats = self.report.statistics.get('wilcoxon_ratios_repeats', [])
+        for stats in wilcoxon_ratios_repeats:
+            for line in self.add_statistics_repeats_ratios(stats):
+                yield line
+
+        # wilcoxon_areas
+        wilcoxon_areas = self.report.statistics.get('wilcoxon_areas', [])
+        for stats in wilcoxon_areas:
+            for line in self.add_statistics_wilcoxon_areas(stats):
+                yield line
+
+        # wilcoxon_areas_repeats
+        wilcoxon_areas_repeats = self.report.statistics.get('wilcoxon_areas_repeats', [])
+        for stats in wilcoxon_areas_repeats:
+            for line in self.add_statistics_repeats_areas(stats):
+                yield line
+
+        # chi_squared_spots
+        chi_squared_spots = self.report.statistics.get('chi_squared_spots', [])
+        for stats in chi_squared_spots:
+            for line in self.add_statistics_chisq_spots(stats):
+                yield line
+
+        # chi_squared_ratios
+        chi_squared_ratios = self.report.statistics.get('chi_squared_ratios', [])
+        for stats in chi_squared_ratios:
+            for line in self.add_statistics_chisq_ratios(stats):
+                yield line
+
+        # plate_areas_summary
+        plate_areas_summary = self.report.statistics.get('plate_areas_summary', [])
+        for stats in plate_areas_summary:
+            for line in self.add_batch_summary(stats, "Spot Preference"):
+                yield line
+
+        # positive_spots_summary
+        positive_spots_summary = self.report.statistics.get('positive_spots_summary', [])
+        for stats in positive_spots_summary:
+            for line in self.add_batch_summary(stats, "Attraction within Species"):
+                yield line
+
+        # ratio_groups_summary
+        ratio_groups_summary = self.report.statistics.get('ratio_groups_summary', [])
+        for stats in ratio_groups_summary:
+            for line in self.add_batch_summary(stats, "Attraction between Species"):
+                yield line
+
+    def add_selections(self, locations_selections, species_selections):
+        yield self.section("Locations and Species Selections")
+        for i, selection in enumerate(species_selections, start=1):
+            yield self.subsection("Species Selection (%d)" % i)
+            for spe_id, species in selection.iteritems():
+                if len(species['name_latin']) ==  0:
+                    yield "- %s\n" % (species['name_common'])
+                elif len(species['name_common']) ==  0:
+                    yield "- *%s*\n" % (species['name_latin'])
                 else:
-                    yield "* %s (%s)\n" % (spe['name_latin'], spe['name_venacular'])
+                    yield "- *%s* (%s)\n" % (species['name_latin'], species['name_common'])
 
-            if len(list(self.reader.get_species_selection(slot=1))):
-                species_selection = self.reader.get_species_selection(slot=1)
-                yield self.subsection("Species Selection [2]")
-                for spe in species_selection:
-                    if not len(spe['name_latin']):
-                        yield "* %s\n" % (spe['name_venacular'])
-                    elif not len(spe['name_venacular']):
-                        yield "* %s\n" % (spe['name_latin'])
-                    else:
-                        yield "* %s (%s)\n" % (spe['name_latin'], spe['name_venacular'])
+        for i, selection in enumerate(locations_selections, start=1):
+            yield self.subsection("Locations Selection (%d)" % i)
+            for loc_id, loc in selection.iteritems():
+                yield "- %s\n" % loc['name']
 
-        # Add locations selections.
-        if 'location_selections' in report_elements:
-            yield self.subsection("Locations selection [1]")
-            locations_selection = self.reader.get_locations_selection(slot=0)
-            for loc in locations_selection:
-                yield "* %s\n" % loc['name']
+    def add_plate_areas_definition(self, definition):
+        yield self.section("Plate Areas Definition for Chi-squared Test")
+        t_header, t_row, t_footer = self.table(["Area ID","Plate Area Surfaces"])
+        yield t_header
+        for area_id, spots in sorted(definition.iteritems()):
+            spots = ", ".join(spots)
+            yield t_row % (area_id, spots)
+        yield t_footer
 
-            if len(list(self.reader.get_locations_selection(slot=1))):
-                yield self.subsection("Locations selection [2]")
-                locations_selection = self.reader.get_locations_selection(slot=1)
-                for loc in locations_selection:
-                    yield "* %s\n" % loc['name']
+    def add_area_totals(self, observed, expected):
+        yield self.section("Species Totals per Plate Area for Chi-squared Test")
 
-        # Add the spot distances.
-        if 'spot_distances_observed' in report_elements and \
-                'spot_distances_expected' in report_elements:
-            yield self.section("Spot Distances")
+        t_header, t_row, t_footer = self.table(["Area ID","Observed Totals",
+            "Expected Totals"])
+        yield t_header
+        for area_id in sorted(observed):
+            yield t_row % (
+                area_id,
+                observed[area_id],
+                expected[area_id],
+            )
+        yield t_footer
 
-            t_header, t_row, t_footer = self.table(["Observed","Expected"])
+    def add_statistics_wilcoxon_spots(self, statistics):
+        yield self.section(statistics['attr']['method'])
 
-            yield t_header
-            observed_distances = self.reader.get_spot_distances_observed()
-            expected_distances = self.reader.get_spot_distances_expected()
-            for dist_observed in observed_distances:
-                yield t_row % (dist_observed, expected_distances.next())
-            yield t_footer
+        t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
+        'n (distances)','P-value','Mean Observed','Mean Expected'])
 
-        # Add the plate areas definition.
-        if 'plate_areas_definition' in report_elements:
-            yield self.section(setlyze.locale.text('t-plate-areas-definition'))
+        yield t_header
+        for positive_spots,stats in statistics['results'].iteritems():
+            yield t_row % (
+                positive_spots,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['mean_observed'],
+                stats['mean_expected'],
+            )
+        yield t_footer
 
-            t_header, t_row, t_footer = self.table(["Area ID","Plate Area Surfaces"])
+        yield "\n(table continued)\n\n"
 
-            yield t_header
-            spots_definition = self.reader.get_plate_areas_definition()
-            for area_id, spots in sorted(spots_definition.iteritems()):
-                spots = ", ".join(spots)
-                yield t_row % (area_id, spots)
-            yield t_footer
+        t_header, t_row, t_footer = self.table(['Positive Spots','Remarks'])
 
-        # Add the species totals per plate area.
-        if 'area_totals_observed' in report_elements and \
-                'area_totals_expected' in report_elements:
-            yield self.section(setlyze.locale.text('t-plate-area-totals'))
+        yield t_header
+        for positive_spots,stats in statistics['results'].iteritems():
+            yield t_row % (
+                positive_spots,
+                make_remarks(stats, statistics['attr']),
+            )
+        yield t_footer
 
-            t_header, t_row, t_footer = self.table(["Area ID","Observed Totals",
-                "Expected Totals"])
+    def add_statistics_wilcoxon_ratios(self, statistics):
+        yield self.section(statistics['attr']['method'])
 
-            yield t_header
-            totals_observed = self.reader.get_area_totals_observed()
-            totals_expected = self.reader.get_area_totals_expected()
-            for area_id in sorted(totals_observed):
-                yield t_row % \
-                    (area_id,
-                    totals_observed[area_id],
-                    totals_expected[area_id],
-                    )
-            yield t_footer
-
-        # Add the results for the Chi-squared tests (areas).
-        if 'chi_squared_areas' in report_elements:
-            yield self.section(setlyze.locale.text('t-results-pearson-chisq'))
-
-            t_header, t_row, t_footer = self.table(['P-value','Chi squared','df',
-                'Remarks'])
-
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_areas')
-            for attr,items in statistics:
-                yield t_row % \
-                    (float(items['p_value']),
-                    float(items['chi_squared']),
-                    int(float(items['df'])),
-                    setlyze.std.make_remarks(items,attr),
-                    )
-            yield t_footer
-
-        # Add the results for the Wilcoxon (non-repreated, areas).
-        if 'wilcoxon_areas' in report_elements:
-            yield self.section(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
-
-            t_header, t_row, t_footer = self.table(['Plate Area','n (totals)',
-                'n (observed species)', 'n (expected species)', 'P-value'])
-
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_areas')
-            for attr,items in statistics:
-                remarks = setlyze.std.make_remarks(items,attr)
-                yield t_row % \
-                    (attr['plate_area'],
-                    int(attr['n']),
-                    int(attr['n_sp_observed']),
-                    int(attr['n_sp_expected']),
-                    float(items['p_value']),
-                    )
-            yield t_footer
-
-            yield "\n(table continued)\n\n"
-
-            t_header, t_row, t_footer = self.table(['Plate Area','Mean Observed',
-                'Mean Expected','Remarks'])
-
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_areas')
-            for attr,items in statistics:
-                yield t_row % \
-                    (attr['plate_area'],
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    setlyze.std.make_remarks(items,attr),
-                    )
-            yield t_footer
-
-            # Add the results for the repeated Wilcoxon rank-sum tests.
-            if 'wilcoxon_areas_repeats' in report_elements:
-                yield self.section(setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'))
-
-                t_header, t_row, t_footer = self.table(['Plate Area','n (totals)',
-                    'n (observed species)','n (significant)',
-                    'n (non-significant)'])
-
-                yield t_header
-                statistics = self.reader.get_statistics('wilcoxon_areas')
-                statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_areas')
-                for attr,items in statistics:
-                    plate_area = attr['plate_area']
-                    remarks = setlyze.std.make_remarks(items,attr)
-                    yield t_row % \
-                        (plate_area,
-                        int(attr['n']),
-                        int(attr['n_sp_observed']),
-                        int(statistics_repeats[plate_area]['n_significant']),
-                        int(int(statistics_repeats['repeats']) - int(statistics_repeats[plate_area]['n_significant'])),
-                        )
-                yield t_footer
-
-                yield "\n(table continued)\n\n"
-
-                t_header, t_row, t_footer = self.table(['Plate Area','n (preference)',
-                    'n (rejection)'])
-
-                yield t_header
-                statistics = self.reader.get_statistics('wilcoxon_areas')
-                statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_areas')
-                for attr,items in statistics:
-                    plate_area = attr['plate_area']
-                    yield t_row % \
-                        (plate_area,
-                        int(statistics_repeats[plate_area]['n_preference']),
-                        int(statistics_repeats[plate_area]['n_rejection']),
-                        )
-                yield t_footer
-
-        # Add the results for the Wilcoxon (non-repreated, spots).
-        if 'wilcoxon_spots' in report_elements:
-            yield self.section(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
-
-            t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
+        t_header, t_row, t_footer = self.table(['Ratio Group','n (plates)',
             'n (distances)','P-value','Mean Observed','Mean Expected'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_spots')
-            for attr,items in statistics:
-                yield t_row % \
-                    (attr['n_positive_spots'],
-                    attr['n_plates'],
-                    attr['n'],
-                    float(items['p_value']),
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    )
-            yield t_footer
+        yield t_header
+        for ratio_group,stats in statistics['results'].iteritems():
+            yield t_row % (
+                ratio_group,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['mean_observed'],
+                stats['mean_expected'],
+            )
+        yield t_footer
 
-            yield "\n(table continued)\n\n"
+        yield "\n(table continued)\n\n"
 
-            t_header, t_row, t_footer = self.table(['Positive Spots','Remarks'])
+        t_header, t_row, t_footer = self.table(['Ratio Group','Remarks'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_spots')
-            for attr,items in statistics:
-                yield t_row % \
-                    (attr['n_positive_spots'],
-                    setlyze.std.make_remarks(items,attr)
-                    )
-            yield t_footer
+        yield t_header
+        for ratio_group,stats in statistics['results'].iteritems():
+            yield t_row % (
+                ratio_group,
+                make_remarks(stats, statistics['attr']),
+            )
+        yield t_footer
 
-        # Add the results for the Wilcoxon (non-repreated, spots).
-        if 'wilcoxon_spots_repeats' in report_elements:
-            yield self.section(setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'))
+    def add_statistics_wilcoxon_areas(self, statistics):
+        """Add the statistic results to the report dialog."""
+        yield self.section(statistics['attr']['method'])
 
-            t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
-            'n (distances)','n (significant)','n (non-significant)'])
+        t_header, t_row, t_footer = self.table(['Plate Area','n (totals)',
+            'n (observed species)', 'n (expected species)', 'P-value'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_spots')
-            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_spots')
-            for attr,items in statistics:
-                n_spots = attr['n_positive_spots']
-                yield t_row % \
-                    (n_spots,
-                    int(attr['n_plates']),
-                    int(attr['n']),
-                    int(statistics_repeats[n_spots]['n_significant']),
-                    int(int(statistics_repeats['repeats']) - int(statistics_repeats[n_spots]['n_significant'])),
-                    )
-            yield t_footer
+        yield t_header
+        for area, stats in statistics['results'].iteritems():
+            yield t_row % (
+                area,
+                stats['n_values'],
+                stats['n_sp_observed'],
+                stats['n_sp_expected'],
+                stats['p_value'],
+            )
+        yield t_footer
 
-            yield "\n(table continued)\n\n"
+        yield "\n(table continued)\n\n"
 
-            t_header, t_row, t_footer = self.table(['Positive Spots','n (attraction)',
-                'n (repulsion)'])
+        t_header, t_row, t_footer = self.table(['Plate Area','Mean Observed',
+            'Mean Expected','Remarks'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_spots')
-            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_spots')
-            for attr,items in statistics:
-                n_spots = attr['n_positive_spots']
-                yield t_row % \
-                    (n_spots,
-                    int(statistics_repeats[n_spots]['n_attraction']),
-                    int(statistics_repeats[n_spots]['n_repulsion']),
-                    )
-            yield t_footer
+        yield t_header
+        for area, stats in statistics['results'].iteritems():
+            yield t_row % (
+                area,
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+            )
+        yield t_footer
 
-        # Add the results for the Wilcoxon (non-repreated, ratios).
-        if 'wilcoxon_ratios' in report_elements:
-            yield self.section(setlyze.locale.text('t-results-wilcoxon-rank-sum'))
+    def add_statistics_chisq_spots(self, statistics):
+        yield self.section(statistics['attr']['method'])
 
-            t_header, t_row, t_footer = self.table(['Ratio Group','n (plates)',
-                'n (distances)','P-value','Mean Observed','Mean Expected'])
+        t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
+        'n (distances)','P-value','Chi squared','df'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_ratios')
-            for attr,items in statistics:
-                yield t_row % \
-                    (int(attr['ratio_group']),
-                    int(attr['n_plates']),
-                    int(attr['n']),
-                    float(items['p_value']),
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    )
-            yield t_footer
+        yield t_header
+        for positive_spots,stats in statistics['results'].iteritems():
+            yield t_row % (
+                positive_spots,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['chi_squared'],
+                stats['df'],
+            )
+        yield t_footer
 
-            yield "\n(table continued)\n\n"
+        yield "\n(table continued)\n\n"
 
-            t_header, t_row, t_footer = self.table(['Ratio Group','Remarks'])
+        t_header, t_row, t_footer = self.table(['Positive Spots','Mean Observed',
+            'Mean Expected','Remarks'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_ratios')
-            for attr,items in statistics:
-                yield t_row % \
-                    (int(attr['ratio_group']),
-                    setlyze.std.make_remarks(items,attr)
-                    )
-            yield t_footer
+        yield t_header
+        for positive_spots,stats in statistics['results'].iteritems():
+            yield t_row % (
+                positive_spots,
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+            )
+        yield t_footer
 
-        # Add the results for the Wilcoxon (non-repreated, spots).
-        if 'wilcoxon_ratios_repeats' in report_elements:
-            yield self.section(setlyze.locale.text('t-significance-results-repeats', 'Wilcoxon'))
+    def add_statistics_chisq_areas(self, statistics):
+        yield self.section(statistics['attr']['method'])
 
-            t_header, t_row, t_footer = self.table(['Ratio Group','n (plates)',
-            'n (distances)','n (significant)','n (non-significant)'])
+        t_header, t_row, t_footer = self.table(['P-value','Chi squared','df',
+            'Remarks'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_ratios')
-            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_ratios')
-            for attr,items in statistics:
-                ratio_group = attr['ratio_group']
-                yield t_row % \
-                    (ratio_group,
-                    int(attr['n_plates']),
-                    int(attr['n']),
-                    int(statistics_repeats[ratio_group]['n_significant']),
-                    int(int(statistics_repeats['repeats']) - int(statistics_repeats[ratio_group]['n_significant'])),
-                    )
-            yield t_footer
+        yield t_header
+        yield t_row % (
+            statistics['results']['p_value'],
+            statistics['results']['chi_squared'],
+            statistics['results']['df'],
+            make_remarks(statistics['results'],statistics['attr']),
+        )
+        yield t_footer
 
-            yield "\n(table continued)\n\n"
+    def add_statistics_chisq_ratios(self, statistics):
+        yield self.section(statistics['attr']['method'])
 
-            t_header, t_row, t_footer = self.table(['Ratio Group','n (attraction)',
-                'n (repulsion)'])
+        t_header, t_row, t_footer = self.table(('Ratio Group','n (plates)',
+            'n (distances)','P-value','Chi squared','df'))
 
-            yield t_header
-            statistics = self.reader.get_statistics('wilcoxon_ratios')
-            statistics_repeats = self.reader.get_statistics_repeats('wilcoxon_ratios')
-            for attr,items in statistics:
-                ratio_group = attr['ratio_group']
-                yield t_row % \
-                    (ratio_group,
-                    int(statistics_repeats[ratio_group]['n_attraction']),
-                    int(statistics_repeats[ratio_group]['n_repulsion']),
-                    )
-            yield t_footer
+        yield t_header
+        for ratio_group, stats in statistics['results'].iteritems():
+            yield t_row % (
+                ratio_group,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['p_value'],
+                stats['chi_squared'],
+                stats['df'],
+            )
+        yield t_footer
 
-        # Add the results for the Chi-squared tests (spots).
-        if 'chi_squared_spots' in report_elements:
-            yield self.section(setlyze.locale.text('t-results-pearson-chisq'))
+        yield "\n(table continued)\n\n"
 
-            t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
-            'n (distances)','P-value','Chi squared','df'])
+        t_header, t_row, t_footer = self.table(['Ratio Group','Mean Observed',
+            'Mean Expected','Remarks'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_spots')
-            for attr,items in statistics:
-                yield t_row % \
-                    (int(attr['n_positive_spots']),
-                    int(attr['n_plates']),
-                    int(attr['n']),
-                    float(items['p_value']),
-                    float(items['chi_squared']),
-                    int(float(items['df'])),
-                    )
-            yield t_footer
+        yield t_header
+        for ratio_group, stats in statistics['results'].iteritems():
+            yield t_row % (
+                ratio_group,
+                stats['mean_observed'],
+                stats['mean_expected'],
+                make_remarks(stats, statistics['attr']),
+                )
+        yield t_footer
 
-            yield "\n(table continued)\n\n"
+    def add_statistics_repeats_areas(self, statistics):
+        yield self.section("%s (repeated)" % statistics['attr']['method'])
 
-            t_header, t_row, t_footer = self.table(['Positive Spots','Mean Observed',
-                'Mean Expected','Remarks'])
+        t_header, t_row, t_footer = self.table(['Plate Area','n (totals)',
+            'n (observed species)','n (significant)',
+            'n (non-significant)'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_spots')
-            for attr,items in statistics:
-                yield t_row % \
-                    (attr['n_positive_spots'],
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    setlyze.std.make_remarks(items,attr))
-            yield t_footer
+        yield t_header
+        for plate_area, stats in statistics['results'].iteritems():
+            yield t_row % (
+                plate_area,
+                stats['n_values'],
+                stats['n_sp_observed'],
+                stats['n_significant'],
+                statistics['attr']['repeats'] - stats['n_significant'],
+            )
+        yield t_footer
 
-        # Add the results for the Chi-squared tests (ratios).
-        if 'chi_squared_ratios' in report_elements:
-            yield self.section(setlyze.locale.text('t-results-pearson-chisq'))
+        yield "\n(table continued)\n\n"
 
-            t_header, t_row, t_footer = self.table(('Ratio Group','n (plates)',
-                'n (distances)','P-value','Chi squared','df'))
+        t_header, t_row, t_footer = self.table(['Plate Area','n (preference)',
+            'n (rejection)'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_ratios')
-            for attr,items in statistics:
-                yield t_row % \
-                    (int(attr['ratio_group']),
-                    int(attr['n_plates']),
-                    int(attr['n']),
-                    float(items['p_value']),
-                    float(items['chi_squared']),
-                    int(float(items['df'])),
-                    )
-            yield t_footer
+        yield t_header
+        for plate_area, stats in statistics['results'].iteritems():
+            yield t_row % (
+                plate_area,
+                stats['n_preference'],
+                stats['n_rejection'],
+            )
+        yield t_footer
 
-            yield "\n(table continued)\n\n"
+    def add_statistics_repeats_spots(self, statistics):
+        yield self.section("%s (repeated)" % statistics['attr']['method'])
 
-            t_header, t_row, t_footer = self.table(['Ratio Group','Mean Observed',
-                'Mean Expected','Remarks'])
+        t_header, t_row, t_footer = self.table(['Positive Spots','n (plates)',
+        'n (distances)','n (significant)','n (non-significant)'])
 
-            yield t_header
-            statistics = self.reader.get_statistics('chi_squared_ratios')
-            for attr,items in statistics:
-                yield t_row % \
-                    (attr['ratio_group'],
-                    float(items['mean_observed']),
-                    float(items['mean_expected']),
-                    setlyze.std.make_remarks(items,attr)
-                    )
-            yield t_footer
+        yield t_header
+        for positive_spots, stats in statistics['results'].iteritems():
+            yield t_row % (
+                positive_spots,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['n_significant'],
+                statistics['attr']['repeats'] - stats['n_significant'],
+            )
+        yield t_footer
+
+        yield "\n(table continued)\n\n"
+
+        t_header, t_row, t_footer = self.table(['Positive Spots','n (attraction)',
+            'n (repulsion)'])
+
+        yield t_header
+        for positive_spots, stats in statistics['results'].iteritems():
+            yield t_row % (
+                positive_spots,
+                stats['n_attraction'],
+                stats['n_repulsion'],
+            )
+        yield t_footer
+
+    def add_statistics_repeats_ratios(self, statistics):
+        yield self.section("%s (repeated)" % statistics['attr']['method'])
+
+        t_header, t_row, t_footer = self.table(['Ratio Group','n (plates)',
+        'n (distances)','n (significant)','n (non-significant)'])
+
+        yield t_header
+        for ratio_group, stats in statistics['results'].iteritems():
+            yield t_row % (
+                ratio_group,
+                stats['n_plates'],
+                stats['n_values'],
+                stats['n_significant'],
+                statistics['attr']['repeats'] - stats['n_significant'],
+            )
+        yield t_footer
+
+        yield "\n(table continued)\n\n"
+
+        t_header, t_row, t_footer = self.table(['Ratio Group','n (attraction)',
+            'n (repulsion)'])
+
+        yield t_header
+        for ratio_group, stats in statistics['results'].iteritems():
+            yield t_row % (
+                ratio_group,
+                stats['n_attraction'],
+                stats['n_repulsion'],
+                )
+        yield t_footer
+
+    def add_batch_summary(self, statistics, title):
+        yield self.section("Batch summary - %s" % title)
+
+        t_header, t_row, t_footer = self.table(statistics['attr']['columns'])
+
+        # Figure out which columns display species names.
+        species_cols = []
+        for col,val in enumerate(statistics['attr']['columns']):
+            if "Species" in val:
+                species_cols.append(col)
+
+        yield t_header
+        for row in statistics['results']:
+            c_row = []
+            for col,val in enumerate(row):
+                if val == True:
+                    c_row.append('y')
+                elif val == False:
+                    c_row.append('n')
+                elif val == None:
+                    c_row.append('')
+                elif col in species_cols:
+                    c_row.append("*%s*" % val)
+                else:
+                    c_row.append(val)
+            yield t_row % tuple(c_row)
+        yield t_footer
 
     def export(self, path, elements=None):
         f = open(path, 'w')
-        f.writelines(self.generate(elements))
+        f.writelines(self.get_lines())
         f.close()
-

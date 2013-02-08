@@ -2149,8 +2149,8 @@ class Report(gtk.Window):
 
     def __init__(self, report, header=None):
         super(Report, self).__init__()
-
-        self.report = report
+        self.report = None
+        self.set_report(report)
         self.set_title("Analysis Report")
         self.set_size_request(600, 500)
         self.set_border_width(0)
@@ -2168,6 +2168,13 @@ class Report(gtk.Window):
 
         # Display all widgets.
         self.show_all()
+
+    def set_report(self, report):
+        """Set the report object `report`."""
+        if isinstance(report, setlyze.report.Report):
+            self.report = report
+        else:
+            ValueError("Report must be an instance of setlyze.report.Report")
 
     def create_layout(self):
         """Construct the layout for the dialog."""
@@ -2281,9 +2288,9 @@ class Report(gtk.Window):
         xml_filter.add_mime_type("text/xml")
         xml_filter.add_pattern("*.xml")
 
-        txt_filter = gtk.FileFilter()
-        txt_filter.set_name("Plain Text Document (*.txt)")
-        txt_filter.add_pattern("*.txt")
+        rst_filter = gtk.FileFilter()
+        rst_filter.set_name("reStructuredText (*.rst)")
+        rst_filter.add_pattern("*.rst")
 
         tex_filter = gtk.FileFilter()
         tex_filter.set_name("LaTeX Document (*.tex, *.latex)")
@@ -2292,9 +2299,9 @@ class Report(gtk.Window):
         tex_filter.add_pattern("*.tex")
         tex_filter.add_pattern("*.latex")
 
-        chooser.add_filter(txt_filter)
+        chooser.add_filter(rst_filter)
         #chooser.add_filter(tex_filter)
-        chooser.add_filter(xml_filter)
+        #chooser.add_filter(xml_filter)
 
         response = chooser.run()
         if response == gtk.RESPONSE_OK:
@@ -2304,38 +2311,28 @@ class Report(gtk.Window):
             # Get the name of the selected file type.
             filter_name = chooser.get_filter().get_name()
 
-            # Close the filechooser.
-            chooser.destroy()
-
             # File type = XML
             if "*.xml" in filter_name:
-                setlyze.report.export(self.reader, path, 'xml')
+                setlyze.report.export(self.report, path, 'xml')
 
-            # File type = text
-            elif "*.txt" in filter_name:
-                # Let the user select which elements to export.
-                dialog = SelectExportElements(self.reader)
-                response = dialog.run()
-
-                # Export the selected report elements.
-                if response == gtk.RESPONSE_ACCEPT:
-                    setlyze.report.export(self.reader, path, 'txt',
-                        dialog.get_selected_elements())
-                dialog.destroy()
+            # File type = reStructuredText
+            elif "*.rst" in filter_name:
+                setlyze.report.export(self.report, path, 'rst')
 
             # File type = LaTeX
             elif "*.tex" in filter_name:
                 # Let the user select which elements to export.
-                dialog = SelectExportElements(self.reader)
+                dialog = SelectExportElements(self.report)
                 response = dialog.run()
 
                 # Export the selected report elements.
                 if response == gtk.RESPONSE_ACCEPT:
-                    setlyze.report.export(self.reader, path, 'latex',
+                    setlyze.report.export(self.report, path, 'latex',
                         dialog.get_selected_elements())
                 dialog.destroy()
-        else:
-            chooser.destroy()
+
+        # Close the filechooser.
+        chooser.destroy()
 
     def add_report_elements(self):
         """Add the report elements present in the XML DOM object to the
@@ -2957,7 +2954,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("%s (repeats)" % statistics['attr']['method'])
+        expander = gtk.Expander("%s (repeated)" % statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -3020,7 +3017,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("%s (repeats)" % statistics['attr']['method'])
+        expander = gtk.Expander("%s (repeated)" % statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -3083,7 +3080,7 @@ class Report(gtk.Window):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("%s (repeats)" % statistics['attr']['method'])
+        expander = gtk.Expander("%s (repeated)" % statistics['attr']['method'])
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
