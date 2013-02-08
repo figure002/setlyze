@@ -139,7 +139,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
     def on_select_locations(self, obj=None, data=None):
         """Display the window for selecting the locations."""
-        select = setlyze.gui.SelectLocations(width=370, slot=0)
+        select = setlyze.gui.SelectLocations(slot=0)
         select.set_title(setlyze.locale.text('analysis2'))
         select.set_description(setlyze.locale.text('select-locations') + "\n" +
             setlyze.locale.text('option-change-source') + "\n\n" +

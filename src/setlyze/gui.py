@@ -598,7 +598,7 @@ class SelectionWindow(gtk.Window):
         self.set_save_slot(slot)
 
         self.set_title(title)
-        self.set_size_request(self.width, 400)
+        self.set_size_request(self.width, 500)
         self.set_border_width(0)
         self.set_resizable(True)
         self.set_keep_above(False)

@@ -185,7 +185,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         """Display the window for selecting the locations."""
 
         # Display the species selection window.
-        select = setlyze.gui.SelectLocations(width=370, slot=0)
+        select = setlyze.gui.SelectLocations(slot=0)
         select.set_title(setlyze.locale.text('analysis3'))
 
         # Change the header text.
