@@ -254,7 +254,7 @@ class BeginBatch(Begin):
 
             {
                 'attr': {
-                    'format': ['Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24']
+                    'format': ('Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24')
                 },
                 'results': [
                     ['Obelia dichotoma', 143, True, False, False, False, False, False, True, True, False, False, False, False, False, False, False, True, False, False, None, False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, False, True, False, True, True, True, False, False, None, False, False, False, False, False],
@@ -264,7 +264,7 @@ class BeginBatch(Begin):
             }
         """
         report = {
-            'attr': {'columns': ['Species','n (plates)','Wilcoxon 2-24','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','Chi sq 2-24','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24']},
+            'attr': {'columns': ('Species','n (plates)','Wilcoxon 2-24','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','Chi sq 2-24','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24')},
             'results': []
         }
         for result in results:
@@ -321,7 +321,7 @@ class BeginBatch(Begin):
         report.set_statistics('positive_spots_summary', summary)
 
         # Display the report.
-        w = setlyze.gui.Report(report, "Results")
+        w = setlyze.gui.Report(report, "Results: Batch summary for Attraction within Species")
         w.set_size_request(700, 500)
 
 class Analysis(setlyze.analysis.common.AnalysisWorker):
@@ -421,9 +421,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Update progress dialog.
             self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
             # Make the plate IDs unique.
-            self.n_plates_unique = self.db.make_plates_unique(slot=0)
+            n_plates_unique = self.db.make_plates_unique(slot=0)
             # Create log message.
-            logging.info("\t  %d records remaining." % (self.n_plates_unique))
+            logging.info("\t  %d records remaining." % (n_plates_unique))
 
         if not self.stopped():
             # Create log message.
@@ -431,10 +431,10 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Update progress dialog.
             self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
             # Save the positive spot totals for each plate to the database.
-            self.skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
+            self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
             # Create log message.
-            logging.info("\tSkipping %d records with too few positive spots." % self.skipped)
-            logging.info("\t  %d records remaining." % (self.n_plates_unique - self.skipped))
+            logging.info("\tSkipping %d records with too few positive spots." % skipped)
+            logging.info("\t  %d records remaining." % self.affected)
 
             # Create log message.
             logging.info("\tCalculating the intra-specific distances for the selected species...")
@@ -722,7 +722,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'repeats': self.n_repeats,
-                    'n_plates': self.n_plates_unique - self.skipped,
+                    'n_plates': self.affected,
                 }
 
             if not self.statistics['wilcoxon_spots']['attr']:
@@ -759,7 +759,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if not self.statistics['chi_squared_spots']['attr']:
                 self.statistics['chi_squared_spots']['attr'] = {
                     'method': sig_result['method'],
-                    'n_plates': self.n_plates_unique - self.skipped,
+                    'n_plates': self.affected,
                 }
 
             self.statistics['chi_squared_spots']['results'][n_spots] = {

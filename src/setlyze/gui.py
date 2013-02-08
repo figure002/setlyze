@@ -1057,8 +1057,8 @@ class SelectSpecies(SelectionWindow):
         renderer_text = gtk.CellRendererText()
         # Notice text=1, which means that we let the column display the
         # attribute values for the cell renderer from column 1 in the
-        # TreeModel. Column 1 contains the species names (venacular).
-        column = gtk.TreeViewColumn("Species (venacular)", renderer_text,
+        # TreeModel. Column 1 contains the species names (common).
+        column = gtk.TreeViewColumn("Species (common)", renderer_text,
             text=1)
         # Sort on column 1 from the model.
         column.set_sort_column_id(1)
@@ -2402,6 +2402,10 @@ class Report(gtk.Window):
             for stats in self.report.statistics['positive_spots_summary']:
                 self.add_positive_spots_summary(stats)
 
+        if 'ratio_groups_summary' in self.report.statistics:
+            for stats in self.report.statistics['ratio_groups_summary']:
+                self.add_ratio_groups_summary(stats)
+
     def add_title_header(self, analysis_name):
         """Add a header text to the report dialog.
 
@@ -3143,7 +3147,7 @@ class Report(gtk.Window):
 
             {
                 'attr': {
-                    'columns': ['Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']
+                    'columns': ('Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq')
                 },
                 'results': [
                     ['Obelia dichotoma', 166, True, False, True, True, True, True, False, True, True],
@@ -3213,7 +3217,7 @@ class Report(gtk.Window):
 
             {
                 'attr': {
-                    'columns': ['Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24']
+                    'columns': ('Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24')
                 },
                 'results': [
                     ['Obelia dichotoma', 143, True, False, False, False, False, False, True, True, False, False, False, False, False, False, False, True, False, False, None, False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, False, True, False, True, True, True, False, False, None, False, False, False, False, False],
@@ -3286,6 +3290,80 @@ class Report(gtk.Window):
             gobject.TYPE_BOOLEAN,
             gobject.TYPE_BOOLEAN,
             gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_BOOLEAN,
+        )
+
+        for row in statistics['results']:
+            liststore.append(row)
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+
+    def add_ratio_groups_summary(self, statistics):
+        """Add a summary report for spot preference to the displayer.
+
+        This report cannot be combined with other report elements in the
+        in the displayer.
+
+        Data is passed in the following format ::
+
+            {
+                'attr': {
+                    'columns': ('Species A', 'Species B', 'n (plates)', 'Wilcoxon 1-5', '1', '2', '3', '4', '5', 'Chi sq 1-5', '1', '2', '3', '4', '5')
+                },
+                'results': [
+                    ['Obelia dichotoma', 'Obelia geniculata', 12, False, True, True, False, None, None, False, True, True, False, None, None],
+                    ['Obelia dichotoma', 'Obelia longissima', 73, True, True, True, True, True, False, True, True, True, True, True, True],
+                    ...
+                ]
+            }
+        """
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, -1)
+        tree.set_rules_hint(True)
+
+        # Create cell renderers.
+        render_text = gtk.CellRendererText()
+        render_toggle = gtk.CellRendererToggle()
+
+        # Add columns to the tree view.
+        column_names = statistics['attr']['columns']
+        for i, name in enumerate(column_names):
+            if i > 2:
+                column = gtk.TreeViewColumn(name, render_toggle, active=i)
+            else:
+                column = gtk.TreeViewColumn(name, render_text, text=i)
+            column.set_sort_column_id(i)
+            if i in (0,1): column.set_expand(True)
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_INT,
             gobject.TYPE_BOOLEAN,
             gobject.TYPE_BOOLEAN,
             gobject.TYPE_BOOLEAN,

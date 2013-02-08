@@ -370,6 +370,85 @@ class BeginBatch(Begin):
         """Print elapsed time since start of the analysis."""
         logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
+    def summarize_results(self, results):
+        """Join results from multiple analyses to a single report.
+
+        Creates a dictionary in the following format ::
+
+            {
+                'attr': {
+                    'columns': ('Species A', 'Species B', 'n (plates)', 'Wilcoxon 1-5', '1', '2', '3', '4', '5', 'Chi sq 1-5', '1', '2', '3', '4', '5')
+                },
+                'results': [
+                    ['Obelia dichotoma', 'Obelia geniculata', 12, False, True, True, False, None, None, False, True, True, False, None, None],
+                    ['Obelia dichotoma', 'Obelia longissima', 73, True, True, True, True, True, False, True, True, True, True, True, True],
+                    ...
+                ]
+            }
+        """
+        report = {
+            'attr': {'columns': ('Species A','Species B','n (plates)','Wilcoxon 1-5','1','2','3','4','5','Chi sq 1-5','1','2','3','4','5')},
+            'results': []
+        }
+        for result in results:
+            species_selection = [s for s in result.species_selections[0].values()]
+            species_a = species_selection[0]['name_latin']
+            species_selection = [s for s in result.species_selections[1].values()]
+            species_b = species_selection[0]['name_latin']
+            wilcoxon = result.statistics['wilcoxon_ratios_repeats'][0]
+            chi_squared = result.statistics['chi_squared_ratios'][0]
+
+            # Figure out for which positive spots number the result was
+            # significant. A result is considered significant if 95% of the
+            # tests for a plate area were significant.
+            ratio_groups = [-5,1,2,3,4,5]
+            bools = []
+            for ratio in ratio_groups:
+                stats = wilcoxon['results'].get(ratio, None)
+                if stats:
+                    boolean = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    bools.append(boolean)
+                else:
+                    bools.append(None)
+
+            # At the booleans for the Chi squared tests.
+            for ratio in ratio_groups:
+                stats = chi_squared['results'].get(ratio, None)
+                if stats:
+                    boolean = stats['p_value'] < self.alpha_level
+                    bools.append(boolean)
+                else:
+                    bools.append(None)
+
+            # Only add the row to the report if one item in the row was
+            # significant.
+            for b in bools:
+                if b:
+                    row = [species_a, species_b, wilcoxon['attr']['n_plates']]
+                    row.extend(bools)
+                    report['results'].append(row)
+                    break
+
+        return report
+
+    def on_thread_pool_finished(self, sender=None):
+        """Display the results."""
+        # Check if there are any reports to display. If not, leave.
+        if len(self.results) == 0:
+            self.on_analysis_closed()
+            return
+
+        # Create a summary from all results.
+        summary = self.summarize_results(self.results)
+
+        # Create a report object from the dictionary.
+        report = setlyze.report.Report()
+        report.set_statistics('ratio_groups_summary', summary)
+
+        # Display the report.
+        w = setlyze.gui.Report(report, "Results: Batch summary for Attraction between Species")
+        w.set_size_request(700, 500)
+
 class Analysis(setlyze.analysis.common.AnalysisWorker):
     """Perform the calculations for analysis 3.
 
@@ -548,7 +627,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # Update progress dialog.
             self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
             # Save the positive spot totals for each plate to the database.
-            self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
+            self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
 
             # Update progress dialog.
             self.pdialog_handler.increase("Calculating the inter-specific distances for the selected species...")
@@ -858,6 +937,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'repeats': self.n_repeats,
+                    'n_plates': self.affected,
                 }
 
             if not self.statistics['wilcoxon_ratios']['attr']:

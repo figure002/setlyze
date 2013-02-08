@@ -1434,6 +1434,7 @@ class AccessDBGeneric(object):
         connection.commit()
 
         skipped = 0
+        rowcount = 0
 
         if spots_table2:
             # Two spots tables are provided.
@@ -1483,6 +1484,7 @@ class AccessDBGeneric(object):
                                  "VALUES (?,?,?)",
                                  (plate_id, spots1, spots2)
                                 )
+                rowcount += 1
         else:
             # One spots table is provided.
 
@@ -1519,6 +1521,8 @@ class AccessDBGeneric(object):
                                  (plate_id, spots)
                                 )
 
+                rowcount += 1
+
         # Commit the transaction.
         connection.commit()
 
@@ -1527,8 +1531,8 @@ class AccessDBGeneric(object):
         cursor2.close()
         connection.close()
 
-        # Return the number of records that were skipped.
-        return skipped
+        # Return the number of (rows affected, rows skipped)
+        return (rowcount, skipped)
 
     def get_distances_matching_spots_total(self, distance_table, spots_n):
         """Get the distances from distance table `distance_table` that

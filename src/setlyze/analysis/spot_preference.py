@@ -260,7 +260,7 @@ class BeginBatch(Begin):
 
             {
                 'attr': {
-                    'columns': ['Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq']
+                    'columns': ('Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq')
                 },
                 'results': [
                     ['Obelia dichotoma', 166, True, False, True, True, True, True, False, True, True],
@@ -270,7 +270,7 @@ class BeginBatch(Begin):
             }
         """
         report = {
-            'attr': {'columns': ['Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq']},
+            'attr': {'columns': ('Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq')},
             'results': []
         }
         for result in results:
@@ -328,7 +328,7 @@ class BeginBatch(Begin):
         report.set_statistics('plate_areas_summary', summary)
 
         # Display the report.
-        w = setlyze.gui.Report(report, "Results")
+        w = setlyze.gui.Report(report, "Results: Batch summary for Sport Preference")
         w.set_size_request(700, 500)
 
 class Analysis(setlyze.analysis.common.AnalysisWorker):
@@ -769,7 +769,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'groups': "areas",
-                    'n_plates': self.n_plates_unique,
                 }
 
             # Save the results for each test.
