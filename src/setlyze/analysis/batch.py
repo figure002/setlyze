@@ -61,30 +61,25 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
         # Display the window for selecting the batch analysis. This signal
         # makes the main window hide.
-        setlyze.std.sender.emit('beginning-analysis')
+        self.w = setlyze.gui.SelectBatchAnalysis()
 
     def set_signal_handlers(self):
         """Respond to signals emitted by the application."""
         self.signal_handlers = {
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_analysis),
-
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_close),
             # The batch analysis selection window back button was clicked.
             'select-batch-analysis-window-back': setlyze.std.sender.connect('select-batch-analysis-window-back', self.on_analysis_closed),
-
             # An analysis was selected.
             'batch-analysis-selected': setlyze.std.sender.connect('batch-analysis-selected', self.on_analysis_selected),
         }
 
-    def on_select_analysis(self, sender=None, data=None):
+    def on_close(self, sender=None, data=None):
         """Display the window for selecting the batch analysis."""
-        setlyze.gui.SelectBatchAnalysis()
+        self.unset_signal_handlers()
+        self.w.destroy()
 
     def on_analysis_selected(self, sender, analysis):
         """Start the selected analysis in batch mode."""
-        # TODO: This is a workaround. Find a different way to close
-        # setlyze.gui.SelectBatchAnalysis when an analysis was selected.
-        self.unset_signal_handlers()
-
         if analysis == 'spot_preference':
             setlyze.analysis.spot_preference.BeginBatch()
         elif analysis == 'attraction_intra':
