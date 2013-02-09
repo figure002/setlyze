@@ -43,11 +43,8 @@ def export(report, path, type, elements=None):
     """Save the data from a :class:`Report` object `reader` to a data file.
 
     The file is saved to `path` in a format specified by `type`. Possible
-    values for `type` are ``xml``, ``rst`` or ``latex``. The report elements
-    to be exported are specified by `elements`.
-
-    .. todo::
-       Make this work with the new report model.
+    values for `type` are ``xml`` or ``rst``. The report elements to be
+    exported are specified by `elements`.
 
     Design Part: 1.17
     """
@@ -60,21 +57,12 @@ def export(report, path, type, elements=None):
             path += ".xml"
         dom_report = DOMReport(report)
         dom_report.export_xml(path, elements)
-
     elif type == 'rst':
         # Add the extension if it's missing from the filename.
         if not path.endswith(".rst"):
             path += ".rst"
         exporter = ExportRstReport(report)
         exporter.export(path)
-
-    elif type == 'latex':
-        # Add the extension if it's missing from the filename.
-        if not path.endswith(".tex") and not path.endswith(".latex"):
-            path += ".tex"
-        exporter = ExportLatexReport(report)
-        exporter.export(path, elements)
-
     else:
         raise ValueError("Unsupported file type specified.")
 
@@ -1523,26 +1511,6 @@ class DOMReportConvert(object):
         f = open(filename, 'w')
         self.doc.writexml(f, addindent="\t", newl="\n", encoding="utf-8")
         f.close()
-
-class ExportLatexReport(object):
-    """Generate an analysis report in LaTeX format.
-
-    .. todo::
-       Complete this class.
-    """
-
-    def __init__(self, reader = None):
-        self.set_report_reader(reader)
-
-    def set_report_reader(self, reader):
-        """Set the report reader."""
-        self.reader = reader
-
-    def generate(self, elements=None):
-        pass
-
-    def export(self, path, elements=None):
-        pass
 
 class ExportRstReport(object):
     """Export an analysis report in reStructuredText format.

@@ -2271,8 +2271,6 @@ class Report(gtk.Window):
         """Display a dialog that allows the user to save the report to
         a file.
         """
-
-        # Create a file chooser dialog.
         chooser = gtk.FileChooserDialog(title="Save Analysis Report As...",
             parent=None,
             action=gtk.FILE_CHOOSER_ACTION_SAVE,
@@ -2292,15 +2290,7 @@ class Report(gtk.Window):
         rst_filter.set_name("reStructuredText (*.rst)")
         rst_filter.add_pattern("*.rst")
 
-        tex_filter = gtk.FileFilter()
-        tex_filter.set_name("LaTeX Document (*.tex, *.latex)")
-        tex_filter.add_mime_type("application/x-tex")
-        tex_filter.add_mime_type("application/x-latex")
-        tex_filter.add_pattern("*.tex")
-        tex_filter.add_pattern("*.latex")
-
         chooser.add_filter(rst_filter)
-        #chooser.add_filter(tex_filter)
         #chooser.add_filter(xml_filter)
 
         response = chooser.run()
@@ -2311,25 +2301,20 @@ class Report(gtk.Window):
             # Get the name of the selected file type.
             filter_name = chooser.get_filter().get_name()
 
+            # File type = reStructuredText
+            elif "*.rst" in filter_name:
+                # Let the user select which elements to export.
+                #dialog = SelectExportElements(self.report)
+                #response = dialog.run()
+                #if response == gtk.RESPONSE_ACCEPT:
+                #    setlyze.report.export(self.report, path, 'rst',
+                #        dialog.get_selected_elements())
+                #dialog.destroy()
+                setlyze.report.export(self.report, path, 'rst')
+
             # File type = XML
             if "*.xml" in filter_name:
                 setlyze.report.export(self.report, path, 'xml')
-
-            # File type = reStructuredText
-            elif "*.rst" in filter_name:
-                setlyze.report.export(self.report, path, 'rst')
-
-            # File type = LaTeX
-            elif "*.tex" in filter_name:
-                # Let the user select which elements to export.
-                dialog = SelectExportElements(self.report)
-                response = dialog.run()
-
-                # Export the selected report elements.
-                if response == gtk.RESPONSE_ACCEPT:
-                    setlyze.report.export(self.report, path, 'latex',
-                        dialog.get_selected_elements())
-                dialog.destroy()
 
         # Close the filechooser.
         chooser.destroy()
