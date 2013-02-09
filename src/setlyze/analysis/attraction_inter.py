@@ -203,7 +203,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         save_slot = setlyze.std.sender.get_property('save-slot')
 
         # Display the species selection window.
-        select = setlyze.gui.SelectSpecies(width=500, slot=save_slot)
+        select = setlyze.gui.SelectSpecies(width=600, slot=save_slot)
         select.set_title(setlyze.locale.text('analysis3'))
         select.set_description( setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
@@ -306,7 +306,7 @@ class BeginBatch(Begin):
         save_slot = setlyze.std.sender.get_property('save-slot')
 
         # Display the species selection window.
-        select = setlyze.gui.SelectSpecies(width=500, slot=save_slot)
+        select = setlyze.gui.SelectSpecies(width=600, slot=save_slot)
         select.set_title(setlyze.locale.text('analysis3'))
         select.set_description( setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')

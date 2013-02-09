@@ -141,7 +141,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
     def on_select_species(self, sender=None, data=None):
         """Display the window for selecting the species."""
-        select = setlyze.gui.SelectSpecies(width=500, slot=0)
+        select = setlyze.gui.SelectSpecies(width=600, slot=0)
         select.set_title(setlyze.locale.text('analysis1'))
         select.set_description(setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
