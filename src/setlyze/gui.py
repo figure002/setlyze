@@ -2302,7 +2302,7 @@ class Report(gtk.Window):
             filter_name = chooser.get_filter().get_name()
 
             # File type = reStructuredText
-            elif "*.rst" in filter_name:
+            if "*.rst" in filter_name:
                 # Let the user select which elements to export.
                 #dialog = SelectExportElements(self.report)
                 #response = dialog.run()
@@ -2313,7 +2313,7 @@ class Report(gtk.Window):
                 setlyze.report.export(self.report, path, 'rst')
 
             # File type = XML
-            if "*.xml" in filter_name:
+            elif "*.xml" in filter_name:
                 setlyze.report.export(self.report, path, 'xml')
 
         # Close the filechooser.
