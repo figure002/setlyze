@@ -508,7 +508,7 @@ class SelectBatchAnalysis(object):
         self.label_descr = self.builder.get_object('label_descr')
 
         # Handle window signals.
-        self.window.connect('delete-event', on_quit)
+        self.window.connect('delete-event', self.hide)
 
         # Connect the window signals to the handlers.
         self.builder.connect_signals(self)
@@ -518,18 +518,18 @@ class SelectBatchAnalysis(object):
 
         # Handle application signals.
         self.signal_handlers = {
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.close),
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.hide),
         }
 
-        # Display all widgets.
-        self.window.show_all()
+    def show(self, widget=None, data=None):
+        """Show the window."""
+        self.window.show()
 
-    def unset_signal_handlers(self):
-        """Disconnect all signal connections with signal handlers
-        created by this analysis.
-        """
-        for handler in self.signal_handlers.values():
-            setlyze.std.sender.disconnect(handler)
+    def hide(self, widget=None, data=None):
+        """Hide the window."""
+        self.window.hide()
+        # Prevent default action.
+        return True
 
     def on_toggled(self, radiobutton=None):
         """Update the description frame."""
@@ -555,32 +555,21 @@ class SelectBatchAnalysis(object):
         """
         if self.radio_ana_spot_pref.get_active():
             setlyze.std.sender.emit('batch-analysis-selected', 'spot_preference')
-
         elif self.radio_ana_attraction_intra.get_active():
             setlyze.std.sender.emit('batch-analysis-selected', 'attraction_intra')
-
         elif self.radio_ana_attraction_inter.get_active():
             setlyze.std.sender.emit('batch-analysis-selected', 'attraction_inter')
-
         elif self.radio_ana_relation.get_active():
             setlyze.std.sender.emit('batch-analysis-selected', 'relations')
 
     def on_back(self, widget, data=None):
         """Go back to the main window."""
-
-        # Close the window.
-        self.close()
-
+        # Hide the window.
+        self.hide()
         # Emit the signal that the Back button was pressed.
         setlyze.std.sender.emit('select-batch-analysis-window-back')
-
         # Prevent default action of the close button.
         return False
-
-    def close(self, widget=None, data=None):
-        """Close the window and unset any signal handlers."""
-        self.unset_signal_handlers()
-        self.window.destroy()
 
 class SelectionWindow(gtk.Window):
     """Super class for :class:`SelectLocations` and :class:`SelectSpecies`."""

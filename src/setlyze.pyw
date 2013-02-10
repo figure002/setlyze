@@ -65,6 +65,7 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2011/05/03"
 
+batch_select_window = None
 
 def main():
     # Registers adapt_str to convert the custom Python type into one of
@@ -85,6 +86,10 @@ def main():
 
     # Display the main window.
     setlyze.gui.SelectAnalysis()
+
+    # Instantiate other windows.
+    global batch_select_window
+    batch_select_window = setlyze.gui.SelectBatchAnalysis()
 
     # Start the GTK main loop, which continuously checks for newly
     # generated events.
@@ -111,7 +116,7 @@ def on_start_analysis(sender, analysis, data=None):
     elif analysis == 'relations':
         setlyze.analysis.relations.Begin()
     elif analysis == 'batch':
-        setlyze.analysis.batch.Begin()
+        setlyze.analysis.batch.Begin(batch_select_window)
 
     return False
 

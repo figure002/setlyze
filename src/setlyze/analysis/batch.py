@@ -52,31 +52,26 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
     2. Run the analysis in batch mode.
     """
 
-    def __init__(self):
+    def __init__(self, select_window):
         super(Begin, self).__init__()
         logging.info("Entering batch mode")
 
         # Bind handles to application signals.
         self.set_signal_handlers()
 
-        # Display the window for selecting the batch analysis. This signal
-        # makes the main window hide.
-        self.w = setlyze.gui.SelectBatchAnalysis()
+        # Display the window for selecting the batch analysis.
+        select_window.show()
 
     def set_signal_handlers(self):
         """Respond to signals emitted by the application."""
         self.signal_handlers = {
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_close),
+            # Unset signal handlers of this class once an analysis has started.
+            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.unset_signal_handlers),
             # The batch analysis selection window back button was clicked.
             'select-batch-analysis-window-back': setlyze.std.sender.connect('select-batch-analysis-window-back', self.on_analysis_closed),
             # An analysis was selected.
             'batch-analysis-selected': setlyze.std.sender.connect('batch-analysis-selected', self.on_analysis_selected),
         }
-
-    def on_close(self, sender=None, data=None):
-        """Display the window for selecting the batch analysis."""
-        self.unset_signal_handlers()
-        self.w.destroy()
 
     def on_analysis_selected(self, sender, analysis):
         """Start the selected analysis in batch mode."""

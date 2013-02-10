@@ -173,7 +173,7 @@ class PrepareAnalysis(object):
         """Return True if we are in batch mode."""
         return self.__class__.__name__ == 'BeginBatch'
 
-    def unset_signal_handlers(self):
+    def unset_signal_handlers(self, sender=None, data=None):
         """Disconnect all signal connections with signal handlers
         created by this analysis.
         """
