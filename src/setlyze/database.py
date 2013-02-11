@@ -76,7 +76,7 @@ def get_database_accessor():
     elif data_source == "xls":
         db = AccessLocalDB()
     else:
-        logging.error("setlyze.database.get_database_accessor: '%s' is not a valid data source." % data_source)
+        logging.error("Invalid data source '%s'." % data_source)
         sys.exit(1)
     return db
 
@@ -898,9 +898,9 @@ class MakeLocalDB(threading.Thread):
     def remove_db_file(self, tries=0):
         """Remove the database file.
 
-        This method does 3 tries if for some reason the database file
+        This method does three tries if for some reason the database file
         could not be deleted (e.g. the file is in use by a different
-        process.
+        process).
         """
         if tries > 2:
             raise EnvironmentError("I was unable to remove the file %s. "
@@ -1051,164 +1051,6 @@ class MakeLocalDB(threading.Thread):
             rec_v INTEGER \
         )")
 
-    def create_table_species_spots_1(self):
-        """Create a table that will contain the SETL records for the
-        first species selection.
-
-        Because the user can select multiple species, the plate IDs in
-        column ``rec_pla_id`` don't have to be unique, so we're
-        creating a separate column ``id`` as the primary key.
-
-        Design Part: 1.80
-        """
-
-        # Design Part: 2.9, 2.9.1, 2.9.2
-        self.cursor.execute("CREATE TABLE species_spots_1 (\
-            id INTEGER PRIMARY KEY, \
-            rec_pla_id INTEGER, \
-            rec_sur1 INTEGER, \
-            rec_sur2 INTEGER, \
-            rec_sur3 INTEGER, \
-            rec_sur4 INTEGER, \
-            rec_sur5 INTEGER, \
-            rec_sur6 INTEGER, \
-            rec_sur7 INTEGER, \
-            rec_sur8 INTEGER, \
-            rec_sur9 INTEGER, \
-            rec_sur10 INTEGER, \
-            rec_sur11 INTEGER, \
-            rec_sur12 INTEGER, \
-            rec_sur13 INTEGER, \
-            rec_sur14 INTEGER, \
-            rec_sur15 INTEGER, \
-            rec_sur16 INTEGER, \
-            rec_sur17 INTEGER, \
-            rec_sur18 INTEGER, \
-            rec_sur19 INTEGER, \
-            rec_sur20 INTEGER, \
-            rec_sur21 INTEGER, \
-            rec_sur22 INTEGER, \
-            rec_sur23 INTEGER, \
-            rec_sur24 INTEGER, \
-            rec_sur25 INTEGER \
-        )")
-
-
-    def create_table_species_spots_2(self):
-        """Create a table that will contain the SETL records for the
-        second species selection.
-
-        Because the user can select multiple species, the plate IDs in
-        column ``rec_pla_id`` don't have to be unique, so we're
-        creating a separate column ``id`` as the primary key.
-
-        Design Part: 1.81
-        """
-
-        # Design Part: 2.10, 2.10.1, 2.10.2
-        self.cursor.execute("CREATE TABLE species_spots_2 (\
-            id INTEGER PRIMARY KEY, \
-            rec_pla_id INTEGER, \
-            rec_sur1 INTEGER, \
-            rec_sur2 INTEGER, \
-            rec_sur3 INTEGER, \
-            rec_sur4 INTEGER, \
-            rec_sur5 INTEGER, \
-            rec_sur6 INTEGER, \
-            rec_sur7 INTEGER, \
-            rec_sur8 INTEGER, \
-            rec_sur9 INTEGER, \
-            rec_sur10 INTEGER, \
-            rec_sur11 INTEGER, \
-            rec_sur12 INTEGER, \
-            rec_sur13 INTEGER, \
-            rec_sur14 INTEGER, \
-            rec_sur15 INTEGER, \
-            rec_sur16 INTEGER, \
-            rec_sur17 INTEGER, \
-            rec_sur18 INTEGER, \
-            rec_sur19 INTEGER, \
-            rec_sur20 INTEGER, \
-            rec_sur21 INTEGER, \
-            rec_sur22 INTEGER, \
-            rec_sur23 INTEGER, \
-            rec_sur24 INTEGER, \
-            rec_sur25 INTEGER \
-        )")
-
-    def create_table_spot_distances_observed(self):
-        """Create a table for the observed spot distances.
-
-        Design Part: 1.83
-        """
-
-        # Design Part: 2.12
-        self.cursor.execute("CREATE TABLE spot_distances_observed (\
-            id INTEGER PRIMARY KEY, \
-            rec_pla_id INTEGER, \
-            distance REAL \
-        )")
-
-    def create_table_spot_distances_expected(self):
-        """Create a table for the expected spot distances.
-
-        Design Part: 1.84
-        """
-
-        # Design Part: 2.13
-        self.cursor.execute("CREATE TABLE spot_distances_expected (\
-            id INTEGER PRIMARY KEY, \
-            rec_pla_id INTEGER, \
-            distance REAL \
-        )")
-
-    def create_table_plate_spot_totals(self):
-        """Create a table for the total of spots per plate in the
-        distance tables.
-
-        Design Part: 1.85
-        """
-
-        # Design Part: 2.39
-        self.cursor.execute("CREATE TABLE plate_spot_totals (\
-            pla_id INTEGER PRIMARY KEY, \
-            n_spots_a INTEGER, \
-            n_spots_b INTEGER \
-        )")
-
-    def create_table_plate_area_totals_observed(self):
-        """Create a table for the total of positive spots per plate area per
-        plate ID.
-
-        Design Part:
-        """
-
-        # Design Part:
-        self.cursor.execute("CREATE TABLE plate_area_totals_observed (\
-            pla_id INTEGER PRIMARY KEY, \
-            area_a INTEGER, \
-            area_b INTEGER, \
-            area_c INTEGER, \
-            area_d INTEGER \
-        )")
-
-    def create_table_plate_area_totals_expected(self):
-        """Create a table for the total of positive spots per plate area per
-        plate ID.
-
-        Design Part:
-        """
-
-        # Design Part:
-        self.cursor.execute("CREATE TABLE plate_area_totals_expected (\
-            pla_id INTEGER PRIMARY KEY, \
-            area_a INTEGER, \
-            area_b INTEGER, \
-            area_c INTEGER, \
-            area_d INTEGER \
-        )")
-
-
 class AccessDBGeneric(object):
     """Super class for :class:`AccessLocalDB` and :class:`AccessRemoteDB`.
 
@@ -1220,13 +1062,15 @@ class AccessDBGeneric(object):
     def __init__(self):
         self.progress_dialog = None
         self.dbfile = setlyze.config.cfg.get('db-file')
+        self.conn = sqlite.connect(self.dbfile)
+        self.cursor = self.conn.cursor()
 
     def get_database_info(self):
         """Return info (creation date, data source) stored in the local
         database file.
         """
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         cursor.execute("SELECT value FROM info WHERE name='source'")
         source = cursor.fetchone()
@@ -1235,7 +1079,6 @@ class AccessDBGeneric(object):
         date = cursor.fetchone()
 
         cursor.close()
-        connection.close()
 
         info = {'source': None, 'date': None}
         if source:
@@ -1252,12 +1095,11 @@ class AccessDBGeneric(object):
 
         Design Part: 1.95
         """
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
         cursor.execute("SELECT loc_id, loc_name FROM localities")
         locations = cursor.fetchall()
         cursor.close()
-        connection.close()
 
         return locations
 
@@ -1277,8 +1119,7 @@ class AccessDBGeneric(object):
         tables = ('species_spots_1','species_spots_2')
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+        cursor = self.conn.cursor()
 
         # Get all plate IDs.
         cursor.execute( "SELECT rec_pla_id FROM %s" % (tables[slot]) )
@@ -1327,11 +1168,10 @@ class AccessDBGeneric(object):
             n += 1
 
         # Commit the database transaction.
-        connection.commit()
+        self.conn.commit()
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
         # Return the total numbers of unique plate records.
         return n
@@ -1351,8 +1191,8 @@ class AccessDBGeneric(object):
         """
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         # Get all spots for each plate.
         cursor.execute( "SELECT rec_pla_id,"
@@ -1390,11 +1230,10 @@ class AccessDBGeneric(object):
 
         # Commit the database transaction.
         # Design Part: 2.10 -> 2.11
-        connection.commit()
+        self.conn.commit()
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
         # Return the list of deleted plates.
         return delete
@@ -1425,13 +1264,13 @@ class AccessDBGeneric(object):
         """
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
-        cursor2 = connection.cursor()
+
+        cursor = self.conn.cursor()
+        cursor2 = self.conn.cursor()
 
         # Empty the plate_spot_totals table before we use it again.
         cursor.execute("DELETE FROM plate_spot_totals")
-        connection.commit()
+        self.conn.commit()
 
         skipped = 0
         rowcount = 0
@@ -1524,12 +1363,11 @@ class AccessDBGeneric(object):
                 rowcount += 1
 
         # Commit the transaction.
-        connection.commit()
+        self.conn.commit()
 
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
         # Return the number of (rows affected, rows skipped)
         return (rowcount, skipped)
@@ -1541,8 +1379,8 @@ class AccessDBGeneric(object):
         This is a generator, meaning that this method returns an
         iterator. This iterator returns the distances.
         """
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         if spots_n < 0:
             # If spots_n is a negative number, get all distances
@@ -1593,7 +1431,6 @@ class AccessDBGeneric(object):
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
     def get_distances_matching_ratios(self, distance_table, ratios):
         """Get the spot distances from distance table `distance_table` where
@@ -1605,8 +1442,8 @@ class AccessDBGeneric(object):
         This is a generator, meaning that this method returns an
         iterator. This iterator returns the distances.
         """
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         plate_ids = []
 
@@ -1662,7 +1499,6 @@ class AccessDBGeneric(object):
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
     def get_area_totals(self, plate_area_totals_table, area_group):
         """Return total number of positive spots per area group per plate.
@@ -1673,8 +1509,8 @@ class AccessDBGeneric(object):
         combination of the letters A, B, C, and D. Each letter is one of
         the default areas on a SETL plate.
         """
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         # Compile a string containing the area fields for 'area_group'.
         fields = []
@@ -1707,7 +1543,6 @@ class AccessDBGeneric(object):
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
 class AccessLocalDB(AccessDBGeneric):
     """Provide standard methods for accessing data in the local
@@ -1722,8 +1557,163 @@ class AccessLocalDB(AccessDBGeneric):
 
     def __init__(self):
         super(AccessLocalDB, self).__init__()
-        self.cursor = None
-        self.connection = None
+
+    def create_table_species_spots_1(self):
+        """Create a table that will contain the SETL records for the
+        first species selection.
+
+        Because the user can select multiple species, the plate IDs in
+        column ``rec_pla_id`` don't have to be unique, so we're
+        creating a separate column ``id`` as the primary key.
+
+        Design Part: 1.80
+        """
+
+        # Design Part: 2.9, 2.9.1, 2.9.2
+        self.cursor.execute("CREATE TEMP TABLE species_spots_1 (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            rec_sur1 INTEGER, \
+            rec_sur2 INTEGER, \
+            rec_sur3 INTEGER, \
+            rec_sur4 INTEGER, \
+            rec_sur5 INTEGER, \
+            rec_sur6 INTEGER, \
+            rec_sur7 INTEGER, \
+            rec_sur8 INTEGER, \
+            rec_sur9 INTEGER, \
+            rec_sur10 INTEGER, \
+            rec_sur11 INTEGER, \
+            rec_sur12 INTEGER, \
+            rec_sur13 INTEGER, \
+            rec_sur14 INTEGER, \
+            rec_sur15 INTEGER, \
+            rec_sur16 INTEGER, \
+            rec_sur17 INTEGER, \
+            rec_sur18 INTEGER, \
+            rec_sur19 INTEGER, \
+            rec_sur20 INTEGER, \
+            rec_sur21 INTEGER, \
+            rec_sur22 INTEGER, \
+            rec_sur23 INTEGER, \
+            rec_sur24 INTEGER, \
+            rec_sur25 INTEGER \
+        )")
+
+
+    def create_table_species_spots_2(self):
+        """Create a table that will contain the SETL records for the
+        second species selection.
+
+        Because the user can select multiple species, the plate IDs in
+        column ``rec_pla_id`` don't have to be unique, so we're
+        creating a separate column ``id`` as the primary key.
+
+        Design Part: 1.81
+        """
+
+        # Design Part: 2.10, 2.10.1, 2.10.2
+        self.cursor.execute("CREATE TEMP TABLE species_spots_2 (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            rec_sur1 INTEGER, \
+            rec_sur2 INTEGER, \
+            rec_sur3 INTEGER, \
+            rec_sur4 INTEGER, \
+            rec_sur5 INTEGER, \
+            rec_sur6 INTEGER, \
+            rec_sur7 INTEGER, \
+            rec_sur8 INTEGER, \
+            rec_sur9 INTEGER, \
+            rec_sur10 INTEGER, \
+            rec_sur11 INTEGER, \
+            rec_sur12 INTEGER, \
+            rec_sur13 INTEGER, \
+            rec_sur14 INTEGER, \
+            rec_sur15 INTEGER, \
+            rec_sur16 INTEGER, \
+            rec_sur17 INTEGER, \
+            rec_sur18 INTEGER, \
+            rec_sur19 INTEGER, \
+            rec_sur20 INTEGER, \
+            rec_sur21 INTEGER, \
+            rec_sur22 INTEGER, \
+            rec_sur23 INTEGER, \
+            rec_sur24 INTEGER, \
+            rec_sur25 INTEGER \
+        )")
+
+    def create_table_spot_distances_observed(self):
+        """Create a table for the observed spot distances.
+
+        Design Part: 1.83
+        """
+
+        # Design Part: 2.12
+        self.cursor.execute("CREATE TEMP TABLE spot_distances_observed (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            distance REAL \
+        )")
+
+    def create_table_spot_distances_expected(self):
+        """Create a table for the expected spot distances.
+
+        Design Part: 1.84
+        """
+
+        # Design Part: 2.13
+        self.cursor.execute("CREATE TEMP TABLE spot_distances_expected (\
+            id INTEGER PRIMARY KEY, \
+            rec_pla_id INTEGER, \
+            distance REAL \
+        )")
+
+    def create_table_plate_spot_totals(self):
+        """Create a table for the total of spots per plate in the
+        distance tables.
+
+        Design Part: 1.85
+        """
+
+        # Design Part: 2.39
+        self.cursor.execute("CREATE TEMP TABLE plate_spot_totals (\
+            pla_id INTEGER PRIMARY KEY, \
+            n_spots_a INTEGER, \
+            n_spots_b INTEGER \
+        )")
+
+    def create_table_plate_area_totals_observed(self):
+        """Create a table for the total of positive spots per plate area per
+        plate ID.
+
+        Design Part:
+        """
+
+        # Design Part:
+        self.cursor.execute("CREATE TEMP TABLE plate_area_totals_observed (\
+            pla_id INTEGER PRIMARY KEY, \
+            area_a INTEGER, \
+            area_b INTEGER, \
+            area_c INTEGER, \
+            area_d INTEGER \
+        )")
+
+    def create_table_plate_area_totals_expected(self):
+        """Create a table for the total of positive spots per plate area per
+        plate ID.
+
+        Design Part:
+        """
+
+        # Design Part:
+        self.cursor.execute("CREATE TEMP TABLE plate_area_totals_expected (\
+            pla_id INTEGER PRIMARY KEY, \
+            area_a INTEGER, \
+            area_b INTEGER, \
+            area_c INTEGER, \
+            area_d INTEGER \
+        )")
 
     def get_species(self, loc_slot=0):
         """Return a list of species tuples in the format ``(spe_id,
@@ -1740,8 +1730,8 @@ class AccessLocalDB(AccessDBGeneric):
         locations_selection = setlyze.config.cfg.get('locations-selection', slot=loc_slot)
 
         # Connect to the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         # Select all plate IDs from plates that are from the selected
         # locations.
@@ -1772,7 +1762,6 @@ class AccessLocalDB(AccessDBGeneric):
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
         return species
 
@@ -1801,8 +1790,8 @@ class AccessLocalDB(AccessDBGeneric):
             spe_ids_str = ",".join([str(id) for id in species])
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         # Get the plate IDs that match the selected locations.
         cursor.execute("SELECT pla_id FROM plates WHERE pla_loc_id IN (%s)"
@@ -1825,7 +1814,6 @@ class AccessLocalDB(AccessDBGeneric):
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
         return rec_ids
 
@@ -1839,8 +1827,8 @@ class AccessLocalDB(AccessDBGeneric):
         """
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
+
+        cursor = self.conn.cursor()
 
         # Create a string of the IDs for the query.
         rec_ids_str = ",".join([str(id) for id in rec_ids])
@@ -1861,7 +1849,6 @@ class AccessLocalDB(AccessDBGeneric):
 
         # Close connection with the local database.
         cursor.close()
-        connection.close()
 
     def set_species_spots(self, rec_ids, slot):
         """Create a table in the local database containing the spots
@@ -1882,15 +1869,15 @@ class AccessLocalDB(AccessDBGeneric):
         rec_ids_str = ",".join([str(item) for item in rec_ids])
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
-        cursor = connection.cursor()
-        cursor2 = connection.cursor()
+
+        cursor = self.conn.cursor()
+        cursor2 = self.conn.cursor()
 
         # Empty the required tables before we start.
         cursor.execute( "DELETE FROM %s" % (tables[slot]) )
 
         # Commit the database transaction.
-        connection.commit()
+        self.conn.commit()
 
         # Get plate ID and all 25 spots from each record that matches
         # the list of record IDs.
@@ -1912,12 +1899,11 @@ class AccessLocalDB(AccessDBGeneric):
                 (tables[slot], placeholders), row)
 
         # Commit the database transaction.
-        connection.commit()
+        self.conn.commit()
 
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
 class AccessRemoteDB(AccessDBGeneric):
     """Provide standard methods for accessing data in the remote

@@ -40,7 +40,6 @@ can be broken down in the following steps:
 
 import logging
 import time
-from sqlite3 import dbapi2 as sqlite
 
 import gobject
 import pygtk
@@ -170,7 +169,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
         # Set the total number of times we decide to update the progress dialog.
         pdialog_handler.set_total_steps(
-            PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')
+            PROGRESS_STEPS + self.n_repeats
         )
 
         # Create a thread pool with a single thread.
@@ -230,10 +229,8 @@ class BeginBatch(Begin):
         pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
         # Set the total number of times we decide to update the progress dialog.
-        pdialog_handler.set_total_steps(
-            (PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')) *
-            len(species)
-            )
+        pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
+            len(species))
 
         # Create a thread pool.
         self.pool = setlyze.analysis.common.Pool(
@@ -406,13 +403,15 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # properly.
         time.sleep(0.5)
 
-        # Lock access to the database while we're accessing the shared
-        # database resources.
-        self._lock.acquire()
-
         if not self.stopped():
             # Make an object that facilitates access to the database.
             self.db = setlyze.database.get_database_accessor()
+
+            # Create temporary tables.
+            self.db.create_table_species_spots_1()
+            self.db.create_table_plate_area_totals_observed()
+            self.db.create_table_plate_area_totals_expected()
+            self.db.conn.commit()
 
             # Get the record IDs that match the localities+species selection.
             rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
@@ -454,8 +453,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 logging.info("The species was not found on any plates, aborting.")
                 gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
 
-                # Release the lock to shared resources.
-                self._lock.release()
+                # Exit gracefully.
+                self.on_exit()
                 return
 
         if not self.stopped():
@@ -480,8 +479,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         if self.stopped():
             logging.info("Analysis aborted by user")
 
-            # Release the lock to shared resources.
-            self._lock.release()
+            # Exit gracefully.
+            self.on_exit()
             return
 
         # Update progress dialog.
@@ -498,8 +497,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
         logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
 
-        # Release the lock to shared resources.
-        self._lock.release()
+        # Exit gracefully.
+        self.on_exit()
 
     def set_plate_area_totals_observed(self):
         """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"
@@ -515,7 +514,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             'D': (13,),
             }
 
-        connection = sqlite.connect(self.dbfile)
+        connection = self.db.conn
         cursor = connection.cursor()
         cursor2 = connection.cursor()
 
@@ -573,7 +572,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
     def set_plate_area_totals_expected(self):
         """Fills :ref:`design-part-data-2.42`, the "plate_area_totals_expected"
@@ -590,7 +588,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             }
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
+        connection = self.db.conn
         cursor = connection.cursor()
         cursor2 = connection.cursor()
 
@@ -646,7 +644,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
     def calculate_significance_wilcoxon(self):
         """Perform statistical tests to check if the differences between

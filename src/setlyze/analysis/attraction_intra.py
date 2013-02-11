@@ -56,7 +56,6 @@ import os
 import logging
 import itertools
 import time
-from sqlite3 import dbapi2 as sqlite
 
 import gobject
 
@@ -171,7 +170,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
         # Set the total number of times we decide to update the progress dialog.
         pdialog_handler.set_total_steps(
-            PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')
+            PROGRESS_STEPS + self.n_repeats
         )
 
         # Create a thread pool with a single thread.
@@ -224,10 +223,8 @@ class BeginBatch(Begin):
         pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
         # Set the total number of times we decide to update the progress dialog.
-        pdialog_handler.set_total_steps(
-            (PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')) *
-            len(species)
-            )
+        pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
+            len(species))
 
         # Create a thread pool.
         self.pool = setlyze.analysis.common.Pool(
@@ -395,13 +392,16 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # display properly.
         time.sleep(0.5)
 
-        # Lock access to the database while we're accessing the shared
-        # database resources.
-        self._lock.acquire()
-
         if not self.stopped():
             # Make an object that facilitates access to the database.
             self.db = setlyze.database.get_database_accessor()
+
+            # Create temporary tables.
+            self.db.create_table_species_spots_1()
+            self.db.create_table_plate_spot_totals()
+            self.db.create_table_spot_distances_observed()
+            self.db.create_table_spot_distances_expected()
+            self.db.conn.commit()
 
             # Get the record IDs that match the localities+species selection.
             rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
@@ -446,14 +446,14 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         if not self.stopped():
             # Create log message.
             logging.info("\tPerforming statistical tests with %d repeats..." %
-                setlyze.config.cfg.get('test-repeats'))
+                self.n_repeats)
             # Update progress dialog.
             self.pdialog_handler.increase("Performing statistical tests with %s repeats..." %
-                setlyze.config.cfg.get('test-repeats'))
+                self.n_repeats)
             # Perform the repeats for the statistical tests. This will repeatedly
             # calculate the expected totals, so we'll use the expected values
             # of the last repeat for the non-repeated tests.
-            self.repeat_test(setlyze.config.cfg.get('test-repeats'))
+            self.repeat_test(self.n_repeats)
 
         if not self.stopped():
             # Create log message.
@@ -468,8 +468,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         if self.stopped():
             logging.info("Analysis aborted by user")
 
-            # Release the lock to shared resources.
-            self._lock.release()
+            # Exit gracefully.
+            self.on_exit()
             return
 
         # Update progress dialog.
@@ -486,8 +486,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
         logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
 
-        # Release the lock to shared resources.
-        self._lock.release()
+        # Exit gracefully.
+        self.on_exit()
 
     def calculate_distances_intra(self):
         """Calculate the intra-specific spot distances for each plate
@@ -498,7 +498,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         """
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
+        connection = self.db.conn
         cursor = connection.cursor()
         cursor2 = connection.cursor()
 
@@ -547,7 +547,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
     def calculate_distances_intra_expected(self):
         """Calculate the expected spot distances based on the observed
@@ -558,7 +557,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         """
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
+        connection = self.db.conn
         cursor = connection.cursor()
         cursor2 = connection.cursor()
 
@@ -605,7 +604,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
     def calculate_significance(self):
         """Perform statistical tests to check if the differences between

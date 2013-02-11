@@ -66,7 +66,6 @@ can be broken down in the following steps:
 import logging
 import itertools
 import time
-from sqlite3 import dbapi2 as sqlite
 
 import gobject
 
@@ -233,7 +232,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
         # Set the total number of times we decide to update the progress dialog.
         pdialog_handler.set_total_steps(
-            PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')
+            PROGRESS_STEPS + self.n_repeats
         )
 
         # Create a thread pool with a single thread.
@@ -348,7 +347,7 @@ class BeginBatch(Begin):
 
         # Set the total number of times we decide to update the progress dialog.
         pdialog_handler.set_total_steps(
-            (PROGRESS_STEPS + setlyze.config.cfg.get('test-repeats')) *
+            (PROGRESS_STEPS + self.n_repeats) *
             len(species_combos)
             )
 
@@ -435,6 +434,7 @@ class BeginBatch(Begin):
         """Display the results."""
         # Check if there are any reports to display. If not, leave.
         if len(self.results) == 0:
+            logging.info("No results to show.")
             self.on_analysis_closed()
             return
 
@@ -510,33 +510,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         """
         return PROGRESS_STEPS + self.n_repeats
 
-    def generate_spot_ratio_groups(self):
-        """Return an iterator that returns the ratio groups.
-
-        Each returned group is a list of ratios in the form of two-item
-        tuples.
-        """
-        for end in range(6, 31, 5):
-            group = setlyze.std.combinations_with_replacement(xrange(1,end), 2)
-            group = list(group)
-
-            if end > 6:
-                # Remove the ratios present in the previous group from
-                # the current group.
-                remove = setlyze.std.combinations_with_replacement(xrange(1,end-5), 2)
-                setlyze.std.remove_items_from_list(group,remove)
-            if end == 26:
-                # Plates with a 25:25 ratio will never be significant.
-                # So we remove this ratio, as it is useless.
-                group.remove((25,25))
-
-            yield group
-
-        all_ratios = list(setlyze.std.combinations_with_replacement(xrange(1,26), 2))
-        all_ratios.remove((25,25))
-
-        yield all_ratios
-
     def run(self):
         """Call the necessary methods for the analysis in the right order:
             * For the first species selection:
@@ -564,12 +537,17 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # display properly.
         time.sleep(0.5)
 
-        # Lock access to the database while we're accessing the shared
-        # database resources.
-        self._lock.acquire()
+        if not self.stopped():
+            # Make an object that facilitates access to the database.
+            self.db = setlyze.database.get_database_accessor()
 
-        # Make an object that facilitates access to the database.
-        self.db = setlyze.database.get_database_accessor()
+            # Create temporary tables.
+            self.db.create_table_species_spots_1()
+            self.db.create_table_species_spots_2()
+            self.db.create_table_plate_spot_totals()
+            self.db.create_table_spot_distances_observed()
+            self.db.create_table_spot_distances_expected()
+            self.db.conn.commit()
 
         if not self.stopped():
             # SELECTION 1
@@ -620,8 +598,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             logging.info("\t\t  %d records remaining." % (n_plates_unique))
 
         if not self.stopped():
-            # GENERAL
-
             # Create log message.
             logging.info("\tSaving the positive spot totals for each plate...")
             # Update progress dialog.
@@ -638,14 +614,14 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
             # Create log message.
             logging.info("\tPerforming statistical tests with %d repeats..." %
-                setlyze.config.cfg.get('test-repeats'))
+                self.n_repeats)
             # Update progress dialog.
             self.pdialog_handler.increase("Performing statistical tests with %s repeats..." %
-                setlyze.config.cfg.get('test-repeats'))
+                self.n_repeats)
             # Perform the repeats for the statistical tests. This will repeatedly
             # calculate the expected totals, so we'll use the expected values
             # of the last repeat for the non-repeated tests.
-            self.repeat_test(setlyze.config.cfg.get('test-repeats'))
+            self.repeat_test(self.n_repeats)
 
         if not self.stopped():
             # Create log message.
@@ -665,8 +641,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         if self.stopped():
             logging.info("Analysis aborted by user")
 
-            # Release the lock to shared resources.
-            self._lock.release()
+            # Exit gracefully.
+            self.on_exit()
             return
 
         # Update progress dialog.
@@ -683,8 +659,35 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
         logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
 
-        # Release the lock to shared resources.
-        self._lock.release()
+        # Exit gracefully.
+        self.on_exit()
+
+    def generate_spot_ratio_groups(self):
+        """Return an iterator that returns the ratio groups.
+
+        Each returned group is a list of ratios in the form of two-item
+        tuples.
+        """
+        for end in range(6, 31, 5):
+            group = setlyze.std.combinations_with_replacement(xrange(1,end), 2)
+            group = list(group)
+
+            if end > 6:
+                # Remove the ratios present in the previous group from
+                # the current group.
+                remove = setlyze.std.combinations_with_replacement(xrange(1,end-5), 2)
+                setlyze.std.remove_items_from_list(group,remove)
+            if end == 26:
+                # Plates with a 25:25 ratio will never be significant.
+                # So we remove this ratio, as it is useless.
+                group.remove((25,25))
+
+            yield group
+
+        all_ratios = list(setlyze.std.combinations_with_replacement(xrange(1,26), 2))
+        all_ratios.remove((25,25))
+
+        yield all_ratios
 
     def calculate_distances_inter(self):
         """Calculate the inter-specific spot distances for each plate
@@ -694,7 +697,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         Design Part: 1.27
         """
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
+        connection = self.db.conn
         cursor = connection.cursor()
         cursor2 = connection.cursor()
 
@@ -756,7 +759,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
     def calculate_distances_inter_expected(self):
         """Calculate the expected distances based on the observed
@@ -767,7 +769,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         """
 
         # Make a connection with the local database.
-        connection = sqlite.connect(self.dbfile)
+        connection = self.db.conn
         cursor = connection.cursor()
         cursor2 = connection.cursor()
 
@@ -816,7 +818,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # Close connection with the local database.
         cursor.close()
         cursor2.close()
-        connection.close()
 
     def calculate_significance(self):
         """Perform statistical tests to check if the differences between

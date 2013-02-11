@@ -227,6 +227,7 @@ class PrepareAnalysis(object):
         """
         # Check if there are any reports to display. If not, leave.
         if len(self.results) == 0:
+            logging.info("No results to show.")
             self.on_analysis_closed()
             return
         # Display the reports.
@@ -241,6 +242,7 @@ class AnalysisWorker(threading.Thread):
 
         self._stop = threading.Event()
         self._lock = lock
+        self.db = None
         self.pdialog_handler = None
         self.result = setlyze.report.Report()
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
@@ -255,6 +257,15 @@ class AnalysisWorker(threading.Thread):
     def stopped(self):
         """Return True if this thread needs to be stopped."""
         return self._stop.isSet()
+
+    def on_exit(self):
+        """Properly exit the thread.
+
+        Tasks:
+        * Close the connection to the database.
+        """
+        if self.db:
+            self.db.conn.close()
 
     def set_pdialog_handler(self, handler):
         """Set the progress dialog handler.
