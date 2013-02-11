@@ -126,7 +126,7 @@ class Worker(threading.Thread):
             try:
                 func, args, kargs = self.queue.get(False)
             except:
-                logging.info("Worker %d got bored and quit" % self.ident)
+                logging.info("Worker %s got bored and quit" % self.getName())
                 return
 
             # Execute the job.
