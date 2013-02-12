@@ -496,7 +496,7 @@ class SelectBatchAnalysis(object):
 
     def __init__(self):
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(module_path(), 'glade/window_select_analysis.glade'))
+        self.builder.add_from_file(os.path.join(module_path(), 'glade/select_batch_analysis.glade'))
 
         # Get some GTK objects.
         self.window = self.builder.get_object('window_select_analysis')
