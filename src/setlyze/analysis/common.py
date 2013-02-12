@@ -161,12 +161,12 @@ class PrepareAnalysis(object):
 
     def __init__(self):
         self.lock = threading.Lock()
-        self.thread_pool_size = 1
         self.signal_handlers = {}
         self.pdialog = None
         self.pool = None
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
+        self.thread_pool_size = setlyze.config.cfg.get('thread-pool-size')
         self.results = []
 
     def in_batch_mode(self):

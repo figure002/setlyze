@@ -3502,7 +3502,7 @@ class Preferences(gtk.Window):
         """Construct the layout."""
 
         # Create table container
-        table = gtk.Table(rows=5, columns=2, homogeneous=False)
+        table = gtk.Table(rows=6, columns=2, homogeneous=False)
         table.set_col_spacings(10)
         table.set_row_spacings(5)
 
@@ -3539,17 +3539,37 @@ class Preferences(gtk.Window):
         self.entry_test_repeats.set_text(str(setlyze.config.cfg.get('test-repeats')))
         self.entry_test_repeats.set_width_chars(7)
 
+        align2 = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=0.0, yscale=0.0)
+        align2.add(self.entry_test_repeats)
+
+        table.attach(align2, left_attach=1, right_attach=2,
+            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.SHRINK,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create a label
+        label_thread_pool = gtk.Label("Thread pool size for batch mode:")
+        label_thread_pool.set_justify(gtk.JUSTIFY_FILL)
+        label_thread_pool.set_alignment(xalign=0, yalign=0)
+        table.attach(label_thread_pool, left_attach=0, right_attach=1,
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
+
+        # Create an entry for test repeats.
+        self.entry_thread_pool = gtk.Entry(max=0)
+        self.entry_thread_pool.set_text(str(setlyze.config.cfg.get('thread-pool-size')))
+        self.entry_thread_pool.set_width_chars(7)
+
         align3 = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=0.0, yscale=0.0)
-        align3.add(self.entry_test_repeats)
+        align3.add(self.entry_thread_pool)
 
         table.attach(align3, left_attach=1, right_attach=2,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.SHRINK,
+            top_attach=2, bottom_attach=3, xoptions=gtk.FILL|gtk.SHRINK,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Put a separator above the buttons.
         separator = gtk.HSeparator()
         table.attach(separator, left_attach=0, right_attach=2,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
+            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Create a help button.
@@ -3563,7 +3583,7 @@ class Preferences(gtk.Window):
 
         # Add the about button to the table.
         table.attach(button_box_l, left_attach=0, right_attach=1,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
+            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Continue button.
@@ -3585,7 +3605,7 @@ class Preferences(gtk.Window):
 
         # Add the aligned button box to the table.
         table.attach(button_box_r, left_attach=1, right_attach=2,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
+            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
             yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
 
         # Add the table to the main window.
@@ -3613,6 +3633,18 @@ class Preferences(gtk.Window):
                 type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                 message_format="Invalid number of repeats")
             dialog.format_secondary_text( setlyze.locale.text('invalid-repeats-number') )
+            dialog.set_position(gtk.WIN_POS_CENTER)
+            response = dialog.run()
+            dialog.destroy()
+
+            # Don't destroy the Preferences dialog if saving setting failed.
+            return
+
+        if not self.set_thread_pool_size():
+            dialog = gtk.MessageDialog(parent=None, flags=0,
+                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                message_format="Invalid thread pool size")
+            dialog.format_secondary_text("You entered an invalid thread pool size. This can be a integer from 1 to 20.")
             dialog.set_position(gtk.WIN_POS_CENTER)
             response = dialog.run()
             dialog.destroy()
@@ -3656,6 +3688,24 @@ class Preferences(gtk.Window):
 
         # Set the new value.
         setlyze.config.cfg.set('test-repeats', test_repeats)
+
+        # Saving setting succeeded.
+        return True
+
+    def set_thread_pool_size(self):
+        """Set the thread pool size."""
+        try:
+            size = int(self.entry_thread_pool.get_text())
+        except:
+            # Saving setting failed.
+            return False
+
+        if not 1 <= size <= 20:
+            # Saving setting failed.
+            return False
+
+        # Set the new value.
+        setlyze.config.cfg.set('thread-pool-size', size)
 
         # Saving setting succeeded.
         return True
