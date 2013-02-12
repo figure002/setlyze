@@ -3480,139 +3480,31 @@ class SelectExportElements(gtk.Dialog):
             if element in uncheck:
                 button.set_active(False)
 
-class Preferences(gtk.Window):
-    """Display a preferences dialog which allows the user to configure
-    the application.
+class Preferences(object):
+    """Display the preferences dialog.
+
+    The preferences dialog allows the user to customize some settings.
     """
 
     def __init__(self):
-        super(Preferences, self).__init__()
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(module_path(), 'glade/preferences.glade'))
 
-        self.set_title("Preferences")
-        self.set_size_request(-1, -1)
-        self.set_border_width(10)
-        self.set_position(gtk.WIN_POS_CENTER)
-        self.set_resizable(True)
-        self.set_keep_above(True)
-
-        # Construct the layout.
-        self.create_layout()
-
-    def create_layout(self):
-        """Construct the layout."""
-
-        # Create table container
-        table = gtk.Table(rows=6, columns=2, homogeneous=False)
-        table.set_col_spacings(10)
-        table.set_row_spacings(5)
-
-        # Create a label
-        label_alpha_level = gtk.Label("Alpha level (α) for statistical tests:")
-        label_alpha_level.set_justify(gtk.JUSTIFY_FILL)
-        label_alpha_level.set_alignment(xalign=0, yalign=0)
-        table.attach(label_alpha_level, left_attach=0, right_attach=1,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create an entry for the alpha level.
-        self.entry_alpha_level = gtk.Entry(max=5)
+        # Get some GTK objects.
+        self.window = self.builder.get_object('window_preferences')
+        self.entry_alpha_level = self.builder.get_object('entry_alpha_level')
         self.entry_alpha_level.set_text(str(setlyze.config.cfg.get('alpha-level')))
-        self.entry_alpha_level.set_width_chars(5)
-
-        align1 = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=0.0, yscale=0.0)
-        align1.add(self.entry_alpha_level)
-
-        table.attach(align1, left_attach=1, right_attach=2,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create a label
-        label_test_repeats = gtk.Label("Number of repeats for statistical tests:")
-        label_test_repeats.set_justify(gtk.JUSTIFY_FILL)
-        label_test_repeats.set_alignment(xalign=0, yalign=0)
-        table.attach(label_test_repeats, left_attach=0, right_attach=1,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create an entry for test repeats.
-        self.entry_test_repeats = gtk.Entry(max=0)
+        self.entry_test_repeats = self.builder.get_object('entry_test_repeats')
         self.entry_test_repeats.set_text(str(setlyze.config.cfg.get('test-repeats')))
-        self.entry_test_repeats.set_width_chars(7)
-
-        align2 = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=0.0, yscale=0.0)
-        align2.add(self.entry_test_repeats)
-
-        table.attach(align2, left_attach=1, right_attach=2,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.SHRINK,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create a label
-        label_thread_pool = gtk.Label("Thread pool size for batch mode:")
-        label_thread_pool.set_justify(gtk.JUSTIFY_FILL)
-        label_thread_pool.set_alignment(xalign=0, yalign=0)
-        table.attach(label_thread_pool, left_attach=0, right_attach=1,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create an entry for test repeats.
-        self.entry_thread_pool = gtk.Entry(max=0)
-        self.entry_thread_pool.set_text(str(setlyze.config.cfg.get('thread-pool-size')))
-        self.entry_thread_pool.set_width_chars(7)
-
-        align3 = gtk.Alignment(xalign=0.0, yalign=0.0, xscale=0.0, yscale=0.0)
-        align3.add(self.entry_thread_pool)
-
-        table.attach(align3, left_attach=1, right_attach=2,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL|gtk.SHRINK,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Put a separator above the buttons.
-        separator = gtk.HSeparator()
-        table.attach(separator, left_attach=0, right_attach=2,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create a help button.
-        button_help = gtk.Button(stock=gtk.STOCK_HELP)
+        self.entry_thread_pool_size = self.builder.get_object('entry_thread_pool_size')
+        self.entry_thread_pool_size.set_text(str(setlyze.config.cfg.get('thread-pool-size')))
+        button_help = self.builder.get_object('button_help')
         button_help.connect("clicked", on_help, 'preferences-dialog')
+        button_cancel = self.builder.get_object('button_cancel')
+        button_ok = self.builder.get_object('button_ok')
 
-        # Put the buttons in a horizontal button box.
-        button_box_l = gtk.HButtonBox()
-        button_box_l.set_layout(gtk.BUTTONBOX_START)
-        button_box_l.pack_start(button_help, expand=True, fill=True, padding=0)
-
-        # Add the about button to the table.
-        table.attach(button_box_l, left_attach=0, right_attach=1,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Continue button.
-        button_ok = gtk.Button(stock=gtk.STOCK_OK)
-        button_ok.set_size_request(70, -1)
-        button_ok.connect("clicked", self.on_ok)
-
-        # Quit button.
-        button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
-        button_cancel.set_size_request(70, -1)
-        button_cancel.connect("clicked", self.on_cancel)
-
-        # Put the buttons in a horizontal box.
-        button_box_r = gtk.HButtonBox()
-        button_box_r.set_layout(gtk.BUTTONBOX_END)
-        button_box_r.set_spacing(5)
-        button_box_r.pack_start(button_cancel, expand=True, fill=True, padding=0)
-        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
-
-        # Add the aligned button box to the table.
-        table.attach(button_box_r, left_attach=1, right_attach=2,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Add the table to the main window.
-        self.add(table)
-
-        # Make it visible.
-        self.show_all()
+        # Connect the window signals to the handlers.
+        self.builder.connect_signals(self)
 
     def on_ok(self, widget, data=None):
         """Save new settings and close the preferences dialog."""
@@ -3624,8 +3516,6 @@ class Preferences(gtk.Window):
             dialog.set_position(gtk.WIN_POS_CENTER)
             dialog.run()
             dialog.destroy()
-
-            # Don't destroy the Preferences dialog if saving setting failed.
             return
 
         if not self.set_test_repeats():
@@ -3636,8 +3526,6 @@ class Preferences(gtk.Window):
             dialog.set_position(gtk.WIN_POS_CENTER)
             response = dialog.run()
             dialog.destroy()
-
-            # Don't destroy the Preferences dialog if saving setting failed.
             return
 
         if not self.set_thread_pool_size():
@@ -3648,71 +3536,59 @@ class Preferences(gtk.Window):
             dialog.set_position(gtk.WIN_POS_CENTER)
             response = dialog.run()
             dialog.destroy()
-
-            # Don't destroy the Preferences dialog if saving setting failed.
             return
 
-        self.destroy()
+        # Close the window if all new values were saved successfully.
+        self.window.destroy()
 
     def set_alpha_level(self):
-        """Set the new alpha level for statistical test. Return True if
-        succeeded, or False if failed."""
+        """Set the new alpha level for statistical test.
+
+        Return False if this fails, True otherwise.
+        """
         try:
             alpha_level = float(self.entry_alpha_level.get_text())
         except:
-            # Saving setting failed.
             return False
-
+        # Check if the new value is valid.
         if not 0.0 < alpha_level < 1.0:
-            # Saving setting failed.
             return False
-
-        # Set the new value.
         setlyze.config.cfg.set('alpha-level', alpha_level)
-
-        # Saving setting succeeded.
         return True
 
     def set_test_repeats(self):
         """Set the new value for the number of repeats for statistical tests.
-        Return True if succeeded, or False if failed."""
+
+        Return False if this fails, True otherwise.
+        """
         try:
             test_repeats = int(self.entry_test_repeats.get_text())
         except:
-            # Saving setting failed.
             return False
-
+        # Check if the new value is valid.
         if not test_repeats > 1:
-            # Saving setting failed.
             return False
-
-        # Set the new value.
         setlyze.config.cfg.set('test-repeats', test_repeats)
-
-        # Saving setting succeeded.
         return True
 
     def set_thread_pool_size(self):
-        """Set the thread pool size."""
+        """Set the new value for the thread pool size.
+
+        Return False if this fails, True otherwise.
+        """
         try:
-            size = int(self.entry_thread_pool.get_text())
+            size = int(self.entry_thread_pool_size.get_text())
         except:
-            # Saving setting failed.
             return False
-
+        # Check if the new value is valid.
         if not 1 <= size <= 20:
-            # Saving setting failed.
             return False
-
-        # Set the new value.
         setlyze.config.cfg.set('thread-pool-size', size)
-
-        # Saving setting succeeded.
         return True
 
     def on_cancel(self, widget, data=None):
         """Close the preferences dialog."""
-        self.destroy()
+        self.window.destroy()
 
     def on_about(self, widget, data=None):
         """Display SETLyze's about dialog."""
