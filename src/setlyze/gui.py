@@ -3508,83 +3508,69 @@ class Preferences(object):
 
     def on_ok(self, widget, data=None):
         """Save new settings and close the preferences dialog."""
-        if not self.set_alpha_level():
-            dialog = gtk.MessageDialog(parent=None, flags=0,
-                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                message_format="Invalid alpha level")
-            dialog.format_secondary_text( setlyze.locale.text('invalid-alpha-level') )
-            dialog.set_position(gtk.WIN_POS_CENTER)
-            dialog.run()
-            dialog.destroy()
+        try:
+            self.set_alpha_level()
+        except ValueError as e:
+            self.on_error("Invalid alpha level", "Error: %s" % e)
             return
 
-        if not self.set_test_repeats():
-            dialog = gtk.MessageDialog(parent=None, flags=0,
-                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                message_format="Invalid number of repeats")
-            dialog.format_secondary_text( setlyze.locale.text('invalid-repeats-number') )
-            dialog.set_position(gtk.WIN_POS_CENTER)
-            response = dialog.run()
-            dialog.destroy()
+        try:
+            self.set_test_repeats()
+        except ValueError as e:
+            self.on_error("Invalid number of repeats", "Error: %s" % e)
             return
 
-        if not self.set_thread_pool_size():
-            dialog = gtk.MessageDialog(parent=None, flags=0,
-                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                message_format="Invalid thread pool size")
-            dialog.format_secondary_text("You entered an invalid thread pool size. This can be a integer from 1 to 20.")
-            dialog.set_position(gtk.WIN_POS_CENTER)
-            response = dialog.run()
-            dialog.destroy()
+        try:
+            self.set_thread_pool_size()
+        except ValueError as e:
+            self.on_error("Invalid thread pool size", "Error: %s" % e)
             return
 
         # Close the window if all new values were saved successfully.
         self.window.destroy()
 
+    def on_error(self, title, message):
+        """Display an error dialog."""
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+            message_format=title)
+        dialog.format_secondary_text(message)
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        response = dialog.run()
+        dialog.destroy()
+
     def set_alpha_level(self):
         """Set the new alpha level for statistical test.
 
-        Return False if this fails, True otherwise.
+        Raises a ValueError if this fails.
         """
-        try:
-            alpha_level = float(self.entry_alpha_level.get_text())
-        except:
-            return False
+        alpha_level = float(self.entry_alpha_level.get_text())
         # Check if the new value is valid.
         if not 0.0 < alpha_level < 1.0:
-            return False
+            raise ValueError("Alpha level must be a float between 0.0 and 1.0.")
         setlyze.config.cfg.set('alpha-level', alpha_level)
-        return True
 
     def set_test_repeats(self):
         """Set the new value for the number of repeats for statistical tests.
 
-        Return False if this fails, True otherwise.
+        Raises a ValueError if this fails.
         """
-        try:
-            test_repeats = int(self.entry_test_repeats.get_text())
-        except:
-            return False
+        test_repeats = int(self.entry_test_repeats.get_text())
         # Check if the new value is valid.
         if not test_repeats > 1:
-            return False
+            raise ValueError("Number of test repeats must be an integer greater than 1.")
         setlyze.config.cfg.set('test-repeats', test_repeats)
-        return True
 
     def set_thread_pool_size(self):
         """Set the new value for the thread pool size.
 
-        Return False if this fails, True otherwise.
+        Raises a ValueError if this fails.
         """
-        try:
-            size = int(self.entry_thread_pool_size.get_text())
-        except:
-            return False
+        size = int(self.entry_thread_pool_size.get_text())
         # Check if the new value is valid.
         if not 1 <= size <= 20:
-            return False
+            raise ValueError("The thread pool size must be an integer from 1 to 20.")
         setlyze.config.cfg.set('thread-pool-size', size)
-        return True
 
     def on_cancel(self, widget, data=None):
         """Close the preferences dialog."""
