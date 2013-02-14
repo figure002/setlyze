@@ -3143,10 +3143,7 @@ class Report(gtk.Window):
         # Add columns to the tree view.
         column_names = statistics['attr']['columns']
         for i, name in enumerate(column_names):
-            if i > 1:
-                column = gtk.TreeViewColumn(name, render_toggle, active=i)
-            else:
-                column = gtk.TreeViewColumn(name, render_text, text=i)
+            column = gtk.TreeViewColumn(name, render_text, text=i)
             column.set_sort_column_id(i)
             if i == 0: column.set_expand(True)
             tree.append_column(column)
@@ -3155,15 +3152,15 @@ class Report(gtk.Window):
         liststore = gtk.ListStore(
             gobject.TYPE_STRING,
             gobject.TYPE_INT,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
         )
 
         for row in statistics['results']:
@@ -3213,10 +3210,7 @@ class Report(gtk.Window):
         # Add columns to the tree view.
         column_names = statistics['attr']['columns']
         for i, name in enumerate(column_names):
-            if i > 1:
-                column = gtk.TreeViewColumn(name, render_toggle, active=i)
-            else:
-                column = gtk.TreeViewColumn(name, render_text, text=i)
+            column = gtk.TreeViewColumn(name, render_text, text=i)
             column.set_sort_column_id(i)
             if i == 0: column.set_expand(True)
             tree.append_column(column)
@@ -3225,54 +3219,54 @@ class Report(gtk.Window):
         liststore = gtk.ListStore(
             gobject.TYPE_STRING,
             gobject.TYPE_INT,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
         )
 
         for row in statistics['results']:
@@ -3322,10 +3316,7 @@ class Report(gtk.Window):
         # Add columns to the tree view.
         column_names = statistics['attr']['columns']
         for i, name in enumerate(column_names):
-            if i > 2:
-                column = gtk.TreeViewColumn(name, render_toggle, active=i)
-            else:
-                column = gtk.TreeViewColumn(name, render_text, text=i)
+            column = gtk.TreeViewColumn(name, render_text, text=i)
             column.set_sort_column_id(i)
             if i in (0,1): column.set_expand(True)
             tree.append_column(column)
@@ -3335,18 +3326,18 @@ class Report(gtk.Window):
             gobject.TYPE_STRING,
             gobject.TYPE_STRING,
             gobject.TYPE_INT,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
-            gobject.TYPE_BOOLEAN,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
         )
 
         for row in statistics['results']:

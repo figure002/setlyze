@@ -2101,11 +2101,11 @@ class ExportRstReport(object):
         for row in statistics['results']:
             c_row = []
             for col,val in enumerate(row):
-                if val == True:
+                if val is True:
                     c_row.append('y')
-                elif val == False:
+                elif val is False:
                     c_row.append('n')
-                elif val == None:
+                elif val is None:
                     c_row.append('')
                 elif col in species_cols:
                     c_row.append("*%s*" % val)

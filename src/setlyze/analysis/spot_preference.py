@@ -260,8 +260,8 @@ class BeginBatch(Begin):
                     'columns': ('Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq')
                 },
                 'results': [
-                    ['Obelia dichotoma', 166, True, False, True, True, True, True, False, True, True],
-                    ['Obelia geniculata', 88, False, False, True, True, False, True, False, True, True],
+                    ['Obelia dichotoma', 166, 'p', 'n', 'r', 'r', 'p', 'r', 'n', 'r', 's'],
+                    ['Obelia geniculata', 88, 'n', 'n', 'r', 'n', 'n', 'r', 'n', 'r', 's'],
                     ...
                 ]
             }
@@ -284,15 +284,27 @@ class BeginBatch(Begin):
             for plate_area in areas:
                 stats = wilcoxon['results'].get(plate_area, None)
                 if stats:
-                    boolean = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
-                    bools.append(boolean)
+                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    if significant:
+                        # Significant: preference or rejection.
+                        if stats['n_preference'] > stats['n_rejection']:
+                            bools.append('p')
+                        else:
+                            bools.append('r')
+                    else:
+                        # Not significant.
+                        bools.append('n')
                 else:
+                    # No data.
                     bools.append(None)
 
             # At the boolean for the Chi squared test. This is either
             # significant or not.
-            boolean = chi_squared['results']['p_value'] < self.alpha_level
-            bools.append(boolean)
+            significant = chi_squared['results']['p_value'] < self.alpha_level
+            if significant:
+                bools.append('s')
+            else:
+                bools.append('n')
 
             # Only add the row to the report if one item in the row was
             # significant.

@@ -379,8 +379,8 @@ class BeginBatch(Begin):
                     'columns': ('Species A', 'Species B', 'n (plates)', 'Wilcoxon 1-5', '1', '2', '3', '4', '5', 'Chi sq 1-5', '1', '2', '3', '4', '5')
                 },
                 'results': [
-                    ['Obelia dichotoma', 'Obelia geniculata', 12, False, True, True, False, None, None, False, True, True, False, None, None],
-                    ['Obelia dichotoma', 'Obelia longissima', 73, True, True, True, True, True, False, True, True, True, True, True, True],
+                    ['Obelia dichotoma', 'Obelia geniculata', 12, 'n', 'r', 'a', 'n', None, None, 'n', 's', 's', 'n', None, None],
+                    ['Obelia dichotoma', 'Obelia longissima', 73, 'r', 'r', 'r', 'r', 'r', 'r', 's', 's', 's', 's', 's', 's'],
                     ...
                 ]
             }
@@ -405,18 +405,31 @@ class BeginBatch(Begin):
             for ratio in ratio_groups:
                 stats = wilcoxon['results'].get(ratio, None)
                 if stats:
-                    boolean = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
-                    bools.append(boolean)
+                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    if significant:
+                        # Significant: attraction or repulsion.
+                        if stats['n_attraction'] > stats['n_repulsion']:
+                            bools.append('a')
+                        else:
+                            bools.append('r')
+                    else:
+                        # Not significant.
+                        bools.append('n')
                 else:
+                    # No data.
                     bools.append(None)
 
             # At the booleans for the Chi squared tests.
             for ratio in ratio_groups:
                 stats = chi_squared['results'].get(ratio, None)
                 if stats:
-                    boolean = stats['p_value'] < self.alpha_level
-                    bools.append(boolean)
+                    significant = stats['p_value'] < self.alpha_level
+                    if significant:
+                        bools.append('s')
+                    else:
+                        bools.append('n')
                 else:
+                    # No data.
                     bools.append(None)
 
             # Only add the row to the report if one item in the row was

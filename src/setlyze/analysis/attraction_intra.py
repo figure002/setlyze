@@ -251,11 +251,11 @@ class BeginBatch(Begin):
 
             {
                 'attr': {
-                    'format': ('Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24')
+                    'columns': ('Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24')
                 },
                 'results': [
-                    ['Obelia dichotoma', 143, True, False, False, False, False, False, True, True, False, False, False, False, False, False, False, True, False, False, None, False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, False, True, False, True, True, True, False, False, None, False, False, False, False, False],
-                    ['Obelia geniculata', 62, True, False, False, True, False, False, False, False, False, None, False, True, True, None, True, True, None, None, None, None, None, None, None, None, True, True, False, True, False, False, False, True, True, None, True, True, True, None, True, True, None, None, None, None, None, None, None, None],
+                    ['Obelia dichotoma', 143, 'r', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'r', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', None, 'n', 'n', 'n', 'n', 'n', 's', 's', 's', 's', 's', 's', 's', 's', 's', 's', 'n', 's', 'n', 's', 's', 's', 'n', 'n', None, 'n', 'n', 'n', 'n', 'n'],
+                    ['Obelia geniculata', 62, 'r', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', None, 'n', 'r', 'n', None, 'n', 'r', None, None, None, None, None, None, None, None, 's', 's', 'n', 's', 'n', 'n', 'n', 's', 's', None, 's', 's', 's', None, 's', 's', None, None, None, None, None, None, None, None],
                     ...
                 ]
             }
@@ -278,18 +278,31 @@ class BeginBatch(Begin):
             for spots in positive_spots:
                 stats = wilcoxon['results'].get(spots, None)
                 if stats:
-                    boolean = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
-                    bools.append(boolean)
+                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    if significant:
+                        # Significant: attraction or repulsion.
+                        if stats['n_attraction'] > stats['n_repulsion']:
+                            bools.append('a')
+                        else:
+                            bools.append('r')
+                    else:
+                        # Not significant.
+                        bools.append('n')
                 else:
+                    # No data.
                     bools.append(None)
 
             # At the booleans for the Chi squared tests.
             for spots in positive_spots:
                 stats = chi_squared['results'].get(spots, None)
                 if stats:
-                    boolean = stats['p_value'] < self.alpha_level
-                    bools.append(boolean)
+                    significant = stats['p_value'] < self.alpha_level
+                    if significant:
+                        bools.append('s')
+                    else:
+                        bools.append('n')
                 else:
+                    # No data.
                     bools.append(None)
 
             # Only add the row to the report if one item in the row was
