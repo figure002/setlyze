@@ -21,6 +21,7 @@
 
 """This module contains common classes for analysis modules."""
 
+import os
 import logging
 import threading
 import Queue
@@ -167,7 +168,10 @@ class PrepareAnalysis(object):
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.thread_pool_size = setlyze.config.cfg.get('thread-pool-size')
+        self.save_individual_results = False
         self.results = []
+        self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
+        self.save_path = setlyze.config.cfg.get('job-results-save-path')
 
     def in_batch_mode(self):
         """Return True if we are in batch mode."""
@@ -216,9 +220,24 @@ class PrepareAnalysis(object):
         # the result that callback functions are called multiple times.
         self.unset_signal_handlers()
 
-    def on_thread_pool_job_completed(self, sender, result):
+    def on_select_save_path(self, sender, data):
+        """Let the user decide whether individual job results should be saved."""
+        setlyze.gui.SelectReportSavePath()
+
+    def on_thread_pool_job_completed(self, sender   , result):
         """Save the results of individual thread pool jobs."""
         self.results.append(result)
+
+        # Save reports for the individual analyses if desired.
+        print self.save_path
+        if self.in_batch_mode() and self.save_individual_results and \
+        os.path.isdir(self.save_path):
+            species_selection = [s for s in result.species_selections[0].values()]
+            species = species_selection[0]['name_latin']
+            if not species: species = species_selection[0]['name_common']
+            filename = "spot_preference_%s.rst" % (species)
+            path = os.path.join(self.save_path, filename)
+            setlyze.report.export(result, path, 'rst')
 
     def on_thread_pool_finished(self, sender=None):
         """Display the results.

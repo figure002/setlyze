@@ -152,6 +152,10 @@ DEFAULT_CONFIG = [
     ('test-repeats', 20),
     # The number of concurrent threads for batch analyses.
     ('thread-pool-size', 1),
+    # Save individual batch results.
+    ('save-batch-job-results', False),
+    # Save path for individual batch results.
+    ('job-results-save-path', None),
 ]
 
 class ConfigManager(object):
