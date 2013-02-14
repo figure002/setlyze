@@ -268,6 +268,8 @@ class BeginBatch(Begin):
         super(BeginBatch, self).__init__()
         logging.info("We are in batch mode")
 
+        self.report_prefix = "attraction_inter_"
+
     def set_signal_handlers(self):
         """Respond to signals emitted by the application."""
         self.signal_handlers = {

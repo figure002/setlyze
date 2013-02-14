@@ -172,6 +172,7 @@ class PrepareAnalysis(object):
         self.results = []
         self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
         self.save_path = setlyze.config.cfg.get('job-results-save-path')
+        self.report_prefix = "report_"
 
     def in_batch_mode(self):
         """Return True if we are in batch mode."""
@@ -224,7 +225,7 @@ class PrepareAnalysis(object):
         """Let the user decide whether individual job results should be saved."""
         setlyze.gui.SelectReportSavePath()
 
-    def on_thread_pool_job_completed(self, sender   , result):
+    def on_thread_pool_job_completed(self, sender, result):
         """Save the results of individual thread pool jobs."""
         self.results.append(result)
 
@@ -232,10 +233,18 @@ class PrepareAnalysis(object):
         print self.save_path
         if self.in_batch_mode() and self.save_individual_results and \
         os.path.isdir(self.save_path):
-            species_selection = [s for s in result.species_selections[0].values()]
-            species = species_selection[0]['name_latin']
-            if not species: species = species_selection[0]['name_common']
-            filename = "spot_preference_%s.rst" % (species)
+            species_list = []
+            for selection in result.species_selections:
+                species_selection = [s for s in selection.values()]
+                # In batch mode there should be just one species per selection.
+                species = species_selection[0]['name_latin']
+                if not species: species = species_selection[0]['name_common']
+                species_list.append(species)
+
+            if len(species_list) == 2:
+                filename = "%s%s_%s.rst" % (self.report_prefix, species_list[0], species_list[1])
+            else:
+                filename = "%s%s.rst" % (self.report_prefix, species_list[0])
             path = os.path.join(self.save_path, filename)
             setlyze.report.export(result, path, 'rst')
 
