@@ -545,11 +545,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         Design Part: 1.60
         """
-
-        # Add a short delay. This gives the progress dialog time to
-        # display properly.
-        time.sleep(0.5)
-
         if not self.stopped():
             # Make an object that facilitates access to the database.
             self.db = setlyze.database.get_database_accessor()
