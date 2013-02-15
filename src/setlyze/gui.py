@@ -3531,6 +3531,9 @@ class Preferences(object):
             self.on_error("Invalid thread pool size", "Error: %s" % e)
             return
 
+        # Save the configurations to a config file.
+        setlyze.config.cfg.save_to_file()
+
         # Close the window if all new values were saved successfully.
         self.window.destroy()
 

@@ -44,8 +44,7 @@ using its get() and set() methods.
 """
 
 import os
-import sys
-import logging
+import ConfigParser
 
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
@@ -63,6 +62,9 @@ DATA_PATH = os.path.expanduser(os.path.join('~','.setlyze'))
 
 # Path to the local database file.
 DB_FILE = os.path.join(DATA_PATH, 'setl_local.db')
+
+# Path to the configurations file.
+CONF_FILE = os.path.join(DATA_PATH, 'setlyze.conf')
 
 # The probability for each spot distance on a 5x5 SETL plate
 # (intra-specific).
@@ -178,6 +180,45 @@ class ConfigManager(object):
 
     def __init__(self):
         self._conf = dict(DEFAULT_CONFIG)
+        # Try to read configurations from a config file.
+        self.read_from_file()
+
+    def read_from_file(self):
+        """Read settings from a configuration file.
+
+        The configuration file is by default saved to
+        ``~/.setlyze/setlyze.cfg``. If a configuration file ``setlyze.cfg``
+        is present in the working directory, that file is used instead.
+        """
+        ints = ('test-repeats','thread-pool-size')
+        floats = ('alpha-level')
+        parser = ConfigParser.SafeConfigParser()
+        files = parser.read(['setlyze.cfg', CONF_FILE])
+        if len(files) > 0:
+            for section in ['general']:
+                for name in parser.options(section):
+                    if name in ints:
+                        self.set(name, parser.getint(section, name))
+                    elif name in floats:
+                        self.set(name, parser.getfloat(section, name))
+                    else:
+                        self.set(name, parser.get(section, name))
+
+    def save_to_file(self):
+        """Save user customizable settings to a configuration file."""
+        parser = ConfigParser.SafeConfigParser()
+        # Set the configurations.
+        parser.add_section('general')
+        parser.set('general', 'alpha-level', str(self.get('alpha-level')))
+        parser.set('general', 'thread-pool-size', str(self.get('thread-pool-size')))
+        parser.set('general', 'test-repeats', str(self.get('test-repeats')))
+        # Check if the data folder exists. If not, create it.
+        if not os.path.exists(DATA_PATH):
+            os.mkdir(DATA_PATH)
+        # Create new configurations file.
+        f = open(CONF_FILE, 'w')
+        parser.write(f)
+        f.close()
 
     def set(self, key, value, **kwargs):
         """Set the configuration with name `key` to `value`.
