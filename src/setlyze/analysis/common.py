@@ -230,7 +230,6 @@ class PrepareAnalysis(object):
         self.results.append(result)
 
         # Save reports for the individual analyses if desired.
-        print self.save_path
         if self.in_batch_mode() and self.save_individual_results and \
         os.path.isdir(self.save_path):
             species_list = []

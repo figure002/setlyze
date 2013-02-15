@@ -3135,8 +3135,8 @@ class Report(gtk.Window):
                     'columns': ('Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq')
                 },
                 'results': [
-                    ['Obelia dichotoma', 166, True, False, True, True, True, True, False, True, True],
-                    ['Obelia geniculata', 88, False, False, True, True, False, True, False, True, True],
+                    ['Obelia dichotoma', 166, 'p', 'n', 'r', 'r', 'p', 'r', 'n', 'r', 's'],
+                    ['Obelia geniculata', 88, 'n', 'n', 'r', 'n', 'n', 'r', 'n', 'r', 's'],
                     ...
                 ]
             }
@@ -3202,8 +3202,8 @@ class Report(gtk.Window):
                     'columns': ('Species', 'n (plates)', 'Wilcoxon 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', 'Chi sq 2-24', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24')
                 },
                 'results': [
-                    ['Obelia dichotoma', 143, True, False, False, False, False, False, True, True, False, False, False, False, False, False, False, True, False, False, None, False, False, False, False, False, True, True, True, True, True, True, True, True, True, True, False, True, False, True, True, True, False, False, None, False, False, False, False, False],
-                    ['Obelia geniculata', 62, True, False, False, True, False, False, False, False, False, None, False, True, True, None, True, True, None, None, None, None, None, None, None, None, True, True, False, True, False, False, False, True, True, None, True, True, True, None, True, True, None, None, None, None, None, None, None, None],
+                    ['Obelia dichotoma', 143, 'r', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'r', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', None, 'n', 'n', 'n', 'n', 'n', 's', 's', 's', 's', 's', 's', 's', 's', 's', 's', 'n', 's', 'n', 's', 's', 's', 'n', 'n', None, 'n', 'n', 'n', 'n', 'n'],
+                    ['Obelia geniculata', 62, 'r', 'n', 'n', 'n', 'n', 'n', 'n', 'n', 'n', None, 'n', 'r', 'n', None, 'n', 'r', None, None, None, None, None, None, None, None, 's', 's', 'n', 's', 'n', 'n', 'n', 's', 's', None, 's', 's', 's', None, 's', 's', None, None, None, None, None, None, None, None],
                     ...
                 ]
             }
@@ -3308,8 +3308,8 @@ class Report(gtk.Window):
                     'columns': ('Species A', 'Species B', 'n (plates)', 'Wilcoxon 1-5', '1', '2', '3', '4', '5', 'Chi sq 1-5', '1', '2', '3', '4', '5')
                 },
                 'results': [
-                    ['Obelia dichotoma', 'Obelia geniculata', 12, False, True, True, False, None, None, False, True, True, False, None, None],
-                    ['Obelia dichotoma', 'Obelia longissima', 73, True, True, True, True, True, False, True, True, True, True, True, True],
+                    ['Obelia dichotoma', 'Obelia geniculata', 12, 'n', 'r', 'a', 'n', None, None, 'n', 's', 's', 'n', None, None],
+                    ['Obelia dichotoma', 'Obelia longissima', 73, 'r', 'r', 'r', 'r', 'r', 'r', 's', 's', 's', 's', 's', 's'],
                     ...
                 ]
             }

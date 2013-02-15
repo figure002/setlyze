@@ -323,16 +323,23 @@ class Report(object):
         self.area_totals_expected = totals
 
     def set_statistics(self, name, data):
-        """Set statistics results `data` under key `name`.
+        """Set statistics results `data` under key `name` in self.statistics.
 
         This method is used to save results from statistical tests. The results
         must be supplied with the `data` argument. The `data` argument is a
         list containing dictionaries in the format
-        {'attr': {'<name>': <value>, ...}, 'results': {'<name>': <value>, ...}}
+        {'attr': {'<key>': <value>, ...}, 'results': {'<key>': <value>, ...}}
         where the value for 'attr' is a dictionary with the attributes for the
         test and 'results' is a dictionary with elements of the results.
 
-        Examples of `data` ::
+        The value for ``data['attr']['groups']`` tells what the dictionary keys
+        for ``data['results']`` represent. Possible groups are ``areas`` for
+        plate areas, ``spots`` for total positive spots, and ``ratios`` for
+        total positive spots ratio groups. If ``data['attr']['groups']`` is not
+        set, there are no groups, meaning that the ``data['results']``
+        dictionary contains results for a single statistical test.
+
+        Example of `data` without groups ::
 
             {
                 'attr': {
@@ -344,6 +351,8 @@ class Report(object):
                     'chi_squared': 3.13
                 }
             }
+
+        Examples of `data` with groups ::
 
             {
                 'attr': {
