@@ -282,7 +282,7 @@ class BeginBatch(Begin):
             # result is considered significant if 95% of the tests for a plate
             # area were significant.
             areas = ['A','B','C','D','A+B','C+D','A+B+C','B+C+D']
-            bools = []
+            row = []
             for plate_area in areas:
                 stats = wilcoxon['results'].get(plate_area, None)
                 if stats:
@@ -290,31 +290,31 @@ class BeginBatch(Begin):
                     if significant:
                         # Significant: preference or rejection.
                         if stats['n_preference'] > stats['n_rejection']:
-                            bools.append('p')
+                            row.append('p')
                         else:
-                            bools.append('r')
+                            row.append('r')
                     else:
                         # Not significant.
-                        bools.append('n')
+                        row.append('n')
                 else:
                     # No data.
-                    bools.append(None)
+                    row.append(None)
 
             # At the boolean for the Chi squared test. This is either
             # significant or not.
             significant = chi_squared['results']['p_value'] < self.alpha_level
             if significant:
-                bools.append('s')
+                row.append('s')
             else:
-                bools.append('n')
+                row.append('n')
 
             # Only add the row to the report if one item in the row was
             # significant.
-            for b in bools:
-                if b:
-                    row = [species, wilcoxon['attr']['n_plates']]
-                    row.extend(bools)
-                    report['results'].append(row)
+            for c in row:
+                if c and c in 'prs':
+                    r = [species, wilcoxon['attr']['n_plates']]
+                    r.extend(row)
+                    report['results'].append(r)
                     break
 
         return report

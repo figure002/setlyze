@@ -403,7 +403,7 @@ class BeginBatch(Begin):
             # significant. A result is considered significant if 95% of the
             # tests for a plate area were significant.
             ratio_groups = [-5,1,2,3,4,5]
-            bools = []
+            row = []
             for ratio in ratio_groups:
                 stats = wilcoxon['results'].get(ratio, None)
                 if stats:
@@ -411,15 +411,15 @@ class BeginBatch(Begin):
                     if significant:
                         # Significant: attraction or repulsion.
                         if stats['n_attraction'] > stats['n_repulsion']:
-                            bools.append('a')
+                            row.append('a')
                         else:
-                            bools.append('r')
+                            row.append('r')
                     else:
                         # Not significant.
-                        bools.append('n')
+                        row.append('n')
                 else:
                     # No data.
-                    bools.append(None)
+                    row.append(None)
 
             # At the booleans for the Chi squared tests.
             for ratio in ratio_groups:
@@ -427,20 +427,20 @@ class BeginBatch(Begin):
                 if stats:
                     significant = stats['p_value'] < self.alpha_level
                     if significant:
-                        bools.append('s')
+                        row.append('s')
                     else:
-                        bools.append('n')
+                        row.append('n')
                 else:
                     # No data.
-                    bools.append(None)
+                    row.append(None)
 
             # Only add the row to the report if one item in the row was
             # significant.
-            for b in bools:
-                if b:
-                    row = [species_a, species_b, wilcoxon['attr']['n_plates']]
-                    row.extend(bools)
-                    report['results'].append(row)
+            for c in row:
+                if c and c in 'ars':
+                    r = [species_a, species_b, wilcoxon['attr']['n_plates']]
+                    r.extend(row)
+                    report['results'].append(r)
                     break
 
         return report
