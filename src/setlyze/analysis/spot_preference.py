@@ -58,7 +58,7 @@ __author__ = ("Jonathan den Boer, Serrano Pereira, Adam van Adrichem, "
         "Fedde Schaeffer")
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __license__ = "GPL3"
-__version__ = "0.2"
+__version__ = "0.3"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
