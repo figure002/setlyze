@@ -83,7 +83,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
     def __init__(self):
         super(Begin, self).__init__()
-        logging.info("Beginning analysis ”Spot preference”")
+        logging.info("Beginning analysis Spot Preference")
 
         # Bind handles to application signals.
         self.set_signal_handlers()

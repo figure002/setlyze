@@ -97,7 +97,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 
     def __init__(self):
         super(Begin, self).__init__()
-        logging.info("Beginning analysis ”Attraction within species”")
+        logging.info("Beginning analysis Attraction within Species")
 
         # Bind handles to application signals.
         self.set_signal_handlers()

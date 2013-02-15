@@ -38,7 +38,7 @@ __date__ = "2013/02/02"
 
 class Begin(setlyze.analysis.common.PrepareAnalysis):
     def __init__(self):
-        logging.info("Beginning Analysis ”Relation between species”")
+        logging.info("Beginning analysis Relation between Species")
         setlyze.gui.on_not_implemented()
 
 class BeginBatch(Begin):
