@@ -40,6 +40,7 @@ can be broken down in the following steps:
 
 import logging
 import time
+import collections
 
 import gobject
 import pygtk
@@ -364,9 +365,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
         self.statistics = {
-            'wilcoxon_areas': {'attr': None, 'results':{}},
-            'chi_squared_areas': {'attr': None, 'results':{}},
-            'wilcoxon_areas_repeats': {'attr': None, 'results':{}}
+            'chi_squared_areas': {'attr': None, 'results': {}},
+            'wilcoxon_areas': {'attr': None, 'results': collections.OrderedDict()},
+            'wilcoxon_areas_repeats': {'attr': None, 'results': collections.OrderedDict()}
         }
 
         # Create log message.
