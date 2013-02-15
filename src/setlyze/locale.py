@@ -120,7 +120,7 @@ ENGLISH = [
         "You entered an invalid repeats number. The number of repeats for "
         "statistical tests must be 2 or higher."),
     ('empty-plate-areas',
-        "The selected species weren't found on any SETL-plates from the selected "
+        "The selected species weren't found on any SETL plates from the selected "
         "locations. Try again with different locations or select more "
         "locations."),
     ('t-plate-areas-definition',

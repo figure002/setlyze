@@ -122,6 +122,8 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
             # Cancel button pressed.
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
+            # Analysis aborted.
+            'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
             # Progress dialog closed
             'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
             # A thread pool job was completed.
@@ -204,15 +206,9 @@ class BeginBatch(Begin):
 
         # Print elapsed time after each sub-analysis.
         self.signal_handlers['analysis-finished'] = setlyze.std.sender.connect('analysis-finished', self.print_elapsed_time)
-
-    def on_analysis_aborted(self, sender):
-        dialog = gtk.MessageDialog(parent=None, flags=0,
-            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
-            message_format="No species were found")
-        dialog.format_secondary_text(setlyze.locale.text('empty-plate-areas'))
-        dialog.set_position(gtk.WIN_POS_CENTER)
-        dialog.run()
-        dialog.destroy()
+        # Don't print abort messages during batch mode.
+        setlyze.std.sender.disconnect(self.signal_handlers['analysis-aborted'])
+        self.signal_handlers['analysis-aborted'] = None
 
     def on_start_analysis(self, sender=None, data=None):
         """Run analysis Spot Preference in batch mode.
@@ -461,7 +457,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 areas_total += area_total
             if areas_total == 0:
                 logging.info("The species was not found on any plates, aborting.")
-                gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted')
+                gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted',
+                    setlyze.locale.text('empty-plate-areas'))
 
                 # Exit gracefully.
                 self.on_exit()

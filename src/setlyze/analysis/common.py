@@ -183,7 +183,19 @@ class PrepareAnalysis(object):
         created by this analysis.
         """
         for handler in self.signal_handlers.values():
-            setlyze.std.sender.disconnect(handler)
+            if handler:
+                setlyze.std.sender.disconnect(handler)
+
+    def on_analysis_aborted(self, sender, reason):
+        """Display an information dialog with the reason for the abortion."""
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            message_format="Analysis aborted")
+        dialog.format_secondary_text("The analysis was aborted for the "
+            "following reason:\n\n%s" % reason)
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
 
     def on_cancel_button(self, sender):
         """Callback function for the Cancel button.
@@ -211,6 +223,9 @@ class PrepareAnalysis(object):
 
     def on_analysis_closed(self, sender=None, data=None):
         """Show the main window and unset the signal handler."""
+        # Destroy the progress dialog.
+        if self.pdialog:
+            self.pdialog.destroy()
 
         # This causes the main window to show.
         setlyze.std.sender.emit('analysis-closed')
