@@ -877,13 +877,6 @@ class MakeLocalDB(threading.Thread):
         self.create_table_species()
         self.create_table_plates()
         self.create_table_records()
-        self.create_table_species_spots_1()
-        self.create_table_species_spots_2()
-        self.create_table_spot_distances_observed()
-        self.create_table_spot_distances_expected()
-        self.create_table_plate_spot_totals()
-        self.create_table_plate_area_totals_observed()
-        self.create_table_plate_area_totals_expected()
 
         # Commit the transaction.
         self.connection.commit()
