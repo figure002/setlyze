@@ -485,10 +485,9 @@ class SelectAnalysis(gtk.Window):
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Loading SETL Data",
             description="Please wait while the data from the SETL database is being loaded...")
-        setlyze.config.cfg.set('progress-dialog', pd)
 
         # Make the local database.
-        t = setlyze.database.MakeLocalDB()
+        t = setlyze.database.MakeLocalDB(pd)
         t.start()
 
 class SelectBatchAnalysis(object):
@@ -1943,10 +1942,9 @@ class ChangeDataSource(gtk.Window):
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Loading data",
             description="Please wait while the data is being loaded...")
-        setlyze.config.cfg.set('progress-dialog', pd)
 
         # Make a new local database.
-        t = setlyze.database.MakeLocalDB()
+        t = setlyze.database.MakeLocalDB(pd)
         t.start()
 
         # Close the dialog.
@@ -1989,10 +1987,9 @@ class ChangeDataSource(gtk.Window):
         # Show a progress dialog.
         pd = setlyze.gui.ProgressDialog(title="Loading data",
             description="Please wait while the data is being loaded...")
-        setlyze.config.cfg.set('progress-dialog', pd)
 
         # Make a new local database.
-        t = setlyze.database.MakeLocalDB()
+        t = setlyze.database.MakeLocalDB(pd)
         t.start()
 
         # Close the dialog.
@@ -2003,9 +2000,6 @@ class ChangeDataSource(gtk.Window):
         from the selected CSV or XLS files failed.
         """
         self.unset_signal_handlers()
-
-        # Close the progress dialog.
-        setlyze.config.cfg.get('progress-dialog').destroy()
 
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,

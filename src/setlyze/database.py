@@ -144,14 +144,18 @@ class MakeLocalDB(threading.Thread):
     Design Part: 1.2
     """
 
-    def __init__(self):
+    def __init__(self, pd=None):
         logging.debug("MakeLocalDB.__init__ is called")
         super(MakeLocalDB, self).__init__()
 
-        self.cursor = None
-        self.connection = None
         self.dbfile = setlyze.config.cfg.get('db-file')
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+        self.connection = None
+        self.cursor = None
+
+    def on_exit(self):
+        self.cursor.close()
+        self.connection.close()
 
     def run(self):
         """Decide based on the configuration variables which functions
@@ -179,6 +183,10 @@ class MakeLocalDB(threading.Thread):
 
         # Check if we need to make a new database file.
         if setlyze.config.cfg.get('make-new-db'):
+            # Make sqlite database connection.
+            self.connection = sqlite.connect(self.dbfile)
+            self.cursor = self.connection.cursor()
+
             # Create new database with data.
             if setlyze.config.cfg.get('data-source') == "setl-database":
                 self.insert_from_db()
@@ -187,8 +195,13 @@ class MakeLocalDB(threading.Thread):
             elif setlyze.config.cfg.get('data-source') == "xls":
                 self.insert_from_xls()
             else:
+                # Exit gracefully.
+                self.on_exit()
                 raise ValueError("Encountered unknown data source '%s'" %
                     setlyze.config.cfg.get('data-source'))
+
+            # Exit gracefully.
+            self.on_exit()
 
             # Emit the signal that the local database has been created.
             # Note that the signal will be sent from a separate thread,
@@ -224,10 +237,6 @@ class MakeLocalDB(threading.Thread):
         # First, create a new database file.
         self.create_new_db()
 
-        # Create a connection with the local database.
-        self.connection = sqlite.connect(self.dbfile)
-        self.cursor = self.connection.cursor()
-
         # Add some meta-data to a separate table in the local database.
         # Add the data source we can figure out what kind of data is
         # present.
@@ -242,73 +251,37 @@ class MakeLocalDB(threading.Thread):
         self.pdialog_handler.set_total_steps(4)
 
         # Insert the data from the CSV files into the local database.
-        filename = os.path.split(setlyze.config.cfg.get('localities-file'))[1]
-        self.pdialog_handler.set_action("Importing %s" % filename)
         try:
+            filename = os.path.split(setlyze.config.cfg.get('localities-file'))[1]
+            self.pdialog_handler.set_action("Importing %s" % filename)
             self.insert_localities_from_csv()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
-            # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading localities data from %s failed." % filename)
-            return
 
-        filename = os.path.split(setlyze.config.cfg.get('plates-file'))[1]
-        self.pdialog_handler.increase("Importing %s" % filename)
-        try:
+            filename = os.path.split(setlyze.config.cfg.get('plates-file'))[1]
+            self.pdialog_handler.increase("Importing %s" % filename)
             self.insert_plates_from_csv()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
-            # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading plates data from %s failed." % filename)
-            return
 
-        filename = os.path.split(setlyze.config.cfg.get('records-file'))[1]
-        self.pdialog_handler.increase("Importing %s" % filename)
-        try:
+            filename = os.path.split(setlyze.config.cfg.get('records-file'))[1]
+            self.pdialog_handler.increase("Importing %s" % filename)
             self.insert_records_from_csv()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
-            # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading records data from %s failed." % filename)
-            return
 
-        filename = os.path.split(setlyze.config.cfg.get('species-file'))[1]
-        self.pdialog_handler.increase("Importing %s" % filename)
-        try:
+            filename = os.path.split(setlyze.config.cfg.get('species-file'))[1]
+            self.pdialog_handler.increase("Importing %s" % filename)
             self.insert_species_from_csv()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
+
+            # Commit the database changes.
+            self.connection.commit()
+        except Exception as e:
+            # Destroy the progress dialog.
+            self.pdialog_handler.destroy()
+            # Rollback changes to the database.
+            self.connection.rollback()
             # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading species data from %s failed." % filename)
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed', e)
             return
 
         # If we are here, the import was successful. Set the progress dialog
         # to 100%.
         self.pdialog_handler.increase("")
-
-        # Close the connection with the database.
-        self.cursor.close()
-        self.connection.close()
 
         logging.info("Local database populated.")
         setlyze.config.cfg.set('has-local-db', True)
@@ -333,11 +306,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing localities data from %s" % setlyze.config.cfg.get('localities-file'))
 
         # Try to open the CSV file.
-        try:
-            f = open(setlyze.config.cfg.get('localities-file'), 'r')
-        except IOError, e:
-            logging.error(e)
-            return False
+        f = open(setlyze.config.cfg.get('localities-file'), 'r')
 
         # Use Python's CSV module to create a CSV reader.
         setl_reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar)
@@ -352,9 +321,6 @@ class MakeLocalDB(threading.Thread):
             self.cursor.execute("INSERT INTO localities VALUES (?,?,?,?,?)",
                 (row[0],row[1],row[2],row[3],row[4])
                 )
-
-        # Commit the database changes.
-        self.connection.commit()
 
     def insert_species_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the species from a CSV file into the local database.
@@ -373,11 +339,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing species data from %s" % setlyze.config.cfg.get('species-file'))
 
         # Try to open the CSV file.
-        try:
-            f = open(setlyze.config.cfg.get('species-file'), 'r')
-        except IOError, e:
-            logging.error(e)
-            return False
+        f = open(setlyze.config.cfg.get('species-file'), 'r')
 
         # Use Python's CSV module to create a CSV reader.
         setl_reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar)
@@ -392,9 +354,6 @@ class MakeLocalDB(threading.Thread):
             self.cursor.execute("INSERT INTO species VALUES (?,?,?,?,?,?)",
                 (row[0],row[1],row[2],row[3],row[4],row[5])
                 )
-
-        # Commit the database changes.
-        self.connection.commit()
 
     def insert_plates_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the plates from a CSV file into the local database.
@@ -413,11 +372,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing plates data from %s" % setlyze.config.cfg.get('plates-file'))
 
         # Try to open the CSV file.
-        try:
-            f = open(setlyze.config.cfg.get('plates-file'), 'r')
-        except IOError, e:
-            logging.error(e)
-            return False
+        f = open(setlyze.config.cfg.get('plates-file'), 'r')
 
         # Use Python's CSV module to create a CSV reader.
         setl_reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar)
@@ -432,9 +387,6 @@ class MakeLocalDB(threading.Thread):
             self.cursor.execute("INSERT INTO plates VALUES (?,?,?,?,?,?,?,?,?,?)",
                 (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9])
                 )
-
-        # Commit the database changes.
-        self.connection.commit()
 
     def insert_records_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the records from a CSV file into the local database.
@@ -453,11 +405,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing records data from %s" % setlyze.config.cfg.get('records-file'))
 
         # Try to open the CSV file.
-        try:
-            f = open(setlyze.config.cfg.get('records-file'), 'r')
-        except IOError, e:
-            logging.error(e)
-            return False
+        f = open(setlyze.config.cfg.get('records-file'), 'r')
 
         # Use Python's CSV module to create a CSV reader.
         setl_reader = csv.reader(f, delimiter=delimiter, quotechar=quotechar)
@@ -476,9 +424,6 @@ class MakeLocalDB(threading.Thread):
                 row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29],
                 row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37])
                 )
-
-        # Commit the database changes.
-        self.connection.commit()
 
     def insert_from_xls(self):
         #raise Exception("NOT implemented yet.")
@@ -509,10 +454,6 @@ class MakeLocalDB(threading.Thread):
         # First, create a new database file.
         self.create_new_db()
 
-        # Create a connection with the local database.
-        self.connection = sqlite.connect(self.dbfile)
-        self.cursor = self.connection.cursor()
-
         # Add some meta-data to a separate table in the local database.
         # Add the data source we can figure out what kind of data is
         # present.
@@ -527,73 +468,37 @@ class MakeLocalDB(threading.Thread):
         self.pdialog_handler.set_total_steps(4)
 
         # Insert the data from the xls files into the local database.
-        filename = os.path.split(setlyze.config.cfg.get('localities-file'))[1]
-        self.pdialog_handler.set_action("Importing %s" % filename)
         try:
+            filename = os.path.split(setlyze.config.cfg.get('localities-file'))[1]
+            self.pdialog_handler.set_action("Importing %s" % filename)
             self.insert_localities_from_xls()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
-            # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading localities data from %s failed." % filename)
-            return
 
-        filename = os.path.split(setlyze.config.cfg.get('plates-file'))[1]
-        self.pdialog_handler.increase("Importing %s" % filename)
-        try:
+            filename = os.path.split(setlyze.config.cfg.get('plates-file'))[1]
+            self.pdialog_handler.increase("Importing %s" % filename)
             self.insert_plates_from_xls()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
-            # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading plates data from %s failed." % filename)
-            return
 
-        filename = os.path.split(setlyze.config.cfg.get('records-file'))[1]
-        self.pdialog_handler.increase("Importing %s" % filename)
-        try:
+            filename = os.path.split(setlyze.config.cfg.get('records-file'))[1]
+            self.pdialog_handler.increase("Importing %s" % filename)
             self.insert_records_from_xls()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
-            # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading records data from %s failed." % filename)
-            return
 
-        filename = os.path.split(setlyze.config.cfg.get('species-file'))[1]
-        self.pdialog_handler.increase("Importing %s" % filename)
-        try:
+            filename = os.path.split(setlyze.config.cfg.get('species-file'))[1]
+            self.pdialog_handler.increase("Importing %s" % filename)
             self.insert_species_from_xls()
-        except:
-            # Close the connection with the database.
-            self.cursor.close()
-            self.connection.close()
-            # Create a new database, because not all data could be imported.
-            self.create_new_db()
+
+            # Commit the database changes.
+            self.connection.commit()
+        except Exception as e:
+            # Destroy the progress dialog.
+            self.pdialog_handler.destroy()
+            # Rollback changes to the database.
+            self.connection.rollback()
             # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed',
-                "Loading species data from %s failed." % filename)
+            gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed', e)
             return
 
         # If we are here, the import was successful. Set the progress dialog
         # to 100%.
         self.pdialog_handler.increase("")
-
-        # Close the connection with the database.
-        self.cursor.close()
-        self.connection.close()
 
         logging.info("Local database populated.")
         setlyze.config.cfg.set('has-local-db', True)
@@ -612,15 +517,10 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing localities data from %s" % setlyze.config.cfg.get('localities-file'))
 
         # Try to open the XLS file.
-        try:
-            f= xlrd.open_workbook(setlyze.config.cfg.get('localities-file'))
-        except IOError, e:
-            logging.error(e)
-            return False
+        f= xlrd.open_workbook(setlyze.config.cfg.get('localities-file'))
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
-
 
         # Read through every row in the XLS file and insert that row
         # into the local database.
@@ -637,9 +537,6 @@ class MakeLocalDB(threading.Thread):
                  setl_reader.row_values(rownum)[4])
                 )
 
-        # Commit the database changes.
-        self.connection.commit()
-
     def insert_plates_from_xls(self, delimiter=';', quotechar='"'):
         """Insert the plates from a XLS file into the local database.
 
@@ -651,15 +548,10 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing plates data from %s" % setlyze.config.cfg.get('plates-file'))
 
         # Try to open the XLS file.
-        try:
-            f= xlrd.open_workbook(setlyze.config.cfg.get('plates-file'))
-        except IOError, e:
-            logging.error(e)
-            return False
+        f= xlrd.open_workbook(setlyze.config.cfg.get('plates-file'))
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
-
 
         # Read through every row in the XLS file and insert that row
         # into the local database.
@@ -681,9 +573,6 @@ class MakeLocalDB(threading.Thread):
                  setl_reader.row_values(rownum)[9])
                 )
 
-        # Commit the database changes.
-        self.connection.commit()
-
     def insert_records_from_xls(self, delimiter=';', quotechar='"'):
         """Insert the records from a XLS file into the local database.
 
@@ -695,11 +584,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing records data from %s" % setlyze.config.cfg.get('records-file'))
 
         # Try to open the XLS file.
-        try:
-            f= xlrd.open_workbook(setlyze.config.cfg.get('records-file'))
-        except IOError, e:
-            logging.error(e)
-            return False
+        f= xlrd.open_workbook(setlyze.config.cfg.get('records-file'))
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
@@ -753,9 +638,6 @@ class MakeLocalDB(threading.Thread):
                  setl_reader.row_values(rownum)[37])
                 )
 
-        # Commit the database changes.
-        self.connection.commit()
-
     def insert_species_from_xls(self, delimiter=';', quotechar='"'):
         """Insert the species from a XLS file into the local database.
 
@@ -767,11 +649,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing species data from %s" % setlyze.config.cfg.get('species-file'))
 
         # Try to open the XLS file.
-        try:
-            f= xlrd.open_workbook(setlyze.config.cfg.get('species-file'))
-        except IOError, e:
-            logging.error(e)
-            return False
+        f= xlrd.open_workbook(setlyze.config.cfg.get('species-file'))
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
@@ -791,9 +669,6 @@ class MakeLocalDB(threading.Thread):
                  setl_reader.row_values(rownum)[4],
                  setl_reader.row_values(rownum)[5])
                 )
-
-        # Commit the database changes.
-        self.connection.commit()
 
     def insert_from_db(self):
         """Create a new local database and load localities and species
@@ -820,18 +695,16 @@ class MakeLocalDB(threading.Thread):
         # First, create a new database file.
         self.create_new_db()
 
-        # Create a connection with the local database.
-        self.connection = sqlite.connect(self.dbfile)
-        self.cursor = self.connection.cursor()
-
         # Update progress dialog.
         self.pdialog_handler.increase()
 
-        # Next time we run the tool, we'll know what data is in the
-        # database.
+        # Next time we run the tool, we'll know what data is in the database.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)",
-        (setlyze.config.cfg.get('data-source'),) )
+            (setlyze.config.cfg.get('data-source'),) )
         self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
+
+        # Commit the transaction.
+        self.connection.commit()
 
         # TODO: Actually insert data from SETL database.
         logging.info("Loading data from the remote SETL database...")
@@ -839,12 +712,10 @@ class MakeLocalDB(threading.Thread):
         # Update progress dialog.
         self.pdialog_handler.increase()
 
-        # Close the connection with the database.
-        self.cursor.close()
-        self.connection.close()
-
         logging.info("Local database populated.")
         setlyze.config.cfg.set('has-local-db', True)
+
+        return True
 
     def create_new_db(self):
         """Create a new local database and then calls the methods
@@ -864,10 +735,12 @@ class MakeLocalDB(threading.Thread):
             os.makedirs(data_path)
 
         # Delete the current database file.
+        self.cursor.close()
+        self.connection.close()
         if os.path.isfile(self.dbfile):
             self.remove_db_file()
 
-        # This will automatically create a new database file.
+        # Create a new database.
         self.connection = sqlite.connect(self.dbfile)
         self.cursor = self.connection.cursor()
 
@@ -880,10 +753,6 @@ class MakeLocalDB(threading.Thread):
 
         # Commit the transaction.
         self.connection.commit()
-
-        # Close connection with the local database.
-        self.cursor.close()
-        self.connection.close()
 
         # No need to make a new database, as we just created one.
         setlyze.config.cfg.set('make-new-db', False)

@@ -925,6 +925,10 @@ class ProgressDialogHandler(object):
         # gobject.idle_add to access the GUI.
         gobject.idle_add(self.__update_progress_dialog, fraction, action)
 
+    def destroy(self):
+        """Destroy the progress dialog."""
+        gobject.idle_add(self.__close_progress_dialog)
+
     def __update_progress_dialog(self, fraction, action=None):
         """Set the progress dialog's progressbar fraction to `fraction`.
         The value of `fraction` should be between 0.0 and 1.0. Optionally set
@@ -973,12 +977,15 @@ class ProgressDialogHandler(object):
         There's no need to call this function manually, as it is called
         by :meth:`__update_progress_dialog` when needed.
         """
+        if not self.pdialog:
+            return False
 
         # If a delay is set, sleep 'delay' seconds.
         if delay: time.sleep(delay)
 
         # Close the progress dialog.
         self.pdialog.destroy()
+        self.pdialog = None
 
         # This callback function must return False, so it is
         # automatically removed from the list of event sources.
