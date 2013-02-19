@@ -728,13 +728,14 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             species_encouters_observed = sum(observed)
             species_encouters_expected = sum(expected)
 
-            # Perform a consistency check. The number of observed and
-            # expected plate area totals must always be the same.
+            # Get the lengths.
             count_observed = len(observed)
             count_expected = len(expected)
-            if count_observed != count_expected:
-                raise ValueError("Number of observed and expected values "
-                    "are not equal. This indicates an error in the algorithm.")
+
+            # The number of observed and expected plate area totals must
+            # always be the same.
+            assert count_observed == count_expected, \
+                "Number of observed and expected values are not equal."
 
             # A minimum of two positive spots totals are required for the
             # significance test. So skip this plate area if it's less.

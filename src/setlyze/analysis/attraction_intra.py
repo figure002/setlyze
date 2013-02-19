@@ -699,13 +699,14 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             # number of positive spots.
             n_plates = self.db.matching_plates_total
 
-            # Perform a consistency check. The number of observed and
-            # expected spot distances must always be the same.
+            # Get the lengths.
             count_observed = len(observed)
             count_expected = len(expected)
-            if count_observed != count_expected:
-                raise ValueError("Number of observed and expected values "
-                    "are not equal. This indicates an error in the algorithm.")
+
+            # The number of observed and expected spot distances must always
+            # be the same.
+            assert count_observed == count_expected, \
+                "Number of observed and expected values are not equal."
 
             # A minimum of 2 observed distances is required for the
             # significance test. So skip this spots number if it's less.
