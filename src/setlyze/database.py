@@ -69,15 +69,10 @@ def get_database_accessor():
     Design Part: 1.93
     """
     data_source = setlyze.config.cfg.get('data-source')
-    if data_source == "csv-msaccess":
-        db = AccessLocalDB()
-    elif data_source == "setl-database":
-        db = AccessRemoteDB()
-    elif data_source == "xls":
+    if data_source in ('csv-msaccess', 'setl-database', 'xls'):
         db = AccessLocalDB()
     else:
-        logging.error("Invalid data source '%s'." % data_source)
-        sys.exit(1)
+        raise ValueError("Invalid data source '%s'." % data_source)
     return db
 
 def get_plates_total_matching_spots_total(n_spots, slot=0):
