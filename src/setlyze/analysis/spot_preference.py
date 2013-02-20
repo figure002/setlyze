@@ -416,6 +416,9 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 # Make an object that facilitates access to the database.
                 self.db = setlyze.database.get_database_accessor()
 
+                assert isinstance(self.db, setlyze.database.AccessLocalDB), \
+                    "Expected an instance of AccessLocalDB. Got %s" % self.db.__class__.__name__
+
                 # Create temporary tables.
                 self.db.create_table_species_spots_1()
                 self.db.create_table_plate_area_totals_observed()
