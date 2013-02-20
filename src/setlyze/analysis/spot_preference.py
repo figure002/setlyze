@@ -70,6 +70,18 @@ PROGRESS_STEPS = 7
 
 logger = multiprocessing.log_to_stderr(logging.DEBUG)
 
+def calculate(func, args):
+    obj = func(*args)
+    #obj.set_pdialog_handler(self.pdialog_handler)
+    result = obj.run()
+    # Check if an exception has occurred. If so, print it.
+    if obj.exception:
+        print obj.exception
+    return result
+
+def calculatestar(args):
+    return calculate(*args)
+
 class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Make the preparations for analysis 1:
 
@@ -177,23 +189,11 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         # Create a process pool with a single worker.
         self.pool = multiprocessing.Pool(1)
 
-        # Create a list of tasks.
+        # Create a list of jobs.
         jobs = [(Analysis, (locations, species, areas_definition))]
 
         # Add the job to the pool.
         results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
-
-def calculate(func, args):
-    obj = func(*args)
-    #obj.set_pdialog_handler(self.pdialog_handler)
-    result = obj.run()
-    # Check if an exception has occurred. If so, print it.
-    if obj.exception:
-        print obj.exception
-    return result
-
-def calculatestar(args):
-    return calculate(*args)
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -221,7 +221,6 @@ class BeginBatch(Begin):
 
         Repeat the analysis for each species separately.
         """
-        print 'test'
         locations = setlyze.config.cfg.get('locations-selection', slot=0)
         species = setlyze.config.cfg.get('species-selection', slot=0)
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
@@ -239,13 +238,13 @@ class BeginBatch(Begin):
             len(species))
 
         # Create a process pool with workers.
-        self.pool = multiprocessing.Pool(10)
+        self.pool = multiprocessing.Pool()
 
-        # Create a list of tasks.
+        # Create a list of jobs.
         logging.info("Adding %d jobs to the queue" % len(species))
         jobs = ((Analysis, (locations, sp, areas_definition)) for sp in species)
 
-        # Add the job to the pool.
+        # Add the jobs to the pool.
         results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
     def summarize_results(self, results):
