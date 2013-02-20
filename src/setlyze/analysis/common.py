@@ -220,6 +220,8 @@ class PrepareAnalysis(object):
         dialog.run()
         dialog.destroy()
 
+        self.on_analysis_closed()
+
     def on_analysis_closed(self, sender=None, data=None):
         """Show the main window and unset the signal handler."""
         # Destroy the progress dialog.
