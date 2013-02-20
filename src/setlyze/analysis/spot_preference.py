@@ -322,12 +322,10 @@ class BeginBatch(Begin):
         """Display the results."""
         logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
-        print len(results)
-
         # The progress dialog may not hit 100% if one of the jobs are aborted
         # because of not enough data.
-        if self.pdialog:
-            self.pdialog.destroy()
+        #if self.pdialog:
+        #    self.pdialog.destroy()
 
         # Check if there are any reports to display. If not, leave.
         if len(results) == 0:
@@ -336,10 +334,12 @@ class BeginBatch(Begin):
 
         # Create a summary from all results.
         summary = self.summarize_results(results)
+        print summary
 
         # Create a report object from the dictionary.
         report = setlyze.report.Report()
         report.set_statistics('plate_areas_summary', summary)
+        print 1
 
         # Display the report.
         w = setlyze.gui.Report(report, "Results: Batch summary for Sport Preference")
