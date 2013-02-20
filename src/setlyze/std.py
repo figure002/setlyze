@@ -891,6 +891,9 @@ class ProgressDialogHandler(object):
         of calculating the right fraction. If `action` is supplied, the
         progress dialog's action string is set to `action`.
         """
+        if not self.pdialog:
+            return
+
         if not self.total_steps:
             raise ValueError("You didn't set the total number of steps. Use "
                 "'set_total_steps()'.")
@@ -907,6 +910,10 @@ class ProgressDialogHandler(object):
         # Update the progress dialog.
         self.update(fraction, action)
 
+    def complete(self, action=None):
+        """Set the progress dialog to 100%."""
+        gobject.idle_add(self.__update_progress_dialog, 1.0, action)
+
     def update(self, fraction, action=None):
         """Set the progress dialog's progress bar fraction to `fraction`.
         The value of `fraction` should be between 0.0 and 1.0. Optionally set
@@ -917,7 +924,6 @@ class ProgressDialogHandler(object):
         :class:`setlyze.gui.ProgressDialog` for this to work. If no progress
         dialog is set, nothing will happen.
         """
-        # If no progress dialog is set, do nothing.
         if not self.pdialog:
             return
 

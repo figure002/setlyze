@@ -23,8 +23,7 @@
 
 import os
 import logging
-import threading
-import Queue
+import multiprocessing
 
 import gobject
 import pygtk
@@ -45,13 +44,13 @@ __status__ = "Production"
 __date__ = "2013/02/02"
 
 
-class Pool(threading.Thread):
+class Pool(multiprocessing.Process):
     """Primitive thread pool."""
 
     def __init__(self, size, pdialog_handler=None):
-        threading.Thread.__init__(self)
-        self._stop = threading.Event()
-        self.queue = Queue.Queue()
+        multiprocessing.Process.__init__(self)
+        self._stop = multiprocessing.Event()
+        self.queue = multiprocessing.Queue()
         self.threads = []
 
         # Spawn threads, but don't start them yet.
@@ -101,11 +100,11 @@ class Pool(threading.Thread):
         """Return True if the pool was stopped forcefully."""
         return self._stop.isSet()
 
-class Worker(threading.Thread):
+class Worker(multiprocessing.Process):
     """Worker thread for usage in a thread pool.
 
     This class can be used to create a number of worker threads which will each
-    execute jobs from a queue (instance of :py:class:`Queue.Queue`). Each job
+    execute jobs from a queue (instance of :py:class:`multiprocessing.Queue`). Each job
     is a tuple with function/class pointer followed by arguments (in that
     order). Each instance of this thread will obtain a job from the queue and
     execute the function/instantiate the class that was passed (the first
@@ -115,7 +114,7 @@ class Worker(threading.Thread):
     """
 
     def __init__(self, queue, pdialog_handler = None):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
         self.queue = queue
         self.pdialog_handler = pdialog_handler
         self.thread = None
@@ -127,7 +126,7 @@ class Worker(threading.Thread):
             try:
                 func, args, kargs = self.queue.get(False)
             except:
-                logging.info("Worker %s got bored and quit" % self.getName())
+                logging.info("Worker %s got bored and quit" % os.getpid())
                 return
 
             # Execute the job.
@@ -161,7 +160,6 @@ class PrepareAnalysis(object):
     """Super class for analysis Begin classes."""
 
     def __init__(self):
-        self.lock = threading.Lock()
         self.signal_handlers = {}
         self.pdialog = None
         self.pool = None
@@ -240,7 +238,7 @@ class PrepareAnalysis(object):
         """Let the user decide whether individual job results should be saved."""
         setlyze.gui.SelectReportSavePath()
 
-    def on_thread_pool_job_completed(self, sender, result):
+    def on_thread_pool_job_completed(self, result):
         """Save the results of individual thread pool jobs."""
         self.results.append(result)
 
@@ -262,43 +260,44 @@ class PrepareAnalysis(object):
             path = os.path.join(self.save_path, filename)
             setlyze.report.export(result, path, 'rst')
 
-    def on_thread_pool_finished(self, sender=None):
+    def on_thread_pool_finished(self, results):
         """Display the results.
 
         If there are no results, return to the main window.
         """
         # Check if there are any reports to display. If not, leave.
-        if len(self.results) == 0:
+        if len(results) == 0:
             logging.info("No results to show.")
             self.on_analysis_closed()
             return
         # Display the reports.
-        for report in self.results:
+        for report in results:
+            # Set the progress dialog to 100%.
+            self.pdialog_handler.complete()
+            # Display the report.
             setlyze.gui.Report(report)
 
-class AnalysisWorker(threading.Thread):
+class AnalysisWorker(object):
     """Super class for Analysis classes."""
 
-    def __init__(self, lock):
-        super(AnalysisWorker, self).__init__()
-
-        self._stop = threading.Event()
-        self._lock = lock
+    def __init__(self):
+        self._stop = False
         self.db = None
-        self.pdialog_handler = None
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
         self.result = setlyze.report.Report()
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.dbfile = setlyze.config.cfg.get('db-file')
+        self.exception = None
 
     def stop(self):
         """Stop this thread."""
         logging.debug("%s: Received stop signal" % self)
-        self._stop.set()
+        self._stop = True
 
     def stopped(self):
         """Return True if this thread needs to be stopped."""
-        return self._stop.isSet()
+        return self._stop
 
     def on_exit(self):
         """Properly exit the thread.
@@ -316,7 +315,7 @@ class AnalysisWorker(threading.Thread):
         :class:`setlyze.std.ProgressDialogHandler`.
         """
         if not isinstance(handler, setlyze.std.ProgressDialogHandler):
-             raise ValueError("Invalid object type passed.")
+            raise ValueError("Invalid object type passed.")
         self.pdialog_handler = handler
 
     def set_locations_selection(self, selection):

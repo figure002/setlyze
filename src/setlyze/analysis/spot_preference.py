@@ -41,6 +41,7 @@ can be broken down in the following steps:
 import logging
 import time
 import collections
+import multiprocessing
 
 import gobject
 import pygtk
@@ -66,6 +67,8 @@ __date__ = "2013/02/02"
 
 # The number of progress steps for this analysis.
 PROGRESS_STEPS = 7
+
+logger = multiprocessing.log_to_stderr(logging.DEBUG)
 
 class Begin(setlyze.analysis.common.PrepareAnalysis):
     """Make the preparations for analysis 1:
@@ -168,24 +171,33 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             description=setlyze.locale.text('analysis-running'))
 
         # Create a progress dialog handler.
-        pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
         # Set the total number of times we decide to update the progress dialog.
-        pdialog_handler.set_total_steps(
+        self.pdialog_handler.set_total_steps(
             PROGRESS_STEPS + self.n_repeats
         )
 
-        # Create a thread pool with a single thread.
-        self.pool = setlyze.analysis.common.Pool(
-            size=1,
-            pdialog_handler=pdialog_handler
-        )
+        # Create a process pool with a single worker.
+        self.pool = multiprocessing.Pool(1)
+
+        # Create a list of tasks.
+        tasks = [(Analysis, (locations, species, areas_definition))]
 
         # Add the job to the pool.
-        self.pool.add_job(Analysis, self.lock, locations, species, areas_definition)
+        results = self.pool.map_async(calculatestar, tasks, callback=self.on_thread_pool_finished)
 
-        # Start all threads in the pool.
-        self.pool.start()
+def calculate(func, args):
+    obj = func(*args)
+    #obj.set_pdialog_handler(self.pdialog_handler)
+    result = obj.run()
+    # Check if an exception has occurred. If so, print it.
+    if obj.exception:
+        print obj.exception
+    return result
+
+def calculatestar(args):
+    return calculate(*args)
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -231,19 +243,15 @@ class BeginBatch(Begin):
         pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
             len(species))
 
-        # Create a thread pool.
-        self.pool = setlyze.analysis.common.Pool(
-            size=self.thread_pool_size,
-            pdialog_handler=pdialog_handler
-        )
+        # Create a process pool with workers.
+        self.pool = multiprocessing.Pool()
 
-        # Add jobs to the thread pool.
+        # Create a list of tasks.
         logging.info("Adding %d jobs to the queue" % len(species))
-        for sp in species:
-            self.pool.add_job(Analysis, self.lock, locations, sp, areas_definition)
+        jobs = ((Analysis, (locations, sp, areas_definition)) for sp in species)
 
-        # Start all threads in the thread pool.
-        self.pool.start()
+        # Add the job to the pool.
+        results = self.pool.map_async(calculatestar, jobs, callback=self.on_thread_pool_finished)
 
     def print_elapsed_time(self, sender):
         """Print elapsed time since start of the analysis."""
@@ -270,6 +278,10 @@ class BeginBatch(Begin):
             'results': []
         }
         for result in results:
+            # Skip if there is no report or if the report is empty.
+            if not result or result.is_empty():
+                continue
+
             species_selection = [s for s in result.species_selections[0].values()]
             species = species_selection[0]['name_latin']
             wilcoxon = result.statistics['wilcoxon_areas_repeats'][0]
@@ -316,7 +328,7 @@ class BeginBatch(Begin):
 
         return report
 
-    def on_thread_pool_finished(self, sender=None):
+    def on_thread_pool_finished(self, results):
         """Display the results."""
         # The progress dialog may not hit 100% if one of the jobs are aborted
         # because of not enough data.
@@ -324,12 +336,12 @@ class BeginBatch(Begin):
             self.pdialog.destroy()
 
         # Check if there are any reports to display. If not, leave.
-        if len(self.results) == 0:
+        if len(results) == 0:
             self.on_analysis_closed()
             return
 
         # Create a summary from all results.
-        summary = self.summarize_results(self.results)
+        summary = self.summarize_results(results)
 
         # Create a report object from the dictionary.
         report = setlyze.report.Report()
@@ -352,8 +364,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
     Design Part: 1.3.2
     """
 
-    def __init__(self, lock, locations_selection, species_selection, areas_definition):
-        super(Analysis, self).__init__(lock)
+    def __init__(self, locations_selection, species_selection, areas_definition):
+        super(Analysis, self).__init__()
 
         self.locations_selection = locations_selection
         self.species_selection = species_selection
@@ -370,7 +382,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         logging.info("Performing %s" % setlyze.locale.text('analysis1'))
 
         # Emit the signal that an analysis has started.
-        setlyze.std.sender.emit('analysis-started')
+        #setlyze.std.sender.emit('analysis-started')
 
     def set_areas_definition(self, definition):
         """Set the plate areas definition.
@@ -379,16 +391,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         :class:`setlyze.gui.DefinePlateAreas`.
         """
         self.areas_definition = definition
-
-    def get_total_steps(self):
-        """Return the number of progress steps for this analysis.
-
-        This equals to the total number of times we decide to update the
-        progress dialog for a single analysis.
-
-        Module constant `PROGRESS_STEPS` has to be set in the analysis module.
-        """
-        return PROGRESS_STEPS + self.n_repeats
 
     def run(self):
         """Call the necessary methods for the analysis in the right order
@@ -409,103 +411,108 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         Design Part: 1.58
         """
-        if not self.stopped():
-            # Make an object that facilitates access to the database.
-            self.db = setlyze.database.get_database_accessor()
+        try:
+            if not self.stopped():
+                # Make an object that facilitates access to the database.
+                self.db = setlyze.database.get_database_accessor()
 
-            # Create temporary tables.
-            self.db.create_table_species_spots_1()
-            self.db.create_table_plate_area_totals_observed()
-            self.db.create_table_plate_area_totals_expected()
-            self.db.conn.commit()
+                # Create temporary tables.
+                self.db.create_table_species_spots_1()
+                self.db.create_table_plate_area_totals_observed()
+                self.db.create_table_plate_area_totals_expected()
+                self.db.conn.commit()
 
-            # Get the record IDs that match the localities+species selection.
-            rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
-            # Create log message.
-            logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
+                # Get the record IDs that match the localities+species selection.
+                rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
+                # Create log message.
+                logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-            # Create log message and update progress dialog.
-            logging.info("\tCreating table with species spots...")
-            self.pdialog_handler.increase("Creating table with species spots...")
-            # Make a spots table for the selected species.
-            self.db.set_species_spots(rec_ids, slot=0)
+                # Create log message and update progress dialog.
+                logging.info("\tCreating table with species spots...")
+                self.pdialog_handler.increase("Creating table with species spots...")
+                # Make a spots table for the selected species.
+                self.db.set_species_spots(rec_ids, slot=0)
 
-            # Create log message and update progress dialog.
-            logging.info("\tMaking plate IDs in species spots table unique...")
-            self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-            # Make the plate IDs unique.
-            self.n_plates_unique = self.db.make_plates_unique(slot=0)
-            # Create log message.
-            logging.info("\t  %d records remaining." % (self.n_plates_unique))
+                # Create log message and update progress dialog.
+                logging.info("\tMaking plate IDs in species spots table unique...")
+                self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
+                # Make the plate IDs unique.
+                self.n_plates_unique = self.db.make_plates_unique(slot=0)
+                # Create log message.
+                logging.info("\t  %d records remaining." % (self.n_plates_unique))
 
-        if not self.stopped():
-            # Create log message and update progress dialog.
-            logging.info("\tCalculating the observed plate area totals for each plate...")
-            self.pdialog_handler.increase("Calculating the observed plate area totals for each plate...")
-            # Calculate the expected totals.
-            self.set_plate_area_totals_observed()
+            if not self.stopped():
+                # Create log message and update progress dialog.
+                logging.info("\tCalculating the observed plate area totals for each plate...")
+                self.pdialog_handler.increase("Calculating the observed plate area totals for each plate...")
+                # Calculate the expected totals.
+                self.set_plate_area_totals_observed()
 
-            # Calculate the observed species encounters for the user defined plate
-            # areas.
-            self.chisq_observed = self.get_defined_areas_totals_observed()
+                # Calculate the observed species encounters for the user defined plate
+                # areas.
+                self.chisq_observed = self.get_defined_areas_totals_observed()
 
-            # Make sure that spot area totals are not all zero. If so, abort
-            # the analysis, because we can't devide by zero (unless you're
-            # Chuck Norris of course).
-            areas_total = 0
-            for area_total in self.chisq_observed.itervalues():
-                areas_total += area_total
-            if areas_total == 0:
-                logging.info("The species was not found on any plates, aborting.")
-                gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted',
-                    setlyze.locale.text('empty-plate-areas'))
+                # Make sure that spot area totals are not all zero. If so, abort
+                # the analysis, because we can't devide by zero (unless you're
+                # Chuck Norris of course).
+                areas_total = 0
+                for area_total in self.chisq_observed.itervalues():
+                    areas_total += area_total
+                if areas_total == 0:
+                    logging.info("The species was not found on any plates, aborting.")
+                    gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted',
+                        setlyze.locale.text('empty-plate-areas'))
+
+                    # Exit gracefully.
+                    self.on_exit()
+                    return None
+
+            if not self.stopped():
+                # Create log message and update progress dialog.
+                logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
+                self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
+                # Perform the repeats for the statistical tests. This will repeatedly
+                # calculate the expected totals, so we'll use the expected values
+                # of the last repeat for the non-repeated tests.
+                self.repeat_test(self.n_repeats)
+
+            if not self.stopped():
+                # Create log message.
+                logging.info("\tPerforming statistical tests...")
+                # Update progress dialog.
+                self.pdialog_handler.increase("Performing statistical tests...")
+                # Performing the statistical tests.
+                self.calculate_significance_wilcoxon()
+                self.calculate_significance_chisq()
+
+            # If the cancel button is pressed don't finish this function.
+            if self.stopped():
+                logging.info("Analysis aborted by user")
 
                 # Exit gracefully.
                 self.on_exit()
-                return
+                return None
 
-        if not self.stopped():
-            # Create log message and update progress dialog.
-            logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
-            self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
-            # Perform the repeats for the statistical tests. This will repeatedly
-            # calculate the expected totals, so we'll use the expected values
-            # of the last repeat for the non-repeated tests.
-            self.repeat_test(self.n_repeats)
-
-        if not self.stopped():
-            # Create log message.
-            logging.info("\tPerforming statistical tests...")
             # Update progress dialog.
-            self.pdialog_handler.increase("Performing statistical tests...")
-            # Performing the statistical tests.
-            self.calculate_significance_wilcoxon()
-            self.calculate_significance_chisq()
+            self.pdialog_handler.increase("Generating the analysis report...")
+            # Generate the report.
+            self.generate_report()
 
-        # If the cancel button is pressed don't finish this function.
-        if self.stopped():
-            logging.info("Analysis aborted by user")
+            # Update progress dialog.
+            self.pdialog_handler.increase("")
 
-            # Exit gracefully.
-            self.on_exit()
-            return
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Generating the analysis report...")
-        # Generate the report.
-        self.generate_report()
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("")
-
-        # Emit the signal that the analysis has finished.
-        # Note that the signal will be sent from a separate thread,
-        # so we must use gobject.idle_add.
-        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
-        logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
+            # Emit the signal that the analysis has finished.
+            # Note that the signal will be sent from a separate thread,
+            # so we must use gobject.idle_add.
+            gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+            logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
+        except Exception, e:
+            self.exception = e
 
         # Exit gracefully.
         self.on_exit()
+
+        return self.result
 
     def set_plate_area_totals_observed(self):
         """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"
