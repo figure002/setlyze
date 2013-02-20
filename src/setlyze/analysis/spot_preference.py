@@ -221,6 +221,7 @@ class BeginBatch(Begin):
 
         Repeat the analysis for each species separately.
         """
+        print 'test'
         locations = setlyze.config.cfg.get('locations-selection', slot=0)
         species = setlyze.config.cfg.get('species-selection', slot=0)
         areas_definition = setlyze.config.cfg.get('plate-areas-definition')
@@ -324,8 +325,8 @@ class BeginBatch(Begin):
 
         # The progress dialog may not hit 100% if one of the jobs are aborted
         # because of not enough data.
-        #if self.pdialog:
-        #    self.pdialog.destroy()
+        if self.pdialog:
+            self.pdialog.destroy()
 
         # Check if there are any reports to display. If not, leave.
         if len(results) == 0:
@@ -334,12 +335,10 @@ class BeginBatch(Begin):
 
         # Create a summary from all results.
         summary = self.summarize_results(results)
-        print summary
 
         # Create a report object from the dictionary.
         report = setlyze.report.Report()
         report.set_statistics('plate_areas_summary', summary)
-        print 1
 
         # Display the report.
         w = setlyze.gui.Report(report, "Results: Batch summary for Sport Preference")
