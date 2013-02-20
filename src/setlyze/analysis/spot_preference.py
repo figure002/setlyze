@@ -322,6 +322,8 @@ class BeginBatch(Begin):
         """Display the results."""
         logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
+        print len(results)
+
         # The progress dialog may not hit 100% if one of the jobs are aborted
         # because of not enough data.
         if self.pdialog:
