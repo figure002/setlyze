@@ -129,10 +129,6 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
             # Progress dialog closed
             'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
-            # A thread pool job was completed.
-            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
-            # The thread pool has finished processing all jobs.
-            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
         }
 
     def on_select_locations(self, sender=None, data=None):
@@ -182,10 +178,10 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.pool = multiprocessing.Pool(1)
 
         # Create a list of tasks.
-        tasks = [(Analysis, (locations, species, areas_definition))]
+        jobs = [(Analysis, (locations, species, areas_definition))]
 
         # Add the job to the pool.
-        results = self.pool.map_async(calculatestar, tasks, callback=self.on_thread_pool_finished)
+        results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
 def calculate(func, args):
     obj = func(*args)
@@ -216,8 +212,6 @@ class BeginBatch(Begin):
 
         self.report_prefix = "spot_preference_"
 
-        # Print elapsed time after each sub-analysis.
-        self.signal_handlers['analysis-finished'] = setlyze.std.sender.connect('analysis-finished', self.print_elapsed_time)
         # Don't print abort messages during batch mode.
         setlyze.std.sender.disconnect(self.signal_handlers['analysis-aborted'])
         self.signal_handlers['analysis-aborted'] = None
@@ -244,18 +238,14 @@ class BeginBatch(Begin):
             len(species))
 
         # Create a process pool with workers.
-        self.pool = multiprocessing.Pool()
+        self.pool = multiprocessing.Pool(10)
 
         # Create a list of tasks.
         logging.info("Adding %d jobs to the queue" % len(species))
         jobs = ((Analysis, (locations, sp, areas_definition)) for sp in species)
 
         # Add the job to the pool.
-        results = self.pool.map_async(calculatestar, jobs, callback=self.on_thread_pool_finished)
-
-    def print_elapsed_time(self, sender):
-        """Print elapsed time since start of the analysis."""
-        logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
+        results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
     def summarize_results(self, results):
         """Join results from multiple analyses to a single report.
@@ -328,8 +318,10 @@ class BeginBatch(Begin):
 
         return report
 
-    def on_thread_pool_finished(self, results):
+    def on_pool_finished(self, results):
         """Display the results."""
+        logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
+
         # The progress dialog may not hit 100% if one of the jobs are aborted
         # because of not enough data.
         if self.pdialog:

@@ -208,7 +208,8 @@ class PrepareAnalysis(object):
 
         # Stop all analysis jobs.
         if self.pool:
-            self.pool.stop()
+            # TODO: Find an alternative to terminate()
+            self.pool.terminate()
 
         # Show an info dialog.
         dialog = gtk.MessageDialog(parent=None, flags=0,
@@ -260,21 +261,23 @@ class PrepareAnalysis(object):
             path = os.path.join(self.save_path, filename)
             setlyze.report.export(result, path, 'rst')
 
-    def on_thread_pool_finished(self, results):
+    def on_pool_finished(self, results):
         """Display the results.
 
         If there are no results, return to the main window.
         """
+        # Set the progress dialog to 100%.
+        self.pdialog_handler.complete()
+
         # Check if there are any reports to display. If not, leave.
         if len(results) == 0:
             logging.info("No results to show.")
             self.on_analysis_closed()
             return
-        # Display the reports.
+
+        # Display each report in a separate window. This is usually not
+        # a good idea.
         for report in results:
-            # Set the progress dialog to 100%.
-            self.pdialog_handler.complete()
-            # Display the report.
             setlyze.gui.Report(report)
 
 class AnalysisWorker(object):
