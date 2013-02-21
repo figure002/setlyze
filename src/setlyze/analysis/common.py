@@ -252,6 +252,8 @@ class PrepareAnalysis(object):
         dialog.run()
         dialog.destroy()
 
+        # Method on_pool_finished() will not be called when calling
+        # pool.terminate(), so close manually.
         self.on_analysis_closed()
 
     def on_analysis_closed(self, sender=None, data=None):

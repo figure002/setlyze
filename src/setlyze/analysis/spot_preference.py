@@ -241,12 +241,17 @@ class BeginBatch(Begin):
         self.pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
             len(species))
 
+        # Create a progress tracker.
+        tracker = setlyze.analysis.common.ProgressTracker(self.pdialog_handler)
+        progress_queue = tracker.get_queue()
+        tracker.start()
+
         # Create a process pool with workers.
         self.pool = multiprocessing.Pool()
 
         # Create a list of jobs.
         logging.info("Adding %d jobs to the queue" % len(species))
-        jobs = ((Analysis, (locations, sp, areas_definition)) for sp in species)
+        jobs = ((Analysis, (locations, sp, areas_definition, progress_queue)) for sp in species)
 
         # Add the jobs to the pool.
         results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
