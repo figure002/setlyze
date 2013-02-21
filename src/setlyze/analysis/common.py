@@ -275,28 +275,6 @@ class PrepareAnalysis(object):
         """Let the user decide whether individual job results should be saved."""
         setlyze.gui.SelectReportSavePath()
 
-    def on_thread_pool_job_completed(self, result):
-        """Save the results of individual thread pool jobs."""
-        self.results.append(result)
-
-        # Save reports for the individual analyses if desired.
-        if self.in_batch_mode() and self.save_individual_results and \
-        os.path.isdir(self.save_path):
-            species_list = []
-            for selection in result.species_selections:
-                species_selection = [s for s in selection.values()]
-                # In batch mode there should be just one species per selection.
-                species = species_selection[0]['name_latin']
-                if not species: species = species_selection[0]['name_common']
-                species_list.append(species)
-
-            if len(species_list) == 2:
-                filename = "%s%s_%s.rst" % (self.report_prefix, species_list[0], species_list[1])
-            else:
-                filename = "%s%s.rst" % (self.report_prefix, species_list[0])
-            path = os.path.join(self.save_path, filename)
-            setlyze.report.export(result, path, 'rst')
-
     def on_pool_finished(self, results):
         """Display the results in graphical window.
 
@@ -320,6 +298,29 @@ class PrepareAnalysis(object):
             logging.info("No results to show.")
             self.on_analysis_closed()
             return
+
+        # Save reports for the individual analyses if desired.
+        if self.in_batch_mode() and self.save_individual_results and \
+        os.path.isdir(self.save_path):
+            for result in results:
+                # Skip if there is no report or if the report is empty.
+                if not result or result.is_empty():
+                    continue
+
+                species_list = []
+                for selection in result.species_selections:
+                    species_selection = [s for s in selection.values()]
+                    # In batch mode there should be just one species per selection.
+                    species = species_selection[0]['name_latin']
+                    if not species: species = species_selection[0]['name_common']
+                    species_list.append(species)
+
+                if len(species_list) == 2:
+                    filename = "%s%s_%s.rst" % (self.report_prefix, species_list[0], species_list[1])
+                else:
+                    filename = "%s%s.rst" % (self.report_prefix, species_list[0])
+                path = os.path.join(self.save_path, filename)
+                setlyze.report.export(result, path, 'rst')
 
         # Let the signal handler handle the results.
         gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
