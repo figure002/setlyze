@@ -142,7 +142,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             # Progress dialog closed
             'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
             # The process pool has finished.
-            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_display_results),
+            'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
         }
 
     def on_select_locations(self, sender=None, data=None):

@@ -285,15 +285,16 @@ class PrepareAnalysis(object):
             self.on_analysis_closed()
             return
 
-        gobject.idle_add(setlyze.std.sender.emit, 'thread-pool-finished')
+        # Let the signal handler handle the results.
+        gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
 
-    def on_display_results(self, sender, results=None):
+    def on_display_results(self, sender, results=[]):
         """Display each report in a separate window.
 
-        This is not a good idea for batch mode, so it should be redefined in
-        a subclass.
+        This is not a good idea for batch mode, in which case it should be
+        redefined in the subclass.
         """
-        for report in self.results:
+        for report in results:
             setlyze.gui.Report(report)
 
 class AnalysisWorker(object):
