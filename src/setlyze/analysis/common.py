@@ -208,7 +208,7 @@ class PrepareAnalysis(object):
 
         # Stop all analysis jobs.
         if self.pool:
-            # TODO: Find an alternative to terminate()
+            # TODO: Find a more elegant way to stop processes.
             self.pool.terminate()
             self.pool.join()
 
@@ -227,10 +227,10 @@ class PrepareAnalysis(object):
         """Show the main window and unset the signal handler."""
         # Destroy the progress dialog.
         if self.pdialog:
-            self.pdialog.destroy()
+            gobject.idle_add(self.pdialog.destroy)
 
         # This causes the main window to show.
-        setlyze.std.sender.emit('analysis-closed')
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-closed')
 
         # Make sure all handlers are destroyed when this object is
         # finished. If we don't do this, the same handlers will be
@@ -265,11 +265,18 @@ class PrepareAnalysis(object):
             setlyze.report.export(result, path, 'rst')
 
     def on_pool_finished(self, results):
-        """Display the results.
+        """Display the results in graphical window.
 
         If there are no results, return to the main window.
+
+        .. note::
+
+           This method cannot do any GUI task directly. While this works fine
+           on GNU/Linux systems, this causes the GUI to hang on Windows.
         """
-        # Set the progress dialog to 100%.
+        self.results = results
+
+        # Set the progress dialog to 100%. This is thread safe.
         self.pdialog_handler.complete()
 
         # Check if there are any reports to display. If not, leave.
@@ -278,9 +285,15 @@ class PrepareAnalysis(object):
             self.on_analysis_closed()
             return
 
-        # Display each report in a separate window. This is usually not
-        # a good idea.
-        for report in results:
+        gobject.idle_add(setlyze.std.sender.emit, 'thread-pool-finished')
+
+    def on_display_results(self, sender, results=None):
+        """Display each report in a separate window.
+
+        This is not a good idea for batch mode, so it should be redefined in
+        a subclass.
+        """
+        for report in self.results:
             setlyze.gui.Report(report)
 
 class AnalysisWorker(object):
