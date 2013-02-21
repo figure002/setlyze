@@ -277,10 +277,6 @@ class BeginBatch(Begin):
             'results': []
         }
         for result in results:
-            # Skip if there is no report or if the report is empty.
-            if not result or result.is_empty():
-                continue
-
             species_selection = [s for s in result.species_selections[0].values()]
             species = species_selection[0]['name_latin']
             wilcoxon = result.statistics['wilcoxon_areas_repeats'][0]

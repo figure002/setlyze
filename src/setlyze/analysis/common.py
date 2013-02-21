@@ -178,7 +178,7 @@ class ProgressTracker(threading.Thread):
             try:
                 func, args, kargs = self.queue.get(True, self.timeout)
             except:
-                logging.info("%s quit" % self)
+                logging.info("%s quitted" % self)
                 return
             getattr(self.pdialog_handler, func)(*args, **kargs)
 
@@ -293,6 +293,9 @@ class PrepareAnalysis(object):
         if self.pdialog_handler:
             self.pdialog_handler.complete()
 
+        # Only keep the non-empty results.
+        results[:] = [r for r in results if r and not r.is_empty()]
+
         # Check if there are any reports to display. If not, leave.
         if len(results) == 0:
             logging.info("No results to show.")
@@ -303,10 +306,6 @@ class PrepareAnalysis(object):
         if self.in_batch_mode() and self.save_individual_results and \
         os.path.isdir(self.save_path):
             for result in results:
-                # Skip if there is no report or if the report is empty.
-                if not result or result.is_empty():
-                    continue
-
                 species_list = []
                 for selection in result.species_selections:
                     species_selection = [s for s in selection.values()]
