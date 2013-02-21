@@ -75,7 +75,7 @@ def calculate(func, args):
     result = obj.run()
     # Check if an exception has occurred. If so, print it.
     if obj.exception:
-        logging.error(obj.exception)
+        logging.error("calculate: %s" % obj.exception)
     return result
 
 def calculatestar(args):
@@ -367,9 +367,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis1'))
 
-        # Emit the signal that an analysis has started.
-        #setlyze.std.sender.emit('analysis-started')
-
     def set_areas_definition(self, definition):
         """Set the plate areas definition.
 
@@ -449,8 +446,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                     areas_total += area_total
                 if areas_total == 0:
                     logging.info("The species was not found on any plates, aborting.")
-                    gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted',
-                        setlyze.locale.text('empty-plate-areas'))
+                    self.set_progress('emit', 'analysis-aborted', setlyze.locale.text('empty-plate-areas'))
 
                     # Exit gracefully.
                     self.on_exit()

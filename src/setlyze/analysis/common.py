@@ -180,7 +180,10 @@ class ProgressTracker(threading.Thread):
             except:
                 logging.info("%s quitted" % self)
                 return
-            getattr(self.pdialog_handler, func)(*args, **kargs)
+            if func == 'emit':
+                gobject.idle_add(setlyze.std.sender.emit, *args)
+            elif isinstance(func, str):
+                getattr(self.pdialog_handler, func)(*args, **kargs)
 
     def get_queue(self):
         return self.queue
@@ -256,8 +259,11 @@ class PrepareAnalysis(object):
         # pool.terminate(), so close manually.
         self.on_analysis_closed()
 
-    def on_analysis_closed(self, sender=None, data=None):
+    def on_analysis_closed(self, sender=None, data=None, timeout=None):
         """Show the main window and unset the signal handler."""
+        if timeout:
+            time.sleep(timeout)
+
         # Destroy the progress dialog.
         if self.pdialog:
             gobject.idle_add(self.pdialog.destroy)
@@ -296,10 +302,12 @@ class PrepareAnalysis(object):
         # Only keep the non-empty results.
         results[:] = [r for r in results if r and not r.is_empty()]
 
-        # Check if there are any reports to display. If not, leave.
+        # Check if there are any reports to display. If not, close the
+        # analysis after a short timeout. The timeout gives signal handlers
+        # a chance to catch any last minute signals from the analysis.
         if len(results) == 0:
             logging.info("No results to show.")
-            self.on_analysis_closed()
+            self.on_analysis_closed(timeout=3)
             return
 
         # Save reports for the individual analyses if desired.
