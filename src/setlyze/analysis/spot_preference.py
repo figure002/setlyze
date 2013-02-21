@@ -72,11 +72,10 @@ logger = multiprocessing.log_to_stderr(logging.DEBUG)
 
 def calculate(func, args):
     obj = func(*args)
-    #obj.set_pdialog_handler(self.pdialog_handler)
     result = obj.run()
     # Check if an exception has occurred. If so, print it.
     if obj.exception:
-        print obj.exception
+        logging.error(obj.exception)
     return result
 
 def calculatestar(args):
@@ -184,15 +183,18 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
         # Set the total number of times we decide to update the progress dialog.
-        self.pdialog_handler.set_total_steps(
-            PROGRESS_STEPS + self.n_repeats
-        )
+        self.pdialog_handler.set_total_steps(PROGRESS_STEPS + self.n_repeats)
+
+        # Create a progress tracker.
+        tracker = setlyze.analysis.common.ProgressTracker(self.pdialog_handler)
+        progress_queue = tracker.get_queue()
+        tracker.start()
 
         # Create a process pool with a single worker.
         self.pool = multiprocessing.Pool(1)
 
         # Create a list of jobs.
-        jobs = [(Analysis, (locations, species, areas_definition))]
+        jobs = [(Analysis, (locations, species, areas_definition, progress_queue))]
 
         # Add the job to the pool.
         results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
@@ -346,9 +348,10 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
     Design Part: 1.3.2
     """
 
-    def __init__(self, locations_selection, species_selection, areas_definition):
+    def __init__(self, locations_selection, species_selection, areas_definition, progress_queue=None):
         super(Analysis, self).__init__()
 
+        self.progress_queue = progress_queue
         self.locations_selection = locations_selection
         self.species_selection = species_selection
         self.areas_definition = areas_definition
@@ -414,13 +417,13 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
                 # Create log message and update progress dialog.
                 logging.info("\tCreating table with species spots...")
-                self.pdialog_handler.increase("Creating table with species spots...")
+                self.set_progress('increase', "Creating table with species spots...")
                 # Make a spots table for the selected species.
                 self.db.set_species_spots(rec_ids, slot=0)
 
                 # Create log message and update progress dialog.
                 logging.info("\tMaking plate IDs in species spots table unique...")
-                self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
+                self.set_progress('increase', "Making plate IDs in species spots table unique...")
                 # Make the plate IDs unique.
                 self.n_plates_unique = self.db.make_plates_unique(slot=0)
                 # Create log message.
@@ -429,7 +432,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if not self.stopped():
                 # Create log message and update progress dialog.
                 logging.info("\tCalculating the observed plate area totals for each plate...")
-                self.pdialog_handler.increase("Calculating the observed plate area totals for each plate...")
+                self.set_progress('increase', "Calculating the observed plate area totals for each plate...")
                 # Calculate the expected totals.
                 self.set_plate_area_totals_observed()
 
@@ -455,7 +458,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             if not self.stopped():
                 # Create log message and update progress dialog.
                 logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
-                self.pdialog_handler.increase("Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
+                self.set_progress('increase', "Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
                 # Perform the repeats for the statistical tests. This will repeatedly
                 # calculate the expected totals, so we'll use the expected values
                 # of the last repeat for the non-repeated tests.
@@ -465,7 +468,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 # Create log message.
                 logging.info("\tPerforming statistical tests...")
                 # Update progress dialog.
-                self.pdialog_handler.increase("Performing statistical tests...")
+                self.set_progress('increase', "Performing statistical tests...")
                 # Performing the statistical tests.
                 self.calculate_significance_wilcoxon()
                 self.calculate_significance_chisq()
@@ -479,12 +482,12 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 return None
 
             # Update progress dialog.
-            self.pdialog_handler.increase("Generating the analysis report...")
+            self.set_progress('increase', "Generating the analysis report...")
             # Generate the report.
             self.generate_report()
 
             # Update progress dialog.
-            self.pdialog_handler.increase("")
+            self.set_progress('increase', "")
 
             # Emit the signal that the analysis has finished.
             # Note that the signal will be sent from a separate thread,
@@ -941,7 +944,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 return
 
             # Update the progess bar.
-            self.pdialog_handler.increase()
+            self.set_progress('increase')
 
             # The expected area totals are random. So the expected values
             # differ a little on each repeat.

@@ -912,6 +912,8 @@ class ProgressDialogHandler(object):
 
     def complete(self, action=None):
         """Set the progress dialog to 100%."""
+        if not self.pdialog:
+            return
         gobject.idle_add(self.__update_progress_dialog, 1.0, action)
 
     def update(self, fraction, action=None):
@@ -943,6 +945,8 @@ class ProgressDialogHandler(object):
 
         Don't call this function manually; use :meth:`increase` instead.
         """
+        if not self.pdialog:
+            return
 
         # Update fraction.
         self.pdialog.pbar.set_fraction(fraction)

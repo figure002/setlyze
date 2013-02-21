@@ -24,6 +24,7 @@
 import os
 import logging
 import multiprocessing
+import threading
 import time
 
 import gobject
@@ -157,19 +158,46 @@ class Worker(multiprocessing.Process):
         except AttributeError:
             return
 
+class ProgressTracker(threading.Thread):
+    """Track the progress of child processes and update the progress dialog."""
+    def __init__(self, pdialog_handler):
+        threading.Thread.__init__(self)
+        self.manager = multiprocessing.Manager()
+        self.queue = self.manager.Queue()
+        self.pdialog_handler = pdialog_handler
+        self.timeout = 5
+
+        assert isinstance(pdialog_handler, setlyze.std.ProgressDialogHandler), \
+            "pdialog_handler is not an instance of ProgressDialogHandler"
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def run(self):
+        while True:
+            try:
+                func, args, kargs = self.queue.get(True, self.timeout)
+            except:
+                logging.info("%s quit" % self)
+                return
+            getattr(self.pdialog_handler, func)(*args, **kargs)
+
+    def get_queue(self):
+        return self.queue
+
 class PrepareAnalysis(object):
     """Super class for analysis Begin classes."""
 
     def __init__(self):
         self.signal_handlers = {}
         self.pdialog = None
+        self.pdialog_handler = None
         self.pool = None
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.thread_pool_size = setlyze.config.cfg.get('thread-pool-size')
         self.save_individual_results = False
         self.start_time = None
-        self.pdialog_handler = None
         self.results = []
         self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
         self.save_path = setlyze.config.cfg.get('job-results-save-path')
@@ -274,8 +302,9 @@ class PrepareAnalysis(object):
 
         .. note::
 
-           This method cannot do any GUI task directly. While this works fine
-           on GNU/Linux systems, this causes the GUI to hang on Windows.
+           This callback method cannot do any GUI task directly. While this
+           works fine on GNU/Linux systems, this causes the GUI to hang on
+           Windows.
         """
         if self.start_time:
             logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
@@ -308,7 +337,7 @@ class AnalysisWorker(object):
     def __init__(self):
         self._stop = False
         self.db = None
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
+        self.progress_queue = None
         self.result = setlyze.report.Report()
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
@@ -324,6 +353,17 @@ class AnalysisWorker(object):
         """Return True if this thread needs to be stopped."""
         return self._stop
 
+    def set_progress(self, func, *args, **kargs):
+        """Report the progress of the analysis.
+
+        This method adds a task to the progress queue. Jobs from this queue
+        will be executed by :class:`setlyze.std.ProgressDialogHandler` if an
+        instance of :class:`setlyze.analysis.common.ProgressTracker` is
+        running.
+        """
+        if self.progress_queue:
+            self.progress_queue.put((func, args, kargs))
+
     def on_exit(self):
         """Properly exit the thread.
 
@@ -332,32 +372,3 @@ class AnalysisWorker(object):
         """
         if self.db:
             self.db.conn.close()
-
-    def set_pdialog_handler(self, handler):
-        """Set the progress dialog handler.
-
-        The progress dialog handler is an instance of
-        :class:`setlyze.std.ProgressDialogHandler`.
-        """
-        if not isinstance(handler, setlyze.std.ProgressDialogHandler):
-            raise ValueError("Invalid object type passed.")
-        self.pdialog_handler = handler
-
-    def set_locations_selection(self, selection):
-        """Set the locations selection.
-
-        The locations selection `selection` is a list of integers. Each integer
-        is the primary key of the localities table in the database. Only
-        species records from the selected locations will be used for the
-        analysis.
-        """
-        self.locations_selection = selection
-
-    def set_species_selection(self, selection):
-        """Set the species selection.
-
-        The species selection `selection` is a list of integers. Each integer
-        is the primary key of the species table in the database. More than one
-        species means that they will be treated as a single species.
-        """
-        self.species_selection = selection
