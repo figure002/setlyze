@@ -233,10 +233,10 @@ class BeginBatch(Begin):
             description=setlyze.locale.text('analysis-running'))
 
         # Create a progress dialog handler.
-        pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
         # Set the total number of times we decide to update the progress dialog.
-        pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
+        self.pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
             len(species))
 
         # Create a process pool with workers.
@@ -320,20 +320,8 @@ class BeginBatch(Begin):
 
         return report
 
-    def on_pool_finished(self, results):
+    def on_display_results(self, sender, results=[]):
         """Display the results."""
-        logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
-
-        # The progress dialog may not hit 100% if one of the jobs are aborted
-        # because of not enough data.
-        if self.pdialog:
-            self.pdialog.destroy()
-
-        # Check if there are any reports to display. If not, leave.
-        if len(results) == 0:
-            self.on_analysis_closed()
-            return
-
         # Create a summary from all results.
         summary = self.summarize_results(results)
 

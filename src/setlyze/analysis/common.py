@@ -24,6 +24,7 @@
 import os
 import logging
 import multiprocessing
+import time
 
 import gobject
 import pygtk
@@ -167,6 +168,8 @@ class PrepareAnalysis(object):
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.thread_pool_size = setlyze.config.cfg.get('thread-pool-size')
         self.save_individual_results = False
+        self.start_time = None
+        self.pdialog_handler = None
         self.results = []
         self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
         self.save_path = setlyze.config.cfg.get('job-results-save-path')
@@ -274,10 +277,12 @@ class PrepareAnalysis(object):
            This method cannot do any GUI task directly. While this works fine
            on GNU/Linux systems, this causes the GUI to hang on Windows.
         """
-        self.results = results
+        if self.start_time:
+            logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
 
         # Set the progress dialog to 100%. This is thread safe.
-        self.pdialog_handler.complete()
+        if self.pdialog_handler:
+            self.pdialog_handler.complete()
 
         # Check if there are any reports to display. If not, leave.
         if len(results) == 0:
