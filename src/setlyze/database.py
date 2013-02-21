@@ -36,7 +36,6 @@ import sys
 import os
 import csv
 import logging
-import threading
 import itertools
 from sqlite3 import dbapi2 as sqlite
 import time
@@ -116,7 +115,7 @@ def get_plates_total_matching_spots_total(n_spots, slot=0):
     return n_plates
 
 
-class MakeLocalDB(threading.Thread):
+class MakeLocalDB(object):
     """Create a local SQLite database with default tables and fill some
     tables based on the data source.
 
@@ -140,11 +139,8 @@ class MakeLocalDB(threading.Thread):
     """
 
     def __init__(self, pd=None):
-        logging.debug("MakeLocalDB.__init__ is called")
-        super(MakeLocalDB, self).__init__()
-
         self.dbfile = setlyze.config.cfg.get('db-file')
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler()
         self.connection = None
         self.cursor = None
 
@@ -152,7 +148,7 @@ class MakeLocalDB(threading.Thread):
         self.cursor.close()
         self.connection.close()
 
-    def run(self):
+    def start(self):
         """Decide based on the configuration variables which functions
         should be called.
 

@@ -210,6 +210,7 @@ class PrepareAnalysis(object):
         if self.pool:
             # TODO: Find an alternative to terminate()
             self.pool.terminate()
+            self.pool.join()
 
         # Show an info dialog.
         dialog = gtk.MessageDialog(parent=None, flags=0,
