@@ -217,6 +217,7 @@ class PrepareAnalysis(object):
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.save_individual_results = False
         self.start_time = None
+        self.elapsed_time = None
         self.results = []
         self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
         self.save_path = setlyze.config.cfg.get('job-results-save-path')
@@ -308,8 +309,10 @@ class PrepareAnalysis(object):
            works fine on GNU/Linux systems, this causes the GUI to hang on
            Windows.
         """
+        # Set the elapsed time if the start time was set.
         if self.start_time:
-            logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
+            self.elapsed_time = time.time() - self.start_time
+            logging.info("Time elapsed: %.2f seconds" % (self.elapsed_time))
 
         # Set the progress dialog to 100%. This is thread safe.
         if self.pdialog_handler:

@@ -319,6 +319,14 @@ class BeginBatch(Begin):
         report = setlyze.report.Report()
         report.set_statistics('positive_spots_summary', summary)
 
+        # Set analysis options.
+        for name, value in results[0].options.iteritems():
+            report.set_option(name, value)
+
+        # Set elapsed time.
+        if self.elapsed_time:
+            report.set_option('Running time', setlyze.std.seconds_to_hms(self.elapsed_time))
+
         # Display the report.
         w = setlyze.gui.Report(report, "Results: Batch summary for Attraction within Species")
         w.set_size_request(700, 500)

@@ -63,6 +63,19 @@ def module_path():
         return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
     return os.path.dirname(unicode(__file__, sys.getfilesystemencoding()))
 
+def seconds_to_hms(seconds):
+    """Returns a duration in the format hours:minutes:seconds.
+
+    Duration `seconds` must be an integer representing seconds. Returns a
+    string in the format hours:minutes:seconds.
+    """
+    seconds = int(seconds)
+    hours = seconds / 3600
+    seconds -= 3600*hours
+    minutes = seconds / 60
+    seconds -= 60*minutes
+    return "%02d:%02d:%02d" % (hours, minutes, seconds)
+
 def make_remarks(results, attributes):
     """Return a remarks string that contains a summary of the results
     and attributes of a statistical test.
