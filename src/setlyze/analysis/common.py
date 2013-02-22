@@ -46,61 +46,62 @@ __status__ = "Production"
 __date__ = "2013/02/02"
 
 
-class Pool(multiprocessing.Process):
+class Pool(threading.Thread):
     """Primitive thread pool."""
 
-    def __init__(self, size, pdialog_handler=None):
-        multiprocessing.Process.__init__(self)
-        self._stop = multiprocessing.Event()
-        self.queue = multiprocessing.Queue()
-        self.threads = []
+    def __init__(self, size):
+        threading.Thread.__init__(self)
+        self.stop_ = False
+        self.manager = multiprocessing.Manager()
+        self.task_queue = self.manager.Queue()
+        self.done_queue = self.manager.Queue()
+        self.progress_queue = self.manager.Queue()
+        self.workers = []
 
-        # Spawn threads, but don't start them yet.
+        # Spawn workers, but don't start them yet.
         for i in range(size):
-            t = Worker(self.queue, pdialog_handler)
-            self.threads.append(t)
+            w = Worker(self.task_queue, self.done_queue)
+            self.workers.append(w)
 
-    def add_job(self, func, *args, **kargs):
-        """Add a job to the queue."""
-        self.queue.put((func, args, kargs))
+    def add_task(self, func, *args, **kargs):
+        """Add a task to the task queue."""
+        self.task_queue.put((func, args, kargs))
 
     def run(self):
-        """Start all threads.
+        """Start all workers.
 
-        Only call this method after calling :meth:`add_job` at least once.
-        The signal ``thread-pool-finished`` is sent when all threads have
-        finished.
+        Only call this method after calling :meth:`add_task` at least once.
+        The signal ``pool-finished`` is sent when all workers have finished.
         """
-        for thread in self.threads:
-            thread.start()
-        # Wait for all threads to finish.
-        for thread in self.threads:
-            thread.join()
-        # Send the signal that all threads have finished.
-        gobject.idle_add(setlyze.std.sender.emit, 'thread-pool-finished')
+        for w in self.workers:
+            w.start()
+        # Wait for all workers to finish.
+        for w in self.workers:
+            w.join()
+        # Send the signal that all workers have finished.
+        gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', self.done_queue)
 
     def stop(self, block=True):
-        """Stop all threads.
+        """Stop all workers.
 
         Default for `block` is True, causing this function to block until
-        all threads have been stopped.
+        all workers have been stopped.
         """
         logging.debug("%s: Received stop signal" % self)
-        self._stop.set()
-        # Clear the job queue.
-        with self.queue.mutex:
-            self.queue.queue.clear()
-        # Stop all threads.
-        for thread in self.threads:
-            thread.stop()
-        # Wait for all threads to stop.
+        self._stop = True
+        # Clear the task queue.
+        self.task_queue.queue.clear()
+        # Stop all workers.
+        for w in self.workers:
+            w.stop()
+        # Wait for all workers to stop.
         if block:
-            for thread in self.threads:
-                thread.join()
+            for w in self.workers:
+                w.join()
 
     def stopped(self):
-        """Return True if the pool was stopped forcefully."""
-        return self._stop.isSet()
+        """Return True if the pool was stopped."""
+        return self._stop
 
 class Worker(multiprocessing.Process):
     """Worker thread for usage in a thread pool.
@@ -115,46 +116,38 @@ class Worker(multiprocessing.Process):
     An instance of this class will exit immediately when the queue is empty.
     """
 
-    def __init__(self, queue, pdialog_handler = None):
+    def __init__(self, input, output):
         multiprocessing.Process.__init__(self)
-        self.queue = queue
-        self.pdialog_handler = pdialog_handler
-        self.thread = None
+        self.input = input
+        self.output = output
+        self.job = None
 
     def run(self):
         """Execute jobs in the queue."""
         while True:
             # Get a job from the queue.
             try:
-                func, args, kargs = self.queue.get(False)
+                func, args, kargs = self.input.get(False)
             except:
                 logging.info("Worker %s got bored and quit" % os.getpid())
                 return
 
             # Execute the job.
-            self.thread = func(*args, **kargs)
+            self.job = func(*args, **kargs)
+            result = self.job.run()
 
-            # Set the progress dialog handler if one is set.
-            if self.pdialog_handler:
-                self.thread.set_pdialog_handler(self.pdialog_handler)
+            # Check if an exception has occurred. If so, log it.
+            if self.job.exception:
+                logging.error("Worker %s: %s" % (os.getpid(), self.job.exception))
 
-            # Start the analysis.
-            self.thread.start()
-            self.thread.join()
-
-            # Emit the signal that a job was completed. Send the results along
-            # with the signal.
-            if not self.thread.result.is_empty():
-                gobject.idle_add(setlyze.std.sender.emit, 'thread-pool-job-completed', self.thread.result)
-
-            # Signal to queue that the job is done.
-            self.queue.task_done()
+            # Save the result.
+            self.output.put(result)
 
     def stop(self):
         """Stop the current job."""
         logging.debug("%s: Received stop signal" % self)
         try:
-            self.thread.stop()
+            self.job.stop()
         except AttributeError:
             return
 
@@ -243,8 +236,7 @@ class PrepareAnalysis(object):
         # Stop all analysis jobs.
         if self.pool:
             # TODO: Find a more elegant way to stop processes.
-            self.pool.terminate()
-            self.pool.join()
+            self.pool.stop()
 
         # Show an info dialog.
         dialog = gtk.MessageDialog(parent=None, flags=0,
@@ -257,7 +249,7 @@ class PrepareAnalysis(object):
 
         # Method on_pool_finished() will not be called when calling
         # pool.terminate(), so close manually.
-        self.on_analysis_closed()
+        #self.on_analysis_closed()
 
     def on_analysis_closed(self, sender=None, data=None, timeout=None):
         """Show the main window and unset the signal handler."""
@@ -281,7 +273,7 @@ class PrepareAnalysis(object):
         """Let the user decide whether individual job results should be saved."""
         setlyze.gui.SelectReportSavePath()
 
-    def on_pool_finished(self, results):
+    def on_pool_finished(self, sender, results):
         """Display the results in graphical window.
 
         If there are no results, return to the main window.
@@ -300,7 +292,16 @@ class PrepareAnalysis(object):
             self.pdialog_handler.complete()
 
         # Only keep the non-empty results.
-        results[:] = [r for r in results if r and not r.is_empty()]
+        #results[:] = [r for r in results if r and not r.is_empty()]
+        keep = []
+        while True:
+            try:
+                r = results.get(False)
+            except:
+                break
+            if r and not r.is_empty():
+                keep.append(r)
+        results = keep
 
         # Check if there are any reports to display. If not, close the
         # analysis after a short timeout. The timeout gives signal handlers
@@ -330,7 +331,9 @@ class PrepareAnalysis(object):
                 setlyze.report.export(result, path, 'rst')
 
         # Let the signal handler handle the results.
-        gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
+        #gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
+        for report in results:
+            setlyze.gui.Report(report)
 
     def on_display_results(self, sender, results=[]):
         """Display each report in a separate window.
@@ -355,12 +358,12 @@ class AnalysisWorker(object):
         self.exception = None
 
     def stop(self):
-        """Stop this thread."""
+        """Stop the analysis."""
         logging.debug("%s: Received stop signal" % self)
         self._stop = True
 
     def stopped(self):
-        """Return True if this thread needs to be stopped."""
+        """Return True if the analysis was stopped."""
         return self._stop
 
     def set_progress(self, func, *args, **kargs):
