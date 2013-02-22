@@ -56,10 +56,11 @@ import os
 import logging
 import itertools
 import time
+import multiprocessing
 
 import gobject
 
-import setlyze.analysis.common
+from setlyze.analysis.common import calculatestar,ProcessTaskExec,PrepareAnalysis,AnalysisWorker
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -79,7 +80,7 @@ __date__ = "2013/02/02"
 # The number of progress steps for this analysis.
 PROGRESS_STEPS = 8
 
-class Begin(setlyze.analysis.common.PrepareAnalysis):
+class Begin(PrepareAnalysis):
     """Make the preparations for analysis 2:
 
     1. Show a list of all localities and let the user perform a localities
@@ -130,10 +131,8 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
             # Progress dialog closed
             'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
-            # A thread pool job was completed.
-            'thread-pool-job-completed': setlyze.std.sender.connect('thread-pool-job-completed', self.on_thread_pool_job_completed),
-            # The thread pool has finished processing all jobs.
-            'thread-pool-finished': setlyze.std.sender.connect('thread-pool-finished', self.on_thread_pool_finished),
+            # The process pool has finished.
+            'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
         }
 
     def on_select_locations(self, obj=None, data=None):
@@ -166,24 +165,24 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             description=setlyze.locale.text('analysis-running'))
 
         # Create a progress dialog handler.
-        pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
         # Set the total number of times we decide to update the progress dialog.
-        pdialog_handler.set_total_steps(
-            PROGRESS_STEPS + self.n_repeats
-        )
+        self.pdialog_handler.set_total_steps(PROGRESS_STEPS + self.n_repeats)
 
-        # Create a thread pool with a single thread.
-        self.pool = setlyze.analysis.common.Pool(
-            size=1,
-            pdialog_handler=pdialog_handler
-        )
+        # Create a progress task executor.
+        exe = ProcessTaskExec()
+        exe.set_pdialog_handler(self.pdialog_handler)
+        exe.start()
+
+        # Create a process pool with a single worker.
+        self.pool = multiprocessing.Pool(1)
+
+        # Create a list of jobs.
+        jobs = [(Analysis, (locations, species, exe.queue))]
 
         # Add the job to the pool.
-        self.pool.add_job(Analysis, self.lock, locations, species)
-
-        # Start all threads in the pool.
-        self.pool.start()
+        self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -222,29 +221,26 @@ class BeginBatch(Begin):
             description=setlyze.locale.text('analysis-running'))
 
         # Create a progress dialog handler.
-        pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
 
         # Set the total number of times we decide to update the progress dialog.
-        pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
+        self.pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
             len(species))
 
-        # Create a thread pool.
-        self.pool = setlyze.analysis.common.Pool(
-            size=self.thread_pool_size,
-            pdialog_handler=pdialog_handler
-        )
+        # Create a progress task executor.
+        exe = ProcessTaskExec()
+        exe.set_pdialog_handler(self.pdialog_handler)
+        exe.start()
 
-        # Add jobs to the thread pool.
+        # Create a process pool with workers.
+        self.pool = multiprocessing.Pool()
+
+        # Create a list of jobs.
         logging.info("Adding %d jobs to the queue" % len(species))
-        for sp in species:
-            self.pool.add_job(Analysis, self.lock, locations, sp)
+        jobs = ((Analysis, (locations, sp, exe.queue)) for sp in species)
 
-        # Start all threads in the thread pool.
-        self.pool.start()
-
-    def print_elapsed_time(self, sender):
-        """Print elapsed time since start of the analysis."""
-        logging.info("Time elapsed: %.2f seconds" % (time.time() - self.start_time))
+        # Add the jobs to the pool.
+        self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
     def summarize_results(self, results):
         """Join results from multiple analyses to a single report.
@@ -318,15 +314,10 @@ class BeginBatch(Begin):
 
         return report
 
-    def on_thread_pool_finished(self, sender=None):
+    def on_display_results(self, sender, results=[]):
         """Display the results."""
-        # Check if there are any reports to display. If not, leave.
-        if len(self.results) == 0:
-            self.on_analysis_closed()
-            return
-
         # Create a summary from all results.
-        summary = self.summarize_results(self.results)
+        summary = self.summarize_results(results)
 
         # Create a report object from the dictionary.
         report = setlyze.report.Report()
@@ -336,7 +327,7 @@ class BeginBatch(Begin):
         w = setlyze.gui.Report(report, "Results: Batch summary for Attraction within Species")
         w.set_size_request(700, 500)
 
-class Analysis(setlyze.analysis.common.AnalysisWorker):
+class Analysis(AnalysisWorker):
     """Perform the calculations for analysis 2.
 
     1. Get all SETL records that match the localities+species selection and
@@ -360,8 +351,8 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
     Design Part: 1.4.2
     """
 
-    def __init__(self, lock, locations_selection, species_selection):
-        super(Analysis, self).__init__(lock)
+    def __init__(self, locations_selection, species_selection, execute_queue=None):
+        super(Analysis, self).__init__(execute_queue)
 
         self.locations_selection = locations_selection
         self.species_selection = species_selection
@@ -373,19 +364,6 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         # Create log message.
         logging.info("Performing %s" % setlyze.locale.text('analysis2'))
-
-        # Emit the signal that an analysis has started.
-        setlyze.std.sender.emit('analysis-started')
-
-    def get_total_steps(self):
-        """Return the number of progress steps for this analysis.
-
-        This equals to the total number of times we decide to update the
-        progress dialog for a single analysis.
-
-        Module constant `PROGRESS_STEPS` has to be set in the analysis module.
-        """
-        return PROGRESS_STEPS + self.n_repeats
 
     def run(self):
         """Call the necessary methods for the analysis in the right order:
@@ -402,102 +380,109 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
 
         Design Part: 1.59
         """
-        if not self.stopped():
-            # Make an object that facilitates access to the database.
-            self.db = setlyze.database.get_database_accessor()
+        try:
+            if not self.stopped():
+                # Make an object that facilitates access to the database.
+                self.db = setlyze.database.get_database_accessor()
 
-            # Create temporary tables.
-            self.db.create_table_species_spots_1()
-            self.db.create_table_plate_spot_totals()
-            self.db.create_table_spot_distances_observed()
-            self.db.create_table_spot_distances_expected()
-            self.db.conn.commit()
+                # Create temporary tables.
+                self.db.create_table_species_spots_1()
+                self.db.create_table_plate_spot_totals()
+                self.db.create_table_spot_distances_observed()
+                self.db.create_table_spot_distances_expected()
+                self.db.conn.commit()
 
-            # Get the record IDs that match the localities+species selection.
-            rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
-            # Create log message.
-            logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
+                # Get the record IDs that match the localities+species selection.
+                rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
+                # Create log message.
+                logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-            # Create log message.
-            logging.info("\tCreating table with species spots...")
+                # Create log message.
+                logging.info("\tCreating table with species spots...")
+                # Update progress dialog.
+                self.exec_task('progress.increase', "Creating table with species spots...")
+                # Make a spots table for the selected species.
+                self.db.set_species_spots(rec_ids, slot=0)
+
+            if not self.stopped():
+                # Create log message.
+                logging.info("\tMaking plate IDs in species spots table unique...")
+                # Update progress dialog.
+                self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
+                # Make the plate IDs unique.
+                n_plates_unique = self.db.make_plates_unique(slot=0)
+                # Create log message.
+                logging.info("\t  %d records remaining." % (n_plates_unique))
+
+            if not self.stopped():
+                # Create log message.
+                logging.info("\tSaving the positive spot totals for each plate...")
+                # Update progress dialog.
+                self.exec_task('progress.increase', "Saving the positive spot totals for each plate...")
+                # Save the positive spot totals for each plate to the database.
+                self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
+                # Create log message.
+                logging.info("\tSkipping %d records with too few positive spots." % skipped)
+                logging.info("\t  %d records remaining." % self.affected)
+
+                # Create log message.
+                logging.info("\tCalculating the intra-specific distances for the selected species...")
+                # Update progress dialog.
+                self.exec_task('progress.increase', "Calculating the intra-specific distances for the selected species...")
+                # Calculate the observed spot distances.
+                self.calculate_distances_intra()
+
+            if not self.stopped():
+                # Create log message.
+                logging.info("\tPerforming statistical tests with %d repeats..." %
+                    self.n_repeats)
+                # Update progress dialog.
+                self.exec_task('progress.increase',
+                    "Performing statistical tests with %s repeats..." %
+                    self.n_repeats)
+                # Perform the repeats for the statistical tests. This will repeatedly
+                # calculate the expected totals, so we'll use the expected values
+                # of the last repeat for the non-repeated tests.
+                self.repeat_test(self.n_repeats)
+
+            if not self.stopped():
+                # Create log message.
+                logging.info("\tPerforming statistical tests...")
+                # Update progress dialog.
+                self.exec_task('progress.increase', "Performing statistical tests...")
+                # Performing the statistical tests. The expected values for the last
+                # repeat is used for this test.
+                self.calculate_significance()
+
+            # If the cancel button is pressed don't finish this function.
+            if self.stopped():
+                logging.info("Analysis aborted by user")
+
+                # Exit gracefully.
+                self.on_exit()
+                return None
+
             # Update progress dialog.
-            self.pdialog_handler.increase("Creating table with species spots...")
-            # Make a spots table for the selected species.
-            self.db.set_species_spots(rec_ids, slot=0)
+            self.exec_task('progress.increase', "Generating the analysis report...")
+            # Generate the report.
+            self.generate_report()
 
-        if not self.stopped():
-            # Create log message.
-            logging.info("\tMaking plate IDs in species spots table unique...")
             # Update progress dialog.
-            self.pdialog_handler.increase("Making plate IDs in species spots table unique...")
-            # Make the plate IDs unique.
-            n_plates_unique = self.db.make_plates_unique(slot=0)
-            # Create log message.
-            logging.info("\t  %d records remaining." % (n_plates_unique))
+            self.exec_task('progress.increase', "")
 
-        if not self.stopped():
-            # Create log message.
-            logging.info("\tSaving the positive spot totals for each plate...")
-            # Update progress dialog.
-            self.pdialog_handler.increase("Saving the positive spot totals for each plate...")
-            # Save the positive spot totals for each plate to the database.
-            self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
-            # Create log message.
-            logging.info("\tSkipping %d records with too few positive spots." % skipped)
-            logging.info("\t  %d records remaining." % self.affected)
-
-            # Create log message.
-            logging.info("\tCalculating the intra-specific distances for the selected species...")
-            # Update progress dialog.
-            self.pdialog_handler.increase("Calculating the intra-specific distances for the selected species...")
-            # Calculate the observed spot distances.
-            self.calculate_distances_intra()
-
-        if not self.stopped():
-            # Create log message.
-            logging.info("\tPerforming statistical tests with %d repeats..." %
-                self.n_repeats)
-            # Update progress dialog.
-            self.pdialog_handler.increase("Performing statistical tests with %s repeats..." %
-                self.n_repeats)
-            # Perform the repeats for the statistical tests. This will repeatedly
-            # calculate the expected totals, so we'll use the expected values
-            # of the last repeat for the non-repeated tests.
-            self.repeat_test(self.n_repeats)
-
-        if not self.stopped():
-            # Create log message.
-            logging.info("\tPerforming statistical tests...")
-            # Update progress dialog.
-            self.pdialog_handler.increase("Performing statistical tests...")
-            # Performing the statistical tests. The expected values for the last
-            # repeat is used for this test.
-            self.calculate_significance()
-
-        # If the cancel button is pressed don't finish this function.
-        if self.stopped():
-            logging.info("Analysis aborted by user")
-
-            # Exit gracefully.
-            self.on_exit()
-            return
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("Generating the analysis report...")
-        # Generate the report.
-        self.generate_report()
-
-        # Update progress dialog.
-        self.pdialog_handler.increase("")
-
-        # Emit the signal that the analysis has finished.
-        # Note that the signal will be sent from a separate thread,
-        # so we must use gobject.idle_add.
-        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
-        logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
+            # Emit the signal that the analysis has finished.
+            # Note that the signal will be sent from a separate thread,
+            # so we must use gobject.idle_add.
+            gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+            logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
+        except Exception, e:
+            self.exception = e
+            return None
 
         # Exit gracefully.
         self.on_exit()
+
+        return self.result
 
     def calculate_distances_intra(self):
         """Calculate the intra-specific spot distances for each plate
@@ -881,7 +866,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
                 return
 
             # Update the progess bar.
-            self.pdialog_handler.increase()
+            self.exec_task('progress.increase')
 
             # The expected spot distances are random. So the expected values
             # differ a little on each repeat.

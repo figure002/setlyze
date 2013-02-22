@@ -48,7 +48,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
-import setlyze.analysis.common
+from setlyze.analysis.common import calculatestar,ProcessTaskExec,PrepareAnalysis,AnalysisWorker
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -70,18 +70,7 @@ PROGRESS_STEPS = 7
 
 logger = multiprocessing.log_to_stderr(logging.DEBUG)
 
-def calculate(func, args):
-    obj = func(*args)
-    result = obj.run()
-    # Check if an exception has occurred. If so, print it.
-    if obj.exception:
-        logging.error("calculate: %s" % obj.exception)
-    return result
-
-def calculatestar(args):
-    return calculate(*args)
-
-class Begin(setlyze.analysis.common.PrepareAnalysis):
+class Begin(PrepareAnalysis):
     """Make the preparations for analysis 1:
 
     1. Show a list of all localities and let the user perform a localities
@@ -186,7 +175,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         self.pdialog_handler.set_total_steps(PROGRESS_STEPS + self.n_repeats)
 
         # Create a progress task executor.
-        exe = setlyze.analysis.common.ProcessTaskExec()
+        exe = ProcessTaskExec()
         exe.set_pdialog_handler(self.pdialog_handler)
         exe.start()
 
@@ -197,7 +186,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         jobs = [(Analysis, (locations, species, areas_definition, exe.queue))]
 
         # Add the job to the pool.
-        results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
+        self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:
@@ -242,7 +231,7 @@ class BeginBatch(Begin):
             len(species))
 
         # Create a progress task executor.
-        exe = setlyze.analysis.common.ProcessTaskExec()
+        exe = ProcessTaskExec()
         exe.set_pdialog_handler(self.pdialog_handler)
         exe.start()
 
@@ -254,7 +243,7 @@ class BeginBatch(Begin):
         jobs = ((Analysis, (locations, sp, areas_definition, exe.queue)) for sp in species)
 
         # Add the jobs to the pool.
-        results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
+        self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
     def summarize_results(self, results):
         """Join results from multiple analyses to a single report.
@@ -336,7 +325,7 @@ class BeginBatch(Begin):
         w = setlyze.gui.Report(report, "Results: Batch summary for Sport Preference")
         w.set_size_request(700, 500)
 
-class Analysis(setlyze.analysis.common.AnalysisWorker):
+class Analysis(AnalysisWorker):
     """Perform the calculations for analysis 1.
 
     1. Calculate the observed species frequencies for the plate areas.
@@ -492,6 +481,7 @@ class Analysis(setlyze.analysis.common.AnalysisWorker):
             logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
         except Exception, e:
             self.exception = e
+            return None
 
         # Exit gracefully.
         self.on_exit()

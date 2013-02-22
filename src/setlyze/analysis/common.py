@@ -45,6 +45,16 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2013/02/02"
 
+def calculate(func, args):
+    obj = func(*args)
+    result = obj.run()
+    # Check if an exception has occurred. If so, print it.
+    if obj.exception:
+        logging.error("calculate: %s" % obj.exception)
+    return result
+
+def calculatestar(args):
+    return calculate(*args)
 
 class Pool(threading.Thread):
     """Primitive thread pool."""
