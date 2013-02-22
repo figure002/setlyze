@@ -141,7 +141,7 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
             # Progress dialog closed
             'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
             # The process pool has finished.
-            'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_pool_finished),
+            'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
         }
 
     def on_select_locations(self, sender=None, data=None):
@@ -191,17 +191,13 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
         tracker.start()
 
         # Create a process pool with a single worker.
-        #self.pool = multiprocessing.Pool(1)
-        self.pool = setlyze.analysis.common.Pool(1)
+        self.pool = multiprocessing.Pool(1)
 
         # Create a list of jobs.
-        #jobs = [(Analysis, (locations, species, areas_definition, progress_queue))]
-        self.pool.add_task(Analysis, locations, species, areas_definition, progress_queue)
-
-        self.pool.start()
+        jobs = [(Analysis, (locations, species, areas_definition, progress_queue))]
 
         # Add the job to the pool.
-        #results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
+        results = self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
 class BeginBatch(Begin):
     """Make the preparations for batch analysis:

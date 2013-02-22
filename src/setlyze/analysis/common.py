@@ -191,7 +191,6 @@ class PrepareAnalysis(object):
         self.pool = None
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
-        self.thread_pool_size = setlyze.config.cfg.get('thread-pool-size')
         self.save_individual_results = False
         self.start_time = None
         self.results = []
@@ -236,7 +235,8 @@ class PrepareAnalysis(object):
         # Stop all analysis jobs.
         if self.pool:
             # TODO: Find a more elegant way to stop processes.
-            self.pool.stop()
+            self.pool.terminate()
+            self.pool.join()
 
         # Show an info dialog.
         dialog = gtk.MessageDialog(parent=None, flags=0,
@@ -249,9 +249,9 @@ class PrepareAnalysis(object):
 
         # Method on_pool_finished() will not be called when calling
         # pool.terminate(), so close manually.
-        #self.on_analysis_closed()
+        self.on_analysis_closed()
 
-    def on_analysis_closed(self, sender=None, data=None, timeout=None):
+    def on_analysis_closed(self, sender=None, data=None, timeout=0):
         """Show the main window and unset the signal handler."""
         if timeout:
             time.sleep(timeout)
@@ -273,7 +273,7 @@ class PrepareAnalysis(object):
         """Let the user decide whether individual job results should be saved."""
         setlyze.gui.SelectReportSavePath()
 
-    def on_pool_finished(self, sender, results):
+    def on_pool_finished(self, results):
         """Display the results in graphical window.
 
         If there are no results, return to the main window.
@@ -292,23 +292,14 @@ class PrepareAnalysis(object):
             self.pdialog_handler.complete()
 
         # Only keep the non-empty results.
-        #results[:] = [r for r in results if r and not r.is_empty()]
-        keep = []
-        while True:
-            try:
-                r = results.get(False)
-            except:
-                break
-            if r and not r.is_empty():
-                keep.append(r)
-        results = keep
+        results[:] = [r for r in results if r and not r.is_empty()]
 
         # Check if there are any reports to display. If not, close the
         # analysis after a short timeout. The timeout gives signal handlers
         # a chance to catch any last minute signals from the analysis.
         if len(results) == 0:
             logging.info("No results to show.")
-            self.on_analysis_closed(timeout=3)
+            self.on_analysis_closed(timeout=2)
             return
 
         # Save reports for the individual analyses if desired.
@@ -331,9 +322,7 @@ class PrepareAnalysis(object):
                 setlyze.report.export(result, path, 'rst')
 
         # Let the signal handler handle the results.
-        #gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
-        for report in results:
-            setlyze.gui.Report(report)
+        gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
 
     def on_display_results(self, sender, results=[]):
         """Display each report in a separate window.
