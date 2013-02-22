@@ -1020,6 +1020,8 @@ class Analysis(AnalysisWorker):
         Design Part: 1.13
         """
         self.result.set_analysis("Spot Preference")
+        self.result.set_option('Alpha level', self.alpha_level)
+        self.result.set_option('Repeats', self.n_repeats)
         self.result.set_location_selections([self.locations_selection])
         self.result.set_species_selections([self.species_selection])
         self.result.set_plate_areas_definition(self.areas_definition)

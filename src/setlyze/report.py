@@ -79,10 +79,19 @@ class Report(object):
     def __init__(self):
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.statistics = {}
+        self.options = {}
 
     def is_empty(self):
         """Return True if this is an empty report."""
         return self.statistics == {}
+
+    def set_option(self, name, value):
+        """Set an analysis option `name` to value `value`.
+
+        This can be used for things like alpha level and the number of repeats
+        for the analysis. They will appear in exported reports.
+        """
+        self.options[name] = value
 
     def set_analysis(self, name):
         """Set the analysis name to `name`."""
@@ -1782,6 +1791,8 @@ class ExportRstReport(object):
         yield "\n"
         yield ":Generator: SETLyze %s\n" % (__version__)
         yield ":Date: $Date: %s $\n" % (date)
+        for name, val in self.report.options.iteritems():
+            yield ":%s: %s\n" % (name, val)
         yield "\n"
         if toc:
             yield ".. contents::\n"

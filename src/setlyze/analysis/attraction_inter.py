@@ -1098,6 +1098,8 @@ class Analysis(AnalysisWorker):
         Design Part: 1.15
         """
         self.result.set_analysis("Attraction between Species")
+        self.result.set_option('Alpha level', self.alpha_level)
+        self.result.set_option('Repeats', self.n_repeats)
         self.result.set_location_selections(self.locations_selections)
         self.result.set_species_selections(self.species_selections)
         #self.result.set_spot_distances_observed()
