@@ -188,19 +188,23 @@ class ConfigManager(object):
         ``~/.setlyze/setlyze.cfg``. If a configuration file ``setlyze.cfg``
         is present in the working directory, that file is used instead.
         """
-        ints = ('test-repeats','thread-pool-size')
+        ints = ('test-repeats')
         floats = ('alpha-level')
         parser = ConfigParser.SafeConfigParser()
         files = parser.read(['setlyze.cfg', CONF_FILE])
         if len(files) > 0:
             for section in ['general']:
                 for name in parser.options(section):
-                    if name in ints:
-                        self.set(name, parser.getint(section, name))
-                    elif name in floats:
-                        self.set(name, parser.getfloat(section, name))
-                    else:
-                        self.set(name, parser.get(section, name))
+                    try:
+                        if name in ints:
+                            self.set(name, parser.getint(section, name))
+                        elif name in floats:
+                            self.set(name, parser.getfloat(section, name))
+                        else:
+                            self.set(name, parser.get(section, name))
+                    except:
+                        # Skip the configuration if we fail to set it.
+                        continue
 
     def save_to_file(self):
         """Save user customizable settings to a configuration file."""
