@@ -201,11 +201,7 @@ class BeginBatch(Begin):
     def __init__(self):
         super(BeginBatch, self).__init__()
         logging.info("We are in batch mode")
-
         self.report_prefix = "attraction_intra_"
-
-        # Print elapsed time after each sub-analysis.
-        self.signal_handlers['analysis-finished'] = setlyze.std.sender.connect('analysis-finished', self.print_elapsed_time)
 
     def on_start_analysis(self, sender=None, data=None):
         """Run the analysis in batch mode.
