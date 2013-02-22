@@ -151,17 +151,20 @@ class Worker(multiprocessing.Process):
         except AttributeError:
             return
 
-class ProgressTracker(threading.Thread):
-    """Track the progress of child processes and update the progress dialog."""
-    def __init__(self, pdialog_handler):
+class ProcessTaskExec(threading.Thread):
+    """Execute child process tasks in the main process.
+
+    An instance of this class provides `self.queue` which can be passed to
+    child processes. Child processes can use it to submit tasks for execution
+    in the main process. An instance of this class which runs in the main
+    process will execute tasks submitted to `self.queue`.
+    """
+    def __init__(self, timeout=5):
         threading.Thread.__init__(self)
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
-        self.pdialog_handler = pdialog_handler
-        self.timeout = 5
-
-        assert isinstance(pdialog_handler, setlyze.std.ProgressDialogHandler), \
-            "pdialog_handler is not an instance of ProgressDialogHandler"
+        self.pdialog_handler = None
+        self.timeout = timeout
 
     def __str__(self):
         return self.__class__.__name__
@@ -169,14 +172,25 @@ class ProgressTracker(threading.Thread):
     def run(self):
         while True:
             try:
-                func, args, kargs = self.queue.get(True, self.timeout)
+                task, args, kargs = self.queue.get(True, self.timeout)
             except:
                 logging.info("%s quitted" % self)
                 return
-            if func == 'emit':
+            if task == 'emit':
+                # Emit a signal.
                 gobject.idle_add(setlyze.std.sender.emit, *args)
-            elif isinstance(func, str):
-                getattr(self.pdialog_handler, func)(*args, **kargs)
+            if task.startswith('progress.'):
+                # Call a ProgressDialogHandler method. The value of `task`
+                # has the format `progress.method`, which translates to
+                # `self.pdialog_handler.method()`.
+                if self.pdialog_handler:
+                    task = task.split('.').pop()
+                    getattr(self.pdialog_handler, task)(*args, **kargs)
+
+    def set_pdialog_handler(self, handler):
+        if not isinstance(handler, setlyze.std.ProgressDialogHandler):
+            raise ValueError("pdialog_handler is not an instance of ProgressDialogHandler")
+        self.pdialog_handler = handler
 
     def get_queue(self):
         return self.queue
@@ -336,10 +350,10 @@ class PrepareAnalysis(object):
 class AnalysisWorker(object):
     """Super class for Analysis classes."""
 
-    def __init__(self):
+    def __init__(self, execute_queue=None):
         self._stop = False
         self.db = None
-        self.progress_queue = None
+        self.execute_queue = execute_queue
         self.result = setlyze.report.Report()
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
@@ -355,16 +369,18 @@ class AnalysisWorker(object):
         """Return True if the analysis was stopped."""
         return self._stop
 
-    def set_progress(self, func, *args, **kargs):
-        """Report the progress of the analysis.
+    def exec_task(self, task, *args, **kargs):
+        """Add a task to the execute queue.
 
-        This method adds a task to the progress queue. Jobs from this queue
-        will be executed by :class:`setlyze.std.ProgressDialogHandler` if an
-        instance of :class:`setlyze.analysis.common.ProgressTracker` is
-        running.
+        Tasks from this queue will be executed by
+        :class:`setlyze.analysis.common.ProgressTracker` in the main process.
+
+        Argument `task` must be a string that is understood by
+        :class:`setlyze.analysis.common.ProgressTracker` and can be followed
+        by arguments for the specific task.
         """
-        if self.progress_queue:
-            self.progress_queue.put((func, args, kargs))
+        if self.execute_queue:
+            self.execute_queue.put((task, args, kargs))
 
     def on_exit(self):
         """Properly exit the thread.
