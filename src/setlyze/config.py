@@ -212,7 +212,6 @@ class ConfigManager(object):
         # Set the configurations.
         parser.add_section('general')
         parser.set('general', 'alpha-level', str(self.get('alpha-level')))
-        parser.set('general', 'thread-pool-size', str(self.get('thread-pool-size')))
         parser.set('general', 'test-repeats', str(self.get('test-repeats')))
         # Check if the data folder exists. If not, create it.
         if not os.path.exists(DATA_PATH):
