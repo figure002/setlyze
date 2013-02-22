@@ -3495,8 +3495,6 @@ class Preferences(object):
         self.entry_alpha_level.set_text(str(setlyze.config.cfg.get('alpha-level')))
         self.entry_test_repeats = self.builder.get_object('entry_test_repeats')
         self.entry_test_repeats.set_text(str(setlyze.config.cfg.get('test-repeats')))
-        self.entry_thread_pool_size = self.builder.get_object('entry_thread_pool_size')
-        self.entry_thread_pool_size.set_text(str(setlyze.config.cfg.get('thread-pool-size')))
         button_help = self.builder.get_object('button_help')
         button_help.connect("clicked", on_help, 'preferences-dialog')
         button_cancel = self.builder.get_object('button_cancel')
@@ -3517,12 +3515,6 @@ class Preferences(object):
             self.set_test_repeats()
         except ValueError as e:
             self.on_error("Invalid number of repeats", "Error: %s" % e)
-            return
-
-        try:
-            self.set_thread_pool_size()
-        except ValueError as e:
-            self.on_error("Invalid thread pool size", "Error: %s" % e)
             return
 
         # Save the configurations to a config file.
@@ -3562,17 +3554,6 @@ class Preferences(object):
         if not test_repeats > 1:
             raise ValueError("Number of test repeats must be an integer greater than 1.")
         setlyze.config.cfg.set('test-repeats', test_repeats)
-
-    def set_thread_pool_size(self):
-        """Set the new value for the thread pool size.
-
-        Raises a ValueError if this fails.
-        """
-        size = int(self.entry_thread_pool_size.get_text())
-        # Check if the new value is valid.
-        if not 1 <= size <= 20:
-            raise ValueError("The thread pool size must be an integer from 1 to 20.")
-        setlyze.config.cfg.set('thread-pool-size', size)
 
     def on_cancel(self, widget, data=None):
         """Close the preferences dialog."""
