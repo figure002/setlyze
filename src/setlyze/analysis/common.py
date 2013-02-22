@@ -327,26 +327,36 @@ class PrepareAnalysis(object):
             return
 
         # Save reports for the individual analyses if desired.
-        if self.in_batch_mode() and self.save_individual_results and \
-        os.path.isdir(self.save_path):
-            for result in results:
-                species_list = []
-                for selection in result.species_selections:
-                    species_selection = [s for s in selection.values()]
-                    # In batch mode there should be just one species per selection.
-                    species = species_selection[0]['name_latin']
-                    if not species: species = species_selection[0]['name_common']
-                    species_list.append(species)
-
-                if len(species_list) == 2:
-                    filename = "%s%s_%s.rst" % (self.report_prefix, species_list[0], species_list[1])
-                else:
-                    filename = "%s%s.rst" % (self.report_prefix, species_list[0])
-                path = os.path.join(self.save_path, filename)
-                setlyze.report.export(result, path, 'rst')
+        if self.in_batch_mode() and self.save_individual_results:
+            self.export_reports(results, self.save_path, self.report_prefix)
 
         # Let the signal handler handle the results.
         gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
+
+    def export_reports(self, results, path, prefix=''):
+        """Export all reports from the reports list `results`.
+
+        Reports are exported to directory `path`. Argument `prefix` is an
+        optional prefix for exported reports.
+        """
+        if not os.path.isdir(path):
+            return
+
+        for result in results:
+            species_list = []
+            for selection in result.species_selections:
+                species_selection = [s for s in selection.values()]
+                # In batch mode there should be just one species per selection.
+                species = species_selection[0]['name_latin']
+                if not species: species = species_selection[0]['name_common']
+                species_list.append(species)
+
+            if len(species_list) == 2:
+                filename = "%s%s_%s.rst" % (prefix, species_list[0], species_list[1])
+            else:
+                filename = "%s%s.rst" % (prefix, species_list[0])
+            output_dir = os.path.join(path, filename)
+            setlyze.report.export(result, output_dir, 'rst')
 
     def on_display_results(self, sender, results=[]):
         """Display each report in a separate window.
