@@ -236,7 +236,8 @@ class BeginBatch(Begin):
         exe.start()
 
         # Create a process pool with workers.
-        self.pool = multiprocessing.Pool()
+        cp = setlyze.config.cfg.get('concurrent-processes')
+        self.pool = multiprocessing.Pool(cp)
 
         # Create a list of jobs.
         logging.info("Adding %d jobs to the queue" % len(species))

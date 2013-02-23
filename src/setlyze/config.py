@@ -44,6 +44,7 @@ using its get() and set() methods.
 """
 
 import os
+import multiprocessing
 import ConfigParser
 
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
@@ -65,6 +66,12 @@ DB_FILE = os.path.join(DATA_PATH, 'setl_local.db')
 
 # Path to the configurations file.
 CONF_FILE = os.path.join(DATA_PATH, 'setlyze.conf')
+
+# Set the default number of processes for batch mode from the CPU count.
+# By default use 90% of the number of CPUs.
+CPU_COUNT = multiprocessing.cpu_count()
+processes = int(CPU_COUNT*0.9)
+if processes < 1: processes = 1
 
 # The probability for each spot distance on a 5x5 SETL plate
 # (intra-specific).
@@ -156,6 +163,10 @@ DEFAULT_CONFIG = [
     ('save-batch-job-results', False),
     # Save path for individual batch results.
     ('job-results-save-path', None),
+    # Number of CPUs.
+    ('cpu-count', CPU_COUNT),
+    # Number of concurrent processes for batch mode.
+    ('concurrent-processes', processes),
 ]
 
 class ConfigManager(object):
@@ -188,7 +199,7 @@ class ConfigManager(object):
         ``~/.setlyze/setlyze.cfg``. If a configuration file ``setlyze.cfg``
         is present in the working directory, that file is used instead.
         """
-        ints = ('test-repeats')
+        ints = ('test-repeats','concurrent-processes')
         floats = ('alpha-level')
         parser = ConfigParser.SafeConfigParser()
         files = parser.read(['setlyze.cfg', CONF_FILE])
@@ -213,6 +224,7 @@ class ConfigManager(object):
         parser.add_section('general')
         parser.set('general', 'alpha-level', str(self.get('alpha-level')))
         parser.set('general', 'test-repeats', str(self.get('test-repeats')))
+        parser.set('general', 'concurrent-processes', str(self.get('concurrent-processes')))
         # Check if the data folder exists. If not, create it.
         if not os.path.exists(DATA_PATH):
             os.mkdir(DATA_PATH)

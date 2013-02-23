@@ -3495,6 +3495,8 @@ class Preferences(object):
         self.entry_alpha_level.set_text(str(setlyze.config.cfg.get('alpha-level')))
         self.entry_test_repeats = self.builder.get_object('entry_test_repeats')
         self.entry_test_repeats.set_text(str(setlyze.config.cfg.get('test-repeats')))
+        self.entry_processes = self.builder.get_object('entry_processes')
+        self.entry_processes.set_text(str(setlyze.config.cfg.get('concurrent-processes')))
         button_help = self.builder.get_object('button_help')
         button_help.connect("clicked", on_help, 'preferences-dialog')
         button_cancel = self.builder.get_object('button_cancel')
@@ -3515,6 +3517,12 @@ class Preferences(object):
             self.set_test_repeats()
         except ValueError as e:
             self.on_error("Invalid number of repeats", "Error: %s" % e)
+            return
+
+        try:
+            self.set_process_count()
+        except ValueError as e:
+            self.on_error("Invalid number of processes", "Error: %s" % e)
             return
 
         # Save the configurations to a config file.
@@ -3554,6 +3562,18 @@ class Preferences(object):
         if not test_repeats > 1:
             raise ValueError("Number of test repeats must be an integer greater than 1.")
         setlyze.config.cfg.set('test-repeats', test_repeats)
+
+    def set_process_count(self):
+        """Set the new value for the number of processes for batch mode.
+
+        Raises a ValueError if this fails.
+        """
+        processes = int(self.entry_processes.get_text())
+        cpu_count = setlyze.config.cfg.get('cpu-count')
+        # Check if the new value is valid.
+        if processes < 1 or processes > cpu_count:
+            raise ValueError("The number of processes must be >= 1 and <= the CPU count (%d)." % cpu_count)
+        setlyze.config.cfg.set('concurrent-processes', processes)
 
     def on_cancel(self, widget, data=None):
         """Close the preferences dialog."""
