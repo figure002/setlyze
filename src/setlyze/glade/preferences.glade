@@ -9,6 +9,7 @@
     <property name="title" translatable="yes">Preferences</property>
     <property name="modal">True</property>
     <property name="window_position">center</property>
+    <property name="icon_name">setlyze</property>
     <child>
       <object class="GtkTable" id="table1">
         <property name="visible">True</property>

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=SETLyze
+Comment=A tool for analyzing the settlement of species on SETL plates
+TryExec=setlyze
+Exec=setlyze
+Icon=setlyze
+Terminal=false
+Type=Application
+Categories=Education;Science;Biology;
