@@ -160,16 +160,14 @@ class SelectAnalysis(object):
         image_logo = self.builder.get_object('image_logo')
 
         # Load an image for the logo.
-        if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(),
-                'images/setlyze-logo.png')
-        else:
-            image_path = pkg_resources.resource_filename('setlyze',
-                'images/setlyze-logo.png')
-        image_logo.set_from_file(image_path)
-
-        # Handle window signals.
-        #self.window.connect('delete-event', gtk.main_quit)
+        if image_logo.get_storage_type() == gtk.IMAGE_EMPTY:
+            if setlyze.std.we_are_frozen():
+                image_path = os.path.join(setlyze.std.module_path(),
+                    'images/setlyze-logo.png')
+            else:
+                image_path = pkg_resources.resource_filename('setlyze',
+                    'images/setlyze-logo.png')
+            image_logo.set_from_file(image_path)
 
         # Connect the window signals to the handlers.
         self.builder.connect_signals(self)
