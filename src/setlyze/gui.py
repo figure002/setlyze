@@ -476,6 +476,7 @@ class SelectionWindow(gtk.Window):
                 "select at least one item from the list.")
         self.set_save_slot(slot)
 
+        self.set_icon_name('setlyze')
         self.set_title(title)
         self.set_size_request(self.width, 500)
         self.set_border_width(0)
@@ -983,7 +984,7 @@ class DefinePlateAreas(gtk.Window):
 
     def __init__(self, title="Define SETL-plate Areas for Chi-squared Test"):
         super(DefinePlateAreas, self).__init__()
-
+        self.set_icon_name('setlyze')
         self.set_title(title)
         self.set_size_request(-1, -1)
         self.set_border_width(0)
@@ -1454,8 +1455,7 @@ class ChangeDataSource(gtk.Window):
 
     def __init__(self):
         super(ChangeDataSource, self).__init__()
-        self.signal_handlers = {}
-
+        self.set_icon_name('setlyze')
         self.set_title("Change Data Source")
         self.set_size_request(-1, -1)
         self.set_border_width(10)
@@ -1463,6 +1463,7 @@ class ChangeDataSource(gtk.Window):
         self.set_resizable(False)
         self.set_keep_above(False)
         self.set_modal(True)
+        self.signal_handlers = {}
 
         # Create the layout for the dialog.
         self.create_layout()
@@ -1933,9 +1934,7 @@ class ProgressDialog(gtk.Window):
 
     def __init__(self, title, description):
         super(ProgressDialog, self).__init__()
-
-        self.description = description
-
+        self.set_icon_name('setlyze')
         self.set_size_request(400, -1)
         self.set_title(title)
         self.set_border_width(0)
@@ -1944,6 +1943,7 @@ class ProgressDialog(gtk.Window):
         self.set_modal(True)
         self.set_keep_above(True)
         self.set_position(gtk.WIN_POS_CENTER)
+        self.description = description
 
         # Handle window signals.
         self.connect('delete-event', self.on_close)
@@ -2021,14 +2021,15 @@ class Report(gtk.Window):
 
     def __init__(self, report, header=None):
         super(Report, self).__init__()
-        self.report = None
-        self.set_report(report)
+        self.set_icon_name('setlyze')
         self.set_title("Analysis Report")
         self.set_size_request(600, 500)
         self.set_border_width(0)
         self.set_resizable(True)
         self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
+        self.report = None
+        self.set_report(report)
 
         # Handle window signals.
         self.connect('delete-event', on_quit)
@@ -3243,8 +3244,8 @@ class SelectExportElements(gtk.Dialog):
 
     def __init__(self, reader):
         super(SelectExportElements, self).__init__()
+        self.set_icon_name('setlyze')
         self.set_report_reader(reader)
-
         self.set_size_request(400, -1)
         self.set_border_width(10)
         self.set_keep_above(True)
@@ -3463,6 +3464,7 @@ class About(gtk.AboutDialog):
 
     def __init__(self):
         super(About, self).__init__()
+        self.set_icon_name('setlyze')
 
         license = ("This program is free software: you can redistribute it and/or modify\n"
             "it under the terms of the GNU General Public License as published by\n"
