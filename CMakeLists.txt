@@ -3,8 +3,14 @@ project (setlyze)
 
 # The version number.
 set (setlyze_VERSION_MAJOR 0)
-set (setlyze_VERSION_MINOR 2)
+set (setlyze_VERSION_MINOR 3)
 set (setlyze_VERSION_PATCH 0)
+
+# Pass some of the CMake settings to the post install script.
+configure_file (
+  "${PROJECT_SOURCE_DIR}/cmake/debian/postinst.in"
+  "${PROJECT_BINARY_DIR}/cmake/debian/postinst"
+  )
 
 # Settings for creating the setlyze packages.
 include (cmake/cpack_setlyze.cmake)
