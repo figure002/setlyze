@@ -30,7 +30,7 @@ import logging
 
 import setlyze.gui
 import setlyze.std
-import setlyze.analysis.common
+from setlyze.analysis.common import PrepareAnalysis
 import setlyze.analysis.spot_preference
 import setlyze.analysis.attraction_intra
 import setlyze.analysis.attraction_inter
@@ -43,24 +43,21 @@ __version__ = "0.3"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2013/02/02"
+__date__ = "2013/02/24"
 
-class Begin(setlyze.analysis.common.PrepareAnalysis):
+class Begin(PrepareAnalysis):
     """Select which analysis to run in batch mode:
 
     1. Let the user select an analysis.
     2. Run the analysis in batch mode.
     """
 
-    def __init__(self, select_window):
+    def __init__(self):
         super(Begin, self).__init__()
-        logging.info("Entering batch mode")
-
         # Bind handles to application signals.
         self.set_signal_handlers()
-
         # Display the window for selecting the batch analysis.
-        select_window.show()
+        setlyze.gui.select_batch_analysis.show()
 
     def set_signal_handlers(self):
         """Respond to signals emitted by the application."""

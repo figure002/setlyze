@@ -68,8 +68,6 @@ __date__ = "2013/02/02"
 # The number of progress steps for this analysis.
 PROGRESS_STEPS = 7
 
-logger = multiprocessing.log_to_stderr(logging.DEBUG)
-
 class Begin(PrepareAnalysis):
     """Make the preparations for analysis 1:
 

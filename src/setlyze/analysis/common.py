@@ -184,7 +184,7 @@ class ProcessTaskExec(threading.Thread):
             try:
                 task, args, kargs = self.queue.get(True, self.timeout)
             except:
-                logging.info("%s quitted" % self)
+                logging.debug("%s quitted" % self)
                 return
             if task == 'emit':
                 # Emit a signal.

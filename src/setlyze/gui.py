@@ -921,9 +921,8 @@ class SelectLocations(SelectionWindow):
                 slot=self.save_slot)
 
         # Make log message.
-        selection = [setlyze.config.cfg.get('locations-selection', slot=0),
-            setlyze.config.cfg.get('locations-selection', slot=1)]
-        logging.info("\tLocations selection set to: %s" % selection)
+        selection = setlyze.config.cfg.get('locations-selection')
+        logging.debug("\tLocations selection set to: %s" % selection)
 
         # Emit the signal the selection was saved.
         setlyze.std.sender.emit('locations-selection-saved', self.save_slot)
@@ -1011,9 +1010,8 @@ class SelectSpecies(SelectionWindow):
             slot=self.save_slot)
 
         # Make log message.
-        selection = [setlyze.config.cfg.get('species-selection', slot=0),
-            setlyze.config.cfg.get('species-selection', slot=1)]
-        logging.info("\tSpecies selection set to: %s" % selection)
+        selection = setlyze.config.cfg.get('species-selection')
+        logging.debug("\tSpecies selection set to: %s" % selection)
 
         # Emit the signal that a selection was saved.
         setlyze.std.sender.emit('species-selection-saved', self.save_slot)
@@ -3629,3 +3627,7 @@ class About(gtk.AboutDialog):
         self.set_logo(logo)
         self.run()
         self.destroy()
+
+# Instantiate some windows. These windows are not visible by default. Call
+# their show() method to make them visible.
+select_batch_analysis = SelectBatchAnalysis()

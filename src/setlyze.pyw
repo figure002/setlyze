@@ -24,6 +24,7 @@
 import sys
 import logging
 import warnings
+import multiprocessing
 from sqlite3 import dbapi2 as sqlite
 
 import pygtk
@@ -39,19 +40,6 @@ import setlyze.analysis.attraction_inter
 import setlyze.analysis.relations
 import setlyze.analysis.batch
 
-# Allow only the main thread to touch the GUI (GTK) part, while letting other
-# threads do background work. For this to work, first call gobject.threads_init()
-# at applicaiton initialization. Then you launch your threads normally, but
-# make sure the threads never do any GUI task directly. Instead, you use
-# gobject.idle_add() to schedule GUI tasks to executed in the main thread.
-gobject.threads_init()
-
-# The following is a workaround for the executable created with py2exe. This
-# prevents SETLyze from exiting with an error message when warning messages
-# occured.
-if setlyze.std.we_are_frozen():
-    warnings.simplefilter('ignore')
-
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010, 2011, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
@@ -63,33 +51,50 @@ __version__ = "0.3"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2011/05/03"
+__date__ = "2013/02/24"
 
-batch_select_window = None
+# Allow only the main thread to touch the GUI (GTK) part, while letting other
+# threads do background work. For this to work, first call gobject.threads_init()
+# at applicaiton initialization. Then you launch your threads normally, but
+# make sure the threads never do any GUI task directly. Instead, you use
+# gobject.idle_add() to schedule GUI tasks to executed in the main thread.
+gobject.threads_init()
+
+# Prevent SETLyze from printing warning messages when we are frozen by py2exe.
+# Py2exe treats printed messages as error messages, causing it to exit with an
+# error message.
+if setlyze.std.we_are_frozen():
+    warnings.simplefilter('ignore')
 
 def main():
+    # Allow this script which uses multiprocessing to be frozen to produce a
+    # Windows executable.
+    multiprocessing.freeze_support()
+
+    # Only print error messages if we are frozen (i.e. by py2exe).
+    if setlyze.std.we_are_frozen():
+        logging.basicConfig(level=logging.ERROR, format='%(levelname)s %(message)s')
+    # Print debug messages if the -d flag is set for the Python interpreter.
+    elif sys.flags.debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(levelname)s %(message)s')
+        # Also print debug messages for the multiprocessing module.
+        logger = multiprocessing.log_to_stderr(logging.DEBUG)
+    # Otherwise just show log messages of type INFO.
+    else:
+        logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
+
     # Registers adapt_str to convert the custom Python type into one of
     # SQLite's supported types. This adds support for Unicode strings.
     sqlite.register_adapter(str, adapt_str)
 
-    # Show all log messages of type INFO (unless we are frozen by py2exe).
-    if setlyze.std.we_are_frozen():
-        logging.basicConfig(level=logging.ERROR, format='%(levelname)s %(message)s')
-    else:
-        logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
+    # Set some signal handlers.
+    setlyze.std.sender.connect('on-start-analysis', on_start_analysis)
 
-    # Handle the application signals.
-    handle_application_signals()
-
-    # Create a log message.
+    # Create an info message.
     logging.info("SETLyze %s started." % __version__)
 
     # Display the main window.
     setlyze.gui.SelectAnalysis()
-
-    # Instantiate other windows.
-    global batch_select_window
-    batch_select_window = setlyze.gui.SelectBatchAnalysis()
 
     # Start the GTK main loop, which continuously checks for newly
     # generated events.
@@ -98,15 +103,14 @@ def main():
     # Terminate the application once the main GTK loop is terminated.
     sys.exit()
 
-def handle_application_signals():
-    """Respond to signals emitted by the application."""
+def adapt_str(string):
+    """Convert the custom Python type into one of SQLite's supported types.
+    This allows Unicode characters to be saved to the local database.
+    """
+    return string.decode("utf-8")
 
-    # The user wants to start an analysis.
-    setlyze.std.sender.connect('on-start-analysis', on_start_analysis)
-
-def on_start_analysis(sender, analysis, data=None):
+def on_start_analysis(sender, analysis):
     """Begin with the selected analysis."""
-
     if analysis == 'spot_preference':
         setlyze.analysis.spot_preference.Begin()
     elif analysis == 'attraction_intra':
@@ -116,15 +120,8 @@ def on_start_analysis(sender, analysis, data=None):
     elif analysis == 'relations':
         setlyze.analysis.relations.Begin()
     elif analysis == 'batch':
-        setlyze.analysis.batch.Begin(batch_select_window)
-
+        setlyze.analysis.batch.Begin()
     return False
-
-def adapt_str(string):
-    """Convert the custom Python type into one of SQLite's supported types.
-    This allows Unicode characters to be saved to the local database.
-    """
-    return string.decode("utf-8")
 
 if __name__ == "__main__":
     main()
