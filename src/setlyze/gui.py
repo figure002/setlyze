@@ -1432,7 +1432,7 @@ class DefinePlateAreas(gtk.Window):
         setlyze.config.cfg.set('plate-areas-definition', definition)
 
         # Make log message.
-        logging.info("\tPlate areas definition set to: %s" % definition)
+        logging.debug("\tPlate areas definition set to: %s" % definition)
 
         # Emit the signal that the plate areas are defined.
         setlyze.std.sender.emit('plate-areas-defined')
