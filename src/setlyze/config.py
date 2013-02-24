@@ -69,7 +69,11 @@ CONF_FILE = os.path.join(DATA_PATH, 'setlyze.conf')
 
 # Set the default number of processes for batch mode from the CPU count.
 # By default use 90% of the number of CPUs.
-CPU_COUNT = multiprocessing.cpu_count()
+try:
+    CPU_COUNT = multiprocessing.cpu_count()
+except:
+    # Default to 1 if the CPU count can't be defined.
+    CPU_COUNT = 1
 processes = int(CPU_COUNT*0.9)
 if processes < 1: processes = 1
 
