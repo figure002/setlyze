@@ -94,7 +94,7 @@ def main():
     logging.info("SETLyze %s started." % __version__)
 
     # Display the main window.
-    setlyze.gui.SelectAnalysis()
+    setlyze.gui.select_analysis.show()
 
     # Start the GTK main loop, which continuously checks for newly
     # generated events.

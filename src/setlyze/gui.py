@@ -138,23 +138,44 @@ def markup_header(text):
     return text
 
 
-class SelectAnalysis(gtk.Window):
+class SelectAnalysis(object):
     """Display a window that allows the user to select an analysis.
 
     Design Part: 1.86
     """
 
     def __init__(self):
-        super(SelectAnalysis, self).__init__()
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(module_path(), 'glade/select_analysis.glade'))
 
-        self.set_title("Welcome to SETLyze")
-        self.set_size_request(-1, -1)
-        self.set_border_width(10)
-        self.set_position(gtk.WIN_POS_CENTER)
-        self.set_resizable(False)
+        # Get some GTK objects.
+        self.window = self.builder.get_object('window_select_analysis')
+        self.radio_spot_pref = self.builder.get_object('radio_spot_pref')
+        self.radio_attraction_intra = self.builder.get_object('radio_attraction_intra')
+        self.radio_attraction_inter = self.builder.get_object('radio_attraction_inter')
+        self.radio_relation = self.builder.get_object('radio_relation')
+        self.radio_batch_mode = self.builder.get_object('radio_batch_mode')
+        self.frame_descr = self.builder.get_object('frame_descr')
+        self.label_descr = self.builder.get_object('label_descr')
+        image_logo = self.builder.get_object('image_logo')
+
+        # Load an image for the logo.
+        if setlyze.std.we_are_frozen():
+            image_path = os.path.join(setlyze.std.module_path(),
+                'images/setlyze-logo.png')
+        else:
+            image_path = pkg_resources.resource_filename('setlyze',
+                'images/setlyze-logo.png')
+        image_logo.set_from_file(image_path)
 
         # Handle window signals.
-        self.connect('destroy', gtk.main_quit)
+        #self.window.connect('delete-event', gtk.main_quit)
+
+        # Connect the window signals to the handlers.
+        self.builder.connect_signals(self)
+
+        # Updated the analysis description.
+        self.on_toggled()
 
         # Handle application signals.
         self.signal_handlers = {
@@ -163,11 +184,15 @@ class SelectAnalysis(gtk.Window):
             'local-db-created': setlyze.std.sender.connect('local-db-created', self.on_continue),
         }
 
-        # Add widgets to the GTK window.
-        self.create_layout()
+    def show(self, widget=None, data=None):
+        """Show the window."""
+        self.window.show()
 
-        # Display all widgets.
-        self.show_all()
+    def hide(self, widget=None, data=None):
+        """Hide the window."""
+        self.window.hide()
+        # Prevent default action.
+        return True
 
     def unset_signal_handlers(self):
         """Disconnect all signal connections with signal handlers created
@@ -181,163 +206,21 @@ class SelectAnalysis(gtk.Window):
             setlyze.std.sender.disconnect(self.signal_handlers['local-db-created'])
             self.signal_handlers['local-db-created'] = None
 
-    def create_layout(self):
-        """Construct the layout."""
-
-        # Create a table to organize the widgets.
-        table = gtk.Table(rows=5, columns=2, homogeneous=False)
-        table.set_col_spacings(5)
-        table.set_row_spacings(5)
-
-        # Create a label.
-        label_welcome = gtk.Label("Please select the desired SETL analysis:")
-        label_welcome.set_line_wrap(True)
-        label_welcome.set_justify(gtk.JUSTIFY_FILL)
-        label_welcome.set_alignment(xalign=0, yalign=0)
-        # Add the label to the table.
-        table.attach(label_welcome, left_attach=0, right_attach=1,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=5)
-
-        # Create a vertical box to place the widgets in.
-        vbox = gtk.VBox(homogeneous=True, spacing=5)
-
-        # Create radio buttons.
-        self.radio_ana1 = gtk.RadioButton(None,
-            setlyze.locale.text('analysis1'))
-        self.radio_ana1.set_tooltip_text(setlyze.locale.text('analysis1-descr'))
-        self.radio_ana1.connect('clicked', self.on_toggled)
-        vbox.pack_start(self.radio_ana1)
-
-        self.radio_ana2_1 = gtk.RadioButton(self.radio_ana1,
-            setlyze.locale.text('analysis2'))
-        self.radio_ana2_1.set_tooltip_text(setlyze.locale.text('analysis2-descr'))
-        self.radio_ana2_1.connect('clicked', self.on_toggled)
-        vbox.pack_start(self.radio_ana2_1)
-
-        self.radio_ana2_2 = gtk.RadioButton(self.radio_ana1,
-            setlyze.locale.text('analysis3'))
-        self.radio_ana2_2.set_tooltip_text(setlyze.locale.text('analysis3-descr'))
-        self.radio_ana2_2.connect('clicked', self.on_toggled)
-        vbox.pack_start(self.radio_ana2_2)
-
-        self.radio_ana3 = gtk.RadioButton(self.radio_ana1,
-            setlyze.locale.text('analysis4'))
-        self.radio_ana3.set_tooltip_text(setlyze.locale.text('analysis4-descr'))
-        self.radio_ana3.connect('clicked', self.on_toggled)
-        vbox.pack_start(self.radio_ana3)
-
-        self.radio_ana_batch = gtk.RadioButton(self.radio_ana1,
-            setlyze.locale.text('analysis-batch'))
-        self.radio_ana_batch.set_tooltip_text(setlyze.locale.text('analysis-batch-descr'))
-        self.radio_ana_batch.connect('clicked', self.on_toggled)
-        vbox.pack_start(self.radio_ana_batch)
-
-        # Add the alignment widget to the table.
-        table.attach(vbox, left_attach=0, right_attach=1,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Load an image for the logo.
-        setl_logo = gtk.Image()
-        if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(),
-                'images/setlyze-logo.png')
-        else:
-            image_path = pkg_resources.resource_filename('setlyze',
-                'images/setlyze-logo.png')
-        setl_logo.set_from_file(image_path)
-        setl_logo_align = gtk.Alignment(xalign=1, yalign=0, xscale=0, yscale=1)
-        setl_logo_align.add(setl_logo)
-        # Add the logo to the table.
-        table.attach(setl_logo_align, left_attach=1, right_attach=2,
-            top_attach=0, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.FILL, xpadding=0, ypadding=0)
-
-        # Create a description label.
-        self.label_descr = gtk.Label(setlyze.locale.text('analysis1-descr'))
-        self.label_descr.set_width_chars(40)
-        self.label_descr.set_line_wrap(True)
-        self.label_descr.set_justify(gtk.JUSTIFY_FILL)
-        self.label_descr.set_alignment(xalign=0, yalign=0)
-        self.label_descr.set_padding(2, 2)
-
-        # Create a frame for the analysis description.
-        self.frame_descr = gtk.Frame()
-        self.frame_descr.set_size_request(-1, -1)
-        self.frame_descr.add(self.label_descr)
-        self.on_toggled()
-        # Add the frame to the table.
-        table.attach(self.frame_descr, left_attach=0, right_attach=2,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
-            yoptions=gtk.FILL, xpadding=0, ypadding=0)
-
-        # Put a separator above the buttons.
-        separator = gtk.HSeparator()
-        table.attach(separator, left_attach=0, right_attach=2,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create an about button.
-        button_about = gtk.Button(stock=gtk.STOCK_ABOUT)
-        button_about.connect("clicked", self.on_about)
-
-        # Create a settings button.
-        button_prefs = gtk.Button(stock=gtk.STOCK_PREFERENCES)
-        button_prefs.connect("clicked", self.on_preferences)
-
-        # Put the buttons in a horizontal button box.
-        button_box_l = gtk.HButtonBox()
-        button_box_l.set_layout(gtk.BUTTONBOX_START)
-        button_box_l.set_spacing(5)
-        button_box_l.pack_start(button_about, expand=True, fill=True, padding=0)
-        button_box_l.pack_start(button_prefs, expand=True, fill=True, padding=0)
-
-        # Add the about button to the table.
-        table.attach(button_box_l, left_attach=0, right_attach=1,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Continue button.
-        button_ok = gtk.Button(stock=gtk.STOCK_OK)
-        button_ok.set_size_request(70, -1)
-        button_ok.connect("clicked", self.on_continue)
-
-        # Quit button.
-        button_quit = gtk.Button(stock=gtk.STOCK_QUIT)
-        button_quit.set_size_request(70, -1)
-        button_quit.connect("clicked", self.on_quit)
-
-        # Put the buttons in a horizontal box.
-        button_box_r = gtk.HButtonBox()
-        button_box_r.set_layout(gtk.BUTTONBOX_END)
-        button_box_r.set_spacing(5)
-        button_box_r.pack_start(button_quit, expand=True, fill=True, padding=0)
-        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
-
-        # Add the aligned button box to the table.
-        table.attach(button_box_r, left_attach=1, right_attach=2,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Add the alignment widget to the main window.
-        self.add(table)
-
     def on_toggled(self, radiobutton=None):
         """Update the description frame."""
-        if self.radio_ana1.get_active():
+        if self.radio_spot_pref.get_active():
             self.frame_descr.set_label("Spot preference")
             self.label_descr.set_text(setlyze.locale.text('analysis1-descr'))
-        elif self.radio_ana2_1.get_active():
+        elif self.radio_attraction_intra.get_active():
             self.frame_descr.set_label("Attraction within species")
             self.label_descr.set_text(setlyze.locale.text('analysis2-descr'))
-        elif self.radio_ana2_2.get_active():
-            self.frame_descr.set_label("Attraction within species")
-            self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
-        elif self.radio_ana3.get_active():
+        elif self.radio_attraction_inter.get_active():
             self.frame_descr.set_label("Attraction between species")
+            self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
+        elif self.radio_relation.get_active():
+            self.frame_descr.set_label("Relation between species")
             self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
-        elif self.radio_ana_batch.get_active():
+        elif self.radio_batch_mode.get_active():
             self.frame_descr.set_label("Batch mode")
             self.label_descr.set_text(setlyze.locale.text('analysis-batch-descr'))
 
@@ -377,19 +260,15 @@ class SelectAnalysis(gtk.Window):
             return False
 
         # Then begin with the selected analysis.
-        if self.radio_ana1.get_active():
+        if self.radio_spot_pref.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'spot_preference')
-
-        elif self.radio_ana2_1.get_active():
+        elif self.radio_attraction_intra.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'attraction_intra')
-
-        elif self.radio_ana2_2.get_active():
+        elif self.radio_attraction_inter.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'attraction_inter')
-
-        elif self.radio_ana3.get_active():
+        elif self.radio_relation.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'relations')
-
-        elif self.radio_ana_batch.get_active():
+        elif self.radio_batch_mode.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'batch')
 
         return False
@@ -3630,4 +3509,5 @@ class About(gtk.AboutDialog):
 
 # Instantiate some windows. These windows are not visible by default. Call
 # their show() method to make them visible.
+select_analysis = SelectAnalysis()
 select_batch_analysis = SelectBatchAnalysis()
