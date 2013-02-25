@@ -1035,14 +1035,14 @@ class Analysis(AnalysisWorker):
             observed = list(observed)
             expected = list(expected)
 
-            # Perform a consistency check. The number of observed and
-            # expected spot distances must always be the same.
+            # Get the list lengths.
             count_observed = len(observed)
             count_expected = len(expected)
-            if count_observed != count_expected:
-                raise ValueError("Number of observed and expected spot "
-                    "distances are not equal. This indicates a bug "
-                    "in the application.")
+
+            # The number of observed and expected spot distances must always
+            # be the same.
+            assert count_observed == count_expected, \
+                "Number of observed and expected values are not equal."
 
             # A minimum of 2 observed distances is required for the
             # significance test. So skip this ratio group if it's less.

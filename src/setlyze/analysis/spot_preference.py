@@ -825,6 +825,10 @@ class Analysis(AnalysisWorker):
         Design Part: 1.99
         """
 
+        # Only perform the Chi2 test if there are at least 5 values.
+        if sum(self.chisq_observed.values()) < 5:
+            return
+
         # Get the probabilities for the user defined plate areas.
         probabilities = self.get_area_probabilities()
 
@@ -889,7 +893,15 @@ class Analysis(AnalysisWorker):
             # significance test. So skip this spots number if it's less.
             count_observed = len(observed)
             count_expected = len(expected)
-            if count_observed < 2 or count_expected < 2:
+
+            # The number of observed and expected plate area totals must
+            # always be the same.
+            assert count_observed == count_expected, \
+                "Number of observed and expected values are not equal."
+
+            # A minimum of two positive spots totals are required for the
+            # significance test. So skip this plate area if it's less.
+            if count_observed < 2:
                 continue
 
             # Check if this area group is present in the statistics variable.
