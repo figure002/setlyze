@@ -411,7 +411,7 @@ class BeginBatch(Begin):
             for ratio in ratio_groups:
                 stats = wilcoxon['results'].get(ratio, None)
                 if stats:
-                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 1-self.alpha_level
                     if significant:
                         # Significant: attraction or repulsion.
                         if stats['n_attraction'] > stats['n_repulsion']:

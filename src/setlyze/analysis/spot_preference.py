@@ -287,7 +287,7 @@ class BeginBatch(Begin):
             for plate_area in areas:
                 stats = wilcoxon['results'].get(plate_area, None)
                 if stats:
-                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 1-self.alpha_level
                     if significant:
                         # Significant: preference or rejection.
                         if stats['n_preference'] > stats['n_rejection']:

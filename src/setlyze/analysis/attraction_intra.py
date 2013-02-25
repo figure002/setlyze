@@ -282,7 +282,7 @@ class BeginBatch(Begin):
             for spots in positive_spots:
                 stats = wilcoxon['results'].get(spots, None)
                 if stats:
-                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 0.95
+                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 1-self.alpha_level
                     if significant:
                         # Significant: attraction or repulsion.
                         if stats['n_attraction'] > stats['n_repulsion']:
