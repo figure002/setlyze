@@ -1388,11 +1388,13 @@ class AccessDBGeneric(object):
                         )
 
         if len(fields) > 1:
-            # More then one total is returned at each row, so we will return
-            # each total separately.
+            # We're dealing with combined areas, so we will return the total of
+            # the areas combined.
             for totals in cursor:
-                for total in totals:
-                    yield total
+                total = 0
+                for t in totals:
+                    total += t
+                yield total
         else:
             # One field, so one total is returned per row.
             for total in cursor:
