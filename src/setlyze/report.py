@@ -93,6 +93,10 @@ class Report(object):
         """
         self.options[name] = value
 
+    def get_option(self, name):
+        """Return the value for an analysis option `name`."""
+        return self.options[name]
+
     def set_analysis(self, name):
         """Set the analysis name to `name`."""
         self.analysis_name = name

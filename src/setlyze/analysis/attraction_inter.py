@@ -386,12 +386,22 @@ class BeginBatch(Begin):
             'results': []
         }
         for result in results:
+            chi_squared = None
+            wilcoxon = None
             species_selection = [s for s in result.species_selections[0].values()]
             species_a = species_selection[0]['name_latin']
             species_selection = [s for s in result.species_selections[1].values()]
             species_b = species_selection[0]['name_latin']
-            wilcoxon = result.statistics['wilcoxon_ratios_repeats'][0]
-            chi_squared = result.statistics['chi_squared_ratios'][0]
+
+            if 'wilcoxon_ratios_repeats' in result.statistics:
+                wilcoxon = result.statistics['wilcoxon_ratios_repeats'][0]
+            if 'chi_squared_ratios' in result.statistics:
+                chi_squared = result.statistics['chi_squared_ratios'][0]
+
+            # Skip this result if there was not enough data for one of the
+            # analyses.
+            if not wilcoxon or not chi_squared:
+                continue
 
             # Figure out for which positive spots number the result was
             # significant. A result is considered significant if 95% of the
@@ -432,7 +442,7 @@ class BeginBatch(Begin):
             # significant.
             for c in row:
                 if c and c in 'ars':
-                    r = [species_a, species_b, wilcoxon['attr']['n_plates']]
+                    r = [species_a, species_b, result.get_option('Total plates')]
                     r.extend(row)
                     report['results'].append(r)
                     break
@@ -938,7 +948,6 @@ class Analysis(AnalysisWorker):
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'repeats': self.n_repeats,
-                    'n_plates': self.affected,
                 }
 
             if not self.statistics['wilcoxon_ratios']['attr']:
@@ -1109,6 +1118,7 @@ class Analysis(AnalysisWorker):
         self.result.set_analysis("Attraction between Species")
         self.result.set_option('Alpha level', self.alpha_level)
         self.result.set_option('Repeats', self.n_repeats)
+        self.result.set_option('Total plates', self.affected)
         self.result.set_location_selections(self.locations_selections)
         self.result.set_species_selections(self.species_selections)
         #self.result.set_spot_distances_observed()
