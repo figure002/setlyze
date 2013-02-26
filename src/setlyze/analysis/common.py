@@ -395,12 +395,12 @@ class AnalysisWorker(object):
     def exec_task(self, task, *args, **kargs):
         """Add a task to the execute queue.
 
-        Tasks from this queue will be executed by
-        :class:`setlyze.analysis.common.ProgressTracker` in the main process.
+        Tasks from this queue will be executed by :class:`ProcessTaskExec` in
+        the main process.
 
         Argument `task` must be a string that is understood by
-        :class:`setlyze.analysis.common.ProgressTracker` and can be followed
-        by arguments for the specific task.
+        :class:`ProcessTaskExec` and can be followed by arguments for the
+        specific task.
         """
         if self.execute_queue:
             self.execute_queue.put((task, args, kargs))
