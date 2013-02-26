@@ -149,6 +149,8 @@ class Begin(PrepareAnalysis):
             'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
             # The process pool has finished.
             'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
+            # There were no results.
+            'no-results': setlyze.std.sender.connect('no-results', self.on_no_results),
         }
 
     def on_locations_saved(self, sender, save_slot=0, data=None):

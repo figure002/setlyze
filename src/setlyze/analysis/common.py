@@ -325,6 +325,7 @@ class PrepareAnalysis(object):
         # analysis after a short timeout. The timeout gives signal handlers
         # a chance to catch any last minute signals from the analysis.
         if len(results) == 0:
+            gobject.idle_add(setlyze.std.sender.emit, 'no-results')
             logging.info("No results to show.")
             self.on_analysis_closed(timeout=2)
             return
@@ -335,6 +336,16 @@ class PrepareAnalysis(object):
 
         # Let the signal handler handle the results.
         gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
+
+    def on_no_results(self, sender=None):
+        """Display a message dialog saying that there were no results."""
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            message_format="No results")
+        dialog.format_secondary_text(setlyze.locale.text('no-results'))
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
 
     def export_reports(self, results, path, prefix=''):
         """Export all reports from the reports list `results`.

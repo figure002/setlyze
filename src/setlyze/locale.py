@@ -152,6 +152,9 @@ ENGLISH = [
         "The error returned was: %s"),
     ('cancel-pressed',
         "Analysis aborted by user."),
+    ('no-results',
+        "The analysis did not return any results, most likely because there "
+        "wasn't enough data for the analysis."),
     ]
 
 # Turn the list into a dictionary. This provides easier access to its
