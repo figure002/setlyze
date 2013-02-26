@@ -2153,17 +2153,11 @@ class Report(gtk.Window):
         chooser.set_do_overwrite_confirmation(True)
 
         # Create a filter for the file chooser.
-        xml_filter = gtk.FileFilter()
-        xml_filter.set_name("XML Document (*.xml)")
-        xml_filter.add_mime_type("text/xml")
-        xml_filter.add_pattern("*.xml")
-
         rst_filter = gtk.FileFilter()
         rst_filter.set_name("reStructuredText (*.rst)")
         rst_filter.add_pattern("*.rst")
 
         chooser.add_filter(rst_filter)
-        #chooser.add_filter(xml_filter)
 
         response = chooser.run()
         if response == gtk.RESPONSE_OK:
@@ -2175,24 +2169,13 @@ class Report(gtk.Window):
 
             # File type = reStructuredText
             if "*.rst" in filter_name:
-                # Let the user select which elements to export.
-                #dialog = SelectExportElements(self.report)
-                #response = dialog.run()
-                #if response == gtk.RESPONSE_ACCEPT:
-                #    setlyze.report.export(self.report, path, 'rst',
-                #        dialog.get_selected_elements())
-                #dialog.destroy()
                 setlyze.report.export(self.report, path, 'rst')
-
-            # File type = XML
-            elif "*.xml" in filter_name:
-                setlyze.report.export(self.report, path, 'xml')
 
         # Close the filechooser.
         chooser.destroy()
 
     def add_report_elements(self):
-        """Add the report elements present in the XML DOM object to the
+        """Add the report elements present in the report object to the
         report dialog.
         """
         if not self.report:
@@ -3234,125 +3217,6 @@ class Report(gtk.Window):
 
         # Add the ScrolledWindow to the vertcal box.
         self.vbox.pack_start(scrolled_window, expand=True, fill=True, padding=0)
-
-class SelectExportElements(gtk.Dialog):
-    """Display a dialog for allowing the user to select which report
-    elements to export. The argument `reader` is an instance of
-    :class:`setlyze.report.ReportReader`.
-    """
-
-    def __init__(self, reader):
-        super(SelectExportElements, self).__init__()
-        self.set_icon_name('setlyze')
-        self.set_report_reader(reader)
-        self.set_size_request(400, -1)
-        self.set_border_width(10)
-        self.set_keep_above(True)
-        self.set_position(gtk.WIN_POS_CENTER)
-        self.set_title("Select Report Elements to Export")
-        self.add_buttons(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-            gtk.STOCK_OK, gtk.RESPONSE_ACCEPT)
-        self.set_has_separator(True)
-
-        # Add widgets to the GTK dialog.
-        self.create_layout()
-
-        # Display all widgets.
-        self.show_all()
-
-    def set_report_reader(self, reader):
-        """Set the report reader."""
-        self.reader = reader
-
-    def get_selected_elements(self):
-        """Return a list with the names of the selected report
-        elements.
-        """
-        selected = []
-        for element,button in self.check_buttons.iteritems():
-            if button.get_active():
-                selected.append(element)
-        return selected
-
-    def create_layout(self):
-        """Add widgets to the dialog."""
-
-        # Get gtk.Dialog's vertical box.
-        vbox = self.get_content_area()
-
-        # Create a label.
-        self.descr_label = gtk.Label()
-        self.descr_label.set_line_wrap(True)
-        self.descr_label.set_text("Please check the elements to export.")
-        self.descr_label.set_alignment(xalign=0, yalign=0)
-        vbox.pack_start(self.descr_label, expand=False, fill=False, padding=5)
-
-        # Create a dictionary of all known report elements and their
-        # name.
-        element_names = {'spot_distances': "Spot Distances",
-            'location_selections': "Locations Selection(s)",
-            'species_selections': "Species Selection(s)",
-            'plate_areas_definition': setlyze.locale.text('t-plate-areas-definition'),
-            'area_totals': setlyze.locale.text('t-plate-area-totals'),
-            'wilcoxon_spots': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
-            'wilcoxon_ratios': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
-            'wilcoxon_areas': setlyze.locale.text('t-results-wilcoxon-rank-sum'),
-            'wilcoxon_spots_repeats': setlyze.locale.text(
-                't-significance-results-repeats', 'Wilcoxon'),
-            'wilcoxon_ratios_repeats': setlyze.locale.text(
-                't-significance-results-repeats', 'Wilcoxon'),
-            'wilcoxon_areas_repeats': setlyze.locale.text(
-                't-significance-results-repeats', 'Wilcoxon'),
-            'chi_squared_spots': setlyze.locale.text(
-                't-results-pearson-chisq'),
-            'chi_squared_ratios': setlyze.locale.text(
-                't-results-pearson-chisq'),
-            'chi_squared_areas': setlyze.locale.text(
-                't-results-pearson-chisq'),
-            }
-
-        # Create check buttons.
-        self.check_buttons = {}
-        for element in self.reader.get_child_names():
-            # Don't add the 'statistics' element, but do add its sub
-            # elements.
-            if element == 'statistics':
-                stats = self.reader.get_element(self.reader.doc, 'statistics')
-                for element in self.reader.get_child_names(stats):
-                    if element in self.check_buttons:
-                        continue
-                    self.check_buttons[element] = gtk.CheckButton(element_names[element])
-                    self.check_buttons[element].set_active(True)
-                    vbox.pack_start(self.check_buttons[element],
-                        expand=False, fill=True, padding=3)
-                continue
-            # Group some elements in one element.
-            elif element == 'spot_distances_observed':
-                element  = 'spot_distances'
-            elif element == 'spot_distances_expected':
-                element  = 'spot_distances'
-            elif element == 'area_totals_observed':
-                element  = 'area_totals'
-            elif element == 'area_totals_expected':
-                element  = 'area_totals'
-            # Skip this element.
-            elif element == 'analysis':
-                continue
-
-            # Don't elements that are already in the list.
-            if element in self.check_buttons:
-                continue
-
-            self.check_buttons[element] = gtk.CheckButton(element_names[element])
-            self.check_buttons[element].set_active(True)
-            vbox.pack_start(self.check_buttons[element], expand=False,
-                fill=True, padding=3)
-
-        # Uncheck some 'not-so-interesting' report elements.
-        uncheck = ('spot_distances')
-        for element, button in self.check_buttons.iteritems():
-            if element in uncheck:
-                button.set_active(False)
 
 class Preferences(object):
     """Display the preferences dialog.
