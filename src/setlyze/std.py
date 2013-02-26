@@ -92,7 +92,7 @@ def make_remarks(results, attributes):
         conclusions = ('Attraction','Repulsion')
 
     if 'p_value' in results:
-        if results['p_value'] == 'nan':
+        if math.isnan(results['p_value']):
             remarks.append("Not significant")
         elif results['p_value'] > setlyze.config.cfg.get('alpha-level'):
             remarks.append("Not significant")
@@ -106,7 +106,7 @@ def make_remarks(results, attributes):
                 else:
                     remarks.append(conclusions[1])
 
-        if results['p_value'] == 'nan':
+        if math.isnan(results['p_value']):
             pass
         elif results['p_value'] < 0.001:
             remarks.append("P < 0.001")

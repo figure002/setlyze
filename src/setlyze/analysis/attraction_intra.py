@@ -56,6 +56,7 @@ import os
 import logging
 import itertools
 import time
+import math
 import multiprocessing
 
 import gobject
@@ -851,7 +852,7 @@ class Analysis(AnalysisWorker):
             # Save basic results for this repeated test.
             # Check if the result was significant (7P-value < alpha-level).
             p_value = float(sig_result['p.value'])
-            if p_value < self.alpha_level and p_value != 'nan':
+            if p_value < self.alpha_level and not math.isnan(p_value):
                 # If so, increase significant counter with one.
                 self.statistics['wilcoxon_spots_repeats']['results'][n_spots]['n_significant'] += 1
 

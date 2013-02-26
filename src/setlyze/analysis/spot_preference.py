@@ -40,6 +40,7 @@ can be broken down in the following steps:
 
 import logging
 import time
+import math
 import collections
 import multiprocessing
 
@@ -926,7 +927,7 @@ class Analysis(AnalysisWorker):
             # Save basic results for this repeated test.
             # Check if the result was significant (P-value < alpha-level).
             p_value = float(sig_result['p.value'])
-            if p_value < self.alpha_level and p_value != 'nan':
+            if p_value < self.alpha_level and not math.isnan(p_value):
                 # If so, increase significant counter with one.
                 self.statistics['wilcoxon_areas_repeats']['results'][area_group_str]['n_significant'] += 1
 
