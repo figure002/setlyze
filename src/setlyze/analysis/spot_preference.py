@@ -825,10 +825,6 @@ class Analysis(AnalysisWorker):
         Design Part: 1.99
         """
 
-        # Only perform the Chi2 test if there are at least 5 values.
-        if sum(self.chisq_observed.values()) < 5:
-            return
-
         # Get the probabilities for the user defined plate areas.
         probabilities = self.get_area_probabilities()
 
