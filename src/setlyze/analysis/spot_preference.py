@@ -333,8 +333,8 @@ class BeginBatch(Begin):
         report.set_statistics('plate_areas_summary', summary)
 
         # Set analysis options.
-        for name, value in results[0].options.iteritems():
-            report.set_option(name, value)
+        report.set_option('Alpha level', self.alpha_level)
+        report.set_option('Repeats', self.n_repeats)
 
         # Set elapsed time.
         if self.elapsed_time:
