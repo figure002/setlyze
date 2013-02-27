@@ -334,6 +334,10 @@ class Report(object):
         where the value for 'attr' is a dictionary with the attributes for the
         test and 'results' is a dictionary with elements of the results.
 
+        If the 'attr' key is not set in `data` (or equals None/False), the
+        results are assumed to be absent/incomplete, and the results are not
+        stored.
+
         The value for ``data['attr']['groups']`` tells what the dictionary keys
         for ``data['results']`` represent. Possible groups are ``areas`` for
         plate areas, ``spots`` for total positive spots, and ``ratios`` for
@@ -422,7 +426,7 @@ class Report(object):
                 }
             }
         """
-        if not data.get('attr', False):
+        if not data.get('attr'):
             return
         if name in self.statistics:
             self.statistics[name].append(data)

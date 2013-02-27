@@ -835,15 +835,22 @@ class Analysis(AnalysisWorker):
         sig_result = setlyze.std.chisq_test(self.chisq_observed.values(),
             p = probabilities.values())
 
+        # For the Chi^2 test the expected frequencies should not be less than
+        # 5. If we find an expected frequency that is less than 5, do not save
+        # the results for this test. (:ref:`Buijs <ref-buijs>`)
+        for f in sig_result['expected']:
+            if f < 5:
+                return
+
         # Save the significance result.
         self.statistics['chi_squared_areas']['attr'] = {
             'method': sig_result['method'],
-            }
+        }
         self.statistics['chi_squared_areas']['results'] = {
             'chi_squared': sig_result['statistic']['X-squared'],
             'p_value': sig_result['p.value'],
             'df': sig_result['parameter']['df'],
-            }
+        }
 
         # Save the expected values.
         self.chisq_expected = {}
@@ -1052,8 +1059,9 @@ class Analysis(AnalysisWorker):
         self.result.set_location_selections([self.locations_selection])
         self.result.set_species_selections([self.species_selection])
         self.result.set_plate_areas_definition(self.areas_definition)
-        self.result.set_area_totals_observed(self.chisq_observed)
-        self.result.set_area_totals_expected(self.chisq_expected)
+        if self.chisq_observed and self.chisq_expected:
+            self.result.set_area_totals_observed(self.chisq_observed)
+            self.result.set_area_totals_expected(self.chisq_expected)
         self.result.set_statistics('chi_squared_areas', self.statistics['chi_squared_areas'])
         self.result.set_statistics('wilcoxon_areas', self.statistics['wilcoxon_areas'])
         self.result.set_statistics('wilcoxon_areas_repeats', self.statistics['wilcoxon_areas_repeats'])
