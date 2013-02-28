@@ -401,26 +401,24 @@ class BeginBatch(Begin):
             if 'chi_squared_ratios' in result.statistics:
                 chi_squared = result.statistics['chi_squared_ratios'][0]
 
-            # Skip this result if there was not enough data for one of the
-            # analyses.
-            if not wilcoxon or not chi_squared:
-                continue
-
             # Figure out for which ratio groups the result was
             # significant. A result is considered significant if
             # (confidence level)% of the test repeats were significant.
             ratio_groups = [-5,1,2,3,4,5]
             row = []
             for ratio in ratio_groups:
+                if not wilcoxon:
+                    row.append(None)
+                    continue
                 stats = wilcoxon['results'].get(ratio, None)
                 if stats:
                     significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 1-self.alpha_level
                     if significant:
                         # Significant: attraction or repulsion.
                         if stats['n_attraction'] > stats['n_repulsion']:
-                            row.append('a')
+                            row.append('at')
                         else:
-                            row.append('r')
+                            row.append('rp')
                     else:
                         # Not significant.
                         row.append('n')
@@ -430,12 +428,19 @@ class BeginBatch(Begin):
 
             # Add the results for the Chi squared tests.
             for ratio in ratio_groups:
+                if not chi_squared:
+                    row.append(None)
+                    continue
                 stats = chi_squared['results'].get(ratio, None)
                 if stats:
                     significant = stats['p_value'] < self.alpha_level
                     if significant:
-                        row.append('s')
+                        if stats['mean_observed'] < stats['mean_expected']:
+                            row.append('at')
+                        else:
+                            row.append('rp')
                     else:
+                        # Not significant.
                         row.append('n')
                 else:
                     # No data.
@@ -444,7 +449,7 @@ class BeginBatch(Begin):
             # Only add the row to the report if one item in the row was
             # significant.
             for c in row:
-                if c and c in 'ars':
+                if c and c in ('at','rp'):
                     r = [species_a, species_b, result.get_option('Total plates')]
                     r.extend(row)
                     report['results'].append(r)
@@ -464,6 +469,16 @@ class BeginBatch(Begin):
         # Set analysis options.
         report.set_option('Alpha level', self.alpha_level)
         report.set_option('Repeats', self.n_repeats)
+
+        # Set a definition list for the report.
+        definitions = {
+            'n': "The result for the statistical test was not significant.",
+            'at': "There was a significant attraction for the species in question.",
+            'rp': "There was a significant repulsion for the species in question.",
+            'na': "There is not enough data for the analysis or in case of the\n"
+                  "  Chi Squared test one of the expected frequencies is less than 5.",
+        }
+        report.set_definitions(definitions)
 
         # Set elapsed time.
         if self.elapsed_time:

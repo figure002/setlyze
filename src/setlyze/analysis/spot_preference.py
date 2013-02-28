@@ -277,26 +277,24 @@ class BeginBatch(Begin):
             if 'chi_squared_areas' in result.statistics:
                 chi_squared = result.statistics['chi_squared_areas'][0]
 
-            # Skip this result if there was not enough data for one of the
-            # analyses.
-            if not wilcoxon or not chi_squared:
-                continue
-
             # Figure out for which plate areas the result was significant. A
             # result is considered significant if (confidence level)% of the
             # test repeats were significant.
             areas = ['A','B','C','D','A+B','C+D','A+B+C','B+C+D']
             row = []
             for plate_area in areas:
+                if not wilcoxon:
+                    row.append(None)
+                    continue
                 stats = wilcoxon['results'].get(plate_area, None)
                 if stats:
                     significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 1-self.alpha_level
                     if significant:
                         # Significant: preference or rejection.
                         if stats['n_preference'] > stats['n_rejection']:
-                            row.append('p')
+                            row.append('pr')
                         else:
-                            row.append('r')
+                            row.append('rj')
                     else:
                         # Not significant.
                         row.append('n')
@@ -305,16 +303,19 @@ class BeginBatch(Begin):
                     row.append(None)
 
             # Add the results for the Chi squared test.
-            significant = chi_squared['results']['p_value'] < self.alpha_level
-            if significant:
-                row.append('s')
+            if chi_squared:
+                significant = chi_squared['results']['p_value'] < self.alpha_level
+                if significant:
+                    row.append('s')
+                else:
+                    row.append('n')
             else:
-                row.append('n')
+                row.append(None)
 
             # Only add the row to the report if one item in the row was
             # significant.
             for c in row:
-                if c and c in 'prs':
+                if c and c in ('s','pr','rj'):
                     r = [species, result.get_option('Total plates')]
                     r.extend(row)
                     report['results'].append(r)
@@ -330,6 +331,17 @@ class BeginBatch(Begin):
         # Create a report object from the dictionary.
         report = setlyze.report.Report()
         report.set_statistics('plate_areas_summary', summary)
+
+        # Set a definition list for the report.
+        definitions = {
+            's': "The result for the statistical test was significant.",
+            'n': "The result for the statistical test was not significant.",
+            'pr': "There was a significant preference for the plate area in question.",
+            'rj': "There was a significant rejection for the plate area in question.",
+            'na': "There is not enough data for the analysis or in case of the\n"
+                  "  Chi Squared test one of the expected frequencies is less than 5.",
+        }
+        report.set_definitions(definitions)
 
         # Set analysis options.
         report.set_option('Alpha level', self.alpha_level)

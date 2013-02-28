@@ -69,6 +69,7 @@ class Report(object):
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.statistics = {}
         self.options = {}
+        self.definitions = {}
 
     def is_empty(self):
         """Return True if this is an empty report."""
@@ -81,6 +82,13 @@ class Report(object):
         for the analysis. They will appear in exported reports.
         """
         self.options[name] = value
+
+    def set_definitions(self, definitions):
+        """Set the definitions dictionary `definitions`.
+
+        This is used to print a definition list in the report.
+        """
+        self.definitions = definitions
 
     def get_option(self, name):
         """Return the value for an analysis option `name`."""
@@ -495,7 +503,13 @@ class ExportRstReport(object):
         text = text.replace('<hr>', "^"*len(header))
         return text
 
-    def table(self, headers, minimum_col_length = 1):
+    def deflist(self, definitions):
+        """Return a definition list from the dictionary `definitions`."""
+        yield self.section("Definitions")
+        for term, definition in definitions.iteritems():
+            yield "%s\n  %s\n\n" % (term,definition)
+
+    def table(self, headers, mincollength=1):
         """Return a table header with column names from `headers` in
         reStructuredText format.
 
@@ -537,8 +551,8 @@ class ExportRstReport(object):
             else:
                 length = predefined_lengths[name]
 
-            if length < minimum_col_length:
-                length = minimum_col_length
+            if length < mincollength:
+                length = mincollength
 
             # Save the lengths of all column names. This is needed for
             # generating the table rules.
@@ -569,7 +583,7 @@ class ExportRstReport(object):
         row_placeholders += "\n"
 
         # Generate rule for the end of the table.
-        footer = self.table_rule(header_lengths)
+        footer = self.table_rule(header_lengths)+"\n"
 
         return (header,row_placeholders,footer)
 
@@ -687,6 +701,12 @@ class ExportRstReport(object):
         ratio_groups_summary = self.report.statistics.get('ratio_groups_summary', [])
         for stats in ratio_groups_summary:
             for line in self.add_batch_summary(stats, "Attraction between Species"):
+                yield line
+
+        # Print definitions.
+        definitions = getattr(self.report, 'definitions', None)
+        if definitions:
+            for line in self.deflist(definitions):
                 yield line
 
     def add_info(self, toc=False):
@@ -1012,7 +1032,7 @@ class ExportRstReport(object):
     def add_batch_summary(self, statistics, title):
         yield self.section("Batch summary - %s" % title)
 
-        t_header, t_row, t_footer = self.table(statistics['attr']['columns'])
+        t_header, t_row, t_footer = self.table(statistics['attr']['columns'], mincollength=2)
 
         # Figure out which columns display species names.
         species_cols = []
@@ -1029,7 +1049,7 @@ class ExportRstReport(object):
                 elif val is False:
                     c_row.append('n')
                 elif val is None:
-                    c_row.append('')
+                    c_row.append('na')
                 elif col in species_cols:
                     c_row.append("*%s*" % val)
                 else:
