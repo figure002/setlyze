@@ -966,6 +966,7 @@ class Analysis(AnalysisWorker):
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'repeats': self.n_repeats,
+                    'groups': 'ratios',
                 }
 
             if not self.statistics['wilcoxon_ratios']['attr']:
@@ -974,6 +975,7 @@ class Analysis(AnalysisWorker):
                     'alternative': sig_result['alternative'],
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
+                    'groups': 'ratios',
                 }
 
             self.statistics['wilcoxon_ratios']['results'][n_group] = {
@@ -998,10 +1000,18 @@ class Analysis(AnalysisWorker):
             sig_result = setlyze.std.chisq_test(observed_freq.values(),
                 p = spot_dist_to_prob.values())
 
+            # For the Chi^2 test the expected frequencies should not be less than
+            # 5. If we find an expected frequency that is less than 5, do not save
+            # the result. (:ref:`Buijs <ref-buijs>`)
+            for f in sig_result['expected']:
+                if f < 5:
+                    continue
+
             # Save the significance result.
             if not self.statistics['chi_squared_ratios']['attr']:
                 self.statistics['chi_squared_ratios']['attr'] = {
                     'method': sig_result['method'],
+                    'groups': 'ratios',
                 }
 
             self.statistics['chi_squared_ratios']['results'][n_group] = {
