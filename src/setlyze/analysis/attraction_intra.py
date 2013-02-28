@@ -278,8 +278,8 @@ class BeginBatch(Begin):
                 continue
 
             # Figure out for which positive spots number the result was
-            # significant. A result is considered significant if 95% of the
-            # tests for a plate area were significant.
+            # significant. A result is considered significant if
+            # (confidence level)% of the test repeats were significant.
             positive_spots = [-24,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]
             row = []
             for spots in positive_spots:
@@ -299,7 +299,7 @@ class BeginBatch(Begin):
                     # No data.
                     row.append(None)
 
-            # At the booleans for the Chi squared tests.
+            # Add the results for the Chi squared tests.
             for spots in positive_spots:
                 stats = chi_squared['results'].get(spots, None)
                 if stats:

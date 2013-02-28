@@ -283,8 +283,8 @@ class BeginBatch(Begin):
                 continue
 
             # Figure out for which plate areas the result was significant. A
-            # result is considered significant if 95% of the tests for a plate
-            # area were significant.
+            # result is considered significant if (confidence level)% of the
+            # test repeats were significant.
             areas = ['A','B','C','D','A+B','C+D','A+B+C','B+C+D']
             row = []
             for plate_area in areas:
@@ -304,8 +304,7 @@ class BeginBatch(Begin):
                     # No data.
                     row.append(None)
 
-            # At the boolean for the Chi squared test. This is either
-            # significant or not.
+            # Add the results for the Chi squared test.
             significant = chi_squared['results']['p_value'] < self.alpha_level
             if significant:
                 row.append('s')

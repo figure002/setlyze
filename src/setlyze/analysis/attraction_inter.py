@@ -406,9 +406,9 @@ class BeginBatch(Begin):
             if not wilcoxon or not chi_squared:
                 continue
 
-            # Figure out for which positive spots number the result was
-            # significant. A result is considered significant if 95% of the
-            # tests for a plate area were significant.
+            # Figure out for which ratio groups the result was
+            # significant. A result is considered significant if
+            # (confidence level)% of the test repeats were significant.
             ratio_groups = [-5,1,2,3,4,5]
             row = []
             for ratio in ratio_groups:
@@ -428,7 +428,7 @@ class BeginBatch(Begin):
                     # No data.
                     row.append(None)
 
-            # At the booleans for the Chi squared tests.
+            # Add the results for the Chi squared tests.
             for ratio in ratio_groups:
                 stats = chi_squared['results'].get(ratio, None)
                 if stats:
