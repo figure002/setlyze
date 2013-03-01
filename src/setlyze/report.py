@@ -450,6 +450,28 @@ class ExportRstReport(object):
     def __init__(self, report):
         self.report = None
         self.set_report(report)
+        self.predefined_col_widths = {
+            "df": 6,
+            "Remarks": 40,
+            "Species": 50,
+            "Species A": 50,
+            "Species B": 50,
+            "W": 6,
+        }
+        self.predefined_fields = {
+            "Plate Area": "%%-%ds",
+            "Area ID": "%%-%ds",
+            "P-value": "%%%d.4f",
+            "Chi squared": "%%%d.4f",
+            "Plate Area": "%%-%ds",
+            "Plate Area Surfaces": "%%-%ds",
+            "Mean Observed": "%%%d.4f",
+            "Mean Expected": "%%%d.4f",
+            "Remarks": "%%-%ds",
+            "Species": "%%-%ds",
+            "Species A": "%%-%ds",
+            "Species B": "%%-%ds",
+        }
 
     def set_report(self, report):
         """Set the report object `report`."""
@@ -509,7 +531,7 @@ class ExportRstReport(object):
         for term, definition in definitions.iteritems():
             yield "%s\n  %s\n\n" % (term,definition)
 
-    def table(self, headers, mincollength=1):
+    def table(self, headers, mincolwidth=1):
         """Return a table header with column names from `headers` in
         reStructuredText format.
 
@@ -520,39 +542,15 @@ class ExportRstReport(object):
         header_placeholders = []
         row_placeholders = []
 
-        predefined_lengths = {
-            "df": 6,
-            "Remarks": 40,
-            "Species": 50,
-            "Species A": 50,
-            "Species B": 50,
-            "W": 6,
-        }
-
-        predefined_fields = {
-            "Plate Area": "%%-%ds",
-            "Area ID": "%%-%ds",
-            "P-value": "%%%d.4f",
-            "Chi squared": "%%%d.4f",
-            "Plate Area": "%%-%ds",
-            "Plate Area Surfaces": "%%-%ds",
-            "Mean Observed": "%%%d.4f",
-            "Mean Expected": "%%%d.4f",
-            "Remarks": "%%-%ds",
-            "Species": "%%-%ds",
-            "Species A": "%%-%ds",
-            "Species B": "%%-%ds",
-        }
-
         # Generate a placeholder strings for the column names and the fields.
         for name in headers:
-            if name not in predefined_lengths:
+            if name not in self.predefined_col_widths:
                 length = len(name)
             else:
-                length = predefined_lengths[name]
+                length = self.predefined_col_widths[name]
 
-            if length < mincollength:
-                length = mincollength
+            if length < mincolwidth:
+                length = mincolwidth
 
             # Save the lengths of all column names. This is needed for
             # generating the table rules.
@@ -562,10 +560,10 @@ class ExportRstReport(object):
             header_placeholders.append("%%-%ds" % length)
 
             # Construct the placeholders for the fields.
-            if name not in predefined_fields:
+            if name not in self.predefined_fields:
                 row_placeholders.append("%%%ds" % length)
             else:
-                row_placeholders.append(predefined_fields[name] % length)
+                row_placeholders.append(self.predefined_fields[name] % length)
 
         # Generate top rule for table.
         header += self.table_rule(header_lengths)
@@ -587,15 +585,75 @@ class ExportRstReport(object):
 
         return (header,row_placeholders,footer)
 
-    def table_rule(self, col_widths):
+    def get_column_widths(self, headers, mincolwidth=1):
+        """Return the column widths for a list of column names.
+
+        Argument `headers` is a list of strings representing the column names.
+        """
+        col_widths = []
+        for name in headers:
+            if name not in self.predefined_col_widths:
+                length = len(name)
+            else:
+                length = self.predefined_col_widths[name]
+            if length < mincolwidth:
+                length = mincolwidth
+            col_widths.append(length)
+        return col_widths
+
+    def table_span_header(self, col_widths, headers, spans):
+        """Return a table header row with main columns spanned headers.
+
+        Argument `col_widths` is a list of widths for the main table columns,
+        `headers` is a list of column names that need to be spanned over
+        the main columns, `spans` is a list of integers, each integer
+        indicating the number of columns the corresponding column in `headers`
+        should span, hence `headers` and `spans` must have the same number
+        of items.
+        """
+        assert len(headers) == len(spans), \
+            "Length of arguments 'headers' and 'spans' are not equal."
+
+        # Calculate the width for each spanned column.
+        spanned_col_widths = []
+        last_col = 0
+        for span in spans:
+            assert span < len(col_widths), \
+                "Cannot span outside the table boundaries."
+            width = 0
+            for s in range(last_col, last_col+span):
+                width += col_widths[s]
+            width += 2*(span-1)
+            spanned_col_widths.append(width)
+            last_col += span
+
+        # Construct the column names row.
+        header_row = []
+        for i,header in enumerate(headers):
+            assert len(header) <= spanned_col_widths[i], \
+                ("The width of a header (%s) cannot exceed the width "
+                "of the spanned column (%d)") % (header, spanned_col_widths[i])
+            if header == '..':
+                header_row.append(header.ljust(spanned_col_widths[i]))
+            else:
+                header_row.append(header.center(spanned_col_widths[i]))
+        header_str = "  ".join(header_row) + "\n"
+
+        # Construct the column span underlines row.
+        header_str += self.table_rule(spanned_col_widths, char='-')
+
+        return header_str
+
+    def table_rule(self, col_widths, char='='):
         """Return a rule for a table with column widths `col_widths`.
 
-        `col_widths` is a list/tuple containing column widths (integers).
+        Argument `col_widths` is a list with column widths (integers), and
+        `char` the character used to make rules.
         """
-        format = []
-        for n in col_widths:
-            format.append("="*n)
-        return "  ".join(format) + "\n"
+        row = []
+        for w in col_widths:
+            row.append(char*w)
+        return "  ".join(row) + "\n"
 
     def get_lines(self):
         """Return the analysis report in reStructuredText format."""
@@ -1030,9 +1088,9 @@ class ExportRstReport(object):
         yield t_footer
 
     def add_batch_summary(self, statistics, title):
+        """Generate a batch summary report."""
         yield self.section("Batch summary - %s" % title)
-
-        t_header, t_row, t_footer = self.table(statistics['attr']['columns'], mincollength=2)
+        t_header, t_row, t_footer = self.table(statistics['attr']['columns'], mincolwidth=2)
 
         # Figure out which columns display species names.
         species_cols = []
@@ -1040,7 +1098,18 @@ class ExportRstReport(object):
             if "Species" in val:
                 species_cols.append(col)
 
-        yield t_header
+        # Return a complicated table header consisting of two rows and cells
+        # that span multiple rows. Used instead of the simple `t_header`.
+        col_widths = self.get_column_widths(statistics['attr']['columns'], mincolwidth=2)
+        yield self.table_rule(col_widths)
+        yield self.table_span_header(col_widths,
+            statistics['attr']['columns_over'],
+            statistics['attr']['columns_over_spans']
+        )
+        yield t_row % tuple(statistics['attr']['columns'])
+        yield self.table_rule(col_widths)
+
+        # Return the data rows.
         for row in statistics['results']:
             c_row = []
             for col,val in enumerate(row):
@@ -1058,6 +1127,7 @@ class ExportRstReport(object):
         yield t_footer
 
     def export(self, path, elements=None):
+        """Generate and export the report to a file."""
         f = open(path, 'w')
         f.writelines(self.get_lines())
         f.close()

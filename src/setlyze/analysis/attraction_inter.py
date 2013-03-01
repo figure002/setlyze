@@ -375,6 +375,8 @@ class BeginBatch(Begin):
 
             {
                 'attr': {
+                    'columns_over': ('..', 'Wilcoxon rank sum test', 'Chi-squared test'),
+                    'columns_over_spans': (3, 6, 6),
                     'columns': ('Species A', 'Species B', 'n (plates)', 'Wilcoxon 1-5', '1', '2', '3', '4', '5', 'Chi sq 1-5', '1', '2', '3', '4', '5')
                 },
                 'results': [
@@ -385,7 +387,11 @@ class BeginBatch(Begin):
             }
         """
         report = {
-            'attr': {'columns': ('Species A','Species B','n (plates)','Wilcoxon 1-5','1','2','3','4','5','Chi sq 1-5','1','2','3','4','5')},
+            'attr': {
+                'columns_over': ('..', 'Wilcoxon rank sum test', 'Chi-squared test'),
+                'columns_over_spans': (3, 6, 6),
+                'columns': ('Species A','Species B','n (plates)','1-5','1','2','3','4','5','1-5','1','2','3','4','5')
+            },
             'results': []
         }
         for result in results:

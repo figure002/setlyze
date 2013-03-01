@@ -254,7 +254,9 @@ class BeginBatch(Begin):
 
             {
                 'attr': {
-                    'columns': ('Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'Chi sq')
+                    'columns_over': ('..', 'Wilcoxon rank sum test', 'Chi-sq'),
+                    'columns_over_spans': (2, 8, 1),
+                    'columns': ['Species', 'n (plates)', 'A', 'B', 'C', 'D', 'A+B', 'C+D', 'A+B+C', 'B+C+D', 'A,B,C,D']
                 },
                 'results': [
                     ['Obelia dichotoma', 166, 'p', 'n', 'r', 'r', 'p', 'r', 'n', 'r', 's'],
@@ -264,7 +266,11 @@ class BeginBatch(Begin):
             }
         """
         report = {
-            'attr': {'columns': ('Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','Chi sq')},
+            'attr': {
+                'columns_over': ('..', 'Wilcoxon rank sum test', 'Chi-sq'),
+                'columns_over_spans': (2, 8, 1),
+                'columns': ['Species','n (plates)','A','B','C','D','A+B','C+D','A+B+C','B+C+D','A,B,C,D']
+            },
             'results': []
         }
         for result in results:
@@ -320,6 +326,17 @@ class BeginBatch(Begin):
                     r.extend(row)
                     report['results'].append(r)
                     break
+
+        # Set the plate areas definition as the column name for the Chi-squared
+        # test (last column).
+        definition = getattr(results[0], 'plate_areas_definition', None)
+        if definition:
+            for key, area in definition.iteritems():
+                definition[key] = '+'.join(area)
+            definition = definition.values()
+            definition.sort()
+            definition = ','.join(definition)
+            report['attr']['columns'][10] = definition
 
         return report
 
