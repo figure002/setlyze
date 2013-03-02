@@ -293,9 +293,7 @@ class SelectAnalysis(object):
 
         # Check if there already is a local database file.
         if os.path.isfile(dbfile):
-            # If there is, ask the user if he/she/it want's to use
-            # the current local database.
-
+            # Use the existing database.
             db = setlyze.database.get_database_accessor()
             db_info = db.get_database_info()
 
@@ -319,38 +317,25 @@ class SelectAnalysis(object):
             else:
                 raise ValueError("Unknown data source '%s'." % source)
 
-            message = setlyze.locale.text('use-saved-data', date, source_str)
+            message = ("The SETL data from the last session is being loaded. "
+                "This data was loaded on %s from %s.") % (date, source_str)
 
             # Show a dialog with the message.
             dialog = gtk.MessageDialog(parent=None, flags=0,
-                type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO,
-                message_format="Use saved data?")
+                type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+                message_format="Using saved data")
             dialog.format_secondary_text(message)
             dialog.set_position(gtk.WIN_POS_CENTER)
-            response = dialog.run()
+            dialog.run()
+            dialog.destroy()
 
-            # Check the user's response.
-            if response == gtk.RESPONSE_YES:
-                logging.info("Using the local database from the last run.")
+            # Prevent a new database from being created.
+            setlyze.config.cfg.set('data-source', source)
+            setlyze.config.cfg.set('make-new-db', False)
+            setlyze.config.cfg.set('has-local-db', True)
 
-                # Prevent a new database from being created.
-                setlyze.config.cfg.set('data-source', source)
-                setlyze.config.cfg.set('make-new-db', False)
-                setlyze.config.cfg.set('has-local-db', True)
-
-                # Destroy the dialog.
-                dialog.destroy()
-
-                # Try again...
-                self.on_continue()
-            else:
-                # User pressed No
-
-                # Destroy the dialog.
-                dialog.destroy()
-
-                # Create a new database.
-                self.on_make_local_db()
+            # Try again...
+            self.on_continue()
         else:
             # No database file was found. Create a new local database file.
             self.on_make_local_db()

@@ -43,11 +43,6 @@ __date__ = "2011/05/03"
 ENGLISH = [
     ('dummy',
         "And tomorrow's forecast is, %s"),
-    ('use-saved-data',
-        "The SETL data from the last run is still on your computer. The "
-        "data was loaded on %s from %s.\n\nSelect Yes to use this possibly old "
-        "data, or select No to load up-to-date data from the remote SETL "
-        "database (requires a direct connection with the SETL database server)."),
     ('select-locations',
         "Below are the available locations. Please select the locations "
         "from which you want to select species."),
