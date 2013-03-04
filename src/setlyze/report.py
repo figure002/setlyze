@@ -21,6 +21,7 @@
 
 """This module provides functions for generating analysis reports."""
 
+import collections
 import datetime
 import logging
 from sqlite3 import dbapi2 as sqlite
@@ -68,8 +69,8 @@ class Report(object):
     def __init__(self):
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.statistics = {}
-        self.options = {}
-        self.definitions = {}
+        self.options = collections.OrderedDict()
+        self.definitions = collections.OrderedDict()
 
     def is_empty(self):
         """Return True if this is an empty report."""

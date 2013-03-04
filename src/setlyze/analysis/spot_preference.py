@@ -363,6 +363,7 @@ class BeginBatch(Begin):
         # Set analysis options.
         report.set_option('Alpha level', self.alpha_level)
         report.set_option('Repeats', self.n_repeats)
+        report.set_option('Statistical tests', "Chi-squared test, Wilcoxon rank sum test")
 
         # Set elapsed time.
         if self.elapsed_time:
