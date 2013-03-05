@@ -419,104 +419,100 @@ class Analysis(AnalysisWorker):
 
         Design Part: 1.59
         """
-        try:
-            if not self.stopped():
-                # Make an object that facilitates access to the database.
-                self.db = setlyze.database.get_database_accessor()
+        if not self.stopped():
+            # Make an object that facilitates access to the database.
+            self.db = setlyze.database.get_database_accessor()
 
-                # Create temporary tables.
-                self.db.create_table_species_spots_1()
-                self.db.create_table_plate_spot_totals()
-                self.db.create_table_spot_distances_observed()
-                self.db.create_table_spot_distances_expected()
-                self.db.conn.commit()
+            # Create temporary tables.
+            self.db.create_table_species_spots_1()
+            self.db.create_table_plate_spot_totals()
+            self.db.create_table_spot_distances_observed()
+            self.db.create_table_spot_distances_expected()
+            self.db.conn.commit()
 
-                # Get the record IDs that match the localities+species selection.
-                rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
-                # Create log message.
-                logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
+            # Get the record IDs that match the localities+species selection.
+            rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
+            # Create log message.
+            logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-                # Create log message.
-                logging.info("\tCreating table with species spots...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Creating table with species spots...")
-                # Make a spots table for the selected species.
-                self.db.set_species_spots(rec_ids, slot=0)
-
-            if not self.stopped():
-                # Create log message.
-                logging.info("\tMaking plate IDs in species spots table unique...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
-                # Make the plate IDs unique.
-                n_plates_unique = self.db.make_plates_unique(slot=0)
-                # Create log message.
-                logging.info("\t  %d records remaining." % (n_plates_unique))
-
-            if not self.stopped():
-                # Create log message.
-                logging.info("\tSaving the positive spot totals for each plate...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Saving the positive spot totals for each plate...")
-                # Save the positive spot totals for each plate to the database.
-                self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
-                # Create log message.
-                logging.info("\tSkipping %d records with too few positive spots." % skipped)
-                logging.info("\t  %d records remaining." % self.affected)
-
-                # Create log message.
-                logging.info("\tCalculating the intra-specific distances for the selected species...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Calculating the intra-specific distances for the selected species...")
-                # Calculate the observed spot distances.
-                self.calculate_distances_intra()
-
-            if not self.stopped():
-                # Create log message.
-                logging.info("\tPerforming statistical tests with %d repeats..." %
-                    self.n_repeats)
-                # Update progress dialog.
-                self.exec_task('progress.increase',
-                    "Performing statistical tests with %s repeats..." %
-                    self.n_repeats)
-                # Perform the repeats for the statistical tests. This will repeatedly
-                # calculate the expected totals, so we'll use the expected values
-                # of the last repeat for the non-repeated tests.
-                self.repeat_test(self.n_repeats)
-
-            if not self.stopped():
-                # Create log message.
-                logging.info("\tPerforming statistical tests...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Performing statistical tests...")
-                # Performing the statistical tests. The expected values for the last
-                # repeat is used for this test.
-                self.calculate_significance()
-
-            # If the cancel button is pressed don't finish this function.
-            if self.stopped():
-                logging.info("Analysis aborted by user")
-
-                # Exit gracefully.
-                self.on_exit()
-                return None
-
+            # Create log message.
+            logging.info("\tCreating table with species spots...")
             # Update progress dialog.
-            self.exec_task('progress.increase', "Generating the analysis report...")
-            # Generate the report.
-            self.generate_report()
+            self.exec_task('progress.increase', "Creating table with species spots...")
+            # Make a spots table for the selected species.
+            self.db.set_species_spots(rec_ids, slot=0)
 
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tMaking plate IDs in species spots table unique...")
             # Update progress dialog.
-            self.exec_task('progress.increase', "")
+            self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            n_plates_unique = self.db.make_plates_unique(slot=0)
+            # Create log message.
+            logging.info("\t  %d records remaining." % (n_plates_unique))
 
-            # Emit the signal that the analysis has finished.
-            # Note that the signal will be sent from a separate thread,
-            # so we must use gobject.idle_add.
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
-            logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
-        except Exception, e:
-            self.exception = e
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tSaving the positive spot totals for each plate...")
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Saving the positive spot totals for each plate...")
+            # Save the positive spot totals for each plate to the database.
+            self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1')
+            # Create log message.
+            logging.info("\tSkipping %d records with too few positive spots." % skipped)
+            logging.info("\t  %d records remaining." % self.affected)
+
+            # Create log message.
+            logging.info("\tCalculating the intra-specific distances for the selected species...")
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Calculating the intra-specific distances for the selected species...")
+            # Calculate the observed spot distances.
+            self.calculate_distances_intra()
+
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tPerforming statistical tests with %d repeats..." %
+                self.n_repeats)
+            # Update progress dialog.
+            self.exec_task('progress.increase',
+                "Performing statistical tests with %s repeats..." %
+                self.n_repeats)
+            # Perform the repeats for the statistical tests. This will repeatedly
+            # calculate the expected totals, so we'll use the expected values
+            # of the last repeat for the non-repeated tests.
+            self.repeat_test(self.n_repeats)
+
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tPerforming statistical tests...")
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Performing statistical tests...")
+            # Performing the statistical tests. The expected values for the last
+            # repeat is used for this test.
+            self.calculate_significance()
+
+        # If the cancel button is pressed don't finish this function.
+        if self.stopped():
+            logging.info("Analysis aborted by user")
+
+            # Exit gracefully.
+            self.on_exit()
             return None
+
+        # Update progress dialog.
+        self.exec_task('progress.increase', "Generating the analysis report...")
+        # Generate the report.
+        self.generate_report()
+
+        # Update progress dialog.
+        self.exec_task('progress.increase', "")
+
+        # Emit the signal that the analysis has finished.
+        # Note that the signal will be sent from a separate thread,
+        # so we must use gobject.idle_add.
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+        logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
 
         # Exit gracefully.
         self.on_exit()

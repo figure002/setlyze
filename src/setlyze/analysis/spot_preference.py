@@ -430,106 +430,102 @@ class Analysis(AnalysisWorker):
 
         Design Part: 1.58
         """
-        try:
-            if not self.stopped():
-                # Make an object that facilitates access to the database.
-                self.db = setlyze.database.get_database_accessor()
+        if not self.stopped():
+            # Make an object that facilitates access to the database.
+            self.db = setlyze.database.get_database_accessor()
 
-                assert isinstance(self.db, setlyze.database.AccessLocalDB), \
-                    "Expected an instance of AccessLocalDB. Got %s" % self.db.__class__.__name__
+            assert isinstance(self.db, setlyze.database.AccessLocalDB), \
+                "Expected an instance of AccessLocalDB. Got %s" % self.db.__class__.__name__
 
-                # Create temporary tables.
-                self.db.create_table_species_spots_1()
-                self.db.create_table_plate_area_totals_observed()
-                self.db.create_table_plate_area_totals_expected()
-                self.db.conn.commit()
+            # Create temporary tables.
+            self.db.create_table_species_spots_1()
+            self.db.create_table_plate_area_totals_observed()
+            self.db.create_table_plate_area_totals_expected()
+            self.db.conn.commit()
 
-                # Get the record IDs that match the localities+species selection.
-                rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
-                # Create log message.
-                logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
+            # Get the record IDs that match the localities+species selection.
+            rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
+            # Create log message.
+            logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-                # Create log message and update progress dialog.
-                logging.info("\tCreating table with species spots...")
-                self.exec_task('progress.increase', "Creating table with species spots...")
-                # Make a spots table for the selected species.
-                self.db.set_species_spots(rec_ids, slot=0)
+            # Create log message and update progress dialog.
+            logging.info("\tCreating table with species spots...")
+            self.exec_task('progress.increase', "Creating table with species spots...")
+            # Make a spots table for the selected species.
+            self.db.set_species_spots(rec_ids, slot=0)
 
-                # Create log message and update progress dialog.
-                logging.info("\tMaking plate IDs in species spots table unique...")
-                self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
-                # Make the plate IDs unique.
-                self.n_plates_unique = self.db.make_plates_unique(slot=0)
-                # Create log message.
-                logging.info("\t  %d records remaining." % (self.n_plates_unique))
+            # Create log message and update progress dialog.
+            logging.info("\tMaking plate IDs in species spots table unique...")
+            self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            self.n_plates_unique = self.db.make_plates_unique(slot=0)
+            # Create log message.
+            logging.info("\t  %d records remaining." % (self.n_plates_unique))
 
-            if not self.stopped():
-                # Create log message and update progress dialog.
-                logging.info("\tCalculating the observed plate area totals for each plate...")
-                self.exec_task('progress.increase', "Calculating the observed plate area totals for each plate...")
-                # Calculate the expected totals.
-                self.set_plate_area_totals_observed()
+        if not self.stopped():
+            # Create log message and update progress dialog.
+            logging.info("\tCalculating the observed plate area totals for each plate...")
+            self.exec_task('progress.increase', "Calculating the observed plate area totals for each plate...")
+            # Calculate the expected totals.
+            self.set_plate_area_totals_observed()
 
-                # Calculate the observed species encounters for the user defined plate
-                # areas.
-                self.chisq_observed = self.get_defined_areas_totals_observed()
+            # Calculate the observed species encounters for the user defined plate
+            # areas.
+            self.chisq_observed = self.get_defined_areas_totals_observed()
 
-                # Make sure that spot area totals are not all zero. If so, abort
-                # the analysis, because we can't devide by zero (unless you're
-                # Chuck Norris of course).
-                areas_total = 0
-                for area_total in self.chisq_observed.itervalues():
-                    areas_total += area_total
-                if areas_total == 0:
-                    logging.info("The species was not found on any plates, aborting.")
-                    self.exec_task('emit', 'analysis-aborted', setlyze.locale.text('empty-plate-areas'))
-
-                    # Exit gracefully.
-                    self.on_exit()
-                    return None
-
-            if not self.stopped():
-                # Create log message and update progress dialog.
-                logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
-                self.exec_task('progress.increase', "Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
-                # Perform the repeats for the statistical tests. This will repeatedly
-                # calculate the expected totals, so we'll use the expected values
-                # of the last repeat for the non-repeated tests.
-                self.repeat_test(self.n_repeats)
-
-            if not self.stopped():
-                # Create log message.
-                logging.info("\tPerforming statistical tests...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Performing statistical tests...")
-                # Performing the statistical tests.
-                self.calculate_significance_wilcoxon()
-                self.calculate_significance_chisq()
-
-            # If the cancel button is pressed don't finish this function.
-            if self.stopped():
-                logging.info("Analysis aborted by user")
+            # Make sure that spot area totals are not all zero. If so, abort
+            # the analysis, because we can't devide by zero (unless you're
+            # Chuck Norris of course).
+            areas_total = 0
+            for area_total in self.chisq_observed.itervalues():
+                areas_total += area_total
+            if areas_total == 0:
+                logging.info("The species was not found on any plates, aborting.")
+                self.exec_task('emit', 'analysis-aborted', setlyze.locale.text('empty-plate-areas'))
 
                 # Exit gracefully.
                 self.on_exit()
                 return None
 
-            # Update progress dialog.
-            self.exec_task('progress.increase', "Generating the analysis report...")
-            # Generate the report.
-            self.generate_report()
+        if not self.stopped():
+            # Create log message and update progress dialog.
+            logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
+            self.exec_task('progress.increase', "Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
+            # Perform the repeats for the statistical tests. This will repeatedly
+            # calculate the expected totals, so we'll use the expected values
+            # of the last repeat for the non-repeated tests.
+            self.repeat_test(self.n_repeats)
 
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tPerforming statistical tests...")
             # Update progress dialog.
-            self.exec_task('progress.increase', "")
+            self.exec_task('progress.increase', "Performing statistical tests...")
+            # Performing the statistical tests.
+            self.calculate_significance_wilcoxon()
+            self.calculate_significance_chisq()
 
-            # Emit the signal that the analysis has finished.
-            # Note that the signal will be sent from a separate thread,
-            # so we must use gobject.idle_add.
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
-            logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
-        except Exception, e:
-            self.exception = e
+        # If the cancel button is pressed don't finish this function.
+        if self.stopped():
+            logging.info("Analysis aborted by user")
+
+            # Exit gracefully.
+            self.on_exit()
             return None
+
+        # Update progress dialog.
+        self.exec_task('progress.increase', "Generating the analysis report...")
+        # Generate the report.
+        self.generate_report()
+
+        # Update progress dialog.
+        self.exec_task('progress.increase', "")
+
+        # Emit the signal that the analysis has finished.
+        # Note that the signal will be sent from a separate thread,
+        # so we must use gobject.idle_add.
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+        logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
 
         # Exit gracefully.
         self.on_exit()

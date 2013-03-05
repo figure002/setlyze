@@ -565,131 +565,127 @@ class Analysis(AnalysisWorker):
 
         Design Part: 1.60
         """
-        try:
-            if not self.stopped():
-                # Make an object that facilitates access to the database.
-                self.db = setlyze.database.get_database_accessor()
+        if not self.stopped():
+            # Make an object that facilitates access to the database.
+            self.db = setlyze.database.get_database_accessor()
 
-                # Create temporary tables.
-                self.db.create_table_species_spots_1()
-                self.db.create_table_species_spots_2()
-                self.db.create_table_plate_spot_totals()
-                self.db.create_table_spot_distances_observed()
-                self.db.create_table_spot_distances_expected()
-                self.db.conn.commit()
+            # Create temporary tables.
+            self.db.create_table_species_spots_1()
+            self.db.create_table_species_spots_2()
+            self.db.create_table_plate_spot_totals()
+            self.db.create_table_spot_distances_observed()
+            self.db.create_table_spot_distances_expected()
+            self.db.conn.commit()
 
-            if not self.stopped():
-                # SELECTION 1
+        if not self.stopped():
+            # SELECTION 1
 
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Creating first table with species spots...")
-                # Get the record IDs that match the selections.
-                rec_ids1 = self.db.get_record_ids(self.locations_selections[0], self.species_selections[0])
-                # Update progress dialog.
-                logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Creating first table with species spots...")
+            # Get the record IDs that match the selections.
+            rec_ids1 = self.db.get_record_ids(self.locations_selections[0], self.species_selections[0])
+            # Update progress dialog.
+            logging.info("\tTotal records that match the first species+locations selection: %d" % len(rec_ids1))
 
-                # Create log message.
-                logging.info("\t\tCreating first table with species spots...")
-                # Make a spots table for both species selections.
-                self.db.set_species_spots(rec_ids1, slot=0)
+            # Create log message.
+            logging.info("\t\tCreating first table with species spots...")
+            # Make a spots table for both species selections.
+            self.db.set_species_spots(rec_ids1, slot=0)
 
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
-                # Create log message.
-                logging.info("\t\tMaking plate IDs in species spots table unique...")
-                # Make the plate IDs unique.
-                n_plates_unique = self.db.make_plates_unique(slot=0)
-                # Create log message.
-                logging.info("\t\t  %d records remaining." % (n_plates_unique))
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
+            # Create log message.
+            logging.info("\t\tMaking plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            n_plates_unique = self.db.make_plates_unique(slot=0)
+            # Create log message.
+            logging.info("\t\t  %d records remaining." % (n_plates_unique))
 
-            if not self.stopped():
-                # SELECTION 2
+        if not self.stopped():
+            # SELECTION 2
 
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Creating second table with species spots...")
-                # Get the record IDs that match the selections.
-                rec_ids2 = self.db.get_record_ids(self.locations_selections[1], self.species_selections[1])
-                # Create log message.
-                logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Creating second table with species spots...")
+            # Get the record IDs that match the selections.
+            rec_ids2 = self.db.get_record_ids(self.locations_selections[1], self.species_selections[1])
+            # Create log message.
+            logging.info("\tTotal records that match the second species+locations selection: %d" % len(rec_ids2))
 
-                # Create log message.
-                logging.info("\t\tCreating second table with species spots...")
-                # Make a spots table for both species selections.
-                self.db.set_species_spots(rec_ids2, slot=1)
+            # Create log message.
+            logging.info("\t\tCreating second table with species spots...")
+            # Make a spots table for both species selections.
+            self.db.set_species_spots(rec_ids2, slot=1)
 
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
-                # Create log message.
-                logging.info("\t\tMaking plate IDs in species spots table unique...")
-                # Make the plate IDs unique.
-                n_plates_unique = self.db.make_plates_unique(slot=1)
-                # Create log message.
-                logging.info("\t\t  %d records remaining." % (n_plates_unique))
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
+            # Create log message.
+            logging.info("\t\tMaking plate IDs in species spots table unique...")
+            # Make the plate IDs unique.
+            n_plates_unique = self.db.make_plates_unique(slot=1)
+            # Create log message.
+            logging.info("\t\t  %d records remaining." % (n_plates_unique))
 
-            if not self.stopped():
-                # Create log message.
-                logging.info("\tSaving the positive spot totals for each plate...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Saving the positive spot totals for each plate...")
-                # Save the positive spot totals for each plate to the database.
-                self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tSaving the positive spot totals for each plate...")
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Saving the positive spot totals for each plate...")
+            # Save the positive spot totals for each plate to the database.
+            self.affected, skipped = self.db.fill_plate_spot_totals_table('species_spots_1','species_spots_2')
 
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Calculating the inter-specific distances for the selected species...")
-                # Create log message.
-                logging.info("\tCalculating the inter-specific distances for the selected species...")
-                # Calculate the observed spot distances.
-                self.calculate_distances_inter()
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Calculating the inter-specific distances for the selected species...")
+            # Create log message.
+            logging.info("\tCalculating the inter-specific distances for the selected species...")
+            # Calculate the observed spot distances.
+            self.calculate_distances_inter()
 
-                # Create log message.
-                logging.info("\tPerforming statistical tests with %d repeats..." %
-                    self.n_repeats)
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Performing statistical tests with %s repeats..." %
-                    self.n_repeats)
-                # Perform the repeats for the statistical tests. This will repeatedly
-                # calculate the expected totals, so we'll use the expected values
-                # of the last repeat for the non-repeated tests.
-                self.repeat_test(self.n_repeats)
+            # Create log message.
+            logging.info("\tPerforming statistical tests with %d repeats..." %
+                self.n_repeats)
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Performing statistical tests with %s repeats..." %
+                self.n_repeats)
+            # Perform the repeats for the statistical tests. This will repeatedly
+            # calculate the expected totals, so we'll use the expected values
+            # of the last repeat for the non-repeated tests.
+            self.repeat_test(self.n_repeats)
 
-            if not self.stopped():
-                # Create log message.
-                logging.info("\tPerforming statistical tests...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Performing statistical tests...")
-                # Performing the statistical tests. The expected values for the last
-                # repeat is used for this test.
-                self.calculate_significance()
+        if not self.stopped():
+            # Create log message.
+            logging.info("\tPerforming statistical tests...")
+            # Update progress dialog.
+            self.exec_task('progress.increase', "Performing statistical tests...")
+            # Performing the statistical tests. The expected values for the last
+            # repeat is used for this test.
+            self.calculate_significance()
 
-                # Create log message.
-                logging.info("\tGenerating the analysis report...")
-                # Update progress dialog.
-                self.exec_task('progress.increase', "Generating the analysis report...")
-
-            # If the cancel button is pressed don't finish this function.
-            if self.stopped():
-                logging.info("Analysis aborted by user")
-
-                # Exit gracefully.
-                self.on_exit()
-                return None
-
+            # Create log message.
+            logging.info("\tGenerating the analysis report...")
             # Update progress dialog.
             self.exec_task('progress.increase', "Generating the analysis report...")
-            # Generate the report.
-            self.generate_report()
 
-            # Update progress dialog.
-            self.exec_task('progress.increase', "")
+        # If the cancel button is pressed don't finish this function.
+        if self.stopped():
+            logging.info("Analysis aborted by user")
 
-            # Emit the signal that the analysis has finished.
-            # Note that the signal will be sent from a separate thread,
-            # so we must use gobject.idle_add.
-            gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
-            logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
-        except Exception, e:
-            self.exception = e
+            # Exit gracefully.
+            self.on_exit()
             return None
+
+        # Update progress dialog.
+        self.exec_task('progress.increase', "Generating the analysis report...")
+        # Generate the report.
+        self.generate_report()
+
+        # Update progress dialog.
+        self.exec_task('progress.increase', "")
+
+        # Emit the signal that the analysis has finished.
+        # Note that the signal will be sent from a separate thread,
+        # so we must use gobject.idle_add.
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
+        logging.info("%s was completed!" % setlyze.locale.text('analysis3'))
 
         # Exit gracefully.
         self.on_exit()
