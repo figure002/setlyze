@@ -741,7 +741,7 @@ class SelectLocations(SelectionWindow):
     """
 
     def __init__(self, title="Locations Selection",
-            description="Select the locations:", width=-1, slot=0):
+            description="Select the locations:", width=400, slot=0):
         super(SelectLocations, self).__init__(title, description, width, slot)
 
         self.info_key = 'info-loc-selection'
@@ -830,7 +830,7 @@ class SelectSpecies(SelectionWindow):
     """
 
     def __init__(self, title="Species Selection",
-            description="Select the species:", width=-1, slot=0):
+            description="Select the species:", width=600, slot=0):
         super(SelectSpecies, self).__init__(title, description, width, slot)
 
         self.info_key = 'info-spe-selection'
