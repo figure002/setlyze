@@ -45,28 +45,63 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2013/02/02"
 
-def calculate(func, args):
-    obj = func(*args)
+def calculate(cls, args):
+    """Create an instance of class `cls` and call its run() method.
+
+    Arguments `args` are unpacked and passed to `cls` when it is instantiated.
+    Returns the result returned by `cls`'s run() method.
+    """
+    obj = cls(*args)
     result = obj.run()
-    # Check if an exception has occurred. If so, print it.
-    if obj.exception:
-        logging.error("calculate: %s" % obj.exception)
     return result
 
 def calculatestar(args):
+    """Unpack the argument `args` and pass them to :meth:`calculate`.
+
+    Argument `args` must be a list of two items: a class definition and a list
+    of arguments for instantiating the class. Method :meth:`calculate` will
+    take care of instantiating the class and passing the arguments.
+
+    Returns the result returned by :meth:`calculate`.
+    """
     return calculate(*args)
 
 class Pool(threading.Thread):
-    """Primitive thread pool."""
+    """Create a pool of worker processes.
 
-    def __init__(self, size):
+    An instance of this class provides the convenient :meth:`stop` method for
+    stopping all the workers in the pool in an elegant manner. This avoids
+    having to call :py:meth:`multiprocessing.Pool.terminate`. A pool instance
+    emits the ``pool-finished`` signal once all workers are terminated.
+
+        .. note::
+
+           This class is currently not in use because it is unstable.
+           Use of :py:class:`multiprocessing.Pool` is preferred.
+   """
+
+    def __init__(self, size=None):
+        """Spawn workers.
+
+        Argument `size` is an integer defining the number of workers that
+        will be spawned.
+        """
         threading.Thread.__init__(self)
-        self.stop_ = False
+        self._stop = threading.Event()
         self.manager = multiprocessing.Manager()
         self.task_queue = self.manager.Queue()
         self.done_queue = self.manager.Queue()
         self.progress_queue = self.manager.Queue()
         self.workers = []
+
+        # If no pool size is set, default to the number of CPUs.
+        assert (isinstance(size, int) and size >= 1) or size is None, \
+            "Pool size must me an integer"
+        if size is None:
+            try:
+                size = multiprocessing.cpu_count()
+            except:
+                size = 1
 
         # Spawn workers, but don't start them yet.
         for i in range(size):
@@ -98,9 +133,7 @@ class Pool(threading.Thread):
         all workers have been stopped.
         """
         logging.debug("%s: Received stop signal" % self)
-        self._stop = True
-        # Clear the task queue.
-        self.task_queue.queue.clear()
+        self._stop.set()
         # Stop all workers.
         for w in self.workers:
             w.stop()
@@ -111,55 +144,55 @@ class Pool(threading.Thread):
 
     def stopped(self):
         """Return True if the pool was stopped."""
-        return self._stop
+        return self._stop.isSet()
 
 class Worker(multiprocessing.Process):
-    """Worker thread for usage in a thread pool.
+    """Worker process instantiated by :class:`Pool`.
 
-    This class can be used to create a number of worker threads which will each
-    execute jobs from a queue (instance of :py:class:`multiprocessing.Queue`). Each job
-    is a tuple with function/class pointer followed by arguments (in that
-    order). Each instance of this thread will obtain a job from the queue and
-    execute the function/instantiate the class that was passed (the first
-    item in the tuple) with the arguments from the tuple.
+    This class can be used to create a number of workers which will each
+    execute tasks from a queue (instance of :py:class:`multiprocessing.Queue`).
+    Each task is a tuple with a function followed by arguments and keyword args
+    for that function ``(func, *args, **kwargs)``. Each worker will obtain a task
+    from the queue and execute the function with the arguments. Results from
+    individual tasks are passed to a results queue.
 
-    An instance of this class will exit immediately when the queue is empty.
+    An instance of this class will terminate immediately when the task queue is
+    empty.
     """
 
     def __init__(self, input, output):
+        """Sets the `input` and `output` queue.
+
+        Both `input` and `output` should be different instances of
+        :py:class:`multiprocessing.Queue`. Queue `input` will be used to obtain
+        tasks from, queue `output` will be used to pass task results to.
+        """
         multiprocessing.Process.__init__(self)
         self.input = input
         self.output = output
-        self.job = None
+        self.active = True
 
     def run(self):
-        """Execute jobs in the queue."""
-        while True:
-            # Get a job from the queue.
+        """Execute tasks in the queue."""
+        while self.active:
+            # Try to get a task from the queue. If the queue is empty, terminate.
             try:
                 func, args, kargs = self.input.get(False)
             except:
-                logging.info("Worker %s got bored and quit" % os.getpid())
+                logging.debug("Worker %s got bored and quit" % os.getpid())
                 return
-
-            # Execute the job.
-            self.job = func(*args, **kargs)
-            result = self.job.run()
-
-            # Check if an exception has occurred. If so, log it.
-            if self.job.exception:
-                logging.error("Worker %s: %s" % (os.getpid(), self.job.exception))
-
-            # Save the result.
+            # Execute the task.
+            result = func(*args, **kargs)
+            # Pass the task result to the output queue.
             self.output.put(result)
 
     def stop(self):
-        """Stop the current job."""
+        """Stop executing tasks.
+
+        You still have to wait for an active task to finish.
+        """
         logging.debug("%s: Received stop signal" % self)
-        try:
-            self.job.stop()
-        except AttributeError:
-            return
+        self.active = False
 
 class ProcessTaskExec(threading.Thread):
     """Execute child process tasks in the main process.
