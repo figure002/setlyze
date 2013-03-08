@@ -49,7 +49,7 @@ def calculate(cls, args):
     """Create an instance of class `cls` and call its run() method.
 
     Arguments `args` are unpacked and passed to `cls` when it is instantiated.
-    Returns the result returned by `cls`'s run() method.
+    Returns the result returned by `cls`.run().
     """
     obj = cls(*args)
     result = obj.run()
@@ -197,12 +197,64 @@ class Worker(multiprocessing.Process):
 class ProcessTaskExec(threading.Thread):
     """Execute child process tasks in the main process.
 
-    An instance of this class provides `self.queue` which can be passed to
-    child processes. Child processes can use it to submit tasks for execution
-    in the main process. An instance of this class which runs in the main
-    process will execute tasks submitted to `self.queue`.
+    An instance of this class provides a public attribute `queue` which can be
+    passed to child processes. Child processes can use it to submit tasks for
+    execution in the main process. This is to overcome the restriction of
+    letting child processes communicate with the main process. An instance of
+    this class runs in the main process and will execute tasks submitted to
+    `queue` by child processes.
+
+    When an analysis is instantiated, the execute queue `queue` is passed to
+    it. Each ``Analysis`` class inherits the method
+    :meth:`AnalysisWorker.exec_task` which is used to submit execution tasks
+    to this queue. Thus an analysis process can submit tasks as follows::
+
+        self.exec_task('task_string'[, arguments, ..])
+
+    For example, to increase the progress bar with one step and setting an
+    optional progress string::
+
+        self.exec_task('progress.increase', "Performing statistical tests...")
+
+    This results in a call to attribute `pdialog_handler` which is an instance
+    of :class:`~setlyze.std.ProgressDialogHandler`. The task string for
+    accessing the progress dialog handler has the format ``progress.method``,
+    which translates to a call to ``self.pdialog_handler.method()`` from this
+    class. Thus the above example translates to::
+
+        self.pdialog_handler.increase("Performing statistical tests...")
+
+    This mechanism can also be used to emit application signals. For example::
+
+        self.exec_task('emit', 'analysis-aborted', "Not enough data for this species")
+
+    Translates to::
+
+        gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted', "Not enough data for this species")
+
+    Use method :meth:`set_pdialog_handler` to set the progress dialog handler
+    if progress dialogs need to be updated by child processes. Typical usage of
+    this class looks like this::
+
+        pdialog = setlyze.gui.ProgressDialog(title="Performing analysis",
+            description="Running the analysis...")
+        pdialog_handler = setlyze.std.ProgressDialogHandler(pdialog)
+        pdialog_handler.set_total_steps(10)
+
+        exe = setlyze.analysis.common.ProcessTaskExec()
+        exe.set_pdialog_handler(pdialog_handler)
+        exe.start()
+
+        pool = multiprocessing.Pool()
+        pool.apply_async(Analysis, locations, species, exe.queue)
     """
     def __init__(self, timeout=5):
+        """Create an instance of an execute queue.
+
+        An instance of this class will constantly check for new execute tasks
+        in the queue. If it doesn't find a task in the queue for `timeout`
+        seconds, the instance of this class will terminate.
+        """
         threading.Thread.__init__(self)
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
@@ -213,6 +265,7 @@ class ProcessTaskExec(threading.Thread):
         return self.__class__.__name__
 
     def run(self):
+        """Constantly get and execute tasks from the queue."""
         while True:
             try:
                 task, args, kargs = self.queue.get(True, self.timeout)
@@ -222,7 +275,7 @@ class ProcessTaskExec(threading.Thread):
             if task == 'emit':
                 # Emit a signal.
                 gobject.idle_add(setlyze.std.sender.emit, *args)
-            if task.startswith('progress.'):
+            elif task.startswith('progress.'):
                 # Call a ProgressDialogHandler method. The value of `task`
                 # has the format `progress.method`, which translates to
                 # `self.pdialog_handler.method()`.
@@ -231,11 +284,17 @@ class ProcessTaskExec(threading.Thread):
                     getattr(self.pdialog_handler, task)(*args, **kargs)
 
     def set_pdialog_handler(self, handler):
+        """Set a progress dialog handler `handler`.
+
+        Argument `handler` must be an instance of
+        :class:`~setlyze.std.ProgressDialogHandler`.
+        """
         if not isinstance(handler, setlyze.std.ProgressDialogHandler):
-            raise ValueError("pdialog_handler is not an instance of ProgressDialogHandler")
+            raise ValueError("Argument is not an instance of ProgressDialogHandler")
         self.pdialog_handler = handler
 
     def get_queue(self):
+        """Returns the execute queue."""
         return self.queue
 
 class PrepareAnalysis(object):
