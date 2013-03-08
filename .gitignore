@@ -1,4 +1,5 @@
 *.pyc
+*.pywc
 build/
 dist/
 
