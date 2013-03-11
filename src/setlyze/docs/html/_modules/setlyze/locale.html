@@ -55,7 +55,7 @@
 <span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 <span class="c">#</span>
-<span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
+<span class="c">#  Copyright 2010, 2011, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
 <span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
 <span class="c">#  of species on SETL plates.</span>
@@ -88,7 +88,7 @@
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira, Adam van Adrichem, Fedde Schaeffer&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, 2011, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.2&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.3&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
@@ -97,11 +97,6 @@
 <span class="n">ENGLISH</span> <span class="o">=</span> <span class="p">[</span>
     <span class="p">(</span><span class="s">&#39;dummy&#39;</span><span class="p">,</span>
         <span class="s">&quot;And tomorrow&#39;s forecast is, </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;use-saved-data&#39;</span><span class="p">,</span>
-        <span class="s">&quot;The SETL data from the last run is still on your computer. The &quot;</span>
-        <span class="s">&quot;data was loaded on </span><span class="si">%s</span><span class="s"> from </span><span class="si">%s</span><span class="s">.</span><span class="se">\n\n</span><span class="s">Select Yes to use this possibly old &quot;</span>
-        <span class="s">&quot;data, or select No to load up-to-date data from the remote SETL &quot;</span>
-        <span class="s">&quot;database (requires a direct connection with the SETL database server).&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;select-locations&#39;</span><span class="p">,</span>
         <span class="s">&quot;Below are the available locations. Please select the locations &quot;</span>
         <span class="s">&quot;from which you want to select species.&quot;</span><span class="p">),</span>
@@ -116,24 +111,28 @@
         <span class="s">&quot;Below are the available species for the selected location(s). Please &quot;</span>
         <span class="s">&quot;select the species to be included for the analysis.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">,</span>
-        <span class="s">&#39;Analysis 1 “Spot preference”&#39;</span><span class="p">),</span>
+        <span class="s">&#39;Analysis Spot preference&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis1-descr&#39;</span><span class="p">,</span>
         <span class="s">&quot;Determine if a species has preference for a specific area on SETL &quot;</span>
         <span class="s">&quot;plates.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">,</span>
-        <span class="s">&#39;Analysis 2 “Attraction within species”&#39;</span><span class="p">),</span>
+        <span class="s">&#39;Analysis Attraction within Species&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis2-descr&#39;</span><span class="p">,</span>
         <span class="s">&quot;Determine if a species attracts or repels individuals of its &quot;</span>
         <span class="s">&quot;own kind.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">,</span>
-        <span class="s">&#39;Analysis 3 “Attraction between species”&#39;</span><span class="p">),</span>
+        <span class="s">&#39;Analysis Attraction between Species&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis3-descr&#39;</span><span class="p">,</span>
         <span class="s">&quot;Determine if two different species attract or repel each other.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis4&#39;</span><span class="p">,</span>
-        <span class="s">&#39;Analysis 4 “Relation between species”&#39;</span><span class="p">),</span>
+        <span class="s">&#39;Analysis Relation between Species&#39;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;analysis4-descr&#39;</span><span class="p">,</span>
         <span class="s">&quot;Determine if there is a relation between the presence/absence of two &quot;</span>
         <span class="s">&quot;species in a specific location.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis-batch&#39;</span><span class="p">,</span>
+        <span class="s">&#39;Batch mode&#39;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis-batch-descr&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Enter batch mode to repeat analyses for a selection of species.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;define-plate-areas&#39;</span><span class="p">,</span>
         <span class="s">&quot;Please define the plate areas for the Chi-squared test. You can keep &quot;</span>
         <span class="s">&quot;the default setting, meaning that A, B, C and D are treated as &quot;</span>
@@ -170,7 +169,7 @@
         <span class="s">&quot;You entered an invalid repeats number. The number of repeats for &quot;</span>
         <span class="s">&quot;statistical tests must be 2 or higher.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;empty-plate-areas&#39;</span><span class="p">,</span>
-        <span class="s">&quot;The selected species weren&#39;t found on any SETL-plates from the selected &quot;</span>
+        <span class="s">&quot;The selected species weren&#39;t found on any SETL plates from the selected &quot;</span>
         <span class="s">&quot;locations. Try again with different locations or select more &quot;</span>
         <span class="s">&quot;locations.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;t-plate-areas-definition&#39;</span><span class="p">,</span>
@@ -201,7 +200,10 @@
         <span class="s">&quot;create the CSV files in the required format.</span><span class="se">\n\n</span><span class="s">&quot;</span>
         <span class="s">&quot;The error returned was: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Analysis aborted by user&quot;</span><span class="p">),</span>
+        <span class="s">&quot;Analysis aborted by user.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;no-results&#39;</span><span class="p">,</span>
+        <span class="s">&quot;The analysis did not return any results, most likely because there &quot;</span>
+        <span class="s">&quot;wasn&#39;t enough data for the analysis.&quot;</span><span class="p">),</span>
     <span class="p">]</span>
 
 <span class="c"># Turn the list into a dictionary. This provides easier access to its</span>

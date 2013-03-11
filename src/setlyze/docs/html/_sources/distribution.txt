@@ -106,7 +106,7 @@ folders.
 
 [setlyze-repo]/win32/dependencies
     This folder is for Windows installers of some of SETLyze's pre-requisites that
-    will be incorporated in SETLyze's Windows installer. For SETLyze 0.2, this
+    will be incorporated in SETLyze's Windows installer. For SETLyze 0.3, this
     folder should just contain the installer for R.
 
 [setlyze-repo]/win32/setlyze_setup_modern.nsi

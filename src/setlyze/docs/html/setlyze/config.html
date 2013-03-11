@@ -70,7 +70,7 @@
 </tr>
 <tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">January 21, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -129,6 +129,21 @@ selection is returned.</dd>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.config.ConfigManager.read_from_file">
+<tt class="descname">read_from_file</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.read_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.read_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read settings from a configuration file.</p>
+<p>The configuration file is by default saved to
+<tt class="docutils literal"><span class="pre">~/.setlyze/setlyze.cfg</span></tt>. If a configuration file <tt class="docutils literal"><span class="pre">setlyze.cfg</span></tt>
+is present in the working directory, that file is used instead.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.config.ConfigManager.save_to_file">
+<tt class="descname">save_to_file</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.save_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.save_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save user customizable settings to a configuration file.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.config.ConfigManager.set">
 <tt class="descname">set</tt><big>(</big><em>key</em>, <em>value</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the configuration with name <cite>key</cite> to <cite>value</cite>.</p>
@@ -149,7 +164,7 @@ as the second selection.</dd>
 <dt id="setlyze.config.ConfigManager.set_data_source">
 <tt class="descname">set_data_source</tt><big>(</big><em>source</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.set_data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.set_data_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the configuration with name <tt class="docutils literal"><span class="pre">data-source</span></tt> to <cite>source</cite>.</p>
-<p>Possible values for <cite>source</cite> are <tt class="docutils literal"><span class="pre">setl-database</span></tt>,``MS XLS-files``  and
+<p>Possible values for <cite>source</cite> are <tt class="docutils literal"><span class="pre">setl-database</span></tt>, <tt class="docutils literal"><span class="pre">xls</span></tt> and
 <tt class="docutils literal"><span class="pre">csv-msaccess</span></tt>. The value of this configuration tells the
 application where to look for SETL data. This is especially used
 by the database module.</p>

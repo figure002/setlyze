@@ -14,6 +14,9 @@ Reference List
 .. [#ref-millar] Millar, N. Biology statistics made simple using Excel. *School Science
    Review* **83**, (303).
 
+.. [#ref-buijs] Buijs, A. *Statistiek om mee te werken, Achtste druk*.
+   Wolters-Noordhoff bv Groningen/Houten, The Netherlands.
+
 .. [#ref-dalgaard] Dalgaard, P. *Introductory Statistics With R, Second Edition*. Springer,
    Copenhagen.
 

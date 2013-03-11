@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.analysis.common — Common code for analysis modules &mdash; SETLyze 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze 0.2 documentation" href="../../index.html" />
+    <link rel="up" title="Analysis Modules" href="../../setlyze_modules_analysis.html" />
+    <link rel="next" title="setlyze.analysis.relations — Analysis 4, Relations between species" href="relations.html" />
+    <link rel="prev" title="setlyze.analysis.batch — Batch mode" href="batch.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="relations.html" title="setlyze.analysis.relations — Analysis 4, Relations between species"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="batch.html" title="setlyze.analysis.batch — Batch mode"
+             accesskey="P">previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+
+          <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
+          <li><a href="../../setlyze_modules_analysis.html" accesskey="U">Analysis Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setlyze-analysis-common-common-code-for-analysis-modules">
+<h1><a class="reference internal" href="#module-setlyze.analysis.common" title="setlyze.analysis.common"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.analysis.common</span></tt></a> &#8212; Common code for analysis modules<a class="headerlink" href="#setlyze-analysis-common-common-code-for-analysis-modules" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
+</tr>
+</tbody>
+</table>
+<span class="target" id="module-setlyze.analysis.common"></span><p>This module contains common classes for analysis modules.</p>
+<dl class="class">
+<dt id="setlyze.analysis.common.AnalysisWorker">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.common.</tt><tt class="descname">AnalysisWorker</tt><big>(</big><em>execute_queue=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#AnalysisWorker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.AnalysisWorker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Super class for Analysis classes.</p>
+<dl class="method">
+<dt id="setlyze.analysis.common.AnalysisWorker.exec_task">
+<tt class="descname">exec_task</tt><big>(</big><em>task</em>, <em>*args</em>, <em>**kargs</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#AnalysisWorker.exec_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.AnalysisWorker.exec_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a task to the execute queue.</p>
+<p>Tasks from this queue will be executed by <a class="reference internal" href="#setlyze.analysis.common.ProcessTaskExec" title="setlyze.analysis.common.ProcessTaskExec"><tt class="xref py py-class docutils literal"><span class="pre">ProcessTaskExec</span></tt></a> in
+the main process.</p>
+<p>Argument <cite>task</cite> must be a string that is understood by
+<a class="reference internal" href="#setlyze.analysis.common.ProcessTaskExec" title="setlyze.analysis.common.ProcessTaskExec"><tt class="xref py py-class docutils literal"><span class="pre">ProcessTaskExec</span></tt></a> and can be followed by arguments for the
+specific task.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.AnalysisWorker.on_exit">
+<tt class="descname">on_exit</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#AnalysisWorker.on_exit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.AnalysisWorker.on_exit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Properly exit the thread.</p>
+<p>Tasks:
+* Close the connection to the database.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.AnalysisWorker.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#AnalysisWorker.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.AnalysisWorker.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop the analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.AnalysisWorker.stopped">
+<tt class="descname">stopped</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#AnalysisWorker.stopped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.AnalysisWorker.stopped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the analysis was stopped.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.analysis.common.Pool">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.common.</tt><tt class="descname">Pool</tt><big>(</big><em>size=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Pool"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Pool" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a pool of worker processes.</p>
+<p>An instance of this class provides the convenient <a class="reference internal" href="#setlyze.analysis.common.Pool.stop" title="setlyze.analysis.common.Pool.stop"><tt class="xref py py-meth docutils literal"><span class="pre">stop()</span></tt></a> method for
+stopping all the workers in the pool in an elegant manner. This avoids
+having to call <tt class="xref py py-meth docutils literal"><span class="pre">multiprocessing.Pool.terminate()</span></tt>. A pool instance
+emits the <tt class="docutils literal"><span class="pre">pool-finished</span></tt> signal once all workers are terminated.</p>
+<blockquote>
+<div><div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This class is currently not in use because it is unstable.
+Use of <tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Pool</span></tt> is preferred.</p>
+</div>
+</div></blockquote>
+<dl class="method">
+<dt id="setlyze.analysis.common.Pool.add_task">
+<tt class="descname">add_task</tt><big>(</big><em>func</em>, <em>*args</em>, <em>**kargs</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Pool.add_task"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Pool.add_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a task to the task queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.Pool.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Pool.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Pool.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start all workers.</p>
+<p>Only call this method after calling <a class="reference internal" href="#setlyze.analysis.common.Pool.add_task" title="setlyze.analysis.common.Pool.add_task"><tt class="xref py py-meth docutils literal"><span class="pre">add_task()</span></tt></a> at least once.
+The signal <tt class="docutils literal"><span class="pre">pool-finished</span></tt> is sent when all workers have finished.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.Pool.stop">
+<tt class="descname">stop</tt><big>(</big><em>block=True</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Pool.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Pool.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop all workers.</p>
+<p>Default for <cite>block</cite> is True, causing this function to block until
+all workers have been stopped.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.Pool.stopped">
+<tt class="descname">stopped</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Pool.stopped"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Pool.stopped" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if the pool was stopped.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.analysis.common.PrepareAnalysis">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.common.</tt><tt class="descname">PrepareAnalysis</tt><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Super class for analysis Begin classes.</p>
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.export_reports">
+<tt class="descname">export_reports</tt><big>(</big><em>results</em>, <em>path</em>, <em>prefix=''</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.export_reports"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.export_reports" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export all reports from the reports list <cite>results</cite>.</p>
+<p>Reports are exported to directory <cite>path</cite>. Argument <cite>prefix</cite> is an
+optional prefix for exported reports.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.in_batch_mode">
+<tt class="descname">in_batch_mode</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.in_batch_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.in_batch_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if we are in batch mode.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.on_analysis_aborted">
+<tt class="descname">on_analysis_aborted</tt><big>(</big><em>sender</em>, <em>reason</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.on_analysis_aborted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.on_analysis_aborted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display an information dialog with the reason for the abortion.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.on_analysis_closed">
+<tt class="descname">on_analysis_closed</tt><big>(</big><em>sender=None</em>, <em>data=None</em>, <em>timeout=0</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.on_analysis_closed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.on_analysis_closed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the main window and unset the signal handler.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.on_cancel_button">
+<tt class="descname">on_cancel_button</tt><big>(</big><em>sender</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.on_cancel_button"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.on_cancel_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Callback function for the Cancel button.</p>
+<ul class="simple">
+<li>Close the progress dialog.</li>
+<li>Stop the worker processes.</li>
+<li>Show an info dialog.</li>
+</ul>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.on_display_results">
+<tt class="descname">on_display_results</tt><big>(</big><em>sender</em>, <em>results=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.on_display_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.on_display_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display each report in a separate window.</p>
+<p>This is not a good idea for batch mode, in which case it should be
+redefined in the subclass.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.on_no_results">
+<tt class="descname">on_no_results</tt><big>(</big><em>sender=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.on_no_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.on_no_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a message dialog saying that there were no results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.on_pool_finished">
+<tt class="descname">on_pool_finished</tt><big>(</big><em>results</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.on_pool_finished"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.on_pool_finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the results in graphical window.</p>
+<p>If there are no results, return to the main window.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This callback method cannot do any GUI task directly. While this
+works fine on GNU/Linux systems, this causes the GUI to hang on
+Windows.</p>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.on_select_save_path">
+<tt class="descname">on_select_save_path</tt><big>(</big><em>sender</em>, <em>data</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.on_select_save_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.on_select_save_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Let the user decide whether individual job results should be saved.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.PrepareAnalysis.unset_signal_handlers">
+<tt class="descname">unset_signal_handlers</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#PrepareAnalysis.unset_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.PrepareAnalysis.unset_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect all signal connections with signal handlers
+created by this analysis.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.analysis.common.ProcessTaskExec">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.common.</tt><tt class="descname">ProcessTaskExec</tt><big>(</big><em>timeout=5</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#ProcessTaskExec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.ProcessTaskExec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute child process tasks in the main process.</p>
+<p>An instance of this class provides a public attribute <cite>queue</cite> which can be
+passed to child processes. Child processes can use it to submit tasks for
+execution in the main process. This is to overcome the restriction of
+letting child processes communicate with the main process. An instance of
+this class runs in the main process and will execute tasks submitted to
+<cite>queue</cite> by child processes.</p>
+<p>When an analysis is instantiated, the execute queue <cite>queue</cite> is passed to
+it. Each <tt class="docutils literal"><span class="pre">Analysis</span></tt> class inherits the method
+<a class="reference internal" href="#setlyze.analysis.common.AnalysisWorker.exec_task" title="setlyze.analysis.common.AnalysisWorker.exec_task"><tt class="xref py py-meth docutils literal"><span class="pre">AnalysisWorker.exec_task()</span></tt></a> which is used to submit execution tasks
+to this queue. Thus an analysis process can submit tasks as follows:</p>
+<div class="highlight-python"><pre>self.exec_task('task_string'[, arguments, ..])</pre>
+</div>
+<p>For example, to increase the progress bar with one step and setting an
+optional progress string:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Performing statistical tests...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This results in a call to attribute <cite>pdialog_handler</cite> which is an instance
+of <a class="reference internal" href="../std.html#setlyze.std.ProgressDialogHandler" title="setlyze.std.ProgressDialogHandler"><tt class="xref py py-class docutils literal"><span class="pre">ProgressDialogHandler</span></tt></a>. The task string for
+accessing the progress dialog handler has the format <tt class="docutils literal"><span class="pre">progress.method</span></tt>,
+which translates to a call to <tt class="docutils literal"><span class="pre">self.pdialog_handler.method()</span></tt> from this
+class. Thus the above example translates to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Performing statistical tests...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This mechanism can also be used to emit application signals. For example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;emit&#39;</span><span class="p">,</span> <span class="s">&#39;analysis-aborted&#39;</span><span class="p">,</span> <span class="s">&quot;Not enough data for this species&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Translates to:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;analysis-aborted&#39;</span><span class="p">,</span> <span class="s">&quot;Not enough data for this species&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Use method <a class="reference internal" href="#setlyze.analysis.common.ProcessTaskExec.set_pdialog_handler" title="setlyze.analysis.common.ProcessTaskExec.set_pdialog_handler"><tt class="xref py py-meth docutils literal"><span class="pre">set_pdialog_handler()</span></tt></a> to set the progress dialog handler
+if progress dialogs need to be updated by child processes. Typical usage of
+this class looks like this:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pdialog</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Performing analysis&quot;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s">&quot;Running the analysis...&quot;</span><span class="p">)</span>
+<span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">(</span><span class="n">pdialog</span><span class="p">)</span>
+<span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="n">exe</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">ProcessTaskExec</span><span class="p">()</span>
+<span class="n">exe</span><span class="o">.</span><span class="n">set_pdialog_handler</span><span class="p">(</span><span class="n">pdialog_handler</span><span class="p">)</span>
+<span class="n">exe</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">()</span>
+<span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">Analysis</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">exe</span><span class="o">.</span><span class="n">queue</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="setlyze.analysis.common.ProcessTaskExec.get_queue">
+<tt class="descname">get_queue</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#ProcessTaskExec.get_queue"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.ProcessTaskExec.get_queue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the execute queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.ProcessTaskExec.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#ProcessTaskExec.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.ProcessTaskExec.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constantly get and execute tasks from the queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.ProcessTaskExec.set_pdialog_handler">
+<tt class="descname">set_pdialog_handler</tt><big>(</big><em>handler</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#ProcessTaskExec.set_pdialog_handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.ProcessTaskExec.set_pdialog_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a progress dialog handler <cite>handler</cite>.</p>
+<p>Argument <cite>handler</cite> must be an instance of
+<a class="reference internal" href="../std.html#setlyze.std.ProgressDialogHandler" title="setlyze.std.ProgressDialogHandler"><tt class="xref py py-class docutils literal"><span class="pre">ProgressDialogHandler</span></tt></a>.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.analysis.common.Worker">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.common.</tt><tt class="descname">Worker</tt><big>(</big><em>input</em>, <em>output</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Worker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Worker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Worker process instantiated by <a class="reference internal" href="#setlyze.analysis.common.Pool" title="setlyze.analysis.common.Pool"><tt class="xref py py-class docutils literal"><span class="pre">Pool</span></tt></a>.</p>
+<p>This class can be used to create a number of workers which will each
+execute tasks from a queue (instance of <a class="reference external" href="http://docs.python.org/2.7/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt></a>).
+Each task is a tuple with a function followed by arguments and keyword args
+for that function <tt class="docutils literal"><span class="pre">(func,</span> <span class="pre">*args,</span> <span class="pre">**kwargs)</span></tt>. Each worker will obtain a task
+from the queue and execute the function with the arguments. Results from
+individual tasks are passed to a results queue.</p>
+<p>An instance of this class will terminate immediately when the task queue is
+empty.</p>
+<dl class="method">
+<dt id="setlyze.analysis.common.Worker.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Worker.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Worker.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute tasks in the queue.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.common.Worker.stop">
+<tt class="descname">stop</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#Worker.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.Worker.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop executing tasks.</p>
+<p>You still have to wait for an active task to finish.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.analysis.common.calculate">
+<tt class="descclassname">setlyze.analysis.common.</tt><tt class="descname">calculate</tt><big>(</big><em>cls</em>, <em>args</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an instance of class <cite>cls</cite> and call its run() method.</p>
+<p>Arguments <cite>args</cite> are unpacked and passed to <cite>cls</cite> when it is instantiated.
+Returns the result returned by <cite>cls</cite>.run().</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.analysis.common.calculatestar">
+<tt class="descclassname">setlyze.analysis.common.</tt><tt class="descname">calculatestar</tt><big>(</big><em>args</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/common.html#calculatestar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.common.calculatestar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unpack the argument <cite>args</cite> and pass them to <a class="reference internal" href="#setlyze.analysis.common.calculate" title="setlyze.analysis.common.calculate"><tt class="xref py py-meth docutils literal"><span class="pre">calculate()</span></tt></a>.</p>
+<p>Argument <cite>args</cite> must be a list of two items: a class definition and a list
+of arguments for instantiating the class. Method <a class="reference internal" href="#setlyze.analysis.common.calculate" title="setlyze.analysis.common.calculate"><tt class="xref py py-meth docutils literal"><span class="pre">calculate()</span></tt></a> will
+take care of instantiating the class and passing the arguments.</p>
+<p>Returns the result returned by <a class="reference internal" href="#setlyze.analysis.common.calculate" title="setlyze.analysis.common.calculate"><tt class="xref py py-meth docutils literal"><span class="pre">calculate()</span></tt></a>.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/setlyze-logo.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="batch.html"
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.batch</span></tt> &#8212; Batch mode</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="relations.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.relations</span></tt> &#8212; Analysis 4, Relations between species</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/setlyze/analysis/common.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="relations.html" title="setlyze.analysis.relations — Analysis 4, Relations between species"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="batch.html" title="setlyze.analysis.batch — Batch mode"
+             >previous</a> |</li>
+    <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+
+          <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
+          <li><a href="../../setlyze_modules_analysis.html" >Analysis Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, 2011, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

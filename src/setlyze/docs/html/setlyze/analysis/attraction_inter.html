@@ -71,7 +71,7 @@
 </tr>
 <tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">January 21, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -109,69 +109,8 @@ the Wilcoxon rank-sum test and the Chi-squared test.</li>
 <li>Show the analysis report to the user.</li>
 </ol>
 <dl class="class">
-<dt id="setlyze.analysis.attraction_inter.Begin">
-<em class="property">class </em><tt class="descclassname">setlyze.analysis.attraction_inter.</tt><tt class="descname">Begin</tt><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Make the preparations for analysis 3:</p>
-<ol class="arabic simple">
-<li>Show a list of all localities and let the user perform a localities
-selection.</li>
-<li>Show a list of all species that match the locations selection and
-let the user perform the first species selection.</li>
-<li>Show a list of all species that match the locations selection and
-let the user perform the second species selection.</li>
-<li>Start the analysis.</li>
-<li>Show the analysis report to the user.</li>
-</ol>
-<p>Design Part: 1.5.1</p>
-<dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Begin.destroy_handler_connections">
-<tt class="descname">destroy_handler_connections</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.destroy_handler_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.destroy_handler_connections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Disconnect all signal connections with signal handlers created
-by this analysis.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Begin.handle_application_signals">
-<tt class="descname">handle_application_signals</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.handle_application_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.handle_application_signals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Respond to signals emitted by the application.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Begin.on_analysis_closed">
-<tt class="descname">on_analysis_closed</tt><big>(</big><em>obj=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_analysis_closed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_analysis_closed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Show the main window and destroy the handler connections.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Begin.on_display_report">
-<tt class="descname">on_display_report</tt><big>(</big><em>sender</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_display_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_display_report" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display the report in a window.</p>
-<p>Design Part: 1.68</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Begin.on_select_locations">
-<tt class="descname">on_select_locations</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_select_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_select_locations" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display the window for selecting the locations.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Begin.on_select_species">
-<tt class="descname">on_select_species</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_select_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_select_species" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display the window for selecting the species.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Begin.on_start_analysis">
-<tt class="descname">on_start_analysis</tt><big>(</big><em>sender=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_start_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_start_analysis" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start the analysis.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
-<dt id="setlyze.analysis.attraction_inter.Start">
-<em class="property">class </em><tt class="descclassname">setlyze.analysis.attraction_inter.</tt><tt class="descname">Start</tt><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.attraction_inter.</tt><tt class="descname">Analysis</tt><big>(</big><em>locations_selections</em>, <em>species_selections</em>, <em>execute_queue=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the calculations for analysis 3.</p>
 <ol class="arabic simple">
 <li>Get all SETL records that match the localities + first species
@@ -197,8 +136,8 @@ the Wilcoxon rank-sum test and the Chi-squared test.</li>
 </ol>
 <p>Design Part: 1.5.2</p>
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.calculate_distances_inter">
-<tt class="descname">calculate_distances_inter</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.calculate_distances_inter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter">
+<tt class="descname">calculate_distances_inter</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.calculate_distances_inter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the inter-specific spot distances for each plate
 and save the distances to table &#8220;spot_distances_observed&#8221; in
 the local database.</p>
@@ -206,8 +145,8 @@ the local database.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected">
-<tt class="descname">calculate_distances_inter_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.calculate_distances_inter_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter_expected">
+<tt class="descname">calculate_distances_inter_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.calculate_distances_inter_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter_expected" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the expected distances based on the observed
 inter-specific distances and save these to table
 &#8220;spot_distances_expected&#8221; in the local database.</p>
@@ -215,8 +154,8 @@ inter-specific distances and save these to table
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.calculate_significance">
-<tt class="descname">calculate_significance</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.calculate_significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.calculate_significance" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis.calculate_significance">
+<tt class="descname">calculate_significance</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.calculate_significance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.calculate_significance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform statistical tests to check if the differences between
 the means of the two sets of distances are statistically
 significant.</p>
@@ -272,9 +211,9 @@ more details. Both tests are performed on each ratios group.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats">
-<tt class="descname">calculate_significance_for_repeats</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.calculate_significance_for_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats" title="Permalink to this definition">¶</a></dt>
-<dd><p>This method does the same Wilcoxon test from <a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_significance" title="setlyze.analysis.attraction_inter.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a>,
+<dt id="setlyze.analysis.attraction_inter.Analysis.calculate_significance_for_repeats">
+<tt class="descname">calculate_significance_for_repeats</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.calculate_significance_for_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.calculate_significance_for_repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>This method does the same Wilcoxon test from <a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.calculate_significance" title="setlyze.analysis.attraction_inter.Analysis.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a>,
 but instead is designed to be called repeatedly, saving the results
 of the repeated test. This method doesn&#8217;t save the detailed
 results of the Wilcoxon test, but just saves whether the p-value
@@ -289,34 +228,34 @@ setting &#8220;test-repeats&#8221;.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.generate_report">
-<tt class="descname">generate_report</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.generate_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.generate_report" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis.generate_report">
+<tt class="descname">generate_report</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.generate_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.generate_report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate the analysis report.</p>
 <p>Design Part: 1.15</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.generate_spot_ratio_groups">
-<tt class="descname">generate_spot_ratio_groups</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.generate_spot_ratio_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.generate_spot_ratio_groups" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis.generate_spot_ratio_groups">
+<tt class="descname">generate_spot_ratio_groups</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.generate_spot_ratio_groups"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.generate_spot_ratio_groups" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return an iterator that returns the ratio groups.</p>
 <p>Each returned group is a list of ratios in the form of two-item
 tuples.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.repeat_test">
-<tt class="descname">repeat_test</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.repeat_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.repeat_test" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis.repeat_test">
+<tt class="descname">repeat_test</tt><big>(</big><em>number</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.repeat_test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.repeat_test" title="Permalink to this definition">¶</a></dt>
 <dd><p>Repeats the siginificance test <cite>number</cite> times. The significance
-test is performed by <a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a>.</p>
-<p>Each time before <a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats" title="setlyze.analysis.attraction_inter.Start.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a> is called,
-<a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected" title="setlyze.analysis.attraction_inter.Start.calculate_distances_inter_expected"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_inter_expected()</span></tt></a> is called to re-calculate the
+test is performed by <a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.calculate_significance_for_repeats" title="setlyze.analysis.attraction_inter.Analysis.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a>.</p>
+<p>Each time before <a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.calculate_significance_for_repeats" title="setlyze.analysis.attraction_inter.Analysis.calculate_significance_for_repeats"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance_for_repeats()</span></tt></a> is called,
+<a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter_expected" title="setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter_expected"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_inter_expected()</span></tt></a> is called to re-calculate the
 expected values (which are random).</p>
 <p>Design Part: 1.105</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.analysis.attraction_inter.Start.run">
-<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Start.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Start.run" title="Permalink to this definition">¶</a></dt>
+<dt id="setlyze.analysis.attraction_inter.Analysis.run">
+<tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Analysis.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Analysis.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call the necessary methods for the analysis in the right order:
 * For the first species selection:</p>
 <blockquote>
@@ -344,17 +283,121 @@ expected values (which are random).</p>
 </li>
 <li><p class="first"><a class="reference internal" href="../database.html#setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table" title="setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table"><tt class="xref py py-meth docutils literal"><span class="pre">fill_plate_spot_totals_table()</span></tt></a></p>
 </li>
-<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_distances_inter" title="setlyze.analysis.attraction_inter.Start.calculate_distances_inter"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_inter()</span></tt></a></p>
+<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter" title="setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_distances_inter()</span></tt></a></p>
 </li>
-<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.repeat_test" title="setlyze.analysis.attraction_inter.Start.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">repeat_test()</span></tt></a></p>
+<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.repeat_test" title="setlyze.analysis.attraction_inter.Analysis.repeat_test"><tt class="xref py py-meth docutils literal"><span class="pre">repeat_test()</span></tt></a></p>
 </li>
-<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.calculate_significance" title="setlyze.analysis.attraction_inter.Start.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a></p>
+<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.calculate_significance" title="setlyze.analysis.attraction_inter.Analysis.calculate_significance"><tt class="xref py py-meth docutils literal"><span class="pre">calculate_significance()</span></tt></a></p>
 </li>
-<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Start.generate_report" title="setlyze.analysis.attraction_inter.Start.generate_report"><tt class="xref py py-meth docutils literal"><span class="pre">generate_report()</span></tt></a></p>
+<li><p class="first"><a class="reference internal" href="#setlyze.analysis.attraction_inter.Analysis.generate_report" title="setlyze.analysis.attraction_inter.Analysis.generate_report"><tt class="xref py py-meth docutils literal"><span class="pre">generate_report()</span></tt></a></p>
 </li>
 </ul>
 </div></blockquote>
 <p>Design Part: 1.60</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.analysis.attraction_inter.Begin">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.attraction_inter.</tt><tt class="descname">Begin</tt><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the preparations for analysis 3:</p>
+<ol class="arabic simple">
+<li>Show a list of all localities and let the user perform a localities
+selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the first species selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the second species selection.</li>
+<li>Start the analysis.</li>
+<li>Show the analysis report to the user.</li>
+</ol>
+<p>Design Part: 1.5.1</p>
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.Begin.on_select_locations">
+<tt class="descname">on_select_locations</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_select_locations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_select_locations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the window for selecting the locations.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.Begin.on_select_species">
+<tt class="descname">on_select_species</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_select_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_select_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the window for selecting the species.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.Begin.on_start_analysis">
+<tt class="descname">on_start_analysis</tt><big>(</big><em>sender=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.on_start_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.on_start_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start the analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.Begin.set_signal_handlers">
+<tt class="descname">set_signal_handlers</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#Begin.set_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.Begin.set_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Respond to signals emitted by the application.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.analysis.attraction_inter.BeginBatch">
+<em class="property">class </em><tt class="descclassname">setlyze.analysis.attraction_inter.</tt><tt class="descname">BeginBatch</tt><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#BeginBatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.BeginBatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make the preparations for batch analysis:</p>
+<ol class="arabic simple">
+<li>Show a list of all localities and let the user perform a localities
+selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the first species selection.</li>
+<li>Show a list of all species that match the locations selection and
+let the user perform the second species selection.</li>
+<li>Start the analysis.</li>
+<li>Show the analysis report to the user.</li>
+</ol>
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.BeginBatch.on_display_results">
+<tt class="descname">on_display_results</tt><big>(</big><em>sender</em>, <em>results=</em><span class="optional">[</span><span class="optional">]</span><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#BeginBatch.on_display_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.BeginBatch.on_display_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the results.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.BeginBatch.on_select_species">
+<tt class="descname">on_select_species</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#BeginBatch.on_select_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.BeginBatch.on_select_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the window for selecting the species.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.BeginBatch.on_start_analysis">
+<tt class="descname">on_start_analysis</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#BeginBatch.on_start_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.BeginBatch.on_start_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the analysis in batch mode.</p>
+<p>Repeat the analysis for each possible combination of two species for
+the two species selections.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.BeginBatch.set_signal_handlers">
+<tt class="descname">set_signal_handlers</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#BeginBatch.set_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.BeginBatch.set_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Respond to signals emitted by the application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.analysis.attraction_inter.BeginBatch.summarize_results">
+<tt class="descname">summarize_results</tt><big>(</big><em>results</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/attraction_inter.html#BeginBatch.summarize_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.attraction_inter.BeginBatch.summarize_results" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join results from multiple analyses to a single report.</p>
+<p>Creates a dictionary in the following format</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;columns_over&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon rank sum test&#39;</span><span class="p">,</span> <span class="s">&#39;Chi-squared test&#39;</span><span class="p">),</span>
+        <span class="s">&#39;columns_over_spans&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+        <span class="s">&#39;columns&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Species A&#39;</span><span class="p">,</span> <span class="s">&#39;Species B&#39;</span><span class="p">,</span> <span class="s">&#39;n (plates)&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon 1-5&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;5&#39;</span><span class="p">,</span> <span class="s">&#39;Chi sq 1-5&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;5&#39;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s">&#39;results&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s">&#39;Obelia dichotoma&#39;</span><span class="p">,</span> <span class="s">&#39;Obelia geniculata&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span>
+        <span class="p">[</span><span class="s">&#39;Obelia dichotoma&#39;</span><span class="p">,</span> <span class="s">&#39;Obelia longissima&#39;</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">],</span>
+        <span class="o">...</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </dd></dl>

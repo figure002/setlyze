@@ -55,7 +55,7 @@
 <span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- coding: utf-8 -*-</span>
 <span class="c">#</span>
-<span class="c">#  Copyright 2010, GiMaRIS &lt;info@gimaris.com&gt;</span>
+<span class="c">#  Copyright 2010, 2011, GiMaRIS &lt;info@gimaris.com&gt;</span>
 <span class="c">#</span>
 <span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
 <span class="c">#  of species on SETL plates.</span>
@@ -98,13 +98,13 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">ConfigParser</span>
 
 <span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira, Adam van Adrichem, Fedde Schaeffer&quot;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, 2011, GiMaRIS&quot;</span>
 <span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
-<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.2&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.3&quot;</span>
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
@@ -117,6 +117,19 @@
 
 <span class="c"># Path to the local database file.</span>
 <span class="n">DB_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s">&#39;setl_local.db&#39;</span><span class="p">)</span>
+
+<span class="c"># Path to the configurations file.</span>
+<span class="n">CONF_FILE</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s">&#39;setlyze.conf&#39;</span><span class="p">)</span>
+
+<span class="c"># Set the default number of processes for batch mode from the CPU count.</span>
+<span class="c"># By default use 90% of the number of CPUs.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">CPU_COUNT</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="c"># Default to 1 if the CPU count can&#39;t be defined.</span>
+    <span class="n">CPU_COUNT</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">processes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">CPU_COUNT</span><span class="o">*</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">processes</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span> <span class="n">processes</span> <span class="o">=</span> <span class="mi">1</span>
 
 <span class="c"># The probability for each spot distance on a 5x5 SETL plate</span>
 <span class="c"># (intra-specific).</span>
@@ -203,9 +216,15 @@
     <span class="c"># Probabilities for each spot distance.</span>
     <span class="p">(</span><span class="s">&#39;spot-dist-to-prob-inter&#39;</span><span class="p">,</span> <span class="n">SPOT_DIST_TO_PROB_INTER</span><span class="p">),</span>
     <span class="c"># Number of repeats to perform for statistical tests.</span>
-    <span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
-    <span class="c"># Is the cancel button pressed ?</span>
-    <span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="c"># Save individual batch results.</span>
+    <span class="p">(</span><span class="s">&#39;save-batch-job-results&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
+    <span class="c"># Save path for individual batch results.</span>
+    <span class="p">(</span><span class="s">&#39;job-results-save-path&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
+    <span class="c"># Number of CPUs.</span>
+    <span class="p">(</span><span class="s">&#39;cpu-count&#39;</span><span class="p">,</span> <span class="n">CPU_COUNT</span><span class="p">),</span>
+    <span class="c"># Number of concurrent processes for batch mode.</span>
+    <span class="p">(</span><span class="s">&#39;concurrent-processes&#39;</span><span class="p">,</span> <span class="n">processes</span><span class="p">),</span>
 <span class="p">]</span>
 
 <div class="viewcode-block" id="ConfigManager"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager">[docs]</a><span class="k">class</span> <span class="nc">ConfigManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -228,7 +247,50 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">DEFAULT_CONFIG</span><span class="p">)</span>
+        <span class="c"># Try to read configurations from a config file.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">()</span>
 
+<div class="viewcode-block" id="ConfigManager.read_from_file"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.read_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read settings from a configuration file.</span>
+
+<span class="sd">        The configuration file is by default saved to</span>
+<span class="sd">        ``~/.setlyze/setlyze.cfg``. If a configuration file ``setlyze.cfg``</span>
+<span class="sd">        is present in the working directory, that file is used instead.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ints</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span><span class="s">&#39;concurrent-processes&#39;</span><span class="p">)</span>
+        <span class="n">floats</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">SafeConfigParser</span><span class="p">()</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">([</span><span class="s">&#39;setlyze.cfg&#39;</span><span class="p">,</span> <span class="n">CONF_FILE</span><span class="p">])</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;general&#39;</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ints</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">getint</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+                        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">floats</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">getfloat</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="c"># Skip the configuration if we fail to set it.</span>
+                        <span class="k">continue</span>
+</div>
+<div class="viewcode-block" id="ConfigManager.save_to_file"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.save_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">save_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save user customizable settings to a configuration file.&quot;&quot;&quot;</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">SafeConfigParser</span><span class="p">()</span>
+        <span class="c"># Set the configurations.</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">,</span> <span class="s">&#39;alpha-level&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">,</span> <span class="s">&#39;test-repeats&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">)))</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">,</span> <span class="s">&#39;concurrent-processes&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;concurrent-processes&#39;</span><span class="p">)))</span>
+        <span class="c"># Check if the data folder exists. If not, create it.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">)</span>
+        <span class="c"># Create new configurations file.</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">CONF_FILE</span><span class="p">,</span> <span class="s">&#39;w&#39;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
 <div class="viewcode-block" id="ConfigManager.set"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the configuration with name `key` to `value`.</span>
 
@@ -274,7 +336,7 @@
 <div class="viewcode-block" id="ConfigManager.set_data_source"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.set_data_source">[docs]</a>    <span class="k">def</span> <span class="nf">set_data_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the configuration with name ``data-source`` to `source`.</span>
 
-<span class="sd">        Possible values for `source` are ``setl-database``,``MS XLS-files``  and</span>
+<span class="sd">        Possible values for `source` are ``setl-database``, ``xls`` and</span>
 <span class="sd">        ``csv-msaccess``. The value of this configuration tells the</span>
 <span class="sd">        application where to look for SETL data. This is especially used</span>
 <span class="sd">        by the database module.</span>
@@ -311,8 +373,9 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unknown key &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="s">&#39;species-selection&#39;</span><span class="p">):</span>
-            <span class="n">slot</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;slot&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span>
+            <span class="n">slot</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;slot&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 

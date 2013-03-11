@@ -1,0 +1,621 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.analysis.common &mdash; SETLyze 0.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze 0.2 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for setlyze.analysis.common</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="c">#</span>
+<span class="c">#  Copyright 2010, 2011, GiMaRIS &lt;info@gimaris.com&gt;</span>
+<span class="c">#</span>
+<span class="c">#  This file is part of SETLyze - A tool for analyzing the settlement</span>
+<span class="c">#  of species on SETL plates.</span>
+<span class="c">#</span>
+<span class="c">#  SETLyze is free software: you can redistribute it and/or modify</span>
+<span class="c">#  it under the terms of the GNU General Public License as published by</span>
+<span class="c">#  the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c">#  (at your option) any later version.</span>
+<span class="c">#</span>
+<span class="c">#  SETLyze is distributed in the hope that it will be useful,</span>
+<span class="c">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c">#  GNU General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c">#  You should have received a copy of the GNU General Public License</span>
+<span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;This module contains common classes for analysis modules.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">gobject</span>
+<span class="kn">import</span> <span class="nn">pygtk</span>
+<span class="n">pygtk</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s">&#39;2.0&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">gtk</span>
+
+<span class="kn">import</span> <span class="nn">setlyze.config</span>
+<span class="kn">import</span> <span class="nn">setlyze.std</span>
+<span class="kn">import</span> <span class="nn">setlyze.report</span>
+
+<span class="n">__author__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s">&quot;Copyright 2010, 2011, GiMaRIS&quot;</span>
+<span class="n">__license__</span> <span class="o">=</span> <span class="s">&quot;GPL3&quot;</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s">&quot;0.3&quot;</span>
+<span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
+<span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2013/02/02&quot;</span>
+
+<div class="viewcode-block" id="calculate"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.calculate">[docs]</a><span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create an instance of class `cls` and call its run() method.</span>
+
+<span class="sd">    Arguments `args` are unpacked and passed to `cls` when it is instantiated.</span>
+<span class="sd">    Returns the result returned by `cls`&#39;s run() method.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">obj</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">result</span>
+</div>
+<div class="viewcode-block" id="calculatestar"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.calculatestar">[docs]</a><span class="k">def</span> <span class="nf">calculatestar</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Unpack the argument `args` and pass them to :meth:`calculate`.</span>
+
+<span class="sd">    Argument `args` must be a list of two items: a class definition and a list</span>
+<span class="sd">    of arguments for instantiating the class. Method :meth:`calculate` will</span>
+<span class="sd">    take care of instantiating the class and passing the arguments.</span>
+
+<span class="sd">    Returns the result returned by :meth:`calculate`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">calculate</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Pool"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Pool">[docs]</a><span class="k">class</span> <span class="nc">Pool</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create a pool of worker processes.</span>
+
+<span class="sd">    An instance of this class provides the convenient :meth:`stop` method for</span>
+<span class="sd">    stopping all the workers in the pool in an elegant manner. This avoids</span>
+<span class="sd">    having to call :py:meth:`multiprocessing.Pool.terminate`. A pool instance</span>
+<span class="sd">    emits the ``pool-finished`` signal once all workers are terminated.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">           This class is currently not in use because it is unstable.</span>
+<span class="sd">           Use of :py:class:`multiprocessing.Pool` is preferred.</span>
+<span class="sd">   &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Spawn workers.</span>
+
+<span class="sd">        Argument `size` is an integer defining the number of workers that</span>
+<span class="sd">        will be spawned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">done_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">workers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c"># If no pool size is set, default to the number of CPUs.</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">size</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="n">size</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">,</span> \
+            <span class="s">&quot;Pool size must me an integer&quot;</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="c"># Spawn workers, but don&#39;t start them yet.</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">):</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">Worker</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">task_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done_queue</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Pool.add_task"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Pool.add_task">[docs]</a>    <span class="k">def</span> <span class="nf">add_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a task to the task queue.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">task_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kargs</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Pool.run"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Pool.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start all workers.</span>
+
+<span class="sd">        Only call this method after calling :meth:`add_task` at least once.</span>
+<span class="sd">        The signal ``pool-finished`` is sent when all workers have finished.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">:</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="c"># Wait for all workers to finish.</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">:</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+        <span class="c"># Send the signal that all workers have finished.</span>
+        <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;pool-finished&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">done_queue</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Pool.stop"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Pool.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop all workers.</span>
+
+<span class="sd">        Default for `block` is True, causing this function to block until</span>
+<span class="sd">        all workers have been stopped.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Received stop signal&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+        <span class="c"># Stop all workers.</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">:</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="c"># Wait for all workers to stop.</span>
+        <span class="k">if</span> <span class="n">block</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">workers</span><span class="p">:</span>
+                <span class="n">w</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Pool.stopped"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Pool.stopped">[docs]</a>    <span class="k">def</span> <span class="nf">stopped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the pool was stopped.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span><span class="o">.</span><span class="n">isSet</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="Worker"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Worker">[docs]</a><span class="k">class</span> <span class="nc">Worker</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Worker process instantiated by :class:`Pool`.</span>
+
+<span class="sd">    This class can be used to create a number of workers which will each</span>
+<span class="sd">    execute tasks from a queue (instance of :py:class:`multiprocessing.Queue`).</span>
+<span class="sd">    Each task is a tuple with a function followed by arguments and keyword args</span>
+<span class="sd">    for that function ``(func, *args, **kwargs)``. Each worker will obtain a task</span>
+<span class="sd">    from the queue and execute the function with the arguments. Results from</span>
+<span class="sd">    individual tasks are passed to a results queue.</span>
+
+<span class="sd">    An instance of this class will terminate immediately when the task queue is</span>
+<span class="sd">    empty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">input</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the `input` and `output` queue.</span>
+
+<span class="sd">        Both `input` and `output` should be different instances of</span>
+<span class="sd">        :py:class:`multiprocessing.Queue`. Queue `input` will be used to obtain</span>
+<span class="sd">        tasks from, queue `output` will be used to pass task results to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input</span> <span class="o">=</span> <span class="nb">input</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="bp">True</span>
+
+<div class="viewcode-block" id="Worker.run"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Worker.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Execute tasks in the queue.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+            <span class="c"># Try to get a task from the queue. If the queue is empty, terminate.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">func</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Worker </span><span class="si">%s</span><span class="s"> got bored and quit&quot;</span> <span class="o">%</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+                <span class="k">return</span>
+            <span class="c"># Execute the task.</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+            <span class="c"># Pass the task result to the output queue.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Worker.stop"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.Worker.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop executing tasks.</span>
+
+<span class="sd">        You still have to wait for an active task to finish.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Received stop signal&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">active</span> <span class="o">=</span> <span class="bp">False</span>
+</div></div>
+<div class="viewcode-block" id="ProcessTaskExec"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.ProcessTaskExec">[docs]</a><span class="k">class</span> <span class="nc">ProcessTaskExec</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Execute child process tasks in the main process.</span>
+
+<span class="sd">    An instance of this class provides a public attribute `queue` which can be</span>
+<span class="sd">    passed to child processes. Child processes can use it to submit tasks for</span>
+<span class="sd">    execution in the main process. This is to overcome the restriction of</span>
+<span class="sd">    letting child processes communicate with the main process. An instance of</span>
+<span class="sd">    this class runs in the main process and will execute tasks submitted to</span>
+<span class="sd">    `queue` by child processes.</span>
+
+<span class="sd">    When an analysis is instantiated, the execute queue `queue` is passed to</span>
+<span class="sd">    it. Each ``Analysis`` class inherits the method</span>
+<span class="sd">    :meth:`AnalysisWorker.exec_task` which is used to submit execution tasks</span>
+<span class="sd">    to this queue. Thus an analysis process can submit tasks as follows::</span>
+
+<span class="sd">        self.exec_task(&#39;task_string&#39;[, arguments, ..])</span>
+
+<span class="sd">    For example, to increase the progress bar with one step and setting an</span>
+<span class="sd">    optional progress string::</span>
+
+<span class="sd">        self.exec_task(&#39;progress.increase&#39;, &quot;Performing statistical tests...&quot;)</span>
+
+<span class="sd">    This results in a call to attribute `pdialog_handler` which is an instance</span>
+<span class="sd">    of :class:`~setlyze.std.ProgressDialogHandler`. The task string for</span>
+<span class="sd">    accessing the progress dialog handler has the format ``progress.method``,</span>
+<span class="sd">    which translates to a call to ``self.pdialog_handler.method()`` from this</span>
+<span class="sd">    class. Thus the above example translates to::</span>
+
+<span class="sd">        self.pdialog_handler.increase(&quot;Performing statistical tests...&quot;)</span>
+
+<span class="sd">    This mechanism can also be used to emit application signals. For example::</span>
+
+<span class="sd">        self.exec_task(&#39;emit&#39;, &#39;analysis-aborted&#39;, &quot;Not enough data for this species&quot;)</span>
+
+<span class="sd">    Translates to::</span>
+
+<span class="sd">        gobject.idle_add(setlyze.std.sender.emit, &#39;analysis-aborted&#39;, &quot;Not enough data for this species&quot;)</span>
+
+<span class="sd">    Use method :meth:`set_pdialog_handler` to set the progress dialog handler</span>
+<span class="sd">    if progress dialogs need to be updated by child processes. Typical usage of</span>
+<span class="sd">    this class looks like this::</span>
+
+<span class="sd">        pdialog = setlyze.gui.ProgressDialog(title=&quot;Performing analysis&quot;,</span>
+<span class="sd">            description=&quot;Running the analysis...&quot;)</span>
+<span class="sd">        pdialog_handler = setlyze.std.ProgressDialogHandler(pdialog)</span>
+<span class="sd">        pdialog_handler.set_total_steps(10)</span>
+
+<span class="sd">        exe = setlyze.analysis.common.ProcessTaskExec()</span>
+<span class="sd">        exe.set_pdialog_handler(pdialog_handler)</span>
+<span class="sd">        exe.start()</span>
+
+<span class="sd">        pool = multiprocessing.Pool()</span>
+<span class="sd">        pool.apply_async(Analysis, locations, species, exe.queue)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create an instance of an execute queue.</span>
+
+<span class="sd">        An instance of this class will constantly check for new execute tasks</span>
+<span class="sd">        in the queue. If it doesn&#39;t find a task in the queue for `timeout`</span>
+<span class="sd">        seconds, the instance of this class will terminate.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">manager</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">manager</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span>
+
+<div class="viewcode-block" id="ProcessTaskExec.run"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.ProcessTaskExec.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constantly get and execute tasks from the queue.&quot;&quot;&quot;</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">task</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">True</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> quitted&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="n">task</span> <span class="o">==</span> <span class="s">&#39;emit&#39;</span><span class="p">:</span>
+                <span class="c"># Emit a signal.</span>
+                <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">task</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&#39;progress.&#39;</span><span class="p">):</span>
+                <span class="c"># Call a ProgressDialogHandler method. The value of `task`</span>
+                <span class="c"># has the format `progress.method`, which translates to</span>
+                <span class="c"># `self.pdialog_handler.method()`.</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="p">:</span>
+                    <span class="n">task</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="p">,</span> <span class="n">task</span><span class="p">)(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProcessTaskExec.set_pdialog_handler"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.ProcessTaskExec.set_pdialog_handler">[docs]</a>    <span class="k">def</span> <span class="nf">set_pdialog_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handler</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a progress dialog handler `handler`.</span>
+
+<span class="sd">        Argument `handler` must be an instance of</span>
+<span class="sd">        :class:`~setlyze.std.ProgressDialogHandler`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">handler</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Argument is not an instance of ProgressDialogHandler&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">handler</span>
+</div>
+<div class="viewcode-block" id="ProcessTaskExec.get_queue"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.ProcessTaskExec.get_queue">[docs]</a>    <span class="k">def</span> <span class="nf">get_queue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the execute queue.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span>
+</div></div>
+<div class="viewcode-block" id="PrepareAnalysis"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis">[docs]</a><span class="k">class</span> <span class="nc">PrepareAnalysis</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Super class for analysis Begin classes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_handlers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_individual_results</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_individual_results</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;save-batch-job-results&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_path</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;job-results-save-path&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">report_prefix</span> <span class="o">=</span> <span class="s">&quot;report_&quot;</span>
+
+<div class="viewcode-block" id="PrepareAnalysis.in_batch_mode"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.in_batch_mode">[docs]</a>    <span class="k">def</span> <span class="nf">in_batch_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if we are in batch mode.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span> <span class="o">==</span> <span class="s">&#39;BeginBatch&#39;</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.unset_signal_handlers"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.unset_signal_handlers">[docs]</a>    <span class="k">def</span> <span class="nf">unset_signal_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Disconnect all signal connections with signal handlers</span>
+<span class="sd">        created by this analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">handler</span><span class="p">:</span>
+                <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">disconnect</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.on_analysis_aborted"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.on_analysis_aborted">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_aborted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">reason</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display an information dialog with the reason for the abortion.&quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+            <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Analysis aborted&quot;</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="s">&quot;The analysis was aborted for the &quot;</span>
+            <span class="s">&quot;following reason:</span><span class="se">\n\n</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">reason</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.on_cancel_button"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.on_cancel_button">[docs]</a>    <span class="k">def</span> <span class="nf">on_cancel_button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Callback function for the Cancel button.</span>
+
+<span class="sd">        * Close the progress dialog.</span>
+<span class="sd">        * Stop the worker processes.</span>
+<span class="sd">        * Show an info dialog.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Destroy the progress dialog.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="c"># Stop all analysis jobs.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">:</span>
+            <span class="c"># TODO: Find a more elegant way to stop processes.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+
+        <span class="c"># Show an info dialog.</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+            <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Analysis canceled&quot;</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">))</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+
+        <span class="c"># Method on_pool_finished() will not be called when calling</span>
+        <span class="c"># pool.terminate(), so close manually.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.on_analysis_closed"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.on_analysis_closed">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_closed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show the main window and unset the signal handler.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">timeout</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+
+        <span class="c"># Destroy the progress dialog.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="p">:</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">)</span>
+
+        <span class="c"># This causes the main window to show.</span>
+        <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;analysis-closed&#39;</span><span class="p">)</span>
+
+        <span class="c"># Make sure all handlers are destroyed when this object is</span>
+        <span class="c"># finished. If we don&#39;t do this, the same handlers will be</span>
+        <span class="c"># created again, resulting in copies of the same handlers, with</span>
+        <span class="c"># the result that callback functions are called multiple times.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unset_signal_handlers</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.on_select_save_path"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.on_select_save_path">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_save_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Let the user decide whether individual job results should be saved.&quot;&quot;&quot;</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectReportSavePath</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.on_pool_finished"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.on_pool_finished">[docs]</a>    <span class="k">def</span> <span class="nf">on_pool_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the results in graphical window.</span>
+
+<span class="sd">        If there are no results, return to the main window.</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">           This callback method cannot do any GUI task directly. While this</span>
+<span class="sd">           works fine on GNU/Linux systems, this causes the GUI to hang on</span>
+<span class="sd">           Windows.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Set the elapsed time if the start time was set.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Time elapsed: </span><span class="si">%.2f</span><span class="s"> seconds&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span><span class="p">))</span>
+
+        <span class="c"># Set the progress dialog to 100%. This is thread safe.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">complete</span><span class="p">()</span>
+
+        <span class="c"># Only keep the non-empty results.</span>
+        <span class="n">results</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span> <span class="k">if</span> <span class="n">r</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">is_empty</span><span class="p">()]</span>
+
+        <span class="c"># Check if there are any reports to display. If not, close the</span>
+        <span class="c"># analysis after a short timeout. The timeout gives signal handlers</span>
+        <span class="c"># a chance to catch any last minute signals from the analysis.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;no-results&#39;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;No results to show.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c"># Save reports for the individual analyses if desired.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_individual_results</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">export_reports</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">report_prefix</span><span class="p">)</span>
+
+        <span class="c"># Let the signal handler handle the results.</span>
+        <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;pool-finished&#39;</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.on_no_results"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.on_no_results">[docs]</a>    <span class="k">def</span> <span class="nf">on_no_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display a message dialog saying that there were no results.&quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
+            <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;No results&quot;</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;no-results&#39;</span><span class="p">))</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.export_reports"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.export_reports">[docs]</a>    <span class="k">def</span> <span class="nf">export_reports</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s">&#39;&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Export all reports from the reports list `results`.</span>
+
+<span class="sd">        Reports are exported to directory `path`. Argument `prefix` is an</span>
+<span class="sd">        optional prefix for exported reports.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">species_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">selection</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">species_selections</span><span class="p">:</span>
+                <span class="n">species_selection</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">selection</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+                <span class="c"># In batch mode there should be just one species per selection.</span>
+                <span class="n">species</span> <span class="o">=</span> <span class="n">species_selection</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;name_latin&#39;</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">species</span><span class="p">:</span> <span class="n">species</span> <span class="o">=</span> <span class="n">species_selection</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s">&#39;name_common&#39;</span><span class="p">]</span>
+                <span class="n">species_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">species</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s%s</span><span class="s">_</span><span class="si">%s</span><span class="s">.rst&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">species_list</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">species_list</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s%s</span><span class="s">.rst&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">prefix</span><span class="p">,</span> <span class="n">species_list</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">report</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="s">&#39;rst&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PrepareAnalysis.on_display_results"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.on_display_results">[docs]</a>    <span class="k">def</span> <span class="nf">on_display_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Display each report in a separate window.</span>
+
+<span class="sd">        This is not a good idea for batch mode, in which case it should be</span>
+<span class="sd">        redefined in the subclass.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">Report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+</div></div>
+<div class="viewcode-block" id="AnalysisWorker"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.AnalysisWorker">[docs]</a><span class="k">class</span> <span class="nc">AnalysisWorker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Super class for Analysis classes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execute_queue</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execute_queue</span> <span class="o">=</span> <span class="n">execute_queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">report</span><span class="o">.</span><span class="n">Report</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exception</span> <span class="o">=</span> <span class="bp">None</span>
+
+<div class="viewcode-block" id="AnalysisWorker.stop"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.AnalysisWorker.stop">[docs]</a>    <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop the analysis.&quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">: Received stop signal&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="bp">True</span>
+</div>
+<div class="viewcode-block" id="AnalysisWorker.stopped"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.AnalysisWorker.stopped">[docs]</a>    <span class="k">def</span> <span class="nf">stopped</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return True if the analysis was stopped.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span>
+</div>
+<div class="viewcode-block" id="AnalysisWorker.exec_task"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.AnalysisWorker.exec_task">[docs]</a>    <span class="k">def</span> <span class="nf">exec_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a task to the execute queue.</span>
+
+<span class="sd">        Tasks from this queue will be executed by :class:`ProcessTaskExec` in</span>
+<span class="sd">        the main process.</span>
+
+<span class="sd">        Argument `task` must be a string that is understood by</span>
+<span class="sd">        :class:`ProcessTaskExec` and can be followed by arguments for the</span>
+<span class="sd">        specific task.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">execute_queue</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">execute_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">task</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kargs</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="AnalysisWorker.on_exit"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.AnalysisWorker.on_exit">[docs]</a>    <span class="k">def</span> <span class="nf">on_exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Properly exit the thread.</span>
+
+<span class="sd">        Tasks:</span>
+<span class="sd">        * Close the connection to the database.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/setlyze-logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+    <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, 2011, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

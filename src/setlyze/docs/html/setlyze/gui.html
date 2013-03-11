@@ -70,7 +70,7 @@
 </tr>
 <tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">January 21, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -148,19 +148,6 @@ XLS files.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.destroy_handler_connections">
-<tt class="descname">destroy_handler_connections</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.destroy_handler_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.destroy_handler_connections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Disconnect all signal connections with signal handlers created by
-this class.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.handle_application_signals">
-<tt class="descname">handle_application_signals</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.handle_application_signals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.handle_application_signals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Respond to signals emitted by the application.</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="setlyze.gui.ChangeDataSource.on_cancel">
 <tt class="descname">on_cancel</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_cancel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the dialog.</p>
@@ -187,6 +174,19 @@ into the local database, and close the dialog.</p>
 <dd><p>Save the paths to the XLS files, set the new value for the
 data source configuration, load the SETL data from the XLS file
 into the local database, and close the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.ChangeDataSource.set_signal_handlers">
+<tt class="descname">set_signal_handlers</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.set_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.set_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Respond to signals emitted by the application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.ChangeDataSource.unset_signal_handlers">
+<tt class="descname">unset_signal_handlers</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.unset_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.unset_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect all signal connections with signal handlers created by
+this class.</p>
 </dd></dl>
 
 <dl class="method">
@@ -381,165 +381,10 @@ the definition and save it.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="setlyze.gui.DisplayReport">
-<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">DisplayReport</tt><big>(</big><em>report=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display a dialog visualizing the elements in the XML DOM analysis
-data object. The argument <cite>reader</cite> is an instance of
-<a class="reference internal" href="std.html#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.ReportReader</span></tt></a>.</p>
-<p>This class uses <a class="reference internal" href="std.html#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">ReportReader</span></tt></a> to read the data
-from the XML DOM analysis data object.</p>
-<p>Design Part: 1.89</p>
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_area_totals">
-<tt class="descname">add_area_totals</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_area_totals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_area_totals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the species totals per plate area to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_distances">
-<tt class="descname">add_distances</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_distances" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the spot distances (observed + expected) to the report
-dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_locations_selections">
-<tt class="descname">add_locations_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_locations_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_locations_selections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the locations selection(s) to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_plate_areas_definition">
-<tt class="descname">add_plate_areas_definition</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_plate_areas_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_plate_areas_definition" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the plate areas definition to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_report_elements">
-<tt class="descname">add_report_elements</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_report_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_report_elements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the report elements present in the XML DOM object to the
-report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_selections">
-<tt class="descname">add_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_selections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the location + species selections to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_species_selections">
-<tt class="descname">add_species_selections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_species_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_species_selections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the species selection(s) to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_chisq_areas">
-<tt class="descname">add_statistics_chisq_areas</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_chisq_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq_areas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_chisq_ratios">
-<tt class="descname">add_statistics_chisq_ratios</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_chisq_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq_ratios" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_chisq_spots">
-<tt class="descname">add_statistics_chisq_spots</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_chisq_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_chisq_spots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_normality">
-<tt class="descname">add_statistics_normality</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_normality"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_normality" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results for normality to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_repeats_areas">
-<tt class="descname">add_statistics_repeats_areas</tt><big>(</big><em>element_name</em>, <em>testname</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_repeats_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_repeats_areas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_repeats_ratios">
-<tt class="descname">add_statistics_repeats_ratios</tt><big>(</big><em>element_name</em>, <em>testname</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_repeats_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_repeats_ratios" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_repeats_spots">
-<tt class="descname">add_statistics_repeats_spots</tt><big>(</big><em>element_name</em>, <em>testname</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_repeats_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_repeats_spots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_wilcoxon_areas">
-<tt class="descname">add_statistics_wilcoxon_areas</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_wilcoxon_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_wilcoxon_areas" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_wilcoxon_ratios">
-<tt class="descname">add_statistics_wilcoxon_ratios</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_wilcoxon_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_wilcoxon_ratios" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_statistics_wilcoxon_spots">
-<tt class="descname">add_statistics_wilcoxon_spots</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_statistics_wilcoxon_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_statistics_wilcoxon_spots" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add the statistic results to the report dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.add_title_header">
-<tt class="descname">add_title_header</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.add_title_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.add_title_header" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a header text to the report dialog.</p>
-<p>The header contains the name of the analysis.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.create_layout">
-<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.create_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct the layout for the dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.on_close">
-<tt class="descname">on_close</tt><big>(</big><em>obj</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.on_close" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the dialog and emit the <cite>report-dialog-closed</cite> signal.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.on_save">
-<tt class="descname">on_save</tt><big>(</big><em>obj</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.on_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.on_save" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display a dialog that allows the user to save the report to
-a file.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.DisplayReport.set_report_reader">
-<tt class="descname">set_report_reader</tt><big>(</big><em>report</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#DisplayReport.set_report_reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.DisplayReport.set_report_reader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a report reader and pass the XML DOM report data
-object <cite>report</cite> to the reader. <cite>report</cite> can also be the path to
-a report data XML file.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="setlyze.gui.Preferences">
 <em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">Preferences</tt><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display a preferences dialog which allows the user to configure
-the application.</p>
-<dl class="method">
-<dt id="setlyze.gui.Preferences.create_layout">
-<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences.create_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct the layout.</p>
-</dd></dl>
-
+<dd><p>Display the preferences dialog.</p>
+<p>The preferences dialog allows the user to customize some settings.</p>
 <dl class="method">
 <dt id="setlyze.gui.Preferences.on_about">
 <tt class="descname">on_about</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences.on_about"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences.on_about" title="Permalink to this definition">¶</a></dt>
@@ -553,6 +398,12 @@ the application.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.gui.Preferences.on_error">
+<tt class="descname">on_error</tt><big>(</big><em>title</em>, <em>message</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences.on_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences.on_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display an error dialog.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.gui.Preferences.on_ok">
 <tt class="descname">on_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences.on_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences.on_ok" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save new settings and close the preferences dialog.</p>
@@ -561,15 +412,22 @@ the application.</p>
 <dl class="method">
 <dt id="setlyze.gui.Preferences.set_alpha_level">
 <tt class="descname">set_alpha_level</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences.set_alpha_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences.set_alpha_level" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the new alpha level for statistical test. Return True if
-succeeded, or False if failed.</p>
+<dd><p>Set the new alpha level for statistical test.</p>
+<p>Raises a ValueError if this fails.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Preferences.set_process_count">
+<tt class="descname">set_process_count</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences.set_process_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences.set_process_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the new value for the number of processes for batch mode.</p>
+<p>Raises a ValueError if this fails.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.gui.Preferences.set_test_repeats">
 <tt class="descname">set_test_repeats</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences.set_test_repeats"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences.set_test_repeats" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the new value for the number of repeats for statistical tests.
-Return True if succeeded, or False if failed.</p>
+<dd><p>Set the new value for the number of repeats for statistical tests.</p>
+<p>Raises a ValueError if this fails.</p>
 </dd></dl>
 
 </dd></dl>
@@ -596,9 +454,203 @@ documentation for that class for usage information.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.gui.ProgressDialog.on_cancel">
+<tt class="descname">on_cancel</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog.on_cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog.on_cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Destroy the dialog and send cancel signal.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.gui.ProgressDialog.on_close">
 <tt class="descname">on_close</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ProgressDialog.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ProgressDialog.on_close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Destroy the dialog.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.gui.Report">
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">Report</tt><big>(</big><em>report</em>, <em>header=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a dialog visualizing the elements in a report object.</p>
+<p>The argument <cite>report</cite> must be an instance of
+<tt class="xref py py-class docutils literal"><span class="pre">setlyze.report.Report</span></tt></p>
+<dl class="method">
+<dt id="setlyze.gui.Report.add_area_totals">
+<tt class="descname">add_area_totals</tt><big>(</big><em>observed</em>, <em>expected</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_area_totals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_area_totals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the species totals per plate area to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_plate_areas_definition">
+<tt class="descname">add_plate_areas_definition</tt><big>(</big><em>definition</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_plate_areas_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_plate_areas_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the plate areas definition to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_plate_areas_summary">
+<tt class="descname">add_plate_areas_summary</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_plate_areas_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_plate_areas_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a summary report for spot preference to the displayer.</p>
+<p>This report cannot be combined with other report elements in the
+in the displayer.</p>
+<p>Data is passed in the following format</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;columns&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Species&#39;</span><span class="p">,</span> <span class="s">&#39;n (plates)&#39;</span><span class="p">,</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;B&#39;</span><span class="p">,</span> <span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">,</span> <span class="s">&#39;A+B&#39;</span><span class="p">,</span> <span class="s">&#39;C+D&#39;</span><span class="p">,</span> <span class="s">&#39;A+B+C&#39;</span><span class="p">,</span> <span class="s">&#39;B+C+D&#39;</span><span class="p">,</span> <span class="s">&#39;Chi sq&#39;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s">&#39;results&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s">&#39;Obelia dichotoma&#39;</span><span class="p">,</span> <span class="mi">166</span><span class="p">,</span> <span class="s">&#39;p&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;p&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s">&#39;Obelia geniculata&#39;</span><span class="p">,</span> <span class="mi">88</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">],</span>
+        <span class="o">...</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_positive_spots_summary">
+<tt class="descname">add_positive_spots_summary</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_positive_spots_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_positive_spots_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a summary report for spot preference to the displayer.</p>
+<p>This report cannot be combined with other report elements in the
+in the displayer.</p>
+<p>Data is passed in the following format</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;columns&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Species&#39;</span><span class="p">,</span> <span class="s">&#39;n (plates)&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon 2-24&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;5&#39;</span><span class="p">,</span> <span class="s">&#39;6&#39;</span><span class="p">,</span> <span class="s">&#39;7&#39;</span><span class="p">,</span> <span class="s">&#39;8&#39;</span><span class="p">,</span> <span class="s">&#39;9&#39;</span><span class="p">,</span> <span class="s">&#39;10&#39;</span><span class="p">,</span> <span class="s">&#39;11&#39;</span><span class="p">,</span> <span class="s">&#39;12&#39;</span><span class="p">,</span> <span class="s">&#39;13&#39;</span><span class="p">,</span> <span class="s">&#39;14&#39;</span><span class="p">,</span> <span class="s">&#39;15&#39;</span><span class="p">,</span> <span class="s">&#39;16&#39;</span><span class="p">,</span> <span class="s">&#39;17&#39;</span><span class="p">,</span> <span class="s">&#39;18&#39;</span><span class="p">,</span> <span class="s">&#39;19&#39;</span><span class="p">,</span> <span class="s">&#39;20&#39;</span><span class="p">,</span> <span class="s">&#39;21&#39;</span><span class="p">,</span> <span class="s">&#39;22&#39;</span><span class="p">,</span> <span class="s">&#39;23&#39;</span><span class="p">,</span> <span class="s">&#39;24&#39;</span><span class="p">,</span> <span class="s">&#39;Chi sq 2-24&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;5&#39;</span><span class="p">,</span> <span class="s">&#39;6&#39;</span><span class="p">,</span> <span class="s">&#39;7&#39;</span><span class="p">,</span> <span class="s">&#39;8&#39;</span><span class="p">,</span> <span class="s">&#39;9&#39;</span><span class="p">,</span> <span class="s">&#39;10&#39;</span><span class="p">,</span> <span class="s">&#39;11&#39;</span><span class="p">,</span> <span class="s">&#39;12&#39;</span><span class="p">,</span> <span class="s">&#39;13&#39;</span><span class="p">,</span> <span class="s">&#39;14&#39;</span><span class="p">,</span> <span class="s">&#39;15&#39;</span><span class="p">,</span> <span class="s">&#39;16&#39;</span><span class="p">,</span> <span class="s">&#39;17&#39;</span><span class="p">,</span> <span class="s">&#39;18&#39;</span><span class="p">,</span> <span class="s">&#39;19&#39;</span><span class="p">,</span> <span class="s">&#39;20&#39;</span><span class="p">,</span> <span class="s">&#39;21&#39;</span><span class="p">,</span> <span class="s">&#39;22&#39;</span><span class="p">,</span> <span class="s">&#39;23&#39;</span><span class="p">,</span> <span class="s">&#39;24&#39;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s">&#39;results&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s">&#39;Obelia dichotoma&#39;</span><span class="p">,</span> <span class="mi">143</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">],</span>
+        <span class="p">[</span><span class="s">&#39;Obelia geniculata&#39;</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span>
+        <span class="o">...</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_ratio_groups_summary">
+<tt class="descname">add_ratio_groups_summary</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_ratio_groups_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_ratio_groups_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a summary report for spot preference to the displayer.</p>
+<p>This report cannot be combined with other report elements in the
+in the displayer.</p>
+<p>Data is passed in the following format</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;columns&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Species A&#39;</span><span class="p">,</span> <span class="s">&#39;Species B&#39;</span><span class="p">,</span> <span class="s">&#39;n (plates)&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon 1-5&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;5&#39;</span><span class="p">,</span> <span class="s">&#39;Chi sq 1-5&#39;</span><span class="p">,</span> <span class="s">&#39;1&#39;</span><span class="p">,</span> <span class="s">&#39;2&#39;</span><span class="p">,</span> <span class="s">&#39;3&#39;</span><span class="p">,</span> <span class="s">&#39;4&#39;</span><span class="p">,</span> <span class="s">&#39;5&#39;</span><span class="p">)</span>
+    <span class="p">},</span>
+    <span class="s">&#39;results&#39;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="s">&#39;Obelia dichotoma&#39;</span><span class="p">,</span> <span class="s">&#39;Obelia geniculata&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;a&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;n&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">],</span>
+        <span class="p">[</span><span class="s">&#39;Obelia dichotoma&#39;</span><span class="p">,</span> <span class="s">&#39;Obelia longissima&#39;</span><span class="p">,</span> <span class="mi">73</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">,</span> <span class="s">&#39;s&#39;</span><span class="p">],</span>
+        <span class="o">...</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_report_elements">
+<tt class="descname">add_report_elements</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_report_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_report_elements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the report elements present in the report object to the
+report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_selections">
+<tt class="descname">add_selections</tt><big>(</big><em>locations_selections</em>, <em>species_selections</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the location + species selections to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_chisq_areas">
+<tt class="descname">add_statistics_chisq_areas</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_chisq_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_chisq_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_chisq_ratios">
+<tt class="descname">add_statistics_chisq_ratios</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_chisq_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_chisq_ratios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_chisq_spots">
+<tt class="descname">add_statistics_chisq_spots</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_chisq_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_chisq_spots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_repeats_areas">
+<tt class="descname">add_statistics_repeats_areas</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_repeats_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_repeats_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_repeats_ratios">
+<tt class="descname">add_statistics_repeats_ratios</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_repeats_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_repeats_ratios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_repeats_spots">
+<tt class="descname">add_statistics_repeats_spots</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_repeats_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_repeats_spots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_wilcoxon_areas">
+<tt class="descname">add_statistics_wilcoxon_areas</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_wilcoxon_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_wilcoxon_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_wilcoxon_ratios">
+<tt class="descname">add_statistics_wilcoxon_ratios</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_wilcoxon_ratios"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_wilcoxon_ratios" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_statistics_wilcoxon_spots">
+<tt class="descname">add_statistics_wilcoxon_spots</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_statistics_wilcoxon_spots"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_statistics_wilcoxon_spots" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.add_title_header">
+<tt class="descname">add_title_header</tt><big>(</big><em>analysis_name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_title_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_title_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a header text to the report dialog.</p>
+<p>The header contains the name of the analysis.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.create_layout">
+<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.create_layout" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the layout for the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.on_close">
+<tt class="descname">on_close</tt><big>(</big><em>obj</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.on_close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the dialog and emit the <cite>report-dialog-closed</cite> signal.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.on_save">
+<tt class="descname">on_save</tt><big>(</big><em>obj</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.on_save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.on_save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a dialog that allows the user to save the report to
+a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.set_header">
+<tt class="descname">set_header</tt><big>(</big><em>title</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.set_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.set_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the header of the report dialog to <cite>title</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.Report.set_report">
+<tt class="descname">set_report</tt><big>(</big><em>report</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.set_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.set_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the report object <cite>report</cite>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -609,16 +661,9 @@ documentation for that class for usage information.</p>
 <dd><p>Display a window that allows the user to select an analysis.</p>
 <p>Design Part: 1.86</p>
 <dl class="method">
-<dt id="setlyze.gui.SelectAnalysis.create_layout">
-<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.create_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct the layout.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.SelectAnalysis.destroy_handler_connections">
-<tt class="descname">destroy_handler_connections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.destroy_handler_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.destroy_handler_connections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Disconnect all signal connections with signal handlers created
-by this object.</p>
+<dt id="setlyze.gui.SelectAnalysis.hide">
+<tt class="descname">hide</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.hide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.hide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hide the window.</p>
 </dd></dl>
 
 <dl class="method">
@@ -676,38 +721,61 @@ selected analysis.</p>
 <dd><p>Update the description frame.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.show">
+<tt class="descname">show</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the window.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectAnalysis.unset_signal_handlers">
+<tt class="descname">unset_signal_handlers</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectAnalysis.unset_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectAnalysis.unset_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect all signal connections with signal handlers created
+by this object.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
-<dt id="setlyze.gui.SelectExportElements">
-<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectExportElements</tt><big>(</big><em>reader</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display a dialog for allowing the user to select which report
-elements to export. The argument <cite>reader</cite> is an instance of
-<a class="reference internal" href="std.html#setlyze.std.ReportReader" title="setlyze.std.ReportReader"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.std.ReportReader</span></tt></a>.</p>
+<dt id="setlyze.gui.SelectBatchAnalysis">
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectBatchAnalysis</tt><a class="reference internal" href="../_modules/setlyze/gui.html#SelectBatchAnalysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectBatchAnalysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a window that allows the user to select an analysis for batch mode.</p>
 <dl class="method">
-<dt id="setlyze.gui.SelectExportElements.create_layout">
-<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements.create_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add widgets to the dialog.</p>
+<dt id="setlyze.gui.SelectBatchAnalysis.hide">
+<tt class="descname">hide</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectBatchAnalysis.hide"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectBatchAnalysis.hide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hide the window.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.SelectExportElements.get_selected_elements">
-<tt class="descname">get_selected_elements</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements.get_selected_elements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements.get_selected_elements" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list with the names of the selected report
-elements.</p>
+<dt id="setlyze.gui.SelectBatchAnalysis.on_back">
+<tt class="descname">on_back</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectBatchAnalysis.on_back"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectBatchAnalysis.on_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Go back to the main window.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.SelectExportElements.set_report_reader">
-<tt class="descname">set_report_reader</tt><big>(</big><em>reader</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectExportElements.set_report_reader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectExportElements.set_report_reader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the report reader.</p>
+<dt id="setlyze.gui.SelectBatchAnalysis.on_ok">
+<tt class="descname">on_ok</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectBatchAnalysis.on_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectBatchAnalysis.on_ok" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send the <cite>on-start-analysis</cite> signal with the selected analysis as
+signal attribute.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectBatchAnalysis.on_toggled">
+<tt class="descname">on_toggled</tt><big>(</big><em>radiobutton=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectBatchAnalysis.on_toggled"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectBatchAnalysis.on_toggled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the description frame.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectBatchAnalysis.show">
+<tt class="descname">show</tt><big>(</big><em>widget=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectBatchAnalysis.show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectBatchAnalysis.show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Show the window.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="setlyze.gui.SelectLocations">
-<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectLocations</tt><big>(</big><em>title='Locations Selection'</em>, <em>description='Select the locations:'</em>, <em>width=-1</em>, <em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectLocations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectLocations" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectLocations</tt><big>(</big><em>title='Locations Selection'</em>, <em>description='Select the locations:'</em>, <em>width=400</em>, <em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectLocations"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectLocations" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display a selection dialog that allows the user to make a
 selection from the SETL locations in the local database.</p>
 <p>Design Part: 1.87</p>
@@ -753,7 +821,7 @@ first selection and <tt class="docutils literal"><span class="pre">1</span></tt>
 
 <dl class="class">
 <dt id="setlyze.gui.SelectSpecies">
-<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectSpecies</tt><big>(</big><em>title='Species Selection'</em>, <em>description='Select the species:'</em>, <em>width=-1</em>, <em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectSpecies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectSpecies" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">SelectSpecies</tt><big>(</big><em>title='Species Selection'</em>, <em>description='Select the species:'</em>, <em>width=600</em>, <em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectSpecies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectSpecies" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display a selection dialog that allows the user to make a
 selection from the SETL species in the local database.</p>
 <p>Design Part: 1.88</p>
@@ -805,12 +873,6 @@ first selection and <tt class="docutils literal"><span class="pre">1</span></tt>
 <dt id="setlyze.gui.SelectionWindow.create_layout">
 <tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.create_layout" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct the layout for the selection dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.SelectionWindow.destroy_handler_connections">
-<tt class="descname">destroy_handler_connections</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.destroy_handler_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.destroy_handler_connections" title="Permalink to this definition">¶</a></dt>
-<dd><p>Disconnect all signal handlers created by this class.</p>
 </dd></dl>
 
 <dl class="method">
@@ -868,6 +930,20 @@ selections (in analysis 3, two selections need to be saved,
 hence two slots were created).</p>
 <p>The possible values of <cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for the first selection,
 and <tt class="docutils literal"><span class="pre">1</span></tt> for the second selection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectionWindow.set_selection_minimum">
+<tt class="descname">set_selection_minimum</tt><big>(</big><em>n</em>, <em>message</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.set_selection_minimum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.set_selection_minimum" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the minimum number of options <cite>n</cite> that must be selected.</p>
+<p>Display an error message containing the message <cite>message</cite> when too
+few items are selected.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectionWindow.unset_signal_handlers">
+<tt class="descname">unset_signal_handlers</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.unset_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.unset_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect all signal handlers created by this class.</p>
 </dd></dl>
 
 <dl class="method">
