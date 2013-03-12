@@ -1925,7 +1925,7 @@ class ProgressDialog(gtk.Window):
         self.set_deletable(True)
         self.set_resizable(False)
         self.set_modal(False)
-        self.set_keep_above(True)
+        self.set_keep_above(False)
         self.set_position(gtk.WIN_POS_CENTER)
         self.description = description
 
@@ -1986,6 +1986,16 @@ class ProgressDialog(gtk.Window):
 
     def on_cancel(self, widget=None, data=None):
         """Destroy the dialog and send cancel signal."""
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_YES_NO,
+                message_format="Cancel the analysis?")
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        response = dialog.run()
+        dialog.destroy()
+
+        if response == gtk.RESPONSE_NO:
+            return
+
         logging.info("Cancel button is pressed")
         self.destroy()
         setlyze.std.sender.emit('analysis-canceled')
@@ -2000,7 +2010,7 @@ class Report(gtk.Window):
     """Display a dialog visualizing the elements in a report object.
 
     The argument `report` must be an instance of
-    :class:`setlyze.report.Report`
+    :class:`setlyze.report.Report`.
     """
 
     def __init__(self, report, header=None):
