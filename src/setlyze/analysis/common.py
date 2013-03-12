@@ -194,7 +194,7 @@ class Worker(multiprocessing.Process):
         logging.debug("%s: Received stop signal" % self)
         self.active = False
 
-class ProcessTaskExec(threading.Thread):
+class ProcessGateway(threading.Thread):
     """Execute child process tasks in the main process.
 
     An instance of this class provides a public attribute `queue` which can be
@@ -241,12 +241,12 @@ class ProcessTaskExec(threading.Thread):
         pdialog_handler = setlyze.std.ProgressDialogHandler(pdialog)
         pdialog_handler.set_total_steps(10)
 
-        exe = setlyze.analysis.common.ProcessTaskExec()
-        exe.set_pdialog_handler(pdialog_handler)
-        exe.start()
+        gw = setlyze.analysis.common.ProcessGateway()
+        gw.set_pdialog_handler(pdialog_handler)
+        gw.start()
 
         pool = multiprocessing.Pool()
-        pool.apply_async(Analysis, locations, species, exe.queue)
+        pool.apply_async(Analysis, locations, species, gw.queue)
     """
     def __init__(self, timeout=5):
         """Create an instance of an execute queue.
@@ -498,11 +498,11 @@ class AnalysisWorker(object):
     def exec_task(self, task, *args, **kargs):
         """Add a task to the execute queue.
 
-        Tasks from this queue will be executed by :class:`ProcessTaskExec` in
+        Tasks from this queue will be executed by :class:`ProcessGateway` in
         the main process.
 
         Argument `task` must be a string that is understood by
-        :class:`ProcessTaskExec` and can be followed by arguments for the
+        :class:`ProcessGateway` and can be followed by arguments for the
         specific task.
         """
         if self.execute_queue:

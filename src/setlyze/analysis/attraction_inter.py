@@ -71,7 +71,7 @@ import multiprocessing
 
 import gobject
 
-from setlyze.analysis.common import calculatestar,ProcessTaskExec,PrepareAnalysis,AnalysisWorker
+from setlyze.analysis.common import calculatestar,ProcessGateway,PrepareAnalysis,AnalysisWorker
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -238,15 +238,15 @@ class Begin(PrepareAnalysis):
         )
 
         # Create a progress task executor.
-        exe = ProcessTaskExec()
-        exe.set_pdialog_handler(self.pdialog_handler)
-        exe.start()
+        gw = ProcessGateway()
+        gw.set_pdialog_handler(self.pdialog_handler)
+        gw.start()
 
         # Create a process pool with a single worker.
         self.pool = multiprocessing.Pool(1)
 
         # Create a list of jobs.
-        jobs = [(Analysis, (locations, species, exe.queue))]
+        jobs = [(Analysis, (locations, species, gw.queue))]
 
         # Add the job to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
@@ -353,9 +353,9 @@ class BeginBatch(Begin):
         )
 
         # Create a progress task executor.
-        exe = ProcessTaskExec()
-        exe.set_pdialog_handler(self.pdialog_handler)
-        exe.start()
+        gw = ProcessGateway()
+        gw.set_pdialog_handler(self.pdialog_handler)
+        gw.start()
 
         # Create a process pool with workers.
         cp = setlyze.config.cfg.get('concurrent-processes')
@@ -363,7 +363,7 @@ class BeginBatch(Begin):
 
         # Create a list of jobs.
         logging.info("Adding %d jobs to the queue" % len(species_combos))
-        jobs = ((Analysis, (locations, sp_comb, exe.queue)) for sp_comb in species_combos)
+        jobs = ((Analysis, (locations, sp_comb, gw.queue)) for sp_comb in species_combos)
 
         # Add the jobs to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)

@@ -49,7 +49,7 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
-from setlyze.analysis.common import calculatestar,ProcessTaskExec,PrepareAnalysis,AnalysisWorker
+from setlyze.analysis.common import calculatestar,ProcessGateway,PrepareAnalysis,AnalysisWorker
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -176,15 +176,15 @@ class Begin(PrepareAnalysis):
         self.pdialog_handler.set_total_steps(PROGRESS_STEPS + self.n_repeats)
 
         # Create a progress task executor.
-        exe = ProcessTaskExec()
-        exe.set_pdialog_handler(self.pdialog_handler)
-        exe.start()
+        gw = ProcessGateway()
+        gw.set_pdialog_handler(self.pdialog_handler)
+        gw.start()
 
         # Create a process pool with a single worker.
         self.pool = multiprocessing.Pool(1)
 
         # Create a list of jobs.
-        jobs = [(Analysis, (locations, species, areas_definition, exe.queue))]
+        jobs = [(Analysis, (locations, species, areas_definition, gw.queue))]
 
         # Add the job to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
@@ -232,9 +232,9 @@ class BeginBatch(Begin):
             len(species))
 
         # Create a progress task executor.
-        exe = ProcessTaskExec()
-        exe.set_pdialog_handler(self.pdialog_handler)
-        exe.start()
+        gw = ProcessGateway()
+        gw.set_pdialog_handler(self.pdialog_handler)
+        gw.start()
 
         # Create a process pool with workers.
         cp = setlyze.config.cfg.get('concurrent-processes')
@@ -242,7 +242,7 @@ class BeginBatch(Begin):
 
         # Create a list of jobs.
         logging.info("Adding %d jobs to the queue" % len(species))
-        jobs = ((Analysis, (locations, sp, areas_definition, exe.queue)) for sp in species)
+        jobs = ((Analysis, (locations, sp, areas_definition, gw.queue)) for sp in species)
 
         # Add the jobs to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
