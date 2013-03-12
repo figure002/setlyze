@@ -960,7 +960,7 @@ class ProgressDialogHandler(object):
         Don't call this function manually; use :meth:`increase` instead.
         """
         if not self.pdialog:
-            return
+            return False
 
         # Update fraction.
         self.pdialog.pbar.set_fraction(fraction)
@@ -974,21 +974,15 @@ class ProgressDialogHandler(object):
             action = "<span style='italic'>%s</span>" % (action)
             self.pdialog.action.set_markup(action)
 
-        if fraction < 1.0:
-            self.pdialog.button_cancel.set_sensitive(True)
-
         if fraction == 1.0:
             self.pdialog.pbar.set_text("Finished!")
             self.pdialog.button_cancel.set_sensitive(False)
 
+            # Close the progress dialog when finished. We set a delay
+            # of 1 second before closing it, so the user gets to see the
+            # dialog when an analysis finishes very fast.
             if self.autoclose:
-                # Close the progress dialog when finished. We set a delay
-                # of 1 second before closing it, so the user gets to see the
-                # dialog when an analysis finishes very fast.
-
-                # This is always called from a separate thread, so we must
-                # use gobject.idle_add to access the GUI.
-                gobject.idle_add(self.__close_progress_dialog, 1)
+                self.__close_progress_dialog(1)
 
         # This callback function must return False, so it is
         # automatically removed from the list of event sources.
