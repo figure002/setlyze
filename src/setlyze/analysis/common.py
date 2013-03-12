@@ -19,7 +19,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module contains common classes for analysis modules."""
+"""Common classes and routines for analysis modules."""
 
 import os
 import logging
@@ -43,7 +43,7 @@ __version__ = "0.3"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2013/02/02"
+__date__ = "2013/03/12"
 
 def calculate(cls, args):
     """Create an instance of class `cls` and call its run() method.
@@ -62,12 +62,16 @@ def calculatestar(args):
     of arguments for instantiating the class. Method :meth:`calculate` will
     take care of instantiating the class and passing the arguments.
 
-    Returns the result returned by :meth:`calculate`.
+    Returns whatever :meth:`calculate` returns.
     """
     return calculate(*args)
 
 class Pool(threading.Thread):
     """Create a pool of worker processes.
+
+    The pool size `size` defines the number of workers (instances of
+    :class:`Worker`) that will be spawned. If the pool size is not set, it
+    defaults to the number of CPUs.
 
     An instance of this class provides the convenient :meth:`stop` method for
     stopping all the workers in the pool in an elegant manner. This avoids
@@ -77,15 +81,11 @@ class Pool(threading.Thread):
         .. note::
 
            This class is currently not in use because it is unstable.
-           Use of :py:class:`multiprocessing.Pool` is preferred.
+           Use of :py:class:`multiprocessing.Pool` is preferred. This class is
+           kept here because it is fun to experiment with.
    """
 
     def __init__(self, size=None):
-        """Spawn workers.
-
-        Argument `size` is an integer defining the number of workers that
-        will be spawned.
-        """
         threading.Thread.__init__(self)
         self._stop = threading.Event()
         self.manager = multiprocessing.Manager()
@@ -150,23 +150,24 @@ class Worker(multiprocessing.Process):
     """Worker process instantiated by :class:`Pool`.
 
     This class can be used to create a number of workers which will each
-    execute tasks from a queue (instance of :py:class:`multiprocessing.Queue`).
-    Each task is a tuple with a function followed by arguments and keyword args
-    for that function ``(func, *args, **kwargs)``. Each worker will obtain a task
-    from the queue and execute the function with the arguments. Results from
-    individual tasks are passed to a results queue.
+    execute tasks from a task queue `input` (instance of
+    :py:class:`multiprocessing.Queue`). Each task is a tuple with a function
+    followed by arguments and keyword arguments for that function
+    ``(func, *args, **kwargs)``. Each worker instance will continuously obtain
+    a task from the task queue `input` and execute the function with the
+    arguments. Results from individual tasks are passed to the results queue
+    `output`. Arguments `input` and `output` must be different instances of
+    :py:class:`multiprocessing.Queue`.
 
     An instance of this class will terminate immediately when the task queue is
     empty.
+
+        .. note::
+
+           This class is currently not in use; see the note for :class:`Pool`.
     """
 
     def __init__(self, input, output):
-        """Sets the `input` and `output` queue.
-
-        Both `input` and `output` should be different instances of
-        :py:class:`multiprocessing.Queue`. Queue `input` will be used to obtain
-        tasks from, queue `output` will be used to pass task results to.
-        """
         multiprocessing.Process.__init__(self)
         self.input = input
         self.output = output
@@ -204,8 +205,12 @@ class ProcessGateway(threading.Thread):
     this class runs in the main process and will execute tasks submitted to
     `queue` by child processes.
 
+    An instance of this class will constantly check for new execute tasks
+    in the queue. If it doesn't find a task in the queue for `timeout`
+    seconds, the instance of this class will terminate.
+
     When an analysis is instantiated, the execute queue `queue` is passed to
-    it. Each ``Analysis`` class inherits the method
+    it. Each :class:`Analysis` class inherits the method
     :meth:`AnalysisWorker.exec_task` which is used to submit execution tasks
     to this queue. Thus an analysis process can submit tasks as follows::
 
@@ -249,12 +254,6 @@ class ProcessGateway(threading.Thread):
         pool.apply_async(Analysis, locations, species, gw.queue)
     """
     def __init__(self, timeout=5):
-        """Create an instance of an execute queue.
-
-        An instance of this class will constantly check for new execute tasks
-        in the queue. If it doesn't find a task in the queue for `timeout`
-        seconds, the instance of this class will terminate.
-        """
         threading.Thread.__init__(self)
         self.manager = multiprocessing.Manager()
         self.queue = self.manager.Queue()
@@ -298,37 +297,39 @@ class ProcessGateway(threading.Thread):
         return self.queue
 
 class PrepareAnalysis(object):
-    """Super class for analysis Begin classes."""
+    """Super class for analysis :class:`Begin` classes."""
 
     def __init__(self):
-        self.signal_handlers = {}
+        self.alpha_level = setlyze.config.cfg.get('alpha-level')
+        self.elapsed_time = None
+        self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.pdialog = None
         self.pdialog_handler = None
         self.pool = None
-        self.alpha_level = setlyze.config.cfg.get('alpha-level')
-        self.n_repeats = setlyze.config.cfg.get('test-repeats')
-        self.save_individual_results = False
-        self.start_time = None
-        self.elapsed_time = None
+        self.report_prefix = "report_"
         self.results = []
         self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
         self.save_path = setlyze.config.cfg.get('job-results-save-path')
-        self.report_prefix = "report_"
+        self.signal_handlers = {}
+        self.start_time = None
 
     def in_batch_mode(self):
-        """Return True if we are in batch mode."""
+        """Return True if we are in batch mode, False otherwise."""
         return self.__class__.__name__ == 'BeginBatch'
 
     def unset_signal_handlers(self, sender=None, data=None):
-        """Disconnect all signal connections with signal handlers
-        created by this analysis.
-        """
+        """Disconnect all signal handlers set in attribute `signal_handlers`."""
         for handler in self.signal_handlers.values():
             if handler:
                 setlyze.std.sender.disconnect(handler)
 
     def on_analysis_aborted(self, sender, reason):
-        """Display an information dialog with the reason for the abortion."""
+        """Display an information dialog with the reason for the abortion.
+
+        This method can be set as a handler for the ``analysis-aborted``
+        signal. When this signal is emitted, a reason for abortion `reason` is
+        returned as a string.
+        """
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="Analysis aborted")
@@ -339,7 +340,13 @@ class PrepareAnalysis(object):
         dialog.destroy()
 
     def on_cancel_button(self, sender):
-        """Callback function for the Cancel button.
+        """Cancel the analysis.
+
+        This method can be set as a handler for the ``analysis-canceled``
+        signal. This signal is emitted when the Cancel button of a progress
+        dialog is pressed.
+
+        This method does the following:
 
         * Close the progress dialog.
         * Stop the worker processes.
@@ -349,7 +356,7 @@ class PrepareAnalysis(object):
         if self.pdialog:
             self.pdialog.destroy()
 
-        # Stop all analysis jobs.
+        # Stop all workers.
         if self.pool:
             # TODO: Find a more elegant way to stop processes.
             self.pool.terminate()
@@ -369,7 +376,15 @@ class PrepareAnalysis(object):
         self.on_analysis_closed()
 
     def on_analysis_closed(self, sender=None, data=None, timeout=0):
-        """Show the main window and unset the signal handler."""
+        """Exit an analysis elegantly.
+
+        This method can be set as a handler for application signals, but this
+        is optional.
+
+        After `timeout` seconds, this method closes the progress dialog (if
+        any), sends the ``analysis-closed`` signal, and disconnects any signal
+        handlers set in this class.
+        """
         if timeout:
             time.sleep(timeout)
 
@@ -386,16 +401,20 @@ class PrepareAnalysis(object):
         # the result that callback functions are called multiple times.
         self.unset_signal_handlers()
 
-    def on_select_save_path(self, sender, data):
-        """Let the user decide whether individual job results should be saved."""
-        setlyze.gui.SelectReportSavePath()
-
     def on_pool_finished(self, results):
-        """Display the results in graphical window.
+        """Collect the analysis results when a process pool is finished.
 
-        If there are no results, return to the main window.
+        This method can be set as a callback for :py:class:`multiprocessing.Pool`
+        methods for which a callback can be set (e.g. :py:meth:`map_async`).
 
-        .. note::
+        This method collects the results `results`, calculates the elapsed
+        time since the start of the analyses, sets the progress of the progress
+        to 100%, strips empty reports from the results, exports the reports
+        if set by the user, and finally sends the ``pool-finished`` signal.
+        If there are no results (or all reports are empty), emit signal
+        ``no-results`` and close the analysis.
+
+        .. warning::
 
            This callback method cannot do any GUI task directly. While this
            works fine on GNU/Linux systems, this causes the GUI to hang on
@@ -406,7 +425,8 @@ class PrepareAnalysis(object):
             self.elapsed_time = time.time() - self.start_time
             logging.info("Time elapsed: %.2f seconds" % (self.elapsed_time))
 
-        # Set the progress dialog to 100%. This is thread safe.
+        # Set the progress dialog to 100%. Since we are using the progress
+        # dialog handler to do this, this is thread safe.
         if self.pdialog_handler:
             self.pdialog_handler.complete()
 
@@ -430,7 +450,11 @@ class PrepareAnalysis(object):
         gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
 
     def on_no_results(self, sender=None):
-        """Display a message dialog saying that there were no results."""
+        """Display an info dialog saying that there were no results.
+
+        This method is usually set as a handler for the ``no-results``
+        signal.
+        """
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="No results")
@@ -440,10 +464,11 @@ class PrepareAnalysis(object):
         dialog.destroy()
 
     def export_reports(self, results, path, prefix=''):
-        """Export all reports from the reports list `results`.
+        """Export all reports from a list of report objects `results`.
 
         Reports are exported to directory `path`. Argument `prefix` is an
-        optional prefix for exported reports.
+        optional prefix for exported reports. File names are created in the
+        format ``[prefix]speciesA[_speciesB].rst``.
         """
         if not os.path.isdir(path):
             return
@@ -465,10 +490,15 @@ class PrepareAnalysis(object):
             setlyze.report.export(result, output_dir, 'rst')
 
     def on_display_results(self, sender, results=[]):
-        """Display each report in a separate window.
+        """Display each report from the list `results` in a report window.
 
-        This is not a good idea for batch mode, in which case it should be
-        redefined in the subclass.
+        This method can be set as a handler for the ``pool-finished`` signal.
+        The signal should have a single argument, a list of report objects
+        `results`. This signal can be emitted by :meth:`on_pool_finished`.
+
+        This is not a good handler in batch mode because it will open as many
+        report windows as there are reports in `results`. So in batch mode
+        this method should be redefined in the subclass.
         """
         for report in results:
             setlyze.gui.Report(report)
@@ -478,13 +508,12 @@ class AnalysisWorker(object):
 
     def __init__(self, execute_queue=None):
         self._stop = False
-        self.db = None
-        self.execute_queue = execute_queue
-        self.result = setlyze.report.Report()
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
-        self.n_repeats = setlyze.config.cfg.get('test-repeats')
+        self.db = None
         self.dbfile = setlyze.config.cfg.get('db-file')
-        self.exception = None
+        self.execute_queue = execute_queue
+        self.n_repeats = setlyze.config.cfg.get('test-repeats')
+        self.result = setlyze.report.Report()
 
     def stop(self):
         """Stop the analysis."""
@@ -492,7 +521,7 @@ class AnalysisWorker(object):
         self._stop = True
 
     def stopped(self):
-        """Return True if the analysis was stopped."""
+        """Return True if the analysis was stopped, False otherwise."""
         return self._stop
 
     def exec_task(self, task, *args, **kargs):
@@ -503,15 +532,16 @@ class AnalysisWorker(object):
 
         Argument `task` must be a string that is understood by
         :class:`ProcessGateway` and can be followed by arguments for the
-        specific task.
+        specific task. See :class:`ProcessGateway` for details.
         """
         if self.execute_queue:
             self.execute_queue.put((task, args, kargs))
 
     def on_exit(self):
-        """Properly exit the thread.
+        """Perform tasks that need to be done before exiting an analysis.
 
         Tasks:
+
         * Close the connection to the database.
         """
         if self.db:
