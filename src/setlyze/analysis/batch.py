@@ -19,11 +19,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module starts analyses in batch mode.
+"""Start an analysis in batch mode.
 
-The selected analysis is repeated for a selection of species. If all species
-are selected by the user, the analysis is repeated for each species and the
-results are displayed in a single report.
+Batch mode for an analysis is started by instantiating its :class:`BeginBatch`
+class. In batch mode, the selected analysis is repeated for a selection of
+species. The user can select multiple species and the analysis is repeated for
+each species separately and the results are displayed in a summary report.
 """
 
 import logging
@@ -43,7 +44,7 @@ __version__ = "0.3"
 __maintainer__ = "Serrano Pereira"
 __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
-__date__ = "2013/02/24"
+__date__ = "2013/02/12"
 
 class Begin(PrepareAnalysis):
     """Select which analysis to run in batch mode:
@@ -54,13 +55,7 @@ class Begin(PrepareAnalysis):
 
     def __init__(self):
         super(Begin, self).__init__()
-        # Bind handles to application signals.
-        self.set_signal_handlers()
-        # Display the window for selecting the batch analysis.
-        setlyze.gui.select_batch_analysis.show()
-
-    def set_signal_handlers(self):
-        """Respond to signals emitted by the application."""
+        # Set some signal handlers.
         self.signal_handlers = {
             # Unset signal handlers of this class once an analysis has started.
             'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.unset_signal_handlers),
@@ -69,6 +64,8 @@ class Begin(PrepareAnalysis):
             # An analysis was selected.
             'batch-analysis-selected': setlyze.std.sender.connect('batch-analysis-selected', self.on_analysis_selected),
         }
+        # Display the window for selecting the batch analysis.
+        setlyze.gui.select_batch_analysis.show()
 
     def on_analysis_selected(self, sender, analysis):
         """Start the selected analysis in batch mode."""
