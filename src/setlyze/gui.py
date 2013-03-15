@@ -1930,7 +1930,7 @@ class ProgressDialog(gtk.Window):
         self.description = description
 
         # Handle window signals.
-        self.connect('delete-event', self.on_close)
+        self.connect('delete-event', self.on_cancel)
 
         # Add widgets to the GTK window.
         self.create_layout()
@@ -1994,17 +1994,16 @@ class ProgressDialog(gtk.Window):
         dialog.destroy()
 
         if response == gtk.RESPONSE_NO:
-            return
+            return True
 
         logging.info("Cancel button is pressed")
         self.destroy()
         setlyze.std.sender.emit('analysis-canceled')
 
-    def on_close(self, widget=None, data=None):
-        """Destroy the dialog."""
-        logging.info("Close button is pressed")
-        self.destroy()
-        setlyze.std.sender.emit('progress-dialog-closed')
+        # Return True to stop other handlers from being invoked for the
+        # 'delete-event' signal. This prevents the GTK window that calles
+        # this function from closing anyway.
+        return True
 
 class Report(gtk.Window):
     """Display a dialog visualizing the elements in a report object.
