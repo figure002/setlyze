@@ -21,7 +21,7 @@
 
 import logging
 
-import setlyze.analysis.common
+from setlyze.analysis.common import PrepareAnalysis
 import setlyze.locale
 import setlyze.config
 import setlyze.gui
@@ -35,7 +35,7 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2013/02/02"
 
-class Begin(setlyze.analysis.common.PrepareAnalysis):
+class Begin(PrepareAnalysis):
     def __init__(self):
         logging.info("Beginning analysis Relation between Species")
         setlyze.gui.on_not_implemented()
@@ -43,4 +43,4 @@ class Begin(setlyze.analysis.common.PrepareAnalysis):
 class BeginBatch(Begin):
     def __init__(self):
         super(BeginBatch, self).__init__()
-        logging.info("Initializing batch mode")
+        logging.info("We are in batch mode")

@@ -19,22 +19,31 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module performs analysis 1 "Spot preference". This analysis
-can be broken down in the following steps:
+"""This module performs analysis *Spot Preference*.
 
-1. Show a list of all localities and let the user perform a localities
-   selection.
-2. Show a list of all species that match the locations selection and
-   let the user perform a species selection.
-3. Show the Define Plate Areas dialog and let the user define the plate
-   areas.
-4. Calculate the observed species frequencies for the plate areas.
-5. Check if all plate area frequencies are zero. If so, abort.
-6. Calculate the expected species frequencies for the plate areas.
-7. Calculate the significance in difference between the observed and
-   expected area totals. The Chi-squared test is used for this.
-8. Generate the analysis report.
-9. Show the analysis report to the user.
+This analysis determines whether a marine species has a preference for a
+specific area on SETL plates. By default, a SETL plate is divided in four plate
+areas: A, B, C, and D.
+
++---+---+---+---+---+
+| A | B | B | B | A |
++---+---+---+---+---+
+| B | C | C | C | B |
++---+---+---+---+---+
+| B | C | D | C | B |
++---+---+---+---+---+
+| B | C | C | C | B |
++---+---+---+---+---+
+| A | B | B | B | A |
++---+---+---+---+---+
+
+Two statistical tests are performed:
+
+* Chi-squared test for given probabilities
+* Wilcoxon rank sum test with continuity correction
+
+First the analysis is prepared with :class:`Begin`, or with :class:`BeginBatch`
+in batch mode. Finally the analysis is performed with :class:`Analysis`.
 
 """
 
@@ -70,16 +79,20 @@ __date__ = "2013/02/02"
 PROGRESS_STEPS = 7
 
 class Begin(PrepareAnalysis):
-    """Make the preparations for analysis 1:
+    """Make the preparations for the analysis.
 
-    1. Show a list of all localities and let the user perform a localities
-       selection.
-    2. Show a list of all species that match the locations selection and
-       let the user perform a species selection.
-    3. Show the Define Plate Areas dialog and let the user define the plate
-       areas.
-    4. Start the analysis.
-    5. Show the analysis report to the user.
+    The preparations can be broken down in the following steps:
+
+        1. Show a list of all locations and let the user select from which
+           locations to select species.
+        2. Show a list of all species that match the locations selection and
+           let the user select a species on which to perform the analysis. If
+           multiple species are selected they are treated as a single species.
+        3. Show the Define Plate Areas dialog and let the user define the plate
+           areas for the Chi-squared test. All possible plate area combinations are
+           used for the Wilcoxon rank sum test.
+        4. Start the analysis with :class:`Analysis`.
+        5. Display the results.
 
     Design Part: 1.3.1
     """
@@ -126,8 +139,6 @@ class Begin(PrepareAnalysis):
             'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
             # Analysis aborted.
             'analysis-aborted': setlyze.std.sender.connect('analysis-aborted', self.on_analysis_aborted),
-            # Progress dialog closed
-            'progress-dialog-closed': setlyze.std.sender.connect('progress-dialog-closed', self.on_cancel_button),
             # The process pool has finished.
             'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
             # There were no results.
@@ -135,22 +146,21 @@ class Begin(PrepareAnalysis):
         }
 
     def on_select_locations(self, sender=None, data=None):
-        """Display the window for selecting the locations."""
+        """Display the locations selection dialog."""
         select = setlyze.gui.SelectLocations(slot=0)
         select.set_title(setlyze.locale.text('analysis1'))
         select.set_description(setlyze.locale.text('select-locations') + "\n\n" +
             setlyze.locale.text('option-change-source') + "\n\n" +
             setlyze.locale.text('selection-tips')
-            )
+        )
 
     def on_select_species(self, sender=None, data=None):
-        """Display the window for selecting the species."""
+        """Display the species selection dialog."""
         select = setlyze.gui.SelectSpecies(width=600, slot=0)
         select.set_title(setlyze.locale.text('analysis1'))
         select.set_description(setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
-            )
-
+        )
         # This button should not be pressed now, so hide it.
         select.button_chg_source.hide()
 
@@ -183,27 +193,35 @@ class Begin(PrepareAnalysis):
         # Create a process pool with a single worker.
         self.pool = multiprocessing.Pool(1)
 
-        # Create a list of jobs.
+        # Create a list with the job.
         jobs = [(Analysis, (locations, species, areas_definition, gw.queue))]
 
         # Add the job to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
 class BeginBatch(Begin):
-    """Make the preparations for batch analysis:
+    """Make the preparations for the analysis in batch mode.
 
-    1. Show a list of all localities and let the user perform a localities
-       selection.
-    2. Show a list of all species that match the locations selection and
-       let the user perform a species selection.
-    3. Run the analysis for all species in batch.
-    4. Show the analysis report to the user.
+    This class inherits from :class:`Begin`. The preparations can be broken
+    down in the following steps:
+
+        1. Show a list of all locations and let the user select from which locations
+           to select species.
+        2. Show a list of all species that match the locations selection and
+           let the user select a species on which to perform the analysis. If
+           multiple species are selected the analysis will be repeated for each
+           species.
+        3. Show the Define Plate Areas dialog and let the user define the plate areas
+           for the Chi-squared test. All possible plate area combinations are used
+           for the Wilcoxon rank sum test.
+        4. Repeat the analysis for each selected species with :class:`Analysis`.
+        5. Obtain the results from all analyses and create a summary report.
+        6. Display the batch report.
     """
 
     def __init__(self):
         super(BeginBatch, self).__init__()
         logging.info("We are in batch mode")
-
         self.report_prefix = "spot_preference_"
 
         # Don't print abort messages during batch mode.
@@ -211,9 +229,13 @@ class BeginBatch(Begin):
         self.signal_handlers['analysis-aborted'] = None
 
     def on_start_analysis(self, sender=None, data=None):
-        """Run analysis Spot Preference in batch mode.
+        """Run the analysis for each of the selected species.
 
-        Repeat the analysis for each species separately.
+        Creates a pool of worker processes. A job is set for each species that
+        was selected. The jobs are then added to the pool for execution. If
+        multiple workers were created, analyses will run in parallel. When
+        the results are ready, :meth:`~setlyze.analysis.common.PrepareAnalysis.on_pool_finished`
+        is applied to it.
         """
         locations = setlyze.config.cfg.get('locations-selection', slot=0)
         species = setlyze.config.cfg.get('species-selection', slot=0)
@@ -231,7 +253,7 @@ class BeginBatch(Begin):
         self.pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
             len(species))
 
-        # Create a progress task executor.
+        # Create a gateway to the main process for child processes.
         gw = ProcessGateway()
         gw.set_pdialog_handler(self.pdialog_handler)
         gw.start()
@@ -248,7 +270,7 @@ class BeginBatch(Begin):
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
 
     def summarize_results(self, results):
-        """Join results from multiple analyses to a single report.
+        """Return a summary report from a list of analysis reports `results`.
 
         Creates a dictionary in the following format ::
 
@@ -265,7 +287,7 @@ class BeginBatch(Begin):
                 ]
             }
         """
-        report = {
+        summary = {
             'attr': {
                 'columns_over': ('..', 'Wilcoxon rank sum test', 'Chi-sq'),
                 'columns_over_spans': (2, 8, 1),
@@ -318,13 +340,13 @@ class BeginBatch(Begin):
             else:
                 row.append(None)
 
-            # Only add the row to the report if one item in the row was
+            # Only add the row to the summary if one item in the row was
             # significant.
             for c in row:
                 if c and c in ('s','pr','rj'):
                     r = [species, result.get_option('Total plates')]
                     r.extend(row)
-                    report['results'].append(r)
+                    summary['results'].append(r)
                     break
 
         # Set the plate areas definition as the column name for the Chi-squared
@@ -336,61 +358,69 @@ class BeginBatch(Begin):
             definition = definition.values()
             definition.sort()
             definition = ','.join(definition)
-            report['attr']['columns'][10] = definition
-
-        return report
-
-    def on_display_results(self, sender, results=[]):
-        """Display the results."""
-        # Create a summary from all results.
-        summary = self.summarize_results(results)
+            summary['attr']['columns'][10] = definition
 
         # Create a report object from the dictionary.
         report = setlyze.report.Report()
         report.set_statistics('plate_areas_summary', summary)
+        return report
+
+    def on_display_results(self, sender, results=[]):
+        """Create a summary report and display it in a report dialog.
+
+        This method is used as a handler for the ``pool-finished`` signal.
+        The batch results `results` are attached to the signal.
+        """
+        report = self.summarize_results(results)
+
+        # Set analysis options.
+        report.set_option('Alpha level', self.alpha_level)
+        report.set_option('Repeats', self.n_repeats)
+        report.set_option('Statistical tests', "Chi-squared test, Wilcoxon rank sum test")
+        if self.elapsed_time:
+            report.set_option('Running time', setlyze.std.seconds_to_hms(self.elapsed_time))
 
         # Set a definition list for the report.
-        definitions = {
+        report.set_definitions({
             's': "The result for the statistical test was significant.",
             'n': "The result for the statistical test was not significant.",
             'pr': "There was a significant preference for the plate area in question.",
             'rj': "There was a significant rejection for the plate area in question.",
             'na': "There is not enough data for the analysis or in case of the\n"
                   "  Chi Squared test one of the expected frequencies is less than 5.",
-        }
-        report.set_definitions(definitions)
-
-        # Set analysis options.
-        report.set_option('Alpha level', self.alpha_level)
-        report.set_option('Repeats', self.n_repeats)
-        report.set_option('Statistical tests', "Chi-squared test, Wilcoxon rank sum test")
-
-        # Set elapsed time.
-        if self.elapsed_time:
-            report.set_option('Running time', setlyze.std.seconds_to_hms(self.elapsed_time))
+        })
 
         # Display the report.
-        w = setlyze.gui.Report(report, "Results: Batch summary for Sport Preference")
+        w = setlyze.gui.Report(report, "Batch report for analysis Sport Preference")
         w.set_size_request(700, 500)
 
 class Analysis(AnalysisWorker):
-    """Perform the calculations for analysis 1.
+    """Perform the calculations for the analysis.
 
-    1. Calculate the observed species frequencies for the plate areas.
-    2. Check if all plate area frequencies are zero. If so, abort.
-    3. Calculate the expected species frequencies for the plate areas.
-    4. Calculate the significance in difference between the observed and
-       expected area totals. The Chi-squared test is used for this.
-    5. Generate the analysis report.
+    Argument `locations` is the locations selection, `species` is the species
+    selection, `areas_definition` the SETL plate areas definition, and
+    `execute_queue` is an optional :class:`~setlyze.analysis.common.ProcessGateway`
+    queue.
+
+    The analysis can be broken down in the following steps:
+
+        1. Calculate the observed species frequencies for the plate areas.
+        2. Check if all plate area frequencies are zero. If so, abort.
+        3. Calculate the expected species frequencies for the plate areas.
+        4. Perform the Wilcoxon rank sum tests with repeats.
+        5. Perform the Chi-squared test to calculate the significance in
+           difference between the observed and expected area totals.
+        6. Perform a single Wilcoxon rank sum tests.
+        7. Generate the analysis report.
 
     Design Part: 1.3.2
     """
 
-    def __init__(self, locations_selection, species_selection, areas_definition, execute_queue=None):
+    def __init__(self, locations, species, areas_definition, execute_queue=None):
         super(Analysis, self).__init__(execute_queue)
-
-        self.locations_selection = locations_selection
-        self.species_selection = species_selection
+        logging.info("Performing %s" % setlyze.locale.text('analysis1'))
+        self.locations_selection = locations
+        self.species_selection = species
         self.areas_definition = areas_definition
         self.chisq_observed = None # Design Part: 2.25
         self.chisq_expected = None # Design Part: 2.26
@@ -399,9 +429,6 @@ class Analysis(AnalysisWorker):
             'wilcoxon_areas': {'attr': None, 'results': collections.OrderedDict()},
             'wilcoxon_areas_repeats': {'attr': None, 'results': collections.OrderedDict()}
         }
-
-        # Create log message.
-        logging.info("Performing %s" % setlyze.locale.text('analysis1'))
 
     def set_areas_definition(self, definition):
         """Set the plate areas definition.
@@ -412,21 +439,23 @@ class Analysis(AnalysisWorker):
         self.areas_definition = definition
 
     def run(self):
-        """Call the necessary methods for the analysis in the right order
+        """Perform the analysis and return the analysis report.
+
+        Calls the necessary methods for the analysis in the right order
         and do some data checks:
 
-            * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
-              :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
-            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
-              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
-            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
-            * :meth:`set_plate_area_totals_observed`
-            * :meth:`get_defined_areas_totals_observed`
-            * Check if all plate area totals are zero. If so, abort.
-            * :meth:`repeat_test`
-            * :meth:`calculate_significance_wilcoxon`
-            * :meth:`calculate_significance_chisq`
-            * :meth:`generate_report`
+        * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or
+          :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`
+        * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or
+          :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`
+        * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`
+        * :meth:`set_plate_area_totals_observed`
+        * :meth:`get_defined_areas_totals_observed`
+        * Check if all plate area totals are zero. If so, abort.
+        * :meth:`repeat_wilcoxon_test`
+        * :meth:`calculate_significance_wilcoxon`
+        * :meth:`calculate_significance_chisq`
+        * :meth:`generate_report`
 
         Design Part: 1.58
         """
@@ -445,36 +474,31 @@ class Analysis(AnalysisWorker):
 
             # Get the record IDs that match the localities+species selection.
             rec_ids = self.db.get_record_ids(self.locations_selection, self.species_selection)
-            # Create log message.
             logging.info("\tTotal records that match the species+locations selection: %d" % len(rec_ids))
 
-            # Create log message and update progress dialog.
+            # Make a spots table for the selected species.
             logging.info("\tCreating table with species spots...")
             self.exec_task('progress.increase', "Creating table with species spots...")
-            # Make a spots table for the selected species.
             self.db.set_species_spots(rec_ids, slot=0)
 
-            # Create log message and update progress dialog.
-            logging.info("\tMaking plate IDs in species spots table unique...")
-            self.exec_task('progress.increase', "Making plate IDs in species spots table unique...")
-            # Make the plate IDs unique.
+            # Combine records with the same plate ID.
+            logging.info("\tCombining records with the same plate ID...")
+            self.exec_task('progress.increase', "Combining records with the same plate ID...")
             self.n_plates_unique = self.db.make_plates_unique(slot=0)
-            # Create log message.
             logging.info("\t  %d records remaining." % (self.n_plates_unique))
 
         if not self.stopped():
-            # Create log message and update progress dialog.
+            # Calculate the expected totals.
             logging.info("\tCalculating the observed plate area totals for each plate...")
             self.exec_task('progress.increase', "Calculating the observed plate area totals for each plate...")
-            # Calculate the expected totals.
             self.set_plate_area_totals_observed()
 
-            # Calculate the observed species encounters for the user defined plate
-            # areas.
+            # Calculate the observed species encounters for the user defined
+            # plate areas.
             self.chisq_observed = self.get_defined_areas_totals_observed()
 
             # Make sure that spot area totals are not all zero. If so, abort
-            # the analysis, because we can't devide by zero (unless you're
+            # the analysis, because we can't divide by zero (unless you're
             # Chuck Norris of course).
             areas_total = 0
             for area_total in self.chisq_observed.itervalues():
@@ -482,59 +506,50 @@ class Analysis(AnalysisWorker):
             if areas_total == 0:
                 logging.info("The species was not found on any plates, aborting.")
                 self.exec_task('emit', 'analysis-aborted', setlyze.locale.text('empty-plate-areas'))
-
-                # Exit gracefully.
                 self.on_exit()
                 return None
 
         if not self.stopped():
-            # Create log message and update progress dialog.
+            # Perform the repeats for the Wilcoxon rank sum test. This will
+            # repeatedly calculate the expected totals. The expected values of
+            # the last repeat will be used for the non-repeated Wilcoxon test.
             logging.info("\tPerforming Wilcoxon tests with %d repeats..." % self.n_repeats)
             self.exec_task('progress.increase', "Performing Wilcoxon tests with %s repeats..." % self.n_repeats)
-            # Perform the repeats for the statistical tests. This will repeatedly
-            # calculate the expected totals, so we'll use the expected values
-            # of the last repeat for the non-repeated tests.
-            self.repeat_test(self.n_repeats)
+            self.repeat_wilcoxon_test(self.n_repeats)
 
         if not self.stopped():
-            # Create log message.
+            # Perform the Chi-squared and Wilcoxon rank sum test (non-repeated).
+            # The expected values for the last repeat is used for this Wilcoxon
+            # test.
             logging.info("\tPerforming statistical tests...")
-            # Update progress dialog.
             self.exec_task('progress.increase', "Performing statistical tests...")
-            # Performing the statistical tests.
             self.calculate_significance_wilcoxon()
             self.calculate_significance_chisq()
 
         # If the cancel button is pressed don't finish this function.
         if self.stopped():
             logging.info("Analysis aborted by user")
-
-            # Exit gracefully.
             self.on_exit()
             return None
 
-        # Update progress dialog.
-        self.exec_task('progress.increase', "Generating the analysis report...")
         # Generate the report.
+        self.exec_task('progress.increase', "Generating the analysis report...")
         self.generate_report()
 
-        # Update progress dialog.
+        # Update the progress dialog.
+        logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
         self.exec_task('progress.increase', "")
 
-        # Emit the signal that the analysis has finished.
-        # Note that the signal will be sent from a separate thread,
-        # so we must use gobject.idle_add.
-        gobject.idle_add(setlyze.std.sender.emit, 'analysis-finished')
-        logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
-
-        # Exit gracefully.
+        # Run finalizers.
         self.on_exit()
 
+        # Return the result.
         return self.result
 
     def set_plate_area_totals_observed(self):
-        """Fills :ref:`design-part-data-2.41`, the "plate_area_totals_observed"
-        table in the local SQLite database.
+        """Fills the "plate_area_totals_observed" table in the local database.
+
+        See :ref:`design-part-data-2.41`.
 
         Design Part: 1.62
         """
@@ -606,8 +621,9 @@ class Analysis(AnalysisWorker):
         cursor2.close()
 
     def set_plate_area_totals_expected(self):
-        """Fills :ref:`design-part-data-2.42`, the "plate_area_totals_expected"
-        table in the local SQLite database.
+        """Fills the "plate_area_totals_expected" table in the local database.
+
+        See :ref:`design-part-data-2.42`.
 
         Design Part: 1.63
         """
@@ -678,12 +694,13 @@ class Analysis(AnalysisWorker):
         cursor2.close()
 
     def calculate_significance_wilcoxon(self):
-        """Perform statistical tests to check if the differences between
-        the means of the two sets of positive spots numbers are statistically
-        significant.
+        """Perform statistical tests to check for significant differences.
 
-        The unpaired Wilcoxon rank sum test is used. We use unpaired
-        because the two sets of positive spots numbers are unrelated
+        The differences between the observed and expected positive spot numbers
+        are checked.
+
+        The unpaired Wilcoxon rank sum test is used. We use unpaired because
+        the two sets of positive spots numbers are unrelated
         (:ref:`Dalgaard <ref-dalgaard>`).
 
         The test is performed on different data groups. Each data group
@@ -692,14 +709,14 @@ class Analysis(AnalysisWorker):
         used for this test, so the default plate areas A, B, C and D are used.
         The groups are defined as follows:
 
-        1. Plate area A
-        2. Plate area B
-        3. Plate area C
-        4. Plate area D
-        5. Plate area A+B
-        6. Plate area C+D
-        7. Plate area A+B+C
-        8. Plate area B+C+D
+            1. Plate area A
+            2. Plate area B
+            3. Plate area C
+            4. Plate area D
+            5. Plate area A+B
+            6. Plate area C+D
+            7. Plate area A+B+C
+            8. Plate area B+C+D
 
         Based on the results of a test we can decide which hypothesis we can
         assume to be true.
@@ -775,7 +792,7 @@ class Analysis(AnalysisWorker):
             area_group_str = "+".join(area_group)
 
             # Perform two sample Wilcoxon tests.
-            sig_result = setlyze.std.wilcox_test(observed, expected,
+            test_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
                 conf_level = 1 - self.alpha_level,
                 conf_int = False)
@@ -783,8 +800,8 @@ class Analysis(AnalysisWorker):
             # Set the attributes for the tests.
             if not self.statistics['wilcoxon_areas_repeats']['attr']:
                 self.statistics['wilcoxon_areas_repeats']['attr'] = {
-                    'method': sig_result['method'],
-                    'alternative': sig_result['alternative'],
+                    'method': test_result['method'],
+                    'alternative': test_result['alternative'],
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'groups': "areas",
@@ -793,8 +810,8 @@ class Analysis(AnalysisWorker):
 
             if not self.statistics['wilcoxon_areas']['attr']:
                 self.statistics['wilcoxon_areas']['attr'] = {
-                    'method': sig_result['method'],
-                    'alternative': sig_result['alternative'],
+                    'method': test_result['method'],
+                    'alternative': test_result['alternative'],
                     'conf_level': 1 - self.alpha_level,
                     'paired': False,
                     'groups': "areas",
@@ -805,15 +822,16 @@ class Analysis(AnalysisWorker):
                 'n_values': count_observed,
                 'n_sp_observed': species_encouters_observed,
                 'n_sp_expected': species_encouters_expected,
-                'p_value': sig_result['p.value'],
+                'p_value': test_result['p.value'],
                 'mean_observed': mean_observed,
                 'mean_expected': mean_expected,
             }
 
     def calculate_significance_chisq(self):
-        """Perform statistical tests to check if the differences between
-        the means of the two sets of positive spots numbers are statistically
-        significant.
+        """Perform statistical tests to check for significant differences.
+
+        The differences between the observed and expected positive spot numbers
+        are checked.
 
         The Chi-squared test for given probabilities (:ref:`Millar <ref-millar>`,
         :ref:`Dalgaard <ref-dalgaard>`) is used to calculate this significance.
@@ -822,6 +840,10 @@ class Analysis(AnalysisWorker):
         calculated by the Chi-squared test. The number of observed positive
         spots are then compared to the expected number of positive spots. This
         is done for all user defined plate areas.
+
+        For the Chi-squared test the expected frequencies should not be less
+        than 5 (:ref:`Buijs <ref-buijs>`). If we find an expected frequency
+        that is less than 5, the result for this test is not saved.
 
         Based on the results of a test we can decide which hypothesis we can
         assume to be true.
@@ -857,45 +879,72 @@ class Analysis(AnalysisWorker):
         probabilities = self.get_area_probabilities()
 
         # Also perform Chi-squared test.
-        sig_result = setlyze.std.chisq_test(self.chisq_observed.values(),
+        test_result = setlyze.std.chisq_test(self.chisq_observed.values(),
             p = probabilities.values())
 
-        # For the Chi^2 test the expected frequencies should not be less than
-        # 5. If we find an expected frequency that is less than 5, do not save
-        # the results for this test. (:ref:`Buijs <ref-buijs>`)
-        for f in sig_result['expected']:
+        # If we find an expected frequency that is less than 5, do not save
+        # the results for this test.
+        for f in test_result['expected']:
             if f < 5:
                 return
 
         # Save the significance result.
         self.statistics['chi_squared_areas']['attr'] = {
-            'method': sig_result['method'],
+            'method': test_result['method'],
         }
         self.statistics['chi_squared_areas']['results'] = {
-            'chi_squared': sig_result['statistic']['X-squared'],
-            'p_value': sig_result['p.value'],
-            'df': sig_result['parameter']['df'],
+            'chi_squared': test_result['statistic']['X-squared'],
+            'p_value': test_result['p.value'],
+            'df': test_result['parameter']['df'],
         }
 
         # Save the expected values.
         self.chisq_expected = {}
         for i, area in enumerate(self.chisq_observed):
-            self.chisq_expected[area] = sig_result['expected'][i]
+            self.chisq_expected[area] = test_result['expected'][i]
 
-    def calculate_significance_wilcoxon_repeats(self):
-        """This method does the same as :meth:`calculate_significance_wilcoxon`,
-        but instead is designed to be called repeatedly, saving the results
+    def repeat_wilcoxon_test(self, n):
+        """Repeat the Wilcoxon rank sum test `n` times.
+
+        The significance test is performed by
+        :meth:`wilcoxon_test_for_repeats`.
+
+        Each time before :meth:`wilcoxon_test_for_repeats` is
+        called, :meth:`set_plate_area_totals_expected` is called to
+        re-calculate the expected values (which are random).
+
+        Design Part: 1.65
+        """
+        for i in range(n):
+            # Test if the cancel button is pressed.
+            if self.stopped():
+                return
+
+            # Update the progess bar.
+            self.exec_task('progress.increase')
+
+            # The expected area totals are random. So the expected values
+            # differ a little on each repeat.
+            self.set_plate_area_totals_expected()
+
+            # And then we calculate the siginificance for each repeat.
+            self.wilcoxon_test_for_repeats()
+
+    def wilcoxon_test_for_repeats(self):
+        """Perform the Wilcoxon rank sum test for repeats.
+
+        This method does the same Wilcoxon test from :meth:`calculate_significance`,
+        but it is designed to be called repeatedly, saving the results
         of the repeated test. This method doesn't save the detailed
         results of the Wilcoxon test, but just saves whether the p-value
-        was significant, and whether it was preference or rejection for the
-        plate area in question.
+        was significant, and whether it was attraction or repulsion for the
+        different numbers of positive spots.
 
-        Repeation of the Wilcoxon test is necessary, as the expected values
-        are calculated randomly. The test needs to be repeated many times
-        if you want to draw a solid conclusion from the results.
+        Repeation of the Wilcoxon test is necessary because the expected values
+        are calculated randomly. The test needs to be repeated many times if
+        you want to draw a solid conclusion from the test.
 
-        The number of times this method is called depends on the configuration
-        setting "test-repeats".
+        This method will be put in a loop by :meth:`repeat_wilcoxon_test`.
 
         Design Part: 1.100
         """
@@ -951,14 +1000,14 @@ class Analysis(AnalysisWorker):
             mean_expected = setlyze.std.mean(expected)
 
             # Perform two sample Wilcoxon tests.
-            sig_result = setlyze.std.wilcox_test(observed, expected,
+            test_result = setlyze.std.wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
                 conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
             # Save basic results for this repeated test.
             # Check if the result was significant (P-value < alpha-level).
-            p_value = float(sig_result['p.value'])
+            p_value = float(test_result['p.value'])
             if p_value < self.alpha_level and not math.isnan(p_value):
                 # If so, increase significant counter with one.
                 self.statistics['wilcoxon_areas_repeats']['results'][area_group_str]['n_significant'] += 1
@@ -972,35 +1021,11 @@ class Analysis(AnalysisWorker):
                     # Increase rejection counter with one.
                     self.statistics['wilcoxon_areas_repeats']['results'][area_group_str]['n_rejection'] += 1
 
-    def repeat_test(self, number):
-        """Repeats the siginificance test `number` times. The significance
-        test is performed by :meth:`calculate_significance_wilcoxon_repeats`.
-
-        Each time before :meth:`calculate_significance_wilcoxon_repeats` is
-        called, :meth:`set_plate_area_totals_expected` is called to
-        re-calculate the expected values (which are random).
-
-        Design Part: 1.65
-        """
-        for i in range(number):
-            # Test if the cancel button is pressed.
-            if self.stopped():
-                return
-
-            # Update the progess bar.
-            self.exec_task('progress.increase')
-
-            # The expected area totals are random. So the expected values
-            # differ a little on each repeat.
-            self.set_plate_area_totals_expected()
-
-            # And then we calculate the siginificance for each repeat.
-            self.calculate_significance_wilcoxon_repeats()
-
     def get_defined_areas_totals_observed(self):
-        """Return the number of positive spots for each user defined plate
-        area. The positive spots for the areas of all plates matching the
-        species selection are summed up.
+        """Return the number of positive spots for each defined plate area.
+
+        The positive spots for the areas of all plates matching the species
+        selection are summed up.
 
         Returns a dictionary where the keys are the unique names of the plate
         areas, and the values are the number of positive spots.
@@ -1009,16 +1034,17 @@ class Analysis(AnalysisWorker):
         """
 
         # Dictionary which will contain the species total for each area.
-        areas_totals_observed = {'area1': 0,
+        areas_totals_observed = {
+            'area1': 0,
             'area2': 0,
             'area3': 0,
             'area4': 0,
-            }
+        }
 
         for area_name, area_group in self.areas_definition.iteritems():
             # Get both sets of distances from plates per total spot numbers.
-            observed = self.db.get_area_totals(
-                'plate_area_totals_observed', area_group)
+            observed = self.db.get_area_totals('plate_area_totals_observed',
+                area_group)
 
             # Sum all totals in the correct area name.
             for total in observed:
@@ -1048,11 +1074,12 @@ class Analysis(AnalysisWorker):
         """
 
         # The spot names, and how many times they occur on a plate.
-        probabilities = {'A': 4/25.0,
+        probabilities = {
+            'A': 4/25.0,
             'B': 12/25.0,
             'C': 8/25.0,
             'D': 1/25.0,
-            }
+        }
 
         # Calculate what each spot area should be multiplied with, as
         # the spot areas can be combinations of spots.
@@ -1066,7 +1093,6 @@ class Analysis(AnalysisWorker):
         for area in area_probabilities:
             if area not in self.areas_definition:
                 delete.append(area)
-
         for area in delete:
             del area_probabilities[area]
 

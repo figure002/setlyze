@@ -25,6 +25,7 @@ Batch mode for an analysis is started by instantiating its :class:`BeginBatch`
 class. In batch mode, the selected analysis is repeated for a selection of
 species. The user can select multiple species and the analysis is repeated for
 each species separately and the results are displayed in a summary report.
+
 """
 
 import logging
@@ -47,10 +48,10 @@ __status__ = "Production"
 __date__ = "2013/02/12"
 
 class Begin(PrepareAnalysis):
-    """Select which analysis to run in batch mode:
+    """Start an analysis in batch mode.
 
-    1. Let the user select an analysis.
-    2. Run the analysis in batch mode.
+    First the user can select which analysis to start, then the analysis is
+    started in batch mode.
     """
 
     def __init__(self):
@@ -68,7 +69,7 @@ class Begin(PrepareAnalysis):
         setlyze.gui.select_batch_analysis.show()
 
     def on_analysis_selected(self, sender, analysis):
-        """Start the selected analysis in batch mode."""
+        """Start the selected analysis `analysis` in batch mode."""
         if analysis == 'spot_preference':
             setlyze.analysis.spot_preference.BeginBatch()
         elif analysis == 'attraction_intra':

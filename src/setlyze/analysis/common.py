@@ -411,7 +411,8 @@ class PrepareAnalysis(object):
         time since the start of the analyses, sets the progress of the progress
         to 100%, strips empty reports from the results, exports the reports
         if set by the user, and finally sends the ``pool-finished`` signal.
-        If there are no results (or all reports are empty), emit signal
+        The stripped results list is sent along with the signal. If there are
+        no results (or all reports are empty), emit signal
         ``no-results`` and close the analysis.
 
         .. warning::
@@ -494,7 +495,8 @@ class PrepareAnalysis(object):
 
         This method can be set as a handler for the ``pool-finished`` signal.
         The signal should have a single argument, a list of report objects
-        `results`. This signal can be emitted by :meth:`on_pool_finished`.
+        `results`. This signal can be emitted by
+        :meth:`~setlyze.analysis.common.PrepareAnalysis.on_pool_finished`.
 
         This is not a good handler in batch mode because it will open as many
         report windows as there are reports in `results`. So in batch mode
