@@ -6,5 +6,8 @@
 :Release: |release|
 :Date: |today|
 
+Module Contents
+---------------
+
 .. automodule:: setlyze.analysis.batch
    :members:
