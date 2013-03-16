@@ -355,10 +355,9 @@ class SelectBatchAnalysis(object):
     """Display a window that allows the user to select an analysis for batch mode."""
 
     def __init__(self):
+        # Get some GTK objects.
         self.builder = gtk.Builder()
         self.builder.add_from_file(os.path.join(module_path(), 'glade/select_batch_analysis.glade'))
-
-        # Get some GTK objects.
         self.window = self.builder.get_object('window_select_analysis')
         self.radio_ana_spot_pref = self.builder.get_object('radio_ana_spot_pref')
         self.radio_ana_attraction_intra = self.builder.get_object('radio_ana_attraction_intra')
@@ -450,7 +449,6 @@ class SelectionWindow(gtk.Window):
 
     def __init__(self, title, description, width, slot):
         super(SelectionWindow, self).__init__()
-
         self.header = title
         self.description = description
         self.width = width
@@ -459,6 +457,8 @@ class SelectionWindow(gtk.Window):
         self.selection_minimum_msg = ("No items were selected. Please "
                 "select at least one item from the list.")
         self.set_save_slot(slot)
+        self.back_signal = 'dialog-back'
+        self.saved_signal = 'selection-saved'
 
         self.set_icon_name('setlyze')
         self.set_title(title)
@@ -646,11 +646,31 @@ class SelectionWindow(gtk.Window):
             raise ValueError("Wrong value for save slot. Slot can be either 0 or 1.")
         self.save_slot = slot
 
+    def on_back(self, widget, data=None):
+        """Destroy the dialog and send the back signal.
+
+        The back signal is set in attribute `back_signal`. The save slot
+        (attribute `save_slot`) is an attribute of the signal.
+
+        This function is called when the user presses the Back button in
+        a species selection window.
+
+        Design Part: 1.46
+        """
+        self.destroy()
+        self.unset_signal_handlers()
+        setlyze.std.sender.emit(self.back_signal, self.save_slot)
+
     def on_continue(self, button):
-        """Before saving the localities/species selection, check if
-        anything was selected. If not, display a message dialog. If yes,
-        call method self.save_selection to save the selection and then
-        close the selection dialog.
+        """Emit the selection saved signal and close the dialog.
+
+        The saved signal is set in attribute `saved_signal`. The selection
+        `selection` and the save slot `slot` are attributes of the signal.
+
+        Before emitting the signal, check if the selection is valid. If not,
+        display a message dialog. If yes, call :meth:`emit_signal` to emit
+        the signal (that method must be set in a sub class), then close the
+        selection dialog.
 
         Design Part: 1.44
         """
@@ -668,28 +688,24 @@ class SelectionWindow(gtk.Window):
             dialog.destroy()
             return
 
-        # Save the selection. This method is present in one of the sub
-        # classes.
-        self.save_selection()
+        # Emit the signal. This method is present in one of the sub classes.
+        setlyze.std.sender.emit(self.saved_signal, self.selection, self.save_slot)
 
-        # Destroy the handlers.
+        # Destroy the signal handlers and close this window.
         self.unset_signal_handlers()
-
-        # Then close this window.
         self.destroy()
 
-    def on_changed(self, treeselection):
-        """Save the locations selection to a temporary variable.
+    def on_changed(self, treeview):
+        """Save the selection from a gtk.TreeView `treeview`.
 
         This method is called whenever the selection changes.
         """
-        (model, rows) = treeselection.get_selected_rows()
+        (model, rows) = treeview.get_selected_rows()
         self.selection = []
         for row in rows:
             iter = model.get_iter(row)
-            # We use column=0, because the first column in the
-            # TreeModels contain the ID, which we'll need for the SQL
-            # queries.
+            # We use column=0, because the first column in the TreeModels
+            # contain the ID, which we'll need for the SQL queries.
             self.selection.append(model.get_value(iter, column=0))
 
     def update_tree(self, widget=None):
@@ -743,71 +759,20 @@ class SelectLocations(SelectionWindow):
     def __init__(self, title="Locations Selection",
             description="Select the locations:", width=400, slot=0):
         super(SelectLocations, self).__init__(title, description, width, slot)
-
         self.info_key = 'info-loc-selection'
-
-    def on_back(self, button):
-        """Destroy the selection dialog and send the
-        ``locations-dialog-back`` signal.
-
-        The ``locations-dialog-back`` signal is sent with the save slot
-        as an attribute. The save slot can have a value of ``0`` for the
-        first selection and ``1`` for the second selection.
-
-        This function is called when the user presses the Back button in
-        a location selection window.
-
-        Design Part: 1.45
-        """
-
-        # Close the dialog.
-        self.destroy()
-
-        # Destroy the handlers.
-        self.unset_signal_handlers()
-
-        # Emit the signal that the Back button was pressed.
-        setlyze.std.sender.emit('locations-dialog-back', self.save_slot)
-
-    def save_selection(self):
-        """Save the locations selection and send the
-        ``locations-selection-saved`` signal.
-
-        The ``locations-selection-saved`` signal is sent with the save slot
-        as an attribute. The save slot can have a value of ``0`` for the
-        first selection and ``1`` for the second selection.
-
-        Design Part: 1.7
-        """
-        setlyze.config.cfg.set('locations-selection', self.selection,
-                slot=self.save_slot)
-
-        # Make log message.
-        selection = setlyze.config.cfg.get('locations-selection')
-        logging.debug("\tLocations selection set to: %s" % selection)
-
-        # Emit the signal the selection was saved.
-        setlyze.std.sender.emit('locations-selection-saved', self.save_slot)
+        self.back_signal = 'locations-dialog-back'
+        self.saved_signal = 'locations-selection-saved'
 
     def create_model(self):
-        """Create a model for the tree view from the location IDs and
-        names.
+        """Create a tree model for the locations.
 
         Design Part: 1.42
         """
-
-        # Create an object for accessing the database.
         db = setlyze.database.get_database_accessor()
-
-        # Create the model.
-        self.model = gtk.ListStore(gobject.TYPE_INT,
-                                   gobject.TYPE_STRING)
-        for item in db.get_locations():
-            self.model.append([item[0], item[1]])
-
-        # Create a sorted version of the model. Then sort the locations
-        # ascending.
-        self.model = gtk.TreeModelSort(self.model)
+        self.store = gtk.ListStore(gobject.TYPE_INT, gobject.TYPE_STRING)
+        for id,name in db.get_locations():
+            self.store.append([id,name])
+        self.model = gtk.TreeModelSort(self.store)
         self.model.set_sort_column_id(1, gtk.SORT_ASCENDING)
 
     def create_columns(self, treeview):
@@ -829,54 +794,13 @@ class SelectSpecies(SelectionWindow):
     Design Part: 1.88
     """
 
-    def __init__(self, title="Species Selection",
+    def __init__(self, locations, title="Species Selection",
             description="Select the species:", width=600, slot=0):
+        self.locations = locations
         super(SelectSpecies, self).__init__(title, description, width, slot)
-
+        self.back_signal = 'species-dialog-back'
+        self.saved_signal = 'species-selection-saved'
         self.info_key = 'info-spe-selection'
-
-    def on_back(self, widget, data=None):
-        """Destroy the selection dialog and send the
-        ``species-dialog-back`` signal.
-
-        The ``species-dialog-back`` signal is sent with the save slot
-        as an attribute. The save slot can have a value of ``0`` for the
-        first selection and ``1`` for the second selection.
-
-        This function is called when the user presses the Back button in
-        a species selection window.
-
-        Design Part: 1.46
-        """
-
-        # Then close this window.
-        self.destroy()
-
-        # Destroy the handlers.
-        self.unset_signal_handlers()
-
-        # Emit the signal that the Back button was pressed.
-        setlyze.std.sender.emit('species-dialog-back', self.save_slot)
-
-    def save_selection(self):
-        """Save the species selection and send the
-        ``species-selection-saved`` signal.
-
-        The ``species-selection-saved`` signal is sent with the save slot
-        as an attribute. The save slot can have a value of ``0`` for the
-        first selection and ``1`` for the second selection.
-
-        Design Part: 1.12.2
-        """
-        setlyze.config.cfg.set('species-selection', self.selection,
-            slot=self.save_slot)
-
-        # Make log message.
-        selection = setlyze.config.cfg.get('species-selection')
-        logging.debug("\tSpecies selection set to: %s" % selection)
-
-        # Emit the signal that a selection was saved.
-        setlyze.std.sender.emit('species-selection-saved', self.save_slot)
 
     def create_model(self):
         """Create a model for the tree view from the species IDs and
@@ -884,22 +808,14 @@ class SelectSpecies(SelectionWindow):
 
         Design Part: 1.43
         """
-
-        # Create an object for accessing the local database.
         db = setlyze.database.AccessLocalDB()
-
-        # Create the model.
-        self.model = gtk.ListStore(gobject.TYPE_INT,
+        self.store = gtk.ListStore(gobject.TYPE_INT,
                                    gobject.TYPE_STRING,
                                    gobject.TYPE_STRING)
+        for id,common,latin in db.get_species(self.locations):
+            self.store.append([id,common,latin])
 
-
-        for item in db.get_species(loc_slot=self.save_slot):
-            self.model.append([item[0], item[1], item[2]])
-
-        # Create a sorted version of the model. Then sort on the latin
-        # species names.
-        self.model = gtk.TreeModelSort(self.model)
+        self.model = gtk.TreeModelSort(self.store)
         self.model.set_sort_column_id(2, gtk.SORT_ASCENDING)
 
     def create_columns(self, treeview):
@@ -920,8 +836,7 @@ class SelectSpecies(SelectionWindow):
         # Notice text=1, which means that we let the column display the
         # attribute values for the cell renderer from column 1 in the
         # TreeModel. Column 1 contains the species names (common).
-        column = gtk.TreeViewColumn("Species (common)", renderer_text,
-            text=1)
+        column = gtk.TreeViewColumn("Species (common)", renderer_text, text=1)
         # Sort on column 1 from the model.
         column.set_sort_column_id(1)
         column.set_resizable(True)
@@ -1260,15 +1175,17 @@ class DefinePlateAreas(gtk.Window):
         setlyze.std.sender.emit('define-areas-dialog-closed')
 
     def on_continue(self, widget, data=None):
-        """Check if the user made a correct definition. If yes, normalize
-        the definition and save it."""
+        """Emit the "plate-areas-defined" signal.
+
+        First checks if the user made a correct definition. If yes, normalize
+        the definition and emit the signal with the definition as an attribute.
+        """
 
         # Get the user selected plate areas definition.
         definition = self.get_selection()
 
         # Check if the definition is any good.
         if not self.iscorrect(definition):
-            # Apparently the definition was not good.
             return
 
         # Then close this window.
@@ -1277,8 +1194,8 @@ class DefinePlateAreas(gtk.Window):
         # Normalize the definition.
         definition = self.normalize(definition)
 
-        # Save the definition.
-        self.save(definition)
+        # Emit the signal that the plate areas are defined.
+        setlyze.std.sender.emit('plate-areas-defined', definition)
 
     def on_back(self, widget, data=None):
         """Destroy the dialog and send the ``define-areas-dialog-back``
@@ -1407,20 +1324,6 @@ class DefinePlateAreas(gtk.Window):
 
         # Return the normalized definition.
         return new_definition
-
-    def save(self, definition):
-        """Save the plate areas definition and emit the
-        ``plate-areas-defined`` signal.
-        """
-
-        # Set the spots definition.
-        setlyze.config.cfg.set('plate-areas-definition', definition)
-
-        # Make log message.
-        logging.debug("\tPlate areas definition set to: %s" % definition)
-
-        # Emit the signal that the plate areas are defined.
-        setlyze.std.sender.emit('plate-areas-defined')
 
 class ChangeDataSource(gtk.Window):
     """Display a dialog that allows the user to change to a different

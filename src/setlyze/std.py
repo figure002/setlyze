@@ -763,9 +763,9 @@ class Sender(gobject.GObject):
         'select-batch-analysis-window-back': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
 
         'local-db-created': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
-        'locations-selection-saved': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-        'species-selection-saved': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_INT,)),
-        'plate-areas-defined': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+        'locations-selection-saved': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_INT)),
+        'species-selection-saved': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,gobject.TYPE_INT)),
+        'plate-areas-defined': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_PYOBJECT,)),
         'batch-analysis-selected': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
 
         'analysis-aborted': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING,)),
@@ -809,30 +809,27 @@ class ProgressDialogHandler(object):
 
     Follow these steps to get the progress dialog working:
 
-    1) In the main thread, create a progress dialog, ::
+    1) Somewhere in the main thread, create a progress dialog ::
 
-        pd = setlyze.gui.ProgressDialog(title="Analyzing",
-            description="Performing heavy calculations, please wait...")
+            pd = setlyze.gui.ProgressDialog(title="Analyzing",
+                description="Performing heavy calculations, please wait...")
 
-    2) Make the progress dialog global using the :mod:`setlyze.config` module, ::
+    2) Edit the worker process to automatically update the progress dialog.
+       Create an instance of this class as follows (notice that the progress
+       dialog is passed as its only argument) ::
 
-        setlyze.config.cfg.set('progress-dialog', pd)
+            self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
 
-    3) Edit the worker process to automatically update the progress dialog.
-       First create an instance of this class in the __init__() of your class: ::
-
-            self.pdialog_handler = setlyze.std.ProgressDialogHandler()
-
-    4) Then you need to tell the handler how many times you're going to update
+    3) Then you need to tell the handler how many times you're going to update
        the progress dialog (which is the number of times you'll call the
-       :meth:`increase` method): ::
+       :meth:`increase` method) ::
 
             self.pdialog_handler.set_total_steps(8)
 
-    5) Then call the :meth:`increase` method in you worker class at the moments
+    4) Then call the :meth:`increase` method in you worker class at the moments
        you want to update the progress dialog. Notice that :meth:`increase`
        will be called 8 times in the example below (hence total steps was set
-       to 8): ::
+       to 8) ::
 
             self.pdialog_handler.set_action("Calculating this...")
             self.some_heavy_function()
@@ -847,11 +844,11 @@ class ProgressDialogHandler(object):
 
             self.pdialog_handler.increase("Finished!")
 
-    6) Then start your worker process in a separate thread (if you're new to
+    5) Then start your worker process in a separate thread (if you're new to
        threading, start with the `threading documentation
        <http://docs.python.org/library/threading.html>`_) ::
 
-        t = WorkerClass()
+        t = Worker()
         t.start()
 
     The progress bar should now increase while the worker process is running.
@@ -934,10 +931,6 @@ class ProgressDialogHandler(object):
         The value of `fraction` should be between 0.0 and 1.0. Optionally set
         the current action to `action`, a short string explaining the current
         action.
-
-        The "progress-dialog" configuration must be set to an instance of
-        :class:`setlyze.gui.ProgressDialog` for this to work. If no progress
-        dialog is set, nothing will happen.
         """
         if not self.pdialog:
             return

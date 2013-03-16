@@ -302,6 +302,7 @@ class PrepareAnalysis(object):
     def __init__(self):
         self.alpha_level = setlyze.config.cfg.get('alpha-level')
         self.elapsed_time = None
+        self.locations_selection = None
         self.n_repeats = setlyze.config.cfg.get('test-repeats')
         self.pdialog = None
         self.pdialog_handler = None
@@ -312,6 +313,8 @@ class PrepareAnalysis(object):
         self.save_path = setlyze.config.cfg.get('job-results-save-path')
         self.signal_handlers = {}
         self.start_time = None
+        self.species_selection = None
+        self.species_selections = [None,None]
 
     def in_batch_mode(self):
         """Return True if we are in batch mode, False otherwise."""
@@ -326,7 +329,7 @@ class PrepareAnalysis(object):
     def on_analysis_aborted(self, sender, reason):
         """Display an information dialog with the reason for the abortion.
 
-        This method can be set as a handler for the ``analysis-aborted``
+        This method can be set as a handler for the "analysis-aborted"
         signal. When this signal is emitted, a reason for abortion `reason` is
         returned as a string.
         """
@@ -342,7 +345,7 @@ class PrepareAnalysis(object):
     def on_cancel_button(self, sender):
         """Cancel the analysis.
 
-        This method can be set as a handler for the ``analysis-canceled``
+        This method can be set as a handler for the "analysis-canceled"
         signal. This signal is emitted when the Cancel button of a progress
         dialog is pressed.
 
@@ -382,7 +385,7 @@ class PrepareAnalysis(object):
         is optional.
 
         After `timeout` seconds, this method closes the progress dialog (if
-        any), sends the ``analysis-closed`` signal, and disconnects any signal
+        any), sends the "analysis-closed" signal, and disconnects any signal
         handlers set in this class.
         """
         if timeout:
@@ -410,10 +413,10 @@ class PrepareAnalysis(object):
         This method collects the results `results`, calculates the elapsed
         time since the start of the analyses, sets the progress of the progress
         to 100%, strips empty reports from the results, exports the reports
-        if set by the user, and finally sends the ``pool-finished`` signal.
+        if set by the user, and finally sends the "pool-finished" signal.
         The stripped results list is sent along with the signal. If there are
         no results (or all reports are empty), emit signal
-        ``no-results`` and close the analysis.
+        "no-results" and close the analysis.
 
         .. warning::
 
@@ -453,7 +456,7 @@ class PrepareAnalysis(object):
     def on_no_results(self, sender=None):
         """Display an info dialog saying that there were no results.
 
-        This method is usually set as a handler for the ``no-results``
+        This method is usually set as a handler for the "no-results"
         signal.
         """
         dialog = gtk.MessageDialog(parent=None, flags=0,
@@ -493,7 +496,7 @@ class PrepareAnalysis(object):
     def on_display_results(self, sender, results=[]):
         """Display each report from the list `results` in a report window.
 
-        This method can be set as a handler for the ``pool-finished`` signal.
+        This method can be set as a handler for the "pool-finished" signal.
         The signal should have a single argument, a list of report objects
         `results`. This signal can be emitted by
         :meth:`~setlyze.analysis.common.PrepareAnalysis.on_pool_finished`.

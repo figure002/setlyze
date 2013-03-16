@@ -1574,29 +1574,23 @@ class AccessLocalDB(AccessDBGeneric):
             area_d INTEGER \
         )")
 
-    def get_species(self, loc_slot=0):
+    def get_species(self, locations):
         """Return a list of species tuples in the format ``(spe_id,
         'spe_name_venacular', 'spe_name_latin')`` from the local
         database that match the localities selection.
 
-        The values for `loc_slot` are ``0`` for the first localities
-        selection and ``1`` for the second localities selection.
+        Only species matching a list of location IDs `locations` will be
+        returned.
 
         Design Part: 1.96
         """
-
-        # Get one of the location selections.
-        locations_selection = setlyze.config.cfg.get('locations-selection', slot=loc_slot)
-
-        # Connect to the local database.
-
         cursor = self.conn.cursor()
 
         # Select all plate IDs from plates that are from the selected
         # locations.
-        placeholders = ','.join('?' * len(locations_selection))
+        placeholders = ','.join('?' * len(locations))
         cursor.execute("SELECT pla_id FROM plates WHERE pla_loc_id IN (%s)" %
-            (placeholders), locations_selection)
+            (placeholders), locations)
         # Construct a list with the IDs
         pla_ids = [row[0] for row in cursor]
         # Remove duplicates.
