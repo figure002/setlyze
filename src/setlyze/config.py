@@ -29,14 +29,8 @@ usage example,
 
     >>> import setlyze.config
     >>> setlyze.config.cfg.set('alpha-level', 0.01)
-    >>> setlyze.config.cfg.set('species-selection', [11, 12, 13, 14], slot=0)
-    >>> setlyze.config.cfg.set('species-selection', [15, 16, 17], slot=1)
     >>> print "The alpha level for the t-test and Wilcoxon test is set to", setlyze.config.cfg.get('alpha-level')
     The alpha level for the t-test and Wilcoxon test is set to 0.01
-    >>> print "The first species selection is", setlyze.config.cfg.get('species-selection', slot=0)
-    The first species selection is [11, 12, 13, 14]
-    >>> print "The second species selection is", setlyze.config.cfg.get('species-selection', slot=1)
-    The second species selection is [15, 16, 17]
 
 Importing this module in a different module gives access to the same
 ``cfg`` object, and thus its variables can be obtained or manipulated
@@ -131,12 +125,6 @@ DEFAULT_CONFIG = [
     ('data-path', DATA_PATH),
     # Absolute path to the local database file.
     ('db-file', DB_FILE),
-    # Location selections.
-    # Design Part: 2.6
-    ('locations-selection', [None,None]),
-    # Species selections.
-    # Design Part: 2.7
-    ('species-selection', [None,None]),
     # Path to localities CSV or XLS file.
     ('localities-file', None),
     # Path to species CSV or XLS file.
@@ -145,15 +133,6 @@ DEFAULT_CONFIG = [
     ('records-file', None),
     # Path to plates CSV or XLS file.
     ('plates-file', None),
-    # Plate areas definition for analysis 1
-    # Design Part: 2.24
-    ('plate-areas-definition', None),
-    # Progress dialog.
-    ('progress-dialog', None),
-    # Analysis report.
-    ('analysis-report', None),
-    # Alpha level for normality tests.
-    ('alpha-level-normality', 0.05),
     # Alpha level for significance tests. The confidence level is calculated
     # with "1 - alpha-level".
     ('alpha-level', 0.05),
@@ -325,8 +304,7 @@ class ConfigManager(object):
 
         return self._conf.get(key)
 
-# Create an instance of ConfigManager. This instance is only created
-# once, upon the first import. Subsequent imports will use the first
-# instance (so it seems). So this instance is accessible between all
-# modules.
+# Create an instance of ConfigManager. This instance is only created once,
+# upon the first import. Subsequent imports of this module will use the
+# same instance. So this instance is accessible between all modules.
 cfg = ConfigManager()
