@@ -404,8 +404,7 @@ class BeginBatch(Begin):
         })
 
         # Display the report.
-        w = setlyze.gui.Report(report, "Batch report for analysis Sport Preference")
-        w.set_size_request(700, 500)
+        setlyze.gui.Report(report, "Batch report for analysis Sport Preference")
 
 class Analysis(AnalysisWorker):
     """Perform the calculations for the analysis.

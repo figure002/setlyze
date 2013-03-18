@@ -134,9 +134,13 @@ def on_not_implemented():
 
 def markup_header(text):
     """Apply Pango markup to `text` to make it look like a header."""
-    text = "<span size='large' weight='bold'>%s</span>" % (text)
+    text = "<span size='x-large' weight='bold'>%s</span>" % (text)
     return text
 
+def markup_subheader(text):
+    """Apply Pango markup to `text` to make it look like a header."""
+    text = "<span size='large' weight='bold'>%s</span>" % (text)
+    return text
 
 class SelectAnalysis(object):
     """Display a window that allows the user to select an analysis.
@@ -1908,35 +1912,44 @@ class ProgressDialog(gtk.Window):
         # this function from closing anyway.
         return True
 
-class Report(gtk.Window):
+class Report(object):
     """Display a dialog visualizing the elements in a report object.
 
     The argument `report` must be an instance of
     :class:`setlyze.report.Report`.
     """
 
-    def __init__(self, report, header=None):
-        super(Report, self).__init__()
-        self.set_icon_name('setlyze')
-        self.set_title("Analysis Report")
-        self.set_size_request(600, 500)
-        self.set_border_width(0)
-        self.set_resizable(True)
-        self.set_keep_above(False)
-        self.set_position(gtk.WIN_POS_CENTER)
+    def __init__(self, report, header="Report"):
         self.report = None
         self.set_report(report)
 
-        # Handle window signals.
-        self.connect('delete-event', on_quit)
+        # Get some GTK objects.
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(module_path(), 'glade/report.glade'))
+        self.window = self.builder.get_object('window_report')
+        self.toolbutton_save_all = self.builder.get_object('toolbutton_save_all')
+        toolbutton_help = self.builder.get_object('toolbutton_help')
+        self.vbox_top = self.builder.get_object('vbox_top')
+        self.vbox_elements = self.builder.get_object('vbox_elements')
+        self.label_header = self.builder.get_object('label_header')
+        self.label_subheader = self.builder.get_object('label_subheader')
 
-        # Add widgets to the GTK window.
-        self.create_layout()
+        # Connect the window signals to the handlers.
+        self.builder.connect_signals(self)
+        self.window.connect('delete-event', on_quit)
+
+        # Modify some widgets.
+        toolbutton_help.connect('clicked', on_help, 'analysis-report-dialog')
+
+        # Set the report header.
         if header:
             self.set_header(header)
 
+        # Add report elements.
+        self.add_report_elements()
+
         # Display all widgets.
-        self.show_all()
+        self.window.show_all()
 
     def set_report(self, report):
         """Set the report object `report`."""
@@ -1945,98 +1958,20 @@ class Report(gtk.Window):
         else:
             ValueError("Report must be an instance of setlyze.report.Report")
 
-    def create_layout(self):
-        """Construct the layout for the dialog."""
+    def set_header(self, text):
+        """Set the header of the report dialog to `text`."""
+        self.label_header.set_markup(markup_header(text))
 
-        # Create a table to organize the widgets.
-        table = gtk.Table(rows=4, columns=2, homogeneous=False)
-        table.set_col_spacings(10)
-        table.set_row_spacings(10)
+    def set_subheader(self, text):
+        """Set the subheader of the report dialog to `text`."""
+        self.label_subheader.set_markup(markup_subheader(text))
 
-        # Create a toolbar.
-        toolbar = gtk.Toolbar()
-        toolbar.set_style(gtk.TOOLBAR_BOTH)
-        toolbar.set_icon_size(gtk.ICON_SIZE_SMALL_TOOLBAR)
-        toolbar.set_tooltips(True)
-
-        # Create buttons for the toolbar.
-        button_home = gtk.ToolButton(gtk.STOCK_HOME)
-        button_save = gtk.ToolButton(gtk.STOCK_SAVE_AS)
-        button_save.set_label("Save Report")
-        sep = gtk.SeparatorToolItem()
-        button_help = gtk.ToolButton(gtk.STOCK_HELP)
-
-        # Add the buttons to the toolbar.
-        toolbar.insert(button_home, 0)
-        toolbar.insert(button_save, 1)
-        toolbar.insert(sep, 2)
-        toolbar.insert(button_help, 3)
-
-        # Handle button signals.
-        button_home.connect("clicked", self.on_close)
-        button_save.connect("clicked", self.on_save)
-        button_help.connect("clicked", on_help, 'analysis-report-dialog')
-
-        # Add the toolbar to the vertical box.
-        table.attach(toolbar, left_attach=0, right_attach=2,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create a vertical box for widgets that go on the top of the
-        # report window, like the report header.
-        self.vbox_top = gtk.VBox(homogeneous=False, spacing=1)
-
-        # Add the vbox_top to the table.
-        table.attach(self.vbox_top, left_attach=0, right_attach=2,
-            top_attach=1, bottom_attach=2,
-            xoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
-            yoptions=gtk.SHRINK | gtk.FILL,
-            xpadding=10, ypadding=0)
-
-        # Create a vertical box for the differenct report elements like
-        # locations/species selection, significance results, etc.
-        self.vbox = gtk.VBox(homogeneous=False, spacing=1)
-
-        # Create a Scrolled Window
-        scrolled_window = gtk.ScrolledWindow()
-        scrolled_window.set_shadow_type(gtk.SHADOW_NONE) # Has no effect.
-        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        # Add the vertical box to the scrolled window. A gtk.VBox
-        # doesn't have native scrolling capabilities, so we use
-        # add_with_viewport() instead of the usual add().
-        scrolled_window.add_with_viewport(self.vbox)
-
-        # Add the scrolled window to the table.
-        table.attach(scrolled_window, left_attach=0, right_attach=2,
-            top_attach=2, bottom_attach=3,
-            xoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
-            yoptions=gtk.EXPAND | gtk.SHRINK | gtk.FILL,
-            xpadding=10, ypadding=0)
-
-        # Add report elements.
-        self.add_report_elements()
-
-        # Add the table to the window.
-        self.add(table)
-
-    def set_header(self, title):
-        """Set the header of the report dialog to `title`."""
-        header = gtk.Label()
-        header.set_alignment(xalign=0, yalign=0)
-        header.set_line_wrap(False)
-        header.set_markup(markup_header(title))
-        self.vbox_top.pack_start(header, expand=False, fill=True, padding=0)
-
-    def on_close(self, obj, data=None):
+    def on_close(self, obj):
         """Close the dialog and emit the `report-dialog-closed` signal."""
-
-        # Close the report window.
-        self.destroy()
-
-        # Emit the signal that an analysis report window was closed.
+        self.window.destroy()
         setlyze.std.sender.emit('report-dialog-closed')
 
-    def on_save(self, obj, data=None):
+    def on_save(self, button):
         """Display a dialog that allows the user to save the report to
         a file.
         """
@@ -2071,6 +2006,14 @@ class Report(gtk.Window):
         # Close the filechooser.
         chooser.destroy()
 
+    def on_save_all(self, button):
+        """Save individual report for batch mode."""
+        setlyze.std.sender.emit('save-individual-reports')
+
+    def on_repeat(self, button):
+        """Repeat the analysis with modified options."""
+        setlyze.std.sender.emit('repeat-analysis')
+
     def add_report_elements(self):
         """Add the report elements present in the report object to the
         report dialog.
@@ -2079,7 +2022,7 @@ class Report(gtk.Window):
             return
 
         if hasattr(self.report, 'analysis_name'):
-            self.add_title_header(self.report.analysis_name)
+            self.set_subheader(self.report.analysis_name)
 
         if hasattr(self.report, 'locations_selections') and \
             hasattr(self.report, 'species_selections'):
@@ -2140,17 +2083,6 @@ class Report(gtk.Window):
             for stats in self.report.statistics['ratio_groups_summary']:
                 self.add_ratio_groups_summary(stats)
 
-    def add_title_header(self, analysis_name):
-        """Add a header text to the report dialog.
-
-        The header contains the name of the analysis.
-        """
-        header = gtk.Label()
-        header.set_alignment(xalign=0, yalign=0)
-        header.set_line_wrap(False)
-        header.set_markup(markup_header("Analysis Report: %s" % analysis_name))
-        self.vbox_top.pack_start(header, expand=False, fill=True, padding=0)
-
     def add_selections(self, locations_selections, species_selections):
         """Add the location + species selections to the report dialog."""
 
@@ -2205,7 +2137,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the scorred window to the vertical box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_plate_areas_definition(self, definition):
         """Add the plate areas definition to the report dialog."""
@@ -2248,7 +2180,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_area_totals(self, observed, expected):
         """Add the species totals per plate area to the report dialog."""
@@ -2295,7 +2227,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_wilcoxon_spots(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2359,7 +2291,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_wilcoxon_ratios(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2423,7 +2355,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_wilcoxon_areas(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2489,7 +2421,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_chisq_spots(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2557,7 +2489,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_chisq_areas(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2612,7 +2544,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_chisq_ratios(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2680,7 +2612,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_repeats_areas(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2743,7 +2675,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_repeats_spots(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2806,7 +2738,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_statistics_repeats_ratios(self, statistics):
         """Add the statistic results to the report dialog."""
@@ -2869,7 +2801,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(expander, expand=False, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_plate_areas_summary(self, statistics):
         """Add a summary report for spot preference to the displayer.
@@ -2936,7 +2868,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+        self.vbox_elements.pack_start(scrolled_window, expand=True, fill=True, padding=0)
 
     def add_positive_spots_summary(self, statistics):
         """Add a summary report for spot preference to the displayer.
@@ -3042,7 +2974,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+        self.vbox_elements.pack_start(scrolled_window, expand=True, fill=True, padding=0)
 
     def add_ratio_groups_summary(self, statistics):
         """Add a summary report for spot preference to the displayer.
@@ -3113,7 +3045,7 @@ class Report(gtk.Window):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+        self.vbox_elements.pack_start(scrolled_window, expand=True, fill=True, padding=0)
 
 class Preferences(object):
     """Display the preferences dialog.

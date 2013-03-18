@@ -354,8 +354,7 @@ class BeginBatch(Begin):
         report.set_definitions(definitions)
 
         # Display the report.
-        w = setlyze.gui.Report(report, "Batch report for analysis Attraction within Species")
-        w.set_size_request(700, 500)
+        setlyze.gui.Report(report, "Batch report for analysis Attraction within Species")
 
 class Analysis(AnalysisWorker):
     """Perform the calculations for the analysis.
