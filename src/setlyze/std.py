@@ -978,7 +978,7 @@ class ProgressDialogHandler(object):
             # of 1 second before closing it, so the user gets to see the
             # dialog when an analysis finishes very fast.
             if self.autoclose:
-                self.__close_progress_dialog(1)
+                gobject.idle_add(self.__close_progress_dialog, 1)
 
         # This callback function must return False, so it is
         # automatically removed from the list of event sources.
