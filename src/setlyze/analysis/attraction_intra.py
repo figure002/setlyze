@@ -114,6 +114,8 @@ class Begin(PrepareAnalysis):
             'no-results': setlyze.std.sender.connect('no-results', self.on_no_results),
             # Request to repeat the analysis.
             'repeat-analysis': setlyze.std.sender.connect('repeat-analysis', self.on_repeat_analysis),
+            # Request to save the individual reports for a batch analysis.
+            'save-individual-reports': setlyze.std.sender.connect('save-individual-reports', self.on_save_individual_reports),
         }
 
     def on_select_locations(self, sender, slot=None):
@@ -371,7 +373,10 @@ class BeginBatch(Begin):
         report.set_definitions(definitions)
 
         # Display the report.
-        setlyze.gui.Report(report, "Batch report for analysis Attraction within Species")
+        w = setlyze.gui.Report(report, "Batch report for analysis Attraction within Species")
+        # Enable export of individual reports.
+        if len(self.results) > 0:
+            w.toolbutton_save_all.set_sensitive(True)
 
 class Analysis(AnalysisWorker):
     """Perform the calculations for the analysis.

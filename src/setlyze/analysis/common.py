@@ -474,10 +474,23 @@ class PrepareAnalysis(object):
         gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
 
     def on_save_individual_reports(self, sender=None):
-        """Save reports for the individual analyses if desired."""
+        """Save reports for the individual analyses."""
         if len(self.results) == 0:
             return
-        self.export_reports(self.results, save_path, self.report_prefix)
+
+        # Let the user select the output folder.
+        chooser = gtk.FileChooserDialog(title="Select Output Folder",
+            parent=None,
+            action=gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
+            buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                gtk.STOCK_OK, gtk.RESPONSE_OK),
+            backend=None)
+        chooser.set_default_response(gtk.RESPONSE_OK)
+
+        response = chooser.run()
+        if response == gtk.RESPONSE_OK:
+            self.export_reports(self.results, chooser.get_filename(), self.report_prefix)
+        chooser.destroy()
 
     def on_no_results(self, sender=None):
         """Display an info dialog saying that there were no results.

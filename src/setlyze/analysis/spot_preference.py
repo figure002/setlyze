@@ -419,7 +419,10 @@ class BeginBatch(Begin):
         })
 
         # Display the report.
-        setlyze.gui.Report(report, "Batch report for analysis Sport Preference")
+        w = setlyze.gui.Report(report, "Batch report for analysis Sport Preference")
+        # Enable export of individual reports.
+        if len(self.results) > 0:
+            w.toolbutton_save_all.set_sensitive(True)
 
 class Analysis(AnalysisWorker):
     """Perform the calculations for the analysis.

@@ -362,7 +362,7 @@ class SelectBatchAnalysis(object):
         # Get some GTK objects.
         self.builder = gtk.Builder()
         self.builder.add_from_file(os.path.join(module_path(), 'glade/select_batch_analysis.glade'))
-        self.window = self.builder.get_object('window_select_analysis')
+        self.dialog = self.builder.get_object('dialog_select_analysis')
         self.radio_ana_spot_pref = self.builder.get_object('radio_ana_spot_pref')
         self.radio_ana_attraction_intra = self.builder.get_object('radio_ana_attraction_intra')
         self.radio_ana_attraction_inter = self.builder.get_object('radio_ana_attraction_inter')
@@ -372,7 +372,7 @@ class SelectBatchAnalysis(object):
         self.chooser_save_path = self.builder.get_object('chooser_save_path')
 
         # Handle window signals.
-        self.window.connect('delete-event', self.hide)
+        self.dialog.connect('delete-event', self.hide)
 
         # Connect the window signals to the handlers.
         self.builder.connect_signals(self)
@@ -387,11 +387,11 @@ class SelectBatchAnalysis(object):
 
     def show(self, widget=None, data=None):
         """Show the window."""
-        self.window.show()
+        self.dialog.show()
 
     def hide(self, widget=None, data=None):
         """Hide the window."""
-        self.window.hide()
+        self.dialog.hide()
         # Prevent default action.
         return True
 
@@ -426,7 +426,7 @@ class SelectBatchAnalysis(object):
             self.frame_descr.set_label("Relation between species")
             self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
 
-    def on_ok(self, widget=None, data=None):
+    def on_ok(self, button):
         """Send the `on-start-analysis` signal with the selected analysis as
         signal attribute.
         """
@@ -439,7 +439,7 @@ class SelectBatchAnalysis(object):
         elif self.radio_ana_relation.get_active():
             setlyze.std.sender.emit('batch-analysis-selected', 'relations')
 
-    def on_back(self, widget, data=None):
+    def on_close(self, button):
         """Go back to the main window."""
         # Hide the window.
         self.hide()
