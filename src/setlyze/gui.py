@@ -2007,11 +2007,11 @@ class Report(object):
         chooser.destroy()
 
     def on_save_all(self, button):
-        """Save individual report for batch mode."""
+        """Emit the 'save-individual-reports' signal."""
         setlyze.std.sender.emit('save-individual-reports')
 
     def on_repeat(self, button):
-        """Repeat the analysis with modified options."""
+        """Emit the 'repeat-analysis' signal."""
         setlyze.std.sender.emit('repeat-analysis')
 
     def add_report_elements(self):
@@ -3146,6 +3146,117 @@ class Preferences(object):
     def on_cancel(self, widget, data=None):
         """Close the preferences dialog."""
         self.window.destroy()
+
+    def on_about(self, widget, data=None):
+        """Display SETLyze's about dialog."""
+        About()
+
+class RepeatAnalysis(object):
+    """Display the dialog for repeating an analysis.
+
+    The dialog allows the user to customize some settings before repeating an
+    analysis.
+    """
+
+    def __init__(self):
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(module_path(), 'glade/repeat_analysis.glade'))
+
+        # Get some GTK objects.
+        self.dialog = self.builder.get_object('dialog_repeat_analysis')
+        self.entry_alpha_level = self.builder.get_object('entry_alpha_level')
+        self.entry_alpha_level.set_text(str(setlyze.config.cfg.get('alpha-level')))
+        self.entry_test_repeats = self.builder.get_object('entry_test_repeats')
+        self.entry_test_repeats.set_text(str(setlyze.config.cfg.get('test-repeats')))
+        self.entry_processes = self.builder.get_object('entry_processes')
+        self.entry_processes.set_text(str(setlyze.config.cfg.get('concurrent-processes')))
+        #button_help = self.builder.get_object('button_help')
+        #button_help.connect("clicked", on_help, 'preferences-dialog')
+        button_cancel = self.builder.get_object('button_cancel')
+        button_ok = self.builder.get_object('button_ok')
+
+        # Connect the dialog signals to the handlers.
+        self.builder.connect_signals(self)
+
+    def run(self):
+        return self.dialog.run()
+
+    def destroy(self):
+        self.dialog.destroy()
+
+    def on_ok(self, widget, data=None):
+        """Save new settings and close the preferences dialog."""
+        try:
+            self.set_alpha_level()
+        except ValueError as e:
+            self.on_error("Invalid alpha level", "Error: %s" % e)
+            return
+
+        try:
+            self.set_test_repeats()
+        except ValueError as e:
+            self.on_error("Invalid number of repeats", "Error: %s" % e)
+            return
+
+        try:
+            self.set_process_count()
+        except ValueError as e:
+            self.on_error("Invalid number of processes", "Error: %s" % e)
+            return
+
+        # Save the configurations to a config file.
+        setlyze.config.cfg.save_to_file()
+
+        # Emit the response signal.
+        self.dialog.response(gtk.RESPONSE_OK)
+
+    def on_error(self, title, message):
+        """Display an error dialog."""
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+            message_format=title)
+        dialog.format_secondary_text(message)
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        response = dialog.run()
+        dialog.destroy()
+
+    def set_alpha_level(self):
+        """Set the new alpha level for statistical test.
+
+        Raises a ValueError if this fails.
+        """
+        alpha_level = float(self.entry_alpha_level.get_text())
+        # Check if the new value is valid.
+        if not 0.0 < alpha_level < 1.0:
+            raise ValueError("Alpha level must be a float between 0.0 and 1.0.")
+        setlyze.config.cfg.set('alpha-level', alpha_level)
+
+    def set_test_repeats(self):
+        """Set the new value for the number of repeats for statistical tests.
+
+        Raises a ValueError if this fails.
+        """
+        test_repeats = int(self.entry_test_repeats.get_text())
+        # Check if the new value is valid.
+        if not test_repeats > 1:
+            raise ValueError("Number of test repeats must be an integer greater than 1.")
+        setlyze.config.cfg.set('test-repeats', test_repeats)
+
+    def set_process_count(self):
+        """Set the new value for the number of processes for batch mode.
+
+        Raises a ValueError if this fails.
+        """
+        processes = int(self.entry_processes.get_text())
+        cpu_count = setlyze.config.cfg.get('cpu-count')
+        # Check if the new value is valid.
+        if processes < 1 or processes > cpu_count:
+            raise ValueError("The number of processes must be at least 1 and no more than the number of CPUs (=%d)." % cpu_count)
+        setlyze.config.cfg.set('concurrent-processes', processes)
+
+    def on_cancel(self, widget, data=None):
+        """Close the preferences dialog."""
+        self.dialog.response(gtk.RESPONSE_CANCEL)
 
     def on_about(self, widget, data=None):
         """Display SETLyze's about dialog."""

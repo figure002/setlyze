@@ -300,13 +300,16 @@ class PrepareAnalysis(object):
     """Super class for analysis :class:`Begin` classes."""
 
     def __init__(self):
-        self.alpha_level = setlyze.config.cfg.get('alpha-level')
+        self.alpha_level = None
+        self.areas_definition = None
         self.elapsed_time = None
         self.locations_selection = None
-        self.n_repeats = setlyze.config.cfg.get('test-repeats')
+        self.locations_selections = [None,None]
+        self.n_repeats = None
         self.pdialog = None
         self.pdialog_handler = None
         self.pool = None
+        self.n_processes = None
         self.report_prefix = "report_"
         self.results = []
         self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
@@ -315,6 +318,24 @@ class PrepareAnalysis(object):
         self.start_time = None
         self.species_selection = None
         self.species_selections = [None,None]
+
+        self.set_analysis_options()
+
+    def set_analysis_options(self):
+        """Set the user defined analysis options.
+
+        This method uses the :mod:`setlyze.config` module to obtain the values.
+        """
+        self.alpha_level = setlyze.config.cfg.get('alpha-level')
+        self.n_processes = setlyze.config.cfg.get('concurrent-processes')
+        self.n_repeats = setlyze.config.cfg.get('test-repeats')
+
+    def get_progress_dialog(self):
+        """Return a progress dialog and a handler for the dialog."""
+        pd = setlyze.gui.ProgressDialog(title="Performing analysis",
+            description=setlyze.locale.text('analysis-running'))
+        handler = setlyze.std.ProgressDialogHandler(pd)
+        return (pd, handler)
 
     def in_batch_mode(self):
         """Return True if we are in batch mode, False otherwise."""
@@ -446,12 +467,17 @@ class PrepareAnalysis(object):
             self.on_analysis_closed(timeout=2)
             return
 
-        # Save reports for the individual analyses if desired.
-        if self.in_batch_mode() and self.save_individual_results:
-            self.export_reports(results, self.save_path, self.report_prefix)
+        # Save the results locally.
+        self.results = results
 
         # Let the signal handler handle the results.
         gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
+
+    def on_save_individual_reports(self, sender=None):
+        """Save reports for the individual analyses if desired."""
+        if len(self.results) == 0:
+            return
+        self.export_reports(self.results, save_path, self.report_prefix)
 
     def on_no_results(self, sender=None):
         """Display an info dialog saying that there were no results.

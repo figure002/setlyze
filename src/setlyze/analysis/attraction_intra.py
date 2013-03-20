@@ -41,7 +41,7 @@ import time
 import math
 import multiprocessing
 
-import gobject
+import gtk
 
 from setlyze.analysis.common import calculatestar,ProcessGateway,PrepareAnalysis,AnalysisWorker
 import setlyze.locale
@@ -103,7 +103,7 @@ class Begin(PrepareAnalysis):
             # The user selected locations have been saved.
             'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_select_species),
             # The user selected species have been saved.
-            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_start_analysis),
+            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_species_selection_saved),
             # The report window was closed.
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
             # Cancel button pressed.
@@ -112,6 +112,8 @@ class Begin(PrepareAnalysis):
             'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
             # There were no results.
             'no-results': setlyze.std.sender.connect('no-results', self.on_no_results),
+            # Request to repeat the analysis.
+            'repeat-analysis': setlyze.std.sender.connect('repeat-analysis', self.on_repeat_analysis),
         }
 
     def on_select_locations(self, sender, slot=None):
@@ -143,18 +145,34 @@ class Begin(PrepareAnalysis):
         # This button should not be pressed now, so hide it.
         select.button_chg_source.hide()
 
-    def on_start_analysis(self, sender, species_selection, slot):
-        """Start the analysis.
+    def on_species_selection_saved(self, sender, selection, slot):
+        """Set the species selection `selection` and start the analysis.
 
         The "species-selection-saved" signal provides the species selection
         `species_selection` and the save slot `slot`.
         """
-        # Show a progress dialog.
-        self.pdialog = setlyze.gui.ProgressDialog(title="Performing Analysis",
-            description=setlyze.locale.text('analysis-running'))
+        self.species_selection = selection
+        self.on_start_analysis(self.locations_selection, self.species_selection)
 
-        # Create a progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+    def on_repeat_analysis(self, sender):
+        """Repeat the analysis with modified options."""
+        dialog = setlyze.gui.RepeatAnalysis()
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            # Update the analysis options.
+            self.set_analysis_options()
+            # Repeat the analysis.
+            self.on_start_analysis(self.locations_selection, self.species_selection)
+        dialog.destroy()
+
+    def on_start_analysis(self, locations, species):
+        """Start the analysis.
+
+        Starts the analysis with the locations selection `locations` and the
+        species selection `species`.
+        """
+        # Create a progress dialog and a handler.
+        self.pdialog, self.pdialog_handler = self.get_progress_dialog()
 
         # Set the total number of times we decide to update the progress dialog.
         self.pdialog_handler.set_total_steps(PROGRESS_STEPS + self.n_repeats)
@@ -168,7 +186,7 @@ class Begin(PrepareAnalysis):
         self.pool = multiprocessing.Pool(1)
 
         # Create a list with the job.
-        jobs = [(Analysis, (self.locations_selection, species_selection, gw.queue))]
+        jobs = [(Analysis, (locations, species, gw.queue))]
 
         # Add the job to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
@@ -195,8 +213,11 @@ class BeginBatch(Begin):
         logging.info("We are in batch mode")
         self.report_prefix = "attraction_intra_"
 
-    def on_start_analysis(self, sender, species_selection, slot):
+    def on_start_analysis(self, locations, species):
         """Run the analysis for each of the selected species.
+
+        Starts the analysis with the locations selection `locations` and the
+        species selection `species`.
 
         Creates a pool of worker processes. A job is set for each species that
         was selected. The jobs are then added to the pool for execution. If
@@ -206,16 +227,12 @@ class BeginBatch(Begin):
         """
         self.start_time = time.time()
 
-        # Show a progress dialog.
-        self.pdialog = setlyze.gui.ProgressDialog(title="Performing Analysis",
-            description=setlyze.locale.text('analysis-running'))
-
-        # Create a progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        # Create a progress dialog and a handler.
+        self.pdialog, self.pdialog_handler = self.get_progress_dialog()
 
         # Set the total number of times we decide to update the progress dialog.
         self.pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
-            len(species_selection))
+            len(species))
 
         # Create a progress task executor.
         gw = ProcessGateway()
@@ -227,8 +244,8 @@ class BeginBatch(Begin):
         self.pool = multiprocessing.Pool(cp)
 
         # Create a list of jobs.
-        logging.info("Adding %d jobs to the queue" % len(species_selection))
-        jobs = ((Analysis, (self.locations_selection, sp, gw.queue)) for sp in species_selection)
+        logging.info("Adding %d jobs to the queue" % len(species))
+        jobs = ((Analysis, (locations, sp, gw.queue)) for sp in species)
 
         # Add the jobs to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)

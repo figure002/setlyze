@@ -40,7 +40,7 @@ import time
 import math
 import multiprocessing
 
-import gobject
+import gtk
 
 from setlyze.analysis.common import calculatestar,ProcessGateway,PrepareAnalysis,AnalysisWorker
 import setlyze.locale
@@ -117,6 +117,8 @@ class Begin(PrepareAnalysis):
             'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
             # There were no results.
             'no-results': setlyze.std.sender.connect('no-results', self.on_no_results),
+            # Request to repeat the analysis.
+            'repeat-analysis': setlyze.std.sender.connect('repeat-analysis', self.on_repeat_analysis),
         }
 
     def on_select_locations(self, sender, slot=None):
@@ -132,17 +134,19 @@ class Begin(PrepareAnalysis):
             setlyze.locale.text('selection-tips')
         )
 
-    def on_locations_saved(self, sender, locations_selection=None, slot=None):
+    def on_locations_saved(self, sender, selection=None, slot=None):
         """Handler for the "locations-selection-saved" signal.
 
         The "locations-selection-saved" signal provides the locations selection
-        `locations_selection` and the save slot `slot`.
+        `selection` and the save slot `slot`.
 
         When the locations selection was made it shows the first species
         selection dialog.
         """
-        if locations_selection:
-            self.locations_selection = locations_selection
+        if selection:
+            # Use the same locations selection for both species selections.
+            self.locations_selection = selection
+            self.locations_selections = [selection,selection]
         self.on_select_species()
 
     def on_select_species(self):
@@ -150,34 +154,22 @@ class Begin(PrepareAnalysis):
         save_slot = setlyze.std.sender.get_property('save-slot')
         select = setlyze.gui.SelectSpecies(self.locations_selection, width=600,
             slot=save_slot)
+        select.button_chg_source.hide()
         select.set_title(setlyze.locale.text('analysis3'))
         select.set_description( setlyze.locale.text('select-species') +
             "\n\n" + setlyze.locale.text('selection-tips')
         )
-        if not self.in_batch_mode():
+
+        if self.in_batch_mode():
+            # In batch mode at least two species must be selected.
+            select.set_selection_minimum(2,
+                "Please select at least two species from the list.")
+        else:
+            # In normal mode we have two separate species selections.
             if save_slot == 0:
                 select.set_header("First Species Selection")
             elif save_slot == 1:
                 select.set_header("Second Species Selection")
-        # This button should not be pressed now, so hide it.
-        select.button_chg_source.hide()
-
-    def on_species_saved(self, sender, species_selection, slot):
-        """Handler for the "species-selection-saved" signal.
-
-        The "species-selection-saved" signal provides the species selection
-        `species_selection` and the save slot `slot`.
-
-        If the first species selection was made (`slot` is set to 0) it
-        shows the second species selection dialog. If the second species
-        selection was made (`slot` is set to 1) it starts the analysis.
-        """
-        self.species_selections[slot] = species_selection
-        if slot == 0:
-            sender.set_property('save-slot', 1)
-            self.on_select_species()
-        elif slot == 1:
-            self.on_start_analysis()
 
     def on_species_back(self, sender, slot=0):
         """Handler for the "species-dialog-back" signal.
@@ -195,16 +187,57 @@ class Begin(PrepareAnalysis):
             sender.set_property('save-slot', 0)
             self.on_select_species()
 
-    def on_start_analysis(self):
-        """Start the analysis."""
-        locations = [self.locations_selection,self.locations_selection]
+    def on_species_saved(self, sender, selection, slot):
+        """Handler for the "species-selection-saved" signal.
 
-        # Show a progress dialog.
-        self.pdialog = setlyze.gui.ProgressDialog(title="Performing Analysis",
-            description=setlyze.locale.text('analysis-running'))
+        The "species-selection-saved" signal provides the species selection
+        `selection` and the save slot `slot`.
 
-        # Create a progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        If the first species selection was made (`slot` is set to 0) it
+        shows the second species selection dialog. If the second species
+        selection was made (`slot` is set to 1) it starts the analysis.
+        """
+        if self.in_batch_mode():
+            # In batch mode we need only one species selection.
+            self.species_selection = selection
+            self.on_start_analysis(self.locations_selections, self.species_selection)
+        else:
+            # In normal mode we need two species selections.
+            self.species_selections[slot] = selection
+            if slot == 0:
+                sender.set_property('save-slot', 1)
+                self.on_select_species()
+            elif slot == 1:
+                self.on_start_analysis(self.locations_selections, self.species_selections)
+
+    def on_repeat_analysis(self, sender):
+        """Repeat the analysis with modified options."""
+        dialog = setlyze.gui.RepeatAnalysis()
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            # Update the analysis options.
+            self.set_analysis_options()
+            # Repeat the analysis.
+            if self.in_batch_mode():
+                self.on_start_analysis(self.locations_selections, self.species_selection)
+            else:
+                self.on_start_analysis(self.locations_selections, self.species_selections)
+        dialog.destroy()
+
+    def on_start_analysis(self, locations, species):
+        """Start the analysis.
+
+        Starts the analysis with the locations selections `locations` and the
+        species selections `species`. Both must be tuples containing two lists,
+        each list being a selection.
+        """
+        assert len(locations) == 2, \
+            "The locations tuple does not contain two items."
+        assert len(species) == 2, \
+            "The species tuple does not contain two items."
+
+        # Create a progress dialog and a handler.
+        self.pdialog, self.pdialog_handler = self.get_progress_dialog()
 
         # Set the total number of times we decide to update the progress dialog.
         self.pdialog_handler.set_total_steps(
@@ -220,7 +253,7 @@ class Begin(PrepareAnalysis):
         self.pool = multiprocessing.Pool(1)
 
         # Create a list with the job.
-        jobs = [(Analysis, (locations, self.species_selections, gw.queue))]
+        jobs = [(Analysis, (locations, species, gw.queue))]
 
         # Add the job to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
@@ -248,51 +281,7 @@ class BeginBatch(Begin):
         logging.info("We are in batch mode")
         self.report_prefix = "attraction_inter_"
 
-    def set_signal_handlers(self):
-        """Respond to signals emitted by the application."""
-        self.signal_handlers = {
-            # This analysis has just started.
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_select_locations),
-            # The user pressed the X button of a locations/species selection window.
-            'selection-dialog-closed': setlyze.std.sender.connect('selection-dialog-closed', self.on_analysis_closed),
-            # User pressed the Back button in the locations selection window.
-            'locations-dialog-back': setlyze.std.sender.connect('locations-dialog-back', self.on_analysis_closed),
-            # User pressed the Back button in the species selection window.
-            'species-dialog-back': setlyze.std.sender.connect('species-dialog-back', self.on_select_locations),
-            # The user selected locations have been saved.
-            'locations-selection-saved': setlyze.std.sender.connect('locations-selection-saved', self.on_locations_saved),
-            # The user selected species have been saved.
-            'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_start_analysis),
-            # The report window was closed.
-            'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
-            # Cancel button pressed.
-            'analysis-canceled': setlyze.std.sender.connect('analysis-canceled', self.on_cancel_button),
-            # The process pool has finished.
-            'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
-        }
-
-    def on_select_species(self):
-        """Display the species selection dialog."""
-        save_slot = setlyze.std.sender.get_property('save-slot')
-        select = setlyze.gui.SelectSpecies(self.locations_selection, width=600,
-            slot=save_slot)
-        select.set_title(setlyze.locale.text('analysis3'))
-        select.set_description( setlyze.locale.text('select-species') + "\n\n" +
-            setlyze.locale.text('selection-tips')
-        )
-        # At least two species must be selected.
-        select.set_selection_minimum(2,
-            "Please select at least two species from the list.")
-        # Change the header text.
-        if not self.in_batch_mode():
-            if save_slot == 0:
-                select.set_header("First Species Selection")
-            elif save_slot == 1:
-                select.set_header("Second Species Selection")
-        # This button should not be pressed now, so hide it.
-        select.button_chg_source.hide()
-
-    def on_start_analysis(self, sender, species_selections, slot):
+    def on_start_analysis(self, locations, species):
         """Run the analysis for all possible inter species combinations.
 
         Creates a pool of worker processes. A job is set for every possible
@@ -302,18 +291,18 @@ class BeginBatch(Begin):
         :meth:`~setlyze.analysis.common.PrepareAnalysis.on_pool_finished` is
         applied to it.
         """
-        locations = [self.locations_selection,self.locations_selection]
+        assert len(locations) == 2, \
+            "The locations tuple does not contain two items."
+        assert len(species) > 1, \
+            "The species tuple has less than two items."
+
         self.start_time = time.time()
 
         # Get all inter species combinations for the species selection.
-        species_combos = tuple(itertools.combinations(species_selections, 2))
+        species_combos = tuple(itertools.combinations(species, 2))
 
-        # Show a progress dialog.
-        self.pdialog = setlyze.gui.ProgressDialog(title="Performing analysis",
-            description=setlyze.locale.text('analysis-running'))
-
-        # Create a progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        # Create a progress dialog and a handler.
+        self.pdialog, self.pdialog_handler = self.get_progress_dialog()
 
         # Set the total number of times we decide to update the progress dialog.
         self.pdialog_handler.set_total_steps(

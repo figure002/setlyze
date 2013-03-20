@@ -127,7 +127,7 @@ class Begin(PrepareAnalysis):
             # The user selected species have been saved.
             'species-selection-saved': setlyze.std.sender.connect('species-selection-saved', self.on_define_plate_areas),
             # The spots have been defined by the user.
-            'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_start_analysis),
+            'plate-areas-defined': setlyze.std.sender.connect('plate-areas-defined', self.on_plate_areas_defined),
             # The report window was closed.
             'report-dialog-closed': setlyze.std.sender.connect('report-dialog-closed', self.on_analysis_closed),
             # Cancel button pressed.
@@ -138,6 +138,10 @@ class Begin(PrepareAnalysis):
             'pool-finished': setlyze.std.sender.connect('pool-finished', self.on_display_results),
             # There were no results.
             'no-results': setlyze.std.sender.connect('no-results', self.on_no_results),
+            # Request to repeat the analysis.
+            'repeat-analysis': setlyze.std.sender.connect('repeat-analysis', self.on_repeat_analysis),
+            # Request to save the individual reports for a batch analysis.
+            'save-individual-reports': setlyze.std.sender.connect('save-individual-reports', self.on_save_individual_reports),
         }
 
     def on_select_locations(self, sender, slot=None):
@@ -181,18 +185,37 @@ class Begin(PrepareAnalysis):
         spots = setlyze.gui.DefinePlateAreas()
         spots.set_title(setlyze.locale.text('analysis1'))
 
-    def on_start_analysis(self, sender, areas_definition):
-        """Start the analysis.
+    def on_plate_areas_defined(self, sender, definition):
+        """Set the plate areas definitions `definition` and start the analysis.
 
         The "plate-areas-defined" signal provides the plate areas definition
+        `definition`.
+        """
+        self.areas_definition = definition
+        self.on_start_analysis(self.locations_selection, self.species_selection,
+            self.areas_definition)
+
+    def on_repeat_analysis(self, sender):
+        """Repeat the analysis with modified options."""
+        dialog = setlyze.gui.RepeatAnalysis()
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            # Update the analysis options.
+            self.set_analysis_options()
+            # Repeat the analysis.
+            self.on_start_analysis(self.locations_selection, self.species_selection,
+            self.areas_definition)
+        dialog.destroy()
+
+    def on_start_analysis(self, locations, species, areas_definition):
+        """Start the analysis.
+
+        Starts the analysis with the locations selection `locations`, the
+        species selection `species`, and the plate areas definition
         `areas_definition`.
         """
-        # Show a progress dialog.
-        self.pdialog = setlyze.gui.ProgressDialog(title="Performing analysis",
-            description=setlyze.locale.text('analysis-running'))
-
-        # Create a progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        # Create a progress dialog and a handler.
+        self.pdialog, self.pdialog_handler = self.get_progress_dialog()
 
         # Set the total number of times we decide to update the progress dialog.
         self.pdialog_handler.set_total_steps(PROGRESS_STEPS + self.n_repeats)
@@ -206,8 +229,7 @@ class Begin(PrepareAnalysis):
         self.pool = multiprocessing.Pool(1)
 
         # Create a list with the job.
-        jobs = [(Analysis, (self.locations_selection, self.species_selection,
-            areas_definition, gw.queue))]
+        jobs = [(Analysis, (locations, species, areas_definition, gw.queue))]
 
         # Add the job to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
@@ -241,11 +263,8 @@ class BeginBatch(Begin):
         setlyze.std.sender.disconnect(self.signal_handlers['analysis-aborted'])
         self.signal_handlers['analysis-aborted'] = None
 
-    def on_start_analysis(self, sender, areas_definition):
+    def on_start_analysis(self, locations, species, areas_definition):
         """Run the analysis for each of the selected species.
-
-        The "plate-areas-defined" signal provides the plate areas definition
-        `areas_definition`.
 
         Creates a pool of worker processes. A job is set for each species that
         was selected. The jobs are then added to the pool for execution. If
@@ -255,16 +274,12 @@ class BeginBatch(Begin):
         """
         self.start_time = time.time()
 
-        # Show a progress dialog.
-        self.pdialog = setlyze.gui.ProgressDialog(title="Performing analysis",
-            description=setlyze.locale.text('analysis-running'))
-
-        # Create a progress dialog handler.
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(self.pdialog)
+        # Create a progress dialog and a handler.
+        self.pdialog, self.pdialog_handler = self.get_progress_dialog()
 
         # Set the total number of times we decide to update the progress dialog.
         self.pdialog_handler.set_total_steps((PROGRESS_STEPS + self.n_repeats) *
-            len(self.species_selection))
+            len(species))
 
         # Create a gateway to the main process for child processes.
         gw = ProcessGateway()
@@ -276,8 +291,8 @@ class BeginBatch(Begin):
         self.pool = multiprocessing.Pool(cp)
 
         # Create a list of jobs.
-        logging.info("Adding %d jobs to the queue" % len(self.species_selection))
-        jobs = ((Analysis, (self.locations_selection, sp, areas_definition, gw.queue)) for sp in self.species_selection)
+        logging.info("Adding %d jobs to the queue" % len(species))
+        jobs = ((Analysis, (locations, sp, areas_definition, gw.queue)) for sp in species)
 
         # Add the jobs to the pool.
         self.pool.map_async(calculatestar, jobs, callback=self.on_pool_finished)
