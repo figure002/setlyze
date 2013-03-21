@@ -1966,10 +1966,17 @@ class Report(object):
         """Set the subheader of the report dialog to `text`."""
         self.label_subheader.set_markup(markup_subheader(text))
 
-    def on_close(self, obj):
+    def on_close(self, button):
         """Close the dialog and emit the `report-dialog-closed` signal."""
-        self.window.destroy()
-        setlyze.std.sender.emit('report-dialog-closed')
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_OK_CANCEL,
+            message_format="Unsaved results will be lost. Continue to the main window?")
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        response = dialog.run()
+        if response == gtk.RESPONSE_OK:
+            self.window.destroy()
+            setlyze.std.sender.emit('report-dialog-closed')
+        dialog.destroy()
 
     def on_save(self, button):
         """Display a dialog that allows the user to save the report to
