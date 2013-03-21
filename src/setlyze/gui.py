@@ -3210,6 +3210,14 @@ class RepeatAnalysis(object):
         # Emit the response signal.
         self.dialog.response(gtk.RESPONSE_OK)
 
+    def on_cancel(self, widget, data=None):
+        """Close the preferences dialog."""
+        self.dialog.response(gtk.RESPONSE_CANCEL)
+
+    def on_about(self, widget, data=None):
+        """Display SETLyze's about dialog."""
+        About()
+
     def on_error(self, title, message):
         """Display an error dialog."""
         dialog = gtk.MessageDialog(parent=None, flags=0,
@@ -3253,14 +3261,6 @@ class RepeatAnalysis(object):
         if processes < 1 or processes > cpu_count:
             raise ValueError("The number of processes must be at least 1 and no more than the number of CPUs (=%d)." % cpu_count)
         setlyze.config.cfg.set('concurrent-processes', processes)
-
-    def on_cancel(self, widget, data=None):
-        """Close the preferences dialog."""
-        self.dialog.response(gtk.RESPONSE_CANCEL)
-
-    def on_about(self, widget, data=None):
-        """Display SETLyze's about dialog."""
-        About()
 
 class About(gtk.AboutDialog):
     """Display SETLyze's about dialog."""
