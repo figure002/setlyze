@@ -19,22 +19,21 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This modules provides application-wide access to SETLyze's
-configuration and data variables.
+"""This modules provides application-wide access to SETLyze's configuration
+variables.
 
-This module provides an object ``cfg`` for handling a fixed set of
-configuration and data variables for SETLyze. The big advantage is that
-this makes the variables available across all modules. Here is a small
-usage example,
+This module provides an object *cfg* for handling a fixed set of configuration
+variables for SETLyze. The big advantage is that this makes the variables
+available across all modules. Here is a small usage example,
 
     >>> import setlyze.config
     >>> setlyze.config.cfg.set('alpha-level', 0.01)
-    >>> print "The alpha level for the t-test and Wilcoxon test is set to", setlyze.config.cfg.get('alpha-level')
-    The alpha level for the t-test and Wilcoxon test is set to 0.01
+    >>> print "The alpha level for statistical tests is set to %s" % setlyze.config.cfg.get('alpha-level')
+    The alpha level for statistical tests is set to 0.01
 
-Importing this module in a different module gives access to the same
-``cfg`` object, and thus its variables can be obtained or manipulated
-using its get() and set() methods.
+Importing this module in a different module gives access to the same *cfg*
+object, and thus its variables can be obtained or manipulated using its
+:meth:`ConfigManager.get` and :meth:`ConfigManager.set` methods.
 """
 
 import os
@@ -153,19 +152,18 @@ DEFAULT_CONFIG = [
 ]
 
 class ConfigManager(object):
-    """Class for managing SETLyze's data and configuration variables.
+    """Class for managing SETLyze's configuration variables.
 
-    An instance of this class provides access to a fixed set of
-    variables that need to be accessable across SETLyze's modules. By
-    importing this module, one instance of this class is created.
-    Subsequent imports in other modules provides access to that same
-    instance.
+    An instance of this class provides access to a fixed set of variables
+    that need to be accessable across SETLyze's modules. By importing this
+    module, one instance of this class is created. Subsequent imports in other
+    modules provides access to that same instance.
 
-    The method set() is used to change the value of variables. The
-    method get() is used to get the value of a variable.
+    The method :meth:`set` is used to change the value of variables. The
+    method :meth:`get` is used to get the value of a variable.
 
-    All variables and their default values can be found in the variable
-    ``DEFAULT_CONFIG`` of this module.
+    All configurations and their default values can be found in global variable
+    `DEFAULT_CONFIG` of this module.
 
     Design Part: 1.57
     """
@@ -176,9 +174,9 @@ class ConfigManager(object):
         self.read_from_file()
 
     def read_from_file(self):
-        """Read settings from a configuration file.
+        """Try to read settings from a configuration file.
 
-        The configuration file is by default saved to
+        The default location of the configuration file is
         ``~/.setlyze/setlyze.cfg``.
         """
         ints = ('test-repeats','concurrent-processes')
@@ -200,7 +198,11 @@ class ConfigManager(object):
                         continue
 
     def save_to_file(self):
-        """Save user customizable settings to a configuration file."""
+        """Save user customizable settings to a configuration file.
+
+        The configuration file is by default saved to
+        ``~/.setlyze/setlyze.cfg``.
+        """
         parser = ConfigParser.SafeConfigParser()
         # The configurations that need to be saved to a configuration file.
         configs = {
