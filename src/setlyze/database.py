@@ -19,17 +19,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Facilitate access to the local SQLite database and the remote SETL
-database.
+"""Facilitate access to the database.
 
 The local SQLite database is created by :meth:`setlyze.database.MakeLocalDB.create_new_db`.
-It is created using the SQLite Python module. This database is used
-internally by SETLyze for local data storage and allows for the
-execution of SQL queries. The database is a single file created in the
-user's home directory in a subfolder called ``.setlyze``.
+It is created using Python's SQLite module and is used internally by SETLyze
+for storing and retrieving data for analyses. The database is a single file
+created in the user's home directory in a subfolder called ``.setlyze``.
 
-Here we refer to the PostgreSQL SETL database as the remote SETL
-database.
+There are plans to create a central SETL database server which this module
+can interact with. We refer to this database as the remote database.
 """
 
 import sys
@@ -57,14 +55,12 @@ __status__ = "Production"
 __date__ = "2013/02/01"
 
 def get_database_accessor():
-    """Return an object that facilitates access to either the local or
-    the remote database.
+    """Return an object that facilitates access to the database.
 
-    Based on the data source configuration, obtained with
-    ``setlyze.config.cfg.get('data-source')``, this function wil either
-    return an instance of AccessLocalDB or AccessRemoteDB. This instance
-    provides methods that are specific to the data source currently in
-    use.
+    Based on the data source configuration, this function wil either
+    return an instance of :class:`AccessLocalDB` or :class:`AccessRemoteDB`.
+    This instance provides methods that are specific to the data source that
+    is in use.
 
     Design Part: 1.93
     """
@@ -75,75 +71,32 @@ def get_database_accessor():
         raise ValueError("Invalid data source '%s'." % data_source)
     return db
 
-def get_plates_total_matching_spots_total(n_spots, slot=0):
-    """Return an integer representing the number of plates that
-    match the provided number of positive spots `n_spots`.
-
-    Possible values for `slot` are 0 for the first species selection,
-    and 1 for the second species selection.
-    """
-    connection = sqlite.connect(setlyze.config.cfg.get('db-file'))
-    cursor = connection.cursor()
-
-    if slot == 0:
-        field = 'n_spots_a'
-    elif slot == 1:
-        field = 'n_spots_b'
-    else:
-        raise ValueError("Possible values for 'slot' are 0 and 1.")
-
-    if n_spots < 0:
-        # If spots_n is a negative number, get all distances
-        # up to the absolute number. So if we find -5, get all
-        # distances with up to 5 spots.
-        cursor.execute( "SELECT COUNT(pla_id) "
-                        "FROM plate_spot_totals "
-                        "WHERE %s <= ?" % (field),
-                        [abs(n_spots)])
-        n_plates = cursor.fetchone()[0]
-    else:
-        # If it's a positive number, just get the plates that
-        # match that spots number.
-        cursor.execute( "SELECT COUNT(pla_id) "
-                        "FROM plate_spot_totals "
-                        "WHERE %s = ?" % (field),
-                        [n_spots])
-        n_plates = cursor.fetchone()[0]
-
-    cursor.close()
-    connection.close()
-
-    return n_plates
-
-
 class MakeLocalDB(threading.Thread):
     """Create a local SQLite database with default tables and fill some
     tables based on the data source.
 
-    This class can load data from three data sources. One data source
-    is user supplied CSV files containing SETL data. The CSV files must
-    be exported by the MS Access SETL database.
-    The second source is the PostgreSQL SETL database. This function
-    requires a direct connection with the SETL database server.
-    The third source are XLS files containing SETL data. These files
+    This class can load data from three data sources. One data source is user
+    supplied CSV files containing SETL data. The CSV files must be exported by
+    the MS Access SETL database. The second source is the PostgreSQL SETL
+    database. This function requires a direct connection with the SETL database
+    server. The third source are XLS files containing SETL data. These files
     must be exported by MS Excel 97/2000/xp.
 
-    Because the import of SETL data into the local database can take
-    a while, and instance of this class must run in a separate thread.
-    An instance of this class is therefor a thread object.
+    Because the import of SETL data into the local database can take a while,
+    and instance of this class must run in a separate thread. An instance of
+    this class is therefor a thread object.
 
-    Once a thread object is created, its activity must be started by
-    calling the thread’s start() method. This invokes the run() method
-    in a separate thread of control.
+    Once a thread object is created, its activity must be started by calling
+    the thread's start() method. This invokes the :meth:`run` method in a
+    separate thread of control.
 
     Design Part: 1.2
     """
 
     def __init__(self, pd=None):
-        logging.debug("MakeLocalDB.__init__ is called")
         super(MakeLocalDB, self).__init__()
-
         self.dbfile = setlyze.config.cfg.get('db-file')
+        self.data_source = setlyze.config.cfg.get('data-source')
         self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
         self.connection = None
         self.cursor = None
@@ -153,25 +106,26 @@ class MakeLocalDB(threading.Thread):
         self.connection.close()
 
     def run(self):
-        """Decide based on the configuration variables which functions
-        should be called.
+        """Decide based on the configuration variables which functions should
+        be called.
 
-        This method first checks if SETLyze is configured to create
-        a new local database. This is done by checking the value of
-        ``setlyze.config.cfg.get('make-new-db')``. If this is set to
-        ``False``, the method ends and the thread is destroyed. If set
-        to ``True``, a new local database is created based on the data
-        source configuration.
+        This method first checks if SETLyze is configured to create a new local
+        database. This is done by checking the value of configuration
+        "make-new-db". If this is set to False, nothing will be done. If set
+        to True, a new local database is created based on the value of the
+        "data-source" configuration:
 
-        The data source configuration is checked by calling
-        ``setlyze.config.cfg.get('data-source')``. If this is set to
-        ``setl-database``, the method ``insert_from_db`` is called and
-        some SETL data from the remote SETL database is loaded into the
-        local database. If set to ``csv-msaccess``, the method
-        ``insert_from_csv`` is called which loads all SETL data from the
-        supplied CSV files into the local database. If this is set to ``xls``
-        the method ``insert_from_xls`` is called which loads all SETL data from
-        the supplied MS-excel files into the local database.
+        ``setl-database``
+          Method :meth:`insert_from_db` is called and some SETL data from the
+          remote SETL database is loaded into the local database.
+
+        ``csv-msaccess``
+          Method :meth:`insert_from_csv` is called which loads all SETL data
+          from the supplied CSV files into the local database.
+
+        ``xls``
+          Method :meth:`insert_from_xls` is called which loads all SETL data
+          from the supplied MS-Excel files into the local database.
 
         Design Part: 1.31
         """
@@ -183,17 +137,17 @@ class MakeLocalDB(threading.Thread):
             self.cursor = self.connection.cursor()
 
             # Create new database with data.
-            if setlyze.config.cfg.get('data-source') == "setl-database":
+            if self.data_source == "setl-database":
                 self.insert_from_db()
-            elif setlyze.config.cfg.get('data-source') == "csv-msaccess":
+            elif self.data_source == "csv-msaccess":
                 self.insert_from_csv()
-            elif setlyze.config.cfg.get('data-source') == "xls":
+            elif self.data_source == "xls":
                 self.insert_from_xls()
             else:
                 # Exit gracefully.
                 self.on_exit()
                 raise ValueError("Encountered unknown data source '%s'" %
-                    setlyze.config.cfg.get('data-source'))
+                    self.data_source)
 
             # Exit gracefully.
             self.on_exit()
@@ -208,10 +162,11 @@ class MakeLocalDB(threading.Thread):
         user selected CSV files into the local database.
 
         The SETL data is loaded from four separate CSV files:
-            * localities_file, containing the SETL locations.
-            * species_file, containing the SETL species.
-            * records_file, containing the SETL records.
-            * plates_file, containing the SETL plates.
+
+        * Localities file, containing the SETL locations.
+        * Species ile, containing the SETL species.
+        * Records file, containing the SETL records.
+        * Plates file, containing the SETL plates.
 
         These files must be exported from the MS Access SETL database
         and contain all fields. The CSV file must be in Excel format,
@@ -225,9 +180,8 @@ class MakeLocalDB(threading.Thread):
         # If data_source is not set to "csv-msaccess", the required data
         # files are probably not set by the user yet. ChangeDataSource
         # must be called first.
-        if setlyze.config.cfg.get('data-source') != 'csv-msaccess':
-            raise ValueError("Cannot run this function while 'data-source' is "
-                "set to '%s'." % setlyze.config.cfg.get('data-source'))
+        assert self.data_source == 'csv-msaccess', \
+            "The data source is not set to 'csv-msaccess'"
 
         # First, create a new database file.
         self.create_new_db()
@@ -236,7 +190,7 @@ class MakeLocalDB(threading.Thread):
         # Add the data source we can figure out what kind of data is
         # present.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)",
-            ( setlyze.config.cfg.get('data-source'), ) )
+            ( self.data_source, ) )
         # Also insert the data of creation, so we can give the user an
         # indication when this database was created.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
@@ -274,10 +228,8 @@ class MakeLocalDB(threading.Thread):
             gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed', e)
             return
 
-        # If we are here, the import was successful. Set the progress dialog
-        # to 100%.
+        # If we are here, the import was successful.
         self.pdialog_handler.increase("")
-
         logging.info("Local database populated.")
         setlyze.config.cfg.set('has-local-db', True)
 
@@ -287,11 +239,11 @@ class MakeLocalDB(threading.Thread):
         """Insert the SETL localities from a CSV file into the local
         database.
 
-        `delimiter` is a one-character string used to separate fields
-        in the CSV file. `quotechar` is a one-character string used to
-        quote fields containing special characters in the CSV file.
-        The default values for these two arguments are suited for CSV
-        files in Excel format.
+        Argument `delimiter` is a one-character string used to separate fields
+        in the CSV file, and `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file. The default
+        values for these two arguments are suited for CSV files in Excel
+        format.
 
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.18`.
@@ -320,11 +272,11 @@ class MakeLocalDB(threading.Thread):
     def insert_species_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the species from a CSV file into the local database.
 
-        `delimiter` is a one-character string used to separate fields
-        in the CSV file. `quotechar` is a one-character string used to
-        quote fields containing special characters in the CSV file.
-        The default values for these two arguments are suited for CSV
-        files in Excel format.
+        Argument `delimiter` is a one-character string used to separate fields
+        in the CSV file, and `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file. The default
+        values for these two arguments are suited for CSV files in Excel
+        format.
 
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.19`.
@@ -353,11 +305,11 @@ class MakeLocalDB(threading.Thread):
     def insert_plates_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the plates from a CSV file into the local database.
 
-        `delimiter` is a one-character string used to separate fields
-        in the CSV file. `quotechar` is a one-character string used to
-        quote fields containing special characters in the CSV file.
-        The default values for these two arguments are suited for CSV
-        files in Excel format.
+        Argument `delimiter` is a one-character string used to separate fields
+        in the CSV file, and `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file. The default
+        values for these two arguments are suited for CSV files in Excel
+        format.
 
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.20`.
@@ -386,11 +338,11 @@ class MakeLocalDB(threading.Thread):
     def insert_records_from_csv(self, delimiter=';', quotechar='"'):
         """Insert the records from a CSV file into the local database.
 
-        `delimiter` is a one-character string used to separate fields
-        in the CSV file. `quotechar` is a one-character string used to
-        quote fields containing special characters in the CSV file.
-        The default values for these two arguments are suited for CSV
-        files in Excel format.
+        Argument `delimiter` is a one-character string used to separate fields
+        in the CSV file, and `quotechar` is a one-character string used to
+        quote fields containing special characters in the CSV file. The default
+        values for these two arguments are suited for CSV files in Excel
+        format.
 
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.21`.
@@ -421,30 +373,25 @@ class MakeLocalDB(threading.Thread):
                 )
 
     def insert_from_xls(self):
-        #raise Exception("NOT implemented yet.")
-
         """Create a new local database and load all SETL data from the
         user selected Excel files into the local database.
 
         The SETL data is loaded from four separate Excel files:
-            * localities_XLS_file, containing the SETL locations.
-            * species_XLS_file, containing the SETL species.
-            * records_XLS_file, containing the SETL records.
-            * plates_XLS_file, containing the SETL plates.
 
-        These files must be exported from MS Excel 95/2000/xp
-        and contain all fields.
+        * Localities file, containing the SETL locations.
+        * Species ile, containing the SETL species.
+        * Records file, containing the SETL records.
+        * Plates file, containing the SETL plates.
 
-        Design Part: ....									##### Design part
+        Design Part: TODO
         """
         logging.info("Creating local database from Microsoft Excel spreadsheet files...")
 
         # If data_source is not set to "xls", the required data
         # files are probably not set by the user yet. ChangeDataSource
         # must be called first.
-        if setlyze.config.cfg.get('data-source') != 'xls':
-            raise ValueError("Cannot run this function while 'data-source' is "
-                "set to '%s'." % setlyze.config.cfg.get('data-source'))
+        assert self.data_source == 'xls', \
+            "The data source is not set to 'xls'"
 
         # First, create a new database file.
         self.create_new_db()
@@ -453,7 +400,7 @@ class MakeLocalDB(threading.Thread):
         # Add the data source we can figure out what kind of data is
         # present.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)",
-            ( setlyze.config.cfg.get('data-source'), ) )
+            ( self.data_source, ) )
         # Also insert the data of creation, so we can give the user an
         # indication when this database was created.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
@@ -491,10 +438,8 @@ class MakeLocalDB(threading.Thread):
             gobject.idle_add(setlyze.std.sender.emit, 'csv-import-failed', e)
             return
 
-        # If we are here, the import was successful. Set the progress dialog
-        # to 100%.
+        # If we are here, the import was successful.
         self.pdialog_handler.increase("")
-
         logging.info("Local database populated.")
         setlyze.config.cfg.set('has-local-db', True)
 
@@ -695,7 +640,7 @@ class MakeLocalDB(threading.Thread):
 
         # Next time we run the tool, we'll know what data is in the database.
         self.cursor.execute( "INSERT INTO info VALUES (null, 'source', ?)",
-            (setlyze.config.cfg.get('data-source'),) )
+            (self.data_source,) )
         self.cursor.execute( "INSERT INTO info VALUES (null, 'date', date('now'))" )
 
         # Commit the transaction.
@@ -713,11 +658,9 @@ class MakeLocalDB(threading.Thread):
         return True
 
     def create_new_db(self):
-        """Create a new local database and then calls the methods
-        that create the necessary tables.
+        """Create a new local database.
 
-        This deletes the current local database if present in the user's
-        home folder.
+        This deletes any existing database file.
 
         Design Part: 1.38
         """
@@ -756,26 +699,21 @@ class MakeLocalDB(threading.Thread):
         """Remove the database file.
 
         This method does three tries if for some reason the database file
-        could not be deleted (e.g. the file is in use by a different
-        process).
+        could not be deleted (e.g. the file is in use by a different process).
         """
         if tries > 2:
-            raise EnvironmentError("I was unable to remove the file %s. "
-                "Please make sure it's not in use by a different "
-                "process." % self.dbfile)
-
+            raise EnvironmentError("Failed to delete database file %s. "
+                "It may be in use by a different process." % self.dbfile)
         try:
             os.remove(self.dbfile)
         except:
             tries += 1
             time.sleep(2)
             self.remove_db_file(tries)
-
         return True
 
     def create_table_info(self):
-        """Create a table for storing basic information about the
-        local database.
+        """Create the "info" table for storing general information.
 
         This information includes its creation date and the data source.
         The data source is either the SETL database (MS Access/PostgreSQL)
@@ -796,7 +734,7 @@ class MakeLocalDB(threading.Thread):
             "VALUES (null, 'version', ?)", [__version__])
 
     def create_table_localities(self):
-        """Create a table for the SETL localities.
+        """Create the "localities" table for the SETL locations.
 
         Because the data from this table is accessed frequently, the
         localities records are automatically saved to this table when
@@ -814,7 +752,7 @@ class MakeLocalDB(threading.Thread):
         )")
 
     def create_table_species(self):
-        """Create a table for the SETL species.
+        """Create the "species" table for the SETL species.
 
         Because the data from this table is accessed frequently, the
         species records are automatically saved to this table when
@@ -834,7 +772,7 @@ class MakeLocalDB(threading.Thread):
         )")
 
     def create_table_plates(self):
-        """Create a table for the SETL plates.
+        """Create the "plates" table for the SETL plates.
 
         This table is only filled if the user selected CSV or XLS files to
         import SETL data from. If the remote SETL database is used,
@@ -857,7 +795,7 @@ class MakeLocalDB(threading.Thread):
         )")
 
     def create_table_records(self):
-        """Create a table for the SETL records.
+        """Create the "records" table for the SETL records.
 
         This table is only filled if the user selected CSV or XLS files to
         import SETL data from. If the remote SETL database is used,
@@ -923,26 +861,21 @@ class AccessDBGeneric(object):
         self.cursor = self.conn.cursor()
 
     def get_database_info(self):
-        """Return info (creation date, data source) stored in the local
-        database file.
+        """Return database information.
+
+        These include the creation date and the data source.
         """
-
         cursor = self.conn.cursor()
-
         cursor.execute("SELECT value FROM info WHERE name='source'")
         source = cursor.fetchone()
-
         cursor.execute("SELECT value FROM info WHERE name='date'")
         date = cursor.fetchone()
-
         cursor.close()
-
         info = {'source': None, 'date': None}
         if source:
             info['source'] = source[0]
         if date:
             info['date'] = date[0]
-
         return info
 
     def get_locations(self):
@@ -952,39 +885,33 @@ class AccessDBGeneric(object):
 
         Design Part: 1.95
         """
-
         cursor = self.conn.cursor()
         cursor.execute("SELECT loc_id, loc_name FROM localities")
         locations = cursor.fetchall()
         cursor.close()
-
         return locations
 
     def make_plates_unique(self, slot):
         """Combine the records with the same plate ID in a spots table.
+
         The value for `slot` defines which spots table is used.
         The possible values of `slot` are ``0`` for table
-        ``species_spots_1`` and ``1`` for ``species_spots_2``.
+        "species_spots_1" and ``1`` for table "species_spots_2".
 
         We're doing this so we can threat multiple species selected by
         the user as a single species.
 
+        Returns the total numbers of distinctive plates.
+
         Design Part: 1.20
         """
-
-        # The available tables to save the spots to.
         tables = ('species_spots_1','species_spots_2')
 
-        # Make a connection with the local database.
+        # Get all distinctive plate IDs.
         cursor = self.conn.cursor()
-
-        # Get all plate IDs.
-        cursor.execute( "SELECT rec_pla_id FROM %s" % (tables[slot]) )
+        cursor.execute( "SELECT DISTINCT rec_pla_id FROM %s" % (tables[slot]) )
         pla_ids = cursor.fetchall()
-        # Remove duplicate plate IDs.
-        pla_ids = setlyze.std.uniqify(pla_ids)
 
-        n = 0
         for pla_id in pla_ids:
             # Get plate ID and all 25 spots for each plate ID.
             cursor.execute( "SELECT rec_pla_id,"
@@ -997,103 +924,37 @@ class AccessDBGeneric(object):
                             "WHERE rec_pla_id = ?" %
                             (tables[slot]),
                             (pla_id[0],)
-                            )
+            )
 
-            # Create a combined record from all records with this
-            # plate ID.
+            # Create a combined record from all records with this plate ID.
             rows = cursor.fetchall()
-            combined = setlyze.std.combine_records(rows)
 
-            # Remove all records with that plate ID from the
-            # species_spots table.
+            # No need to do anything if there is just one record for a plate.
+            if len(rows) < 2:
+                continue
+
+            # Remove all records with that plate ID from the species_spots table.
             cursor.execute( "DELETE FROM %s "
                             "WHERE rec_pla_id = ?" %
                             (tables[slot]),
                             (pla_id[0],)
-                            )
+            )
 
-            # Insert the combined record in the species_spots table. So
-            # this single record replaces all other records with this
-            # plate ID.
+            # Insert the combined record in the species_spots table. So this
+            # single record replaces all other records with this plate ID.
+            combined = setlyze.std.combine_records(rows)
             placeholders = ','.join('?' * 26)
             cursor.execute("INSERT INTO %s VALUES (null,%s)" %
                             (tables[slot], placeholders),
                             combined
-                            )
-
-            # Keep track of the new records being added.
-            n += 1
+            )
 
         # Commit the database transaction.
         self.conn.commit()
-
-        # Close connection with the local database.
         cursor.close()
 
         # Return the total numbers of unique plate records.
-        return n
-
-    def remove_single_spot_plates(self, table):
-        """Remove records that have just one positive spot. Intra-specific
-        distance can’t be calculated for those.
-
-        .. deprecated:: 0.1
-           Use of this function is discouraged. You can easily check for
-           a minimum number of spots in your functions. Also the function
-           :meth:`~setlyze.std.get_spot_combinations_from_record` will
-           return an empty list if no combinations are possibe (e.g. the
-           record contains less than 2 positive spots).
-
-        Design Part: 1.21
-        """
-
-        # Make a connection with the local database.
-
-        cursor = self.conn.cursor()
-
-        # Get all spots for each plate.
-        cursor.execute( "SELECT rec_pla_id,"
-                        "rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,"
-                        "rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,"
-                        "rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,"
-                        "rec_sur16,rec_sur17,rec_sur18,rec_sur19,rec_sur20,"
-                        "rec_sur21,rec_sur22,rec_sur23,rec_sur24,rec_sur25 "
-                        "FROM %s" % (table)
-                        )
-
-        delete = []
-        for record in cursor:
-            # Count total True's (n) for each record.
-            n = 0
-            for spot in record[1:]:
-                # Again, skip the first item, as it's the plate ID.
-                # Count the number of True's.
-                if spot:
-                    n += 1
-
-            # Total (n) must be at least 2; if not, add that plate ID
-            # to the list of to be deleted plates/records.
-            if n < 2:
-                delete.append(record[0])
-
-        # Create a string of the IDs.
-        delete_str = ",".join([str(id) for id in delete])
-
-        # Delete the records in the list of plate IDs.
-        cursor.execute( "DELETE FROM %s "
-                        "WHERE rec_pla_id IN (%s)" %
-                        (table, delete_str)
-                        )
-
-        # Commit the database transaction.
-        # Design Part: 2.10 -> 2.11
-        self.conn.commit()
-
-        # Close connection with the local database.
-        cursor.close()
-
-        # Return the list of deleted plates.
-        return delete
+        return len(pla_ids)
 
     def fill_plate_spot_totals_table(self, spots_table1, spots_table2=None):
         """Fill the ``plate_spot_totals`` table with the number of
@@ -1402,6 +1263,46 @@ class AccessDBGeneric(object):
 
         # Close connection with the local database.
         cursor.close()
+
+    def get_plates_total_matching_spots_total(self, n_spots, slot=0):
+        """Return an integer representing the number of plates that
+        match the provided number of positive spots `n_spots`.
+
+        Possible values for `slot` are 0 for the first species selection,
+        and 1 for the second species selection.
+        """
+        connection = sqlite.connect(setlyze.config.cfg.get('db-file'))
+        cursor = connection.cursor()
+
+        if slot == 0:
+            field = 'n_spots_a'
+        elif slot == 1:
+            field = 'n_spots_b'
+        else:
+            raise ValueError("Possible values for 'slot' are 0 and 1.")
+
+        if n_spots < 0:
+            # If spots_n is a negative number, get all distances
+            # up to the absolute number. So if we find -5, get all
+            # distances with up to 5 spots.
+            cursor.execute( "SELECT COUNT(pla_id) "
+                            "FROM plate_spot_totals "
+                            "WHERE %s <= ?" % (field),
+                            [abs(n_spots)])
+            n_plates = cursor.fetchone()[0]
+        else:
+            # If it's a positive number, just get the plates that
+            # match that spots number.
+            cursor.execute( "SELECT COUNT(pla_id) "
+                            "FROM plate_spot_totals "
+                            "WHERE %s = ?" % (field),
+                            [n_spots])
+            n_plates = cursor.fetchone()[0]
+
+        cursor.close()
+        connection.close()
+
+        return n_plates
 
 class AccessLocalDB(AccessDBGeneric):
     """Provide standard methods for accessing data in the local
