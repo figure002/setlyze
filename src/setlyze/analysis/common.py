@@ -548,7 +548,7 @@ class PrepareAnalysis(object):
             setlyze.gui.Report(report)
 
 class AnalysisWorker(object):
-    """Super class for Analysis classes."""
+    """Super class for :class:`Analysis` classes."""
 
     def __init__(self, execute_queue=None):
         self._stop = False
