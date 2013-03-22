@@ -17,8 +17,8 @@ order to run SETLyze.
 * python-rpy
 * python-xlrd
 
-On Ubuntu or other Debian derivatives, installing the dependencies can be done
-with the following command:
+On Debian or derivatives, installing the dependencies can be done with the
+following command:
 
     sudo apt-get install python python-gtk2 python-rpy python-xlrd
 
@@ -45,9 +45,9 @@ commands:
 
 This will present you with a simple console based GUI of options for installing
 SETLyze. First press 'c' to run the configure script. Review the options and
-change what you think is necessary (the default options are recommended). Again
-press 'c' to confirm the options. Then press 'g' to generate the make files and
-exit.
+change options where necessary (usually `CMAKE_INSTALL_PREFIX` should be set
+to `/usr`). Again press 'c' to confirm the options. Then press 'g' to generate
+the make files and exit.
 
 3) Installing
 
@@ -59,7 +59,9 @@ Run the following command (as root) to install SETLyze:
 Running SETLyze
 ===============
 
-To run SETLyze, execute the command `setlyze` from the command line.
+There should be new shortcut to SETLyze in the Science category of the
+applications menu. Alternatively you can run SETLyze from the command line
+with the command `setlyze`.
 
 
 Uninstallation Instructions
@@ -76,12 +78,3 @@ from where you extracted SETLyze:
 And run the uninstall command as root:
 
     make uninstall
-
-
-Alternative uninstallation
---------------------------
-
-Alternatively, you can remove the files listed in the install_manifest.txt file
-which has the same result as the 'make uninstall' command.
-
-    xargs -d "\n" rm < install_manifest.txt
