@@ -89,7 +89,7 @@ SPOT_DIST_TO_PROB_INTRA = {
     4.47: 12/300.0,
     5: 8/300.0,
     5.66: 2/300.0,
-    }
+}
 
 # The probability for each spot distance on a 5x5 SETL plate
 # (inter-specific).
@@ -110,7 +110,7 @@ SPOT_DIST_TO_PROB_INTER = {
     4.47: 24/625.0,
     5: 16/625.0,
     5.66: 4/625.0,
-    }
+}
 
 # Default configurations.
 DEFAULT_CONFIG = [
@@ -179,13 +179,12 @@ class ConfigManager(object):
         """Read settings from a configuration file.
 
         The configuration file is by default saved to
-        ``~/.setlyze/setlyze.cfg``. If a configuration file ``setlyze.cfg``
-        is present in the working directory, that file is used instead.
+        ``~/.setlyze/setlyze.cfg``.
         """
         ints = ('test-repeats','concurrent-processes')
         floats = ('alpha-level')
         parser = ConfigParser.SafeConfigParser()
-        files = parser.read(['setlyze.cfg', CONF_FILE])
+        files = parser.read(CONF_FILE)
         if len(files) > 0:
             for section in ['general']:
                 for name in parser.options(section):
@@ -203,11 +202,15 @@ class ConfigManager(object):
     def save_to_file(self):
         """Save user customizable settings to a configuration file."""
         parser = ConfigParser.SafeConfigParser()
+        # The configurations that need to be saved to a configuration file.
+        configs = {
+            'general': ('alpha-level','test-repeats','concurrent-processes')
+        }
         # Set the configurations.
-        parser.add_section('general')
-        parser.set('general', 'alpha-level', str(self.get('alpha-level')))
-        parser.set('general', 'test-repeats', str(self.get('test-repeats')))
-        parser.set('general', 'concurrent-processes', str(self.get('concurrent-processes')))
+        for section in configs:
+            parser.add_section(section)
+            for option in configs[section]:
+                parser.set(section, option, str(self.get(option)))
         # Check if the data folder exists. If not, create it.
         if not os.path.exists(DATA_PATH):
             os.mkdir(DATA_PATH)
@@ -216,46 +219,13 @@ class ConfigManager(object):
         parser.write(f)
         f.close()
 
-    def set(self, key, value, **kwargs):
-        """Set the configuration with name `key` to `value`.
-
-        Some configurations have extra keyword arguments. These
-        arguments are handled by `kwargs`. The configurations that have
-        extra arguments are as follows:
-
-            ``locations-selection``, ``species-selection``
-                If `slot` is set to 0 (default), the value is saved
-                as the first selection. If set to 1, the value is saved
-                as the second selection.
-        """
+    def set(self, key, value):
+        """Set the configuration with name `key` to `value`."""
         if key not in self._conf:
-            raise ValueError("ConfigManager: unknown key '%s'" % key)
-
+            raise KeyError("'%s' is not a configuration key" % key)
         if key == 'data-source':
             self.set_data_source(value)
             return
-
-        if key in ('locations-selection', 'species-selection'):
-            if value == None:
-                # To reset the selection variables, use 'None' as the
-                # value. If value is 'None', save it as [None,None].
-                self._conf[key] = [None,None]
-            elif isinstance(value, list):
-                # The selection variable is a list, containing lists
-                # of selected items. At the moment a selection variable
-                # can contain up to two selection lists (two slots).
-                # Default, insert the selection list in the first
-                # slot (slot=0). If a slot is provided, use that slot
-                # instead.
-                slot = kwargs.get('slot', 0)
-                self._conf[key][slot] = value
-            else:
-                raise TypeError( "ConfigManager: invalid type %s for '%s'. \
-                                Must be either of type 'list' or 'None'." %
-                    (type(value), key) )
-            return
-
-        # Set the new value for the configuration key.
         self._conf[key] = value
 
     def set_data_source(self, source):
@@ -268,40 +238,20 @@ class ConfigManager(object):
 
         If an unknown data source is given, an error is printed.
         """
-
-        # Legal data sources.
         legal_sources = ("setl-database", "csv-msaccess", "xls")
-
         if source in legal_sources:
             # Set the new data source.
             self._conf['data-source'] = source
-
             # A new database file must be created when the data source has
             # changed.
             self.set('make-new-db', True)
         else:
             raise ValueError("Encountered unknown data source '%s'" % source)
 
-    def get(self, key, **kwargs):
-        """Return the value for the configuration with name `key`.
-
-        Some configurations have extra keyword arguments. These
-        arguments are handled by `kwargs`. The configurations that have
-        extra arguments are as follows:
-
-            ``locations-selection``, ``species-selection``
-                If `slot` is set to 0 (default), the value of the
-                first selection is returned. If set to 1,the second
-                selection is returned.
-        """
+    def get(self, key):
+        """Return the value for the configuration with name `key`."""
         if key not in self._conf:
-            raise ValueError("Unknown key '%s'" % key)
-
-        if key in ('locations-selection', 'species-selection'):
-            slot = kwargs.get('slot', None)
-            if isinstance(slot, int):
-                return self._conf[key][slot]
-
+            raise KeyError("'%s' is not a configuration key" % key)
         return self._conf.get(key)
 
 # Create an instance of ConfigManager. This instance is only created once,
