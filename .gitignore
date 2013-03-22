@@ -2,4 +2,4 @@
 *.pywc
 build/
 dist/
-
+doctrees/
