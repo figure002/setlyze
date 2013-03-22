@@ -452,7 +452,7 @@ class MakeLocalDB(threading.Thread):
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.18`.
 
-        Design Part: ...								#### Design part aanpassen
+        Design Part: TODO
         """
         logging.info("Importing localities data from %s" % setlyze.config.cfg.get('localities-file'))
 
@@ -483,7 +483,7 @@ class MakeLocalDB(threading.Thread):
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.20`.
 
-        Design Part: ....								#### Design part aanpassen
+        Design Part: TODO
         """
         logging.info("Importing plates data from %s" % setlyze.config.cfg.get('plates-file'))
 
@@ -519,7 +519,7 @@ class MakeLocalDB(threading.Thread):
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.21`.
 
-        Design Part: ...									#### Design part aanpassen
+        Design Part: TODO
         """
         logging.info("Importing records data from %s" % setlyze.config.cfg.get('records-file'))
 
@@ -584,7 +584,7 @@ class MakeLocalDB(threading.Thread):
         For a description of the format for the localities file, refer
         to :ref:`design-part-data-2.19`.
 
-        Design Part: 1.35(b)										# Design nummer aangeven
+        Design Part: 1.35(b) TODO
         """
         logging.info("Importing species data from %s" % setlyze.config.cfg.get('species-file'))
 
@@ -957,32 +957,29 @@ class AccessDBGeneric(object):
         return len(pla_ids)
 
     def fill_plate_spot_totals_table(self, spots_table1, spots_table2=None):
-        """Fill the ``plate_spot_totals`` table with the number of
-        positive spots for each plate.
+        """Populate table "plate_spot_totals".
 
-        The information is obtained from the tables `spots_table1` and
-        `spots_table2` (optional).
+        This table is populated with the number of positive spots for each
+        plate. The information is obtained from the spots tables `spots_table1`
+        and optionally `spots_table2`.
 
-        The ``plate_spot_totals`` table is used in several situations:
+        The "plate_spot_totals" table is used in several situations:
 
             * Calculating the expected distances, where the positive spot
               number serves as a template for the random spots generator
-              (see :ref:`~setlyze.std.get_random_for_plate`).
+              (see :meth:`~setlyze.std.get_random_for_plate`).
 
             * Significance calculators, where the tests are applied to
               plates with a specific number of positive spots (see
-              :ref:`get_distances_matching_spots_total`).
+              :meth:`get_distances_matching_spots_total`).
 
-        If just `spots_table1` is provided, only the column ``n_spots_a``
-        is filled with positive spot numbers. If both `spots_table1` and
-        `spots_table2` are provided, ``n_spots_a`` is filled
-        from `spots_table1`, and ``n_spots_b`` filled from `spots_table2`.
+        If just `spots_table1` is provided, only the column "n_spots_a"
+        is populated with positive spot numbers. If both `spots_table1` and
+        `spots_table2` are provided, column "n_spots_a" is filled
+        from `spots_table1`, and column "n_spots_b" filled from `spots_table2`.
 
         Design Part: 1.73
         """
-
-        # Make a connection with the local database.
-
         cursor = self.conn.cursor()
         cursor2 = self.conn.cursor()
 
@@ -1012,7 +1009,7 @@ class AccessDBGeneric(object):
                             "INNER JOIN %s as s2 "
                             "ON s1.rec_pla_id=s2.rec_pla_id" %
                             (spots_table1, spots_table2)
-                            )
+            )
 
             for record in cursor:
                 record1 = record[2:27]
@@ -1027,20 +1024,19 @@ class AccessDBGeneric(object):
                 spots1 = len(spots1)
                 spots2 = len(spots2)
 
-                # Skip this plate if both records contain less than 1
-                # positive spot.
-                # We won't be able to calculate distances for such records
-                # anyway.
+                # Skip this plate if both records contain less than 1 positive
+                # spot. We won't be able to calculate distances for such
+                # records anyway.
                 if spots1 < 1 and spots2 < 1:
                     skipped += 1
                     continue
 
-                # Save the number of positive spots to the
-                # plate_spot_totals table.
+                # Save the number of positive spots to the plate_spot_totals
+                # table.
                 cursor2.execute( "INSERT INTO plate_spot_totals "
                                  "VALUES (?,?,?)",
                                  (plate_id, spots1, spots2)
-                                )
+                )
                 rowcount += 1
         else:
             # One spots table is provided.
@@ -1052,8 +1048,7 @@ class AccessDBGeneric(object):
             # rec_sur12|rec_sur13|rec_sur14|rec_sur15|rec_sur16|rec_sur17|
             # rec_sur18|rec_sur19|rec_sur20|rec_sur21|rec_sur22|rec_sur23|
             # rec_sur24|rec_sur25
-            cursor.execute( "SELECT * FROM %s" % (spots_table1)
-                            )
+            cursor.execute("SELECT * FROM %s" % spots_table1)
 
             for record in cursor:
                 plate_id = record[1]
@@ -1071,13 +1066,12 @@ class AccessDBGeneric(object):
                     skipped += 1
                     continue
 
-                # Save the number of positive spots to the
-                # plate_spot_totals table.
+                # Save the number of positive spots to the plate_spot_totals
+                # table.
                 cursor2.execute( "INSERT INTO plate_spot_totals "
                                  "VALUES (?,?,null)",
                                  (plate_id, spots)
-                                )
-
+                )
                 rowcount += 1
 
         # Commit the transaction.
@@ -1097,7 +1091,6 @@ class AccessDBGeneric(object):
         This is a generator, meaning that this method returns an
         iterator. This iterator returns the distances.
         """
-
         cursor = self.conn.cursor()
 
         if spots_n < 0:
@@ -1160,9 +1153,7 @@ class AccessDBGeneric(object):
         This is a generator, meaning that this method returns an
         iterator. This iterator returns the distances.
         """
-
         cursor = self.conn.cursor()
-
         plate_ids = []
 
         for ratio in ratios:
@@ -1227,7 +1218,6 @@ class AccessDBGeneric(object):
         combination of the letters A, B, C, and D. Each letter is one of
         the default areas on a SETL plate.
         """
-
         cursor = self.conn.cursor()
 
         # Compile a string containing the area fields for 'area_group'.
@@ -1265,14 +1255,13 @@ class AccessDBGeneric(object):
         cursor.close()
 
     def get_plates_total_matching_spots_total(self, n_spots, slot=0):
-        """Return an integer representing the number of plates that
-        match the provided number of positive spots `n_spots`.
+        """Return the number of plates that match the provided number of
+        positive spots `n_spots`.
 
         Possible values for `slot` are 0 for the first species selection,
         and 1 for the second species selection.
         """
-        connection = sqlite.connect(setlyze.config.cfg.get('db-file'))
-        cursor = connection.cursor()
+        cursor = self.conn.cursor()
 
         if slot == 0:
             field = 'n_spots_a'
@@ -1300,8 +1289,6 @@ class AccessDBGeneric(object):
             n_plates = cursor.fetchone()[0]
 
         cursor.close()
-        connection.close()
-
         return n_plates
 
 class AccessLocalDB(AccessDBGeneric):
@@ -1319,17 +1306,18 @@ class AccessLocalDB(AccessDBGeneric):
         super(AccessLocalDB, self).__init__()
 
     def create_table_species_spots_1(self):
-        """Create a table that will contain the SETL records for the
-        first species selection.
+        """Create temporary table "species_spots_1".
 
-        Because the user can select multiple species, the plate IDs in
-        column ``rec_pla_id`` don't have to be unique, so we're
-        creating a separate column ``id`` as the primary key.
+        This table will contain the SETL records for the first species
+        selection.
+
+        Because the user can select multiple species, the plate IDs in column
+        "rec_pla_id" don't have to be unique, so we're creating a separate
+        column "id" as the primary key.
 
         Design Part: 1.80
+        Creates Design Part: 2.9, 2.9.1, 2.9.2
         """
-
-        # Design Part: 2.9, 2.9.1, 2.9.2
         self.cursor.execute("CREATE TEMP TABLE species_spots_1 (\
             id INTEGER PRIMARY KEY, \
             rec_pla_id INTEGER, \
@@ -1362,17 +1350,18 @@ class AccessLocalDB(AccessDBGeneric):
 
 
     def create_table_species_spots_2(self):
-        """Create a table that will contain the SETL records for the
-        second species selection.
+        """Create temporary table "species_spots_2".
 
-        Because the user can select multiple species, the plate IDs in
-        column ``rec_pla_id`` don't have to be unique, so we're
-        creating a separate column ``id`` as the primary key.
+        This table will contain the SETL records for the second species
+        selection.
+
+        Because the user can select multiple species, the plate IDs in column
+         "rec_pla_id" don't have to be unique, so we're creating a separate
+         column "id" as the primary key.
 
         Design Part: 1.81
+        Creates Design Part: 2.10, 2.10.1, 2.10.2
         """
-
-        # Design Part: 2.10, 2.10.1, 2.10.2
         self.cursor.execute("CREATE TEMP TABLE species_spots_2 (\
             id INTEGER PRIMARY KEY, \
             rec_pla_id INTEGER, \
@@ -1404,12 +1393,13 @@ class AccessLocalDB(AccessDBGeneric):
         )")
 
     def create_table_spot_distances_observed(self):
-        """Create a table for the observed spot distances.
+        """Create temporary table "spot_distances_observed".
+
+        This table is used to store observed spot distances.
 
         Design Part: 1.83
+        Creates Design Part: 2.12
         """
-
-        # Design Part: 2.12
         self.cursor.execute("CREATE TEMP TABLE spot_distances_observed (\
             id INTEGER PRIMARY KEY, \
             rec_pla_id INTEGER, \
@@ -1417,12 +1407,13 @@ class AccessLocalDB(AccessDBGeneric):
         )")
 
     def create_table_spot_distances_expected(self):
-        """Create a table for the expected spot distances.
+        """Create temporary table "spot_distances_expected".
+
+        This table is used to store expected spot distances.
 
         Design Part: 1.84
+        Creates Design Part: 2.13
         """
-
-        # Design Part: 2.13
         self.cursor.execute("CREATE TEMP TABLE spot_distances_expected (\
             id INTEGER PRIMARY KEY, \
             rec_pla_id INTEGER, \
@@ -1430,13 +1421,13 @@ class AccessLocalDB(AccessDBGeneric):
         )")
 
     def create_table_plate_spot_totals(self):
-        """Create a table for the total of spots per plate in the
-        distance tables.
+        """Create temporary table "plate_spot_totals".
+
+        This table is used to store the total of spots per plate.
 
         Design Part: 1.85
+        Creates Design Part: 2.39
         """
-
-        # Design Part: 2.39
         self.cursor.execute("CREATE TEMP TABLE plate_spot_totals (\
             pla_id INTEGER PRIMARY KEY, \
             n_spots_a INTEGER, \
@@ -1444,8 +1435,10 @@ class AccessLocalDB(AccessDBGeneric):
         )")
 
     def create_table_plate_area_totals_observed(self):
-        """Create a table for the total of positive spots per plate area per
-        plate ID.
+        """Create temporary table "plate_area_totals_observed".
+
+        This table is used to store the total of positive spots per plate area
+        per plate ID.
 
         Design Part:
         """
@@ -1460,13 +1453,13 @@ class AccessLocalDB(AccessDBGeneric):
         )")
 
     def create_table_plate_area_totals_expected(self):
-        """Create a table for the total of positive spots per plate area per
-        plate ID.
+        """Create temporary table "plate_area_totals_expected".
 
-        Design Part:
+        This table is used to store the total of expected positive spots per
+        plate area per plate ID.
+
+        Design Part: TODO
         """
-
-        # Design Part:
         self.cursor.execute("CREATE TEMP TABLE plate_area_totals_expected (\
             pla_id INTEGER PRIMARY KEY, \
             area_a INTEGER, \
@@ -1476,12 +1469,11 @@ class AccessLocalDB(AccessDBGeneric):
         )")
 
     def get_species(self, locations):
-        """Return a list of species tuples in the format ``(spe_id,
-        'spe_name_venacular', 'spe_name_latin')`` from the local
-        database that match the localities selection.
+        """Return species that match a locations selection `locations`.
 
-        Only species matching a list of location IDs `locations` will be
-        returned.
+        Species are returned as tuples in the format
+        ``(id, 'common_name', 'latin_name')``. Argument `locations` is a list
+        of location IDs.
 
         Design Part: 1.96
         """
@@ -1498,7 +1490,6 @@ class AccessLocalDB(AccessDBGeneric):
         pla_ids = setlyze.std.uniqify(pla_ids)
         # Create a string of the IDs for the query.
         pla_ids_str = ",".join([str(id) for id in pla_ids])
-        #print "pla_ids: ", pla_ids
 
         # Select all species IDs from records with those plate IDs.
         cursor.execute("SELECT rec_spe_id FROM records WHERE rec_pla_id IN (%s) AND rec_spe_id != ''" % pla_ids_str)
@@ -1514,13 +1505,11 @@ class AccessLocalDB(AccessDBGeneric):
         cursor.execute("SELECT spe_id, spe_name_venacular, spe_name_latin FROM species WHERE spe_id IN (%s)" % spe_ids_str)
         species = cursor.fetchall()
 
-        # Close connection with the local database.
         cursor.close()
-
         return species
 
     def get_record_ids(self, locations, species):
-        """Return records that match the locations and species.
+        """Return records that match the locations and species selections.
 
         Returns a list of record IDs that match the locations IDs
         in the list `locations` and the species IDs in the list `species`.
@@ -1530,7 +1519,6 @@ class AccessLocalDB(AccessDBGeneric):
 
         Design Part: 1.41
         """
-
         # Create strings containing all the selected locations and
         # species IDs. These will be part of the queries below.
         if isinstance(locations, int):
@@ -1543,11 +1531,8 @@ class AccessLocalDB(AccessDBGeneric):
         else:
             spe_ids_str = ",".join([str(id) for id in species])
 
-        # Make a connection with the local database.
-
-        cursor = self.conn.cursor()
-
         # Get the plate IDs that match the selected locations.
+        cursor = self.conn.cursor()
         cursor.execute("SELECT pla_id FROM plates WHERE pla_loc_id IN (%s)"
             % (loc_ids_str))
 
@@ -1566,9 +1551,7 @@ class AccessLocalDB(AccessDBGeneric):
         # Construct a list with the record IDs.
         rec_ids = [row[0] for row in cursor]
 
-        # Close connection with the local database.
         cursor.close()
-
         return rec_ids
 
     def get_spots(self, rec_ids):
@@ -1579,16 +1562,12 @@ class AccessLocalDB(AccessDBGeneric):
         iterator. This iterator returns tuples with the 25 spot booleans for
         all matching records.
         """
-
-        # Make a connection with the local database.
-
-        cursor = self.conn.cursor()
-
         # Create a string of the IDs for the query.
         rec_ids_str = ",".join([str(id) for id in rec_ids])
 
         # Get all 25 spots from each record that matches the list of
         # record IDs.
+        cursor = self.conn.cursor()
         cursor.execute( "SELECT rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,"
                         "rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,"
                         "rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,"
@@ -1600,8 +1579,6 @@ class AccessLocalDB(AccessDBGeneric):
 
         for record in cursor:
             yield record
-
-        # Close connection with the local database.
         cursor.close()
 
     def set_species_spots(self, rec_ids, slot):
@@ -1615,17 +1592,14 @@ class AccessLocalDB(AccessDBGeneric):
 
         Design Part: 1.19.1
         """
+        cursor = self.conn.cursor()
+        cursor2 = self.conn.cursor()
 
         # The available tables to save the spots to.
         tables = ('species_spots_1','species_spots_2')
 
         # Turn the list into a string, as it'll be included in the query.
         rec_ids_str = ",".join([str(item) for item in rec_ids])
-
-        # Make a connection with the local database.
-
-        cursor = self.conn.cursor()
-        cursor2 = self.conn.cursor()
 
         # Empty the required tables before we start.
         cursor.execute( "DELETE FROM %s" % (tables[slot]) )
@@ -1654,8 +1628,6 @@ class AccessLocalDB(AccessDBGeneric):
 
         # Commit the database transaction.
         self.conn.commit()
-
-        # Close connection with the local database.
         cursor.close()
         cursor2.close()
 
