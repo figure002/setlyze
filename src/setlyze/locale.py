@@ -84,9 +84,10 @@ ENGLISH = [
         "the default setting, meaning that A, B, C and D are treated as "
         "separate plate areas, or you can combine specific areas by "
         "changing the setting below. Combining areas means that the "
-        "combined areas are treated as a single plate area. Empty plate "
-        "areas are ignored. This plate area definition will not be used for the "
-        "Wilcoxon test because a fixed set of plate areas will be tested."),
+        "combined areas are treated as a single plate area. One must define at "
+        "least two plate areas.\n\n"
+        "In any case the Wilcoxon test will analyze the plate areas A, B, C, "
+        "D, A+B, C+D, A+B+C and B+C+D."),
     ('error-single-plate-area',
         "You've chosen to combine all plate areas together, resulting "
         "in a single plate area. This analysis requires at least two plate "
