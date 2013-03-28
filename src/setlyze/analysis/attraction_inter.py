@@ -398,7 +398,14 @@ class BeginBatch(Begin):
                     continue
                 stats = chi_squared['results'].get(ratio, None)
                 if stats:
-                    significant = stats['p_value'] < self.alpha_level
+                    # Check if the result was significant. When all values are
+                    # 0 the p-value will be NaN. Function `is_significant` will
+                    # raise ValueError if the p-value is NaN.
+                    try:
+                        significant = setlyze.std.is_significant(stats['p_value'], self.alpha_level)
+                    except ValueError:
+                        significant = False
+
                     if significant:
                         if stats['mean_observed'] < stats['mean_expected']:
                             row.append('at')
@@ -1055,10 +1062,15 @@ class Analysis(AnalysisWorker):
                 conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
-            # Save basic results for this repeated test.
-            # Check if the result was significant (P-value < alpha-level).
-            p_value = float(test_result['p.value'])
-            if p_value < self.alpha_level and not math.isnan(p_value):
+            # Check if the result was significant. When all values are
+            # 0 the p-value will be NaN. Function `is_significant` will
+            # raise ValueError if the p-value is NaN.
+            try:
+                significant = setlyze.std.is_significant(test_result['p.value'], self.alpha_level)
+            except ValueError:
+                significant = False
+
+            if significant:
                 # If so, increase significant counter with one.
                 self.statistics['wilcoxon_ratios_repeats']['results'][n_group]['n_significant'] += 1
 
