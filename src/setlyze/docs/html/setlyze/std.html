@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.std — Standard functions and classes &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.std — Standard functions and classes &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../index.html" />
     <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
     <link rel="next" title="Analysis Modules" href="../setlyze_modules_analysis.html" />
     <link rel="prev" title="setlyze.locale — English text retrieval" href="locale.html" /> 
@@ -48,7 +48,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
@@ -68,9 +68,9 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Adam van Adrichem, Fedde Schaeffer</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.3</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 22, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -86,26 +86,22 @@ here.</p>
 thread.</p>
 <p>Follow these steps to get the progress dialog working:</p>
 <ol class="arabic">
-<li><p class="first">In the main thread, create a progress dialog,</p>
+<li><p class="first">Somewhere in the main thread, create a progress dialog</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pd</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Analyzing&quot;</span><span class="p">,</span>
     <span class="n">description</span><span class="o">=</span><span class="s">&quot;Performing heavy calculations, please wait...&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Make the progress dialog global using the <a class="reference internal" href="config.html#module-setlyze.config" title="setlyze.config"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.config</span></tt></a> module,</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">,</span> <span class="n">pd</span><span class="p">)</span>
-</pre></div>
-</div>
-</li>
 <li><p class="first">Edit the worker process to automatically update the progress dialog.
-First create an instance of this class in the __init__() of your class:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">()</span>
+Create an instance of this class as follows (notice that the progress
+dialog is passed as its only argument)</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">Then you need to tell the handler how many times you&#8217;re going to update
 the progress dialog (which is the number of times you&#8217;ll call the
-<a class="reference internal" href="#setlyze.std.ProgressDialogHandler.increase" title="setlyze.std.ProgressDialogHandler.increase"><tt class="xref py py-meth docutils literal"><span class="pre">increase()</span></tt></a> method):</p>
+<a class="reference internal" href="#setlyze.std.ProgressDialogHandler.increase" title="setlyze.std.ProgressDialogHandler.increase"><tt class="xref py py-meth docutils literal"><span class="pre">increase()</span></tt></a> method)</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -113,7 +109,7 @@ the progress dialog (which is the number of times you&#8217;ll call the
 <li><p class="first">Then call the <a class="reference internal" href="#setlyze.std.ProgressDialogHandler.increase" title="setlyze.std.ProgressDialogHandler.increase"><tt class="xref py py-meth docutils literal"><span class="pre">increase()</span></tt></a> method in you worker class at the moments
 you want to update the progress dialog. Notice that <a class="reference internal" href="#setlyze.std.ProgressDialogHandler.increase" title="setlyze.std.ProgressDialogHandler.increase"><tt class="xref py py-meth docutils literal"><span class="pre">increase()</span></tt></a>
 will be called 8 times in the example below (hence total steps was set
-to 8):</p>
+to 8)</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="s">&quot;Calculating this...&quot;</span><span class="p">)</span>
 <span class="bp">self</span><span class="o">.</span><span class="n">some_heavy_function</span><span class="p">()</span>
 
@@ -131,7 +127,7 @@ to 8):</p>
 </li>
 <li><p class="first">Then start your worker process in a separate thread (if you&#8217;re new to
 threading, start with the <a class="reference external" href="http://docs.python.org/library/threading.html">threading documentation</a>)</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">t</span> <span class="o">=</span> <span class="n">WorkerClass</span><span class="p">()</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">t</span> <span class="o">=</span> <span class="n">Worker</span><span class="p">()</span>
 <span class="n">t</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -189,9 +185,6 @@ string is showed in italics below the progress bar.</p>
 The value of <cite>fraction</cite> should be between 0.0 and 1.0. Optionally set
 the current action to <cite>action</cite>, a short string explaining the current
 action.</p>
-<p>The &#8220;progress-dialog&#8221; configuration must be set to an instance of
-<a class="reference internal" href="gui.html#setlyze.gui.ProgressDialog" title="setlyze.gui.ProgressDialog"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.gui.ProgressDialog</span></tt></a> for this to work. If no progress
-dialog is set, nothing will happen.</p>
 </dd></dl>
 
 </dd></dl>
@@ -777,7 +770,7 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
              >previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 

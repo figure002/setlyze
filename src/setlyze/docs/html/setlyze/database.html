@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.database — Database access &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.database — Database access &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../index.html" />
     <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
     <link rel="next" title="setlyze.gui — Graphical interfaces" href="gui.html" />
     <link rel="prev" title="setlyze.config — Configuration manager" href="config.html" /> 
@@ -48,7 +48,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
@@ -68,23 +68,21 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Adam van Adrichem, Fedde Schaeffer</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.3</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 22, 2013</td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="module-setlyze.database">
 <span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.database" title="Permalink to this headline">¶</a></h2>
-<p>Facilitate access to the local SQLite database and the remote SETL
-database.</p>
+<p>Facilitate access to the database.</p>
 <p>The local SQLite database is created by <a class="reference internal" href="#setlyze.database.MakeLocalDB.create_new_db" title="setlyze.database.MakeLocalDB.create_new_db"><tt class="xref py py-meth docutils literal"><span class="pre">setlyze.database.MakeLocalDB.create_new_db()</span></tt></a>.
-It is created using the SQLite Python module. This database is used
-internally by SETLyze for local data storage and allows for the
-execution of SQL queries. The database is a single file created in the
-user&#8217;s home directory in a subfolder called <tt class="docutils literal"><span class="pre">.setlyze</span></tt>.</p>
-<p>Here we refer to the PostgreSQL SETL database as the remote SETL
-database.</p>
+It is created using Python&#8217;s SQLite module and is used internally by SETLyze
+for storing and retrieving data for analyses. The database is a single file
+created in the user&#8217;s home directory in a subfolder called <tt class="docutils literal"><span class="pre">.setlyze</span></tt>.</p>
+<p>There are plans to create a central SETL database server which this module
+can interact with. We refer to this database as the remote database.</p>
 <dl class="class">
 <dt id="setlyze.database.AccessDBGeneric">
 <em class="property">class </em><tt class="descclassname">setlyze.database.</tt><tt class="descname">AccessDBGeneric</tt><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric" title="Permalink to this definition">¶</a></dt>
@@ -95,25 +93,25 @@ present in the local database.</p>
 <dl class="method">
 <dt id="setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table">
 <tt class="descname">fill_plate_spot_totals_table</tt><big>(</big><em>spots_table1</em>, <em>spots_table2=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.fill_plate_spot_totals_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fill the <tt class="docutils literal"><span class="pre">plate_spot_totals</span></tt> table with the number of
-positive spots for each plate.</p>
-<p>The information is obtained from the tables <cite>spots_table1</cite> and
-<cite>spots_table2</cite> (optional).</p>
-<p>The <tt class="docutils literal"><span class="pre">plate_spot_totals</span></tt> table is used in several situations:</p>
+<dd><p>Populate table &#8220;plate_spot_totals&#8221;.</p>
+<p>This table is populated with the number of positive spots for each
+plate. The information is obtained from the spots tables <cite>spots_table1</cite>
+and optionally <cite>spots_table2</cite>.</p>
+<p>The &#8220;plate_spot_totals&#8221; table is used in several situations:</p>
 <blockquote>
 <div><ul class="simple">
 <li>Calculating the expected distances, where the positive spot
 number serves as a template for the random spots generator
-(see <em class="xref std std-ref">~setlyze.std.get_random_for_plate</em>).</li>
+(see <a class="reference internal" href="std.html#setlyze.std.get_random_for_plate" title="setlyze.std.get_random_for_plate"><tt class="xref py py-meth docutils literal"><span class="pre">get_random_for_plate()</span></tt></a>).</li>
 <li>Significance calculators, where the tests are applied to
 plates with a specific number of positive spots (see
-<em class="xref std std-ref">get_distances_matching_spots_total</em>).</li>
+<a class="reference internal" href="#setlyze.database.AccessDBGeneric.get_distances_matching_spots_total" title="setlyze.database.AccessDBGeneric.get_distances_matching_spots_total"><tt class="xref py py-meth docutils literal"><span class="pre">get_distances_matching_spots_total()</span></tt></a>).</li>
 </ul>
 </div></blockquote>
-<p>If just <cite>spots_table1</cite> is provided, only the column <tt class="docutils literal"><span class="pre">n_spots_a</span></tt>
-is filled with positive spot numbers. If both <cite>spots_table1</cite> and
-<cite>spots_table2</cite> are provided, <tt class="docutils literal"><span class="pre">n_spots_a</span></tt> is filled
-from <cite>spots_table1</cite>, and <tt class="docutils literal"><span class="pre">n_spots_b</span></tt> filled from <cite>spots_table2</cite>.</p>
+<p>If just <cite>spots_table1</cite> is provided, only the column &#8220;n_spots_a&#8221;
+is populated with positive spot numbers. If both <cite>spots_table1</cite> and
+<cite>spots_table2</cite> are provided, column &#8220;n_spots_a&#8221; is filled
+from <cite>spots_table1</cite>, and column &#8220;n_spots_b&#8221; filled from <cite>spots_table2</cite>.</p>
 <p>Design Part: 1.73</p>
 </dd></dl>
 
@@ -131,8 +129,8 @@ the default areas on a SETL plate.</p>
 <dl class="method">
 <dt id="setlyze.database.AccessDBGeneric.get_database_info">
 <tt class="descname">get_database_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.get_database_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_database_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return info (creation date, data source) stored in the local
-database file.</p>
+<dd><p>Return database information.</p>
+<p>These include the creation date and the data source.</p>
 </dd></dl>
 
 <dl class="method">
@@ -164,29 +162,25 @@ iterator. This iterator returns the distances.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.database.AccessDBGeneric.make_plates_unique">
-<tt class="descname">make_plates_unique</tt><big>(</big><em>slot</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.make_plates_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.make_plates_unique" title="Permalink to this definition">¶</a></dt>
-<dd><p>Combine the records with the same plate ID in a spots table.
-The value for <cite>slot</cite> defines which spots table is used.
-The possible values of <cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for table
-<tt class="docutils literal"><span class="pre">species_spots_1</span></tt> and <tt class="docutils literal"><span class="pre">1</span></tt> for <tt class="docutils literal"><span class="pre">species_spots_2</span></tt>.</p>
-<p>We&#8217;re doing this so we can threat multiple species selected by
-the user as a single species.</p>
-<p>Design Part: 1.20</p>
+<dt id="setlyze.database.AccessDBGeneric.get_plates_total_matching_spots_total">
+<tt class="descname">get_plates_total_matching_spots_total</tt><big>(</big><em>n_spots</em>, <em>slot=0</em><big>)</big><a class="headerlink" href="#setlyze.database.AccessDBGeneric.get_plates_total_matching_spots_total" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of plates that match the provided number of
+positive spots <cite>n_spots</cite>.</p>
+<p>Possible values for <cite>slot</cite> are 0 for the first species selection,
+and 1 for the second species selection.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.database.AccessDBGeneric.remove_single_spot_plates">
-<tt class="descname">remove_single_spot_plates</tt><big>(</big><em>table</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.remove_single_spot_plates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.remove_single_spot_plates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove records that have just one positive spot. Intra-specific
-distance can’t be calculated for those.</p>
-<p class="deprecated">
-<span class="versionmodified">Deprecated since version 0.1: </span>Use of this function is discouraged. You can easily check for
-a minimum number of spots in your functions. Also the function
-<a class="reference internal" href="std.html#setlyze.std.get_spot_combinations_from_record" title="setlyze.std.get_spot_combinations_from_record"><tt class="xref py py-meth docutils literal"><span class="pre">get_spot_combinations_from_record()</span></tt></a> will
-return an empty list if no combinations are possibe (e.g. the
-record contains less than 2 positive spots).</p>
-<p>Design Part: 1.21</p>
+<dt id="setlyze.database.AccessDBGeneric.make_plates_unique">
+<tt class="descname">make_plates_unique</tt><big>(</big><em>slot</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessDBGeneric.make_plates_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessDBGeneric.make_plates_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine the records with the same plate ID in a spots table.</p>
+<p>The value for <cite>slot</cite> defines which spots table is used.
+The possible values of <cite>slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for table
+&#8220;species_spots_1&#8221; and <tt class="docutils literal"><span class="pre">1</span></tt> for table &#8220;species_spots_2&#8221;.</p>
+<p>We&#8217;re doing this so we can threat multiple species selected by
+the user as a single species.</p>
+<p>Returns the total numbers of distinctive plates.</p>
+<p>Design Part: 1.20</p>
 </dd></dl>
 
 </dd></dl>
@@ -203,67 +197,80 @@ class with methods that are not data source specific.</p>
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.create_table_plate_area_totals_expected">
 <tt class="descname">create_table_plate_area_totals_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.create_table_plate_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.create_table_plate_area_totals_expected" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the total of positive spots per plate area per
-plate ID.</p>
-<p>Design Part:</p>
+<dd><p>Create temporary table &#8220;plate_area_totals_expected&#8221;.</p>
+<p>This table is used to store the total of expected positive spots per
+plate area per plate ID.</p>
+<p>Design Part: TODO</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.create_table_plate_area_totals_observed">
 <tt class="descname">create_table_plate_area_totals_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.create_table_plate_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.create_table_plate_area_totals_observed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the total of positive spots per plate area per
-plate ID.</p>
+<dd><p>Create temporary table &#8220;plate_area_totals_observed&#8221;.</p>
+<p>This table is used to store the total of positive spots per plate area
+per plate ID.</p>
 <p>Design Part:</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.create_table_plate_spot_totals">
 <tt class="descname">create_table_plate_spot_totals</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.create_table_plate_spot_totals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.create_table_plate_spot_totals" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the total of spots per plate in the
-distance tables.</p>
-<p>Design Part: 1.85</p>
+<dd><p>Create temporary table &#8220;plate_spot_totals&#8221;.</p>
+<p>This table is used to store the total of spots per plate.</p>
+<p>Design Part: 1.85
+Creates Design Part: 2.39</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.create_table_species_spots_1">
 <tt class="descname">create_table_species_spots_1</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.create_table_species_spots_1"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.create_table_species_spots_1" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table that will contain the SETL records for the
-first species selection.</p>
-<p>Because the user can select multiple species, the plate IDs in
-column <tt class="docutils literal"><span class="pre">rec_pla_id</span></tt> don&#8217;t have to be unique, so we&#8217;re
-creating a separate column <tt class="docutils literal"><span class="pre">id</span></tt> as the primary key.</p>
-<p>Design Part: 1.80</p>
+<dd><p>Create temporary table &#8220;species_spots_1&#8221;.</p>
+<p>This table will contain the SETL records for the first species
+selection.</p>
+<p>Because the user can select multiple species, the plate IDs in column
+&#8220;rec_pla_id&#8221; don&#8217;t have to be unique, so we&#8217;re creating a separate
+column &#8220;id&#8221; as the primary key.</p>
+<p>Design Part: 1.80
+Creates Design Part: 2.9, 2.9.1, 2.9.2</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.create_table_species_spots_2">
 <tt class="descname">create_table_species_spots_2</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.create_table_species_spots_2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.create_table_species_spots_2" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table that will contain the SETL records for the
-second species selection.</p>
-<p>Because the user can select multiple species, the plate IDs in
-column <tt class="docutils literal"><span class="pre">rec_pla_id</span></tt> don&#8217;t have to be unique, so we&#8217;re
-creating a separate column <tt class="docutils literal"><span class="pre">id</span></tt> as the primary key.</p>
-<p>Design Part: 1.81</p>
+<dd><p>Create temporary table &#8220;species_spots_2&#8221;.</p>
+<p>This table will contain the SETL records for the second species
+selection.</p>
+<dl class="docutils">
+<dt>Because the user can select multiple species, the plate IDs in column</dt>
+<dd>&#8220;rec_pla_id&#8221; don&#8217;t have to be unique, so we&#8217;re creating a separate
+column &#8220;id&#8221; as the primary key.</dd>
+</dl>
+<p>Design Part: 1.81
+Creates Design Part: 2.10, 2.10.1, 2.10.2</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.create_table_spot_distances_expected">
 <tt class="descname">create_table_spot_distances_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.create_table_spot_distances_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.create_table_spot_distances_expected" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the expected spot distances.</p>
-<p>Design Part: 1.84</p>
+<dd><p>Create temporary table &#8220;spot_distances_expected&#8221;.</p>
+<p>This table is used to store expected spot distances.</p>
+<p>Design Part: 1.84
+Creates Design Part: 2.13</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.create_table_spot_distances_observed">
 <tt class="descname">create_table_spot_distances_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.create_table_spot_distances_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.create_table_spot_distances_observed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the observed spot distances.</p>
-<p>Design Part: 1.83</p>
+<dd><p>Create temporary table &#8220;spot_distances_observed&#8221;.</p>
+<p>This table is used to store observed spot distances.</p>
+<p>Design Part: 1.83
+Creates Design Part: 2.12</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.get_record_ids">
 <tt class="descname">get_record_ids</tt><big>(</big><em>locations</em>, <em>species</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.get_record_ids"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.get_record_ids" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return records that match the locations and species.</p>
+<dd><p>Return records that match the locations and species selections.</p>
 <p>Returns a list of record IDs that match the locations IDs
 in the list <cite>locations</cite> and the species IDs in the list <cite>species</cite>.</p>
 <p>Both <cite>locations</cite> and <cite>species</cite> can be an integer instead of a list with
@@ -273,12 +280,11 @@ a single integer.</p>
 
 <dl class="method">
 <dt id="setlyze.database.AccessLocalDB.get_species">
-<tt class="descname">get_species</tt><big>(</big><em>loc_slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.get_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.get_species" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a list of species tuples in the format <tt class="docutils literal"><span class="pre">(spe_id,</span>
-<span class="pre">'spe_name_venacular',</span> <span class="pre">'spe_name_latin')</span></tt> from the local
-database that match the localities selection.</p>
-<p>The values for <cite>loc_slot</cite> are <tt class="docutils literal"><span class="pre">0</span></tt> for the first localities
-selection and <tt class="docutils literal"><span class="pre">1</span></tt> for the second localities selection.</p>
+<tt class="descname">get_species</tt><big>(</big><em>locations</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#AccessLocalDB.get_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.AccessLocalDB.get_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return species that match a locations selection <cite>locations</cite>.</p>
+<p>Species are returned as tuples in the format
+<tt class="docutils literal"><span class="pre">(id,</span> <span class="pre">'common_name',</span> <span class="pre">'latin_name')</span></tt>. Argument <cite>locations</cite> is a list
+of location IDs.</p>
 <p>Design Part: 1.96</p>
 </dd></dl>
 
@@ -322,35 +328,31 @@ class with methods that are not data source specific.</p>
 <em class="property">class </em><tt class="descclassname">setlyze.database.</tt><tt class="descname">MakeLocalDB</tt><big>(</big><em>pd=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a local SQLite database with default tables and fill some
 tables based on the data source.</p>
-<p>This class can load data from three data sources. One data source
-is user supplied CSV files containing SETL data. The CSV files must
-be exported by the MS Access SETL database.
-The second source is the PostgreSQL SETL database. This function
-requires a direct connection with the SETL database server.
-The third source are XLS files containing SETL data. These files
+<p>This class can load data from three data sources. One data source is user
+supplied CSV files containing SETL data. The CSV files must be exported by
+the MS Access SETL database. The second source is the PostgreSQL SETL
+database. This function requires a direct connection with the SETL database
+server. The third source are XLS files containing SETL data. These files
 must be exported by MS Excel 97/2000/xp.</p>
-<p>Because the import of SETL data into the local database can take
-a while, and instance of this class must run in a separate thread.
-An instance of this class is therefor a thread object.</p>
-<p>Once a thread object is created, its activity must be started by
-calling the thread’s start() method. This invokes the run() method
-in a separate thread of control.</p>
+<p>Because the import of SETL data into the local database can take a while,
+and instance of this class must run in a separate thread. An instance of
+this class is therefor a thread object.</p>
+<p>Once a thread object is created, its activity must be started by calling
+the thread&#8217;s start() method. This invokes the <a class="reference internal" href="#setlyze.database.MakeLocalDB.run" title="setlyze.database.MakeLocalDB.run"><tt class="xref py py-meth docutils literal"><span class="pre">run()</span></tt></a> method in a
+separate thread of control.</p>
 <p>Design Part: 1.2</p>
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_new_db">
 <tt class="descname">create_new_db</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_new_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_new_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new local database and then calls the methods
-that create the necessary tables.</p>
-<p>This deletes the current local database if present in the user&#8217;s
-home folder.</p>
+<dd><p>Create a new local database.</p>
+<p>This deletes any existing database file.</p>
 <p>Design Part: 1.38</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_info">
 <tt class="descname">create_table_info</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_info" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for storing basic information about the
-local database.</p>
+<dd><p>Create the &#8220;info&#8221; table for storing general information.</p>
 <p>This information includes its creation date and the data source.
 The data source is either the SETL database (MS Access/PostgreSQL)
 or XLS/CSV files containing SETL data. A version number for the
@@ -363,7 +365,7 @@ too old, followed by creating a new local database.</p>
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_localities">
 <tt class="descname">create_table_localities</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_localities"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_localities" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the SETL localities.</p>
+<dd><p>Create the &#8220;localities&#8221; table for the SETL locations.</p>
 <p>Because the data from this table is accessed frequently, the
 localities records are automatically saved to this table when
 an analyze is started.</p>
@@ -373,7 +375,7 @@ an analyze is started.</p>
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_plates">
 <tt class="descname">create_table_plates</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_plates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_plates" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the SETL plates.</p>
+<dd><p>Create the &#8220;plates&#8221; table for the SETL plates.</p>
 <p>This table is only filled if the user selected CSV or XLS files to
 import SETL data from. If the remote SETL database is used,
 the plate records are obtained directly via queries.</p>
@@ -383,7 +385,7 @@ the plate records are obtained directly via queries.</p>
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_records">
 <tt class="descname">create_table_records</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_records" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the SETL records.</p>
+<dd><p>Create the &#8220;records&#8221; table for the SETL records.</p>
 <p>This table is only filled if the user selected CSV or XLS files to
 import SETL data from. If the remote SETL database is used,
 the records are obtained directly via queries.</p>
@@ -393,7 +395,7 @@ the records are obtained directly via queries.</p>
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.create_table_species">
 <tt class="descname">create_table_species</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.create_table_species"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.create_table_species" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a table for the SETL species.</p>
+<dd><p>Create the &#8220;species&#8221; table for the SETL species.</p>
 <p>Because the data from this table is accessed frequently, the
 species records are automatically saved to this table when
 an analyze is started.</p>
@@ -405,16 +407,13 @@ an analyze is started.</p>
 <tt class="descname">insert_from_csv</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new local database and load all SETL data from the
 user selected CSV files into the local database.</p>
-<dl class="docutils">
-<dt>The SETL data is loaded from four separate CSV files:</dt>
-<dd><ul class="first last simple">
-<li>localities_file, containing the SETL locations.</li>
-<li>species_file, containing the SETL species.</li>
-<li>records_file, containing the SETL records.</li>
-<li>plates_file, containing the SETL plates.</li>
+<p>The SETL data is loaded from four separate CSV files:</p>
+<ul class="simple">
+<li>Localities file, containing the SETL locations.</li>
+<li>Species ile, containing the SETL species.</li>
+<li>Records file, containing the SETL records.</li>
+<li>Plates file, containing the SETL plates.</li>
 </ul>
-</dd>
-</dl>
 <p>These files must be exported from the MS Access SETL database
 and contain all fields. The CSV file must be in Excel format,
 which means delimited by semicolons (;) and double quotes (&#8221;) as
@@ -443,19 +442,14 @@ the application.</p>
 <tt class="descname">insert_from_xls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_from_xls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_from_xls" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new local database and load all SETL data from the
 user selected Excel files into the local database.</p>
-<dl class="docutils">
-<dt>The SETL data is loaded from four separate Excel files:</dt>
-<dd><ul class="first last simple">
-<li>localities_XLS_file, containing the SETL locations.</li>
-<li>species_XLS_file, containing the SETL species.</li>
-<li>records_XLS_file, containing the SETL records.</li>
-<li>plates_XLS_file, containing the SETL plates.</li>
+<p>The SETL data is loaded from four separate Excel files:</p>
+<ul class="simple">
+<li>Localities file, containing the SETL locations.</li>
+<li>Species ile, containing the SETL species.</li>
+<li>Records file, containing the SETL records.</li>
+<li>Plates file, containing the SETL plates.</li>
 </ul>
-</dd>
-</dl>
-<p>These files must be exported from MS Excel 95/2000/xp
-and contain all fields.</p>
-<p>Design Part: ....                                                                       ##### Design part</p>
+<p>Design Part: TODO</p>
 </dd></dl>
 
 <dl class="method">
@@ -463,11 +457,11 @@ and contain all fields.</p>
 <tt class="descname">insert_localities_from_csv</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_localities_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_localities_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the SETL localities from a CSV file into the local
 database.</p>
-<p><cite>delimiter</cite> is a one-character string used to separate fields
-in the CSV file. <cite>quotechar</cite> is a one-character string used to
-quote fields containing special characters in the CSV file.
-The default values for these two arguments are suited for CSV
-files in Excel format.</p>
+<p>Argument <cite>delimiter</cite> is a one-character string used to separate fields
+in the CSV file, and <cite>quotechar</cite> is a one-character string used to
+quote fields containing special characters in the CSV file. The default
+values for these two arguments are suited for CSV files in Excel
+format.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-18"><em>2.18</em></a>.</p>
 <p>Design Part: 1.34</p>
@@ -480,18 +474,18 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 database.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-18"><em>2.18</em></a>.</p>
-<p>Design Part: ...                                                                #### Design part aanpassen</p>
+<p>Design Part: TODO</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_plates_from_csv">
 <tt class="descname">insert_plates_from_csv</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_plates_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_plates_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the plates from a CSV file into the local database.</p>
-<p><cite>delimiter</cite> is a one-character string used to separate fields
-in the CSV file. <cite>quotechar</cite> is a one-character string used to
-quote fields containing special characters in the CSV file.
-The default values for these two arguments are suited for CSV
-files in Excel format.</p>
+<p>Argument <cite>delimiter</cite> is a one-character string used to separate fields
+in the CSV file, and <cite>quotechar</cite> is a one-character string used to
+quote fields containing special characters in the CSV file. The default
+values for these two arguments are suited for CSV files in Excel
+format.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-20"><em>2.20</em></a>.</p>
 <p>Design Part: 1.36</p>
@@ -503,18 +497,18 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 <dd><p>Insert the plates from a XLS file into the local database.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-20"><em>2.20</em></a>.</p>
-<p>Design Part: ....                                                               #### Design part aanpassen</p>
+<p>Design Part: TODO</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_records_from_csv">
 <tt class="descname">insert_records_from_csv</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_records_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_records_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the records from a CSV file into the local database.</p>
-<p><cite>delimiter</cite> is a one-character string used to separate fields
-in the CSV file. <cite>quotechar</cite> is a one-character string used to
-quote fields containing special characters in the CSV file.
-The default values for these two arguments are suited for CSV
-files in Excel format.</p>
+<p>Argument <cite>delimiter</cite> is a one-character string used to separate fields
+in the CSV file, and <cite>quotechar</cite> is a one-character string used to
+quote fields containing special characters in the CSV file. The default
+values for these two arguments are suited for CSV files in Excel
+format.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-21"><em>2.21</em></a>.</p>
 <p>Design Part: 1.37</p>
@@ -526,18 +520,18 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 <dd><p>Insert the records from a XLS file into the local database.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-21"><em>2.21</em></a>.</p>
-<p>Design Part: ...                                                                        #### Design part aanpassen</p>
+<p>Design Part: TODO</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.insert_species_from_csv">
 <tt class="descname">insert_species_from_csv</tt><big>(</big><em>delimiter=';'</em>, <em>quotechar='&quot;'</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.insert_species_from_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.insert_species_from_csv" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert the species from a CSV file into the local database.</p>
-<p><cite>delimiter</cite> is a one-character string used to separate fields
-in the CSV file. <cite>quotechar</cite> is a one-character string used to
-quote fields containing special characters in the CSV file.
-The default values for these two arguments are suited for CSV
-files in Excel format.</p>
+<p>Argument <cite>delimiter</cite> is a one-character string used to separate fields
+in the CSV file, and <cite>quotechar</cite> is a one-character string used to
+quote fields containing special characters in the CSV file. The default
+values for these two arguments are suited for CSV files in Excel
+format.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-19"><em>2.19</em></a>.</p>
 <p>Design Part: 1.35</p>
@@ -549,7 +543,7 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 <dd><p>Insert the species from a XLS file into the local database.</p>
 <p>For a description of the format for the localities file, refer
 to <a class="reference internal" href="../design_parts_data.html#design-part-data-2-19"><em>2.19</em></a>.</p>
-<p>Design Part: 1.35(b)                                                                            # Design nummer aangeven</p>
+<p>Design Part: 1.35(b) TODO</p>
 </dd></dl>
 
 <dl class="method">
@@ -557,30 +551,30 @@ to <a class="reference internal" href="../design_parts_data.html#design-part-dat
 <tt class="descname">remove_db_file</tt><big>(</big><em>tries=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.remove_db_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.remove_db_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove the database file.</p>
 <p>This method does three tries if for some reason the database file
-could not be deleted (e.g. the file is in use by a different
-process).</p>
+could not be deleted (e.g. the file is in use by a different process).</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.database.MakeLocalDB.run">
 <tt class="descname">run</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#MakeLocalDB.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.MakeLocalDB.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Decide based on the configuration variables which functions
-should be called.</p>
-<p>This method first checks if SETLyze is configured to create
-a new local database. This is done by checking the value of
-<tt class="docutils literal"><span class="pre">setlyze.config.cfg.get('make-new-db')</span></tt>. If this is set to
-<tt class="docutils literal"><span class="pre">False</span></tt>, the method ends and the thread is destroyed. If set
-to <tt class="docutils literal"><span class="pre">True</span></tt>, a new local database is created based on the data
-source configuration.</p>
-<p>The data source configuration is checked by calling
-<tt class="docutils literal"><span class="pre">setlyze.config.cfg.get('data-source')</span></tt>. If this is set to
-<tt class="docutils literal"><span class="pre">setl-database</span></tt>, the method <tt class="docutils literal"><span class="pre">insert_from_db</span></tt> is called and
-some SETL data from the remote SETL database is loaded into the
-local database. If set to <tt class="docutils literal"><span class="pre">csv-msaccess</span></tt>, the method
-<tt class="docutils literal"><span class="pre">insert_from_csv</span></tt> is called which loads all SETL data from the
-supplied CSV files into the local database. If this is set to <tt class="docutils literal"><span class="pre">xls</span></tt>
-the method <tt class="docutils literal"><span class="pre">insert_from_xls</span></tt> is called which loads all SETL data from
-the supplied MS-excel files into the local database.</p>
+<dd><p>Decide based on the configuration variables which functions should
+be called.</p>
+<p>This method first checks if SETLyze is configured to create a new local
+database. This is done by checking the value of configuration
+&#8220;make-new-db&#8221;. If this is set to False, nothing will be done. If set
+to True, a new local database is created based on the value of the
+&#8220;data-source&#8221; configuration:</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">setl-database</span></tt></dt>
+<dd>Method <a class="reference internal" href="#setlyze.database.MakeLocalDB.insert_from_db" title="setlyze.database.MakeLocalDB.insert_from_db"><tt class="xref py py-meth docutils literal"><span class="pre">insert_from_db()</span></tt></a> is called and some SETL data from the
+remote SETL database is loaded into the local database.</dd>
+<dt><tt class="docutils literal"><span class="pre">csv-msaccess</span></tt></dt>
+<dd>Method <a class="reference internal" href="#setlyze.database.MakeLocalDB.insert_from_csv" title="setlyze.database.MakeLocalDB.insert_from_csv"><tt class="xref py py-meth docutils literal"><span class="pre">insert_from_csv()</span></tt></a> is called which loads all SETL data
+from the supplied CSV files into the local database.</dd>
+<dt><tt class="docutils literal"><span class="pre">xls</span></tt></dt>
+<dd>Method <a class="reference internal" href="#setlyze.database.MakeLocalDB.insert_from_xls" title="setlyze.database.MakeLocalDB.insert_from_xls"><tt class="xref py py-meth docutils literal"><span class="pre">insert_from_xls()</span></tt></a> is called which loads all SETL data
+from the supplied MS-Excel files into the local database.</dd>
+</dl>
 <p>Design Part: 1.31</p>
 </dd></dl>
 
@@ -589,23 +583,12 @@ the supplied MS-excel files into the local database.</p>
 <dl class="function">
 <dt id="setlyze.database.get_database_accessor">
 <tt class="descclassname">setlyze.database.</tt><tt class="descname">get_database_accessor</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#get_database_accessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.get_database_accessor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an object that facilitates access to either the local or
-the remote database.</p>
-<p>Based on the data source configuration, obtained with
-<tt class="docutils literal"><span class="pre">setlyze.config.cfg.get('data-source')</span></tt>, this function wil either
-return an instance of AccessLocalDB or AccessRemoteDB. This instance
-provides methods that are specific to the data source currently in
-use.</p>
+<dd><p>Return an object that facilitates access to the database.</p>
+<p>Based on the data source configuration, this function wil either
+return an instance of <a class="reference internal" href="#setlyze.database.AccessLocalDB" title="setlyze.database.AccessLocalDB"><tt class="xref py py-class docutils literal"><span class="pre">AccessLocalDB</span></tt></a> or <a class="reference internal" href="#setlyze.database.AccessRemoteDB" title="setlyze.database.AccessRemoteDB"><tt class="xref py py-class docutils literal"><span class="pre">AccessRemoteDB</span></tt></a>.
+This instance provides methods that are specific to the data source that
+is in use.</p>
 <p>Design Part: 1.93</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="setlyze.database.get_plates_total_matching_spots_total">
-<tt class="descclassname">setlyze.database.</tt><tt class="descname">get_plates_total_matching_spots_total</tt><big>(</big><em>n_spots</em>, <em>slot=0</em><big>)</big><a class="reference internal" href="../_modules/setlyze/database.html#get_plates_total_matching_spots_total"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.database.get_plates_total_matching_spots_total" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return an integer representing the number of plates that
-match the provided number of positive spots <cite>n_spots</cite>.</p>
-<p>Possible values for <cite>slot</cite> are 0 for the first species selection,
-and 1 for the second species selection.</p>
 </dd></dl>
 
 </div>
@@ -630,7 +613,7 @@ and 1 for the second species selection.</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="config.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">setlyze.config</span></tt> &#8212; Configuration manager</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">setlyze.config</span></tt> &#8212; Configuration manager</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="gui.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.gui</span></tt> &#8212; Graphical interfaces</a></p>
@@ -673,7 +656,7 @@ and 1 for the second species selection.</p>
              >previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 

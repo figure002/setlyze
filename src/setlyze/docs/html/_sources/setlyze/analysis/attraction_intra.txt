@@ -1,6 +1,6 @@
-==================================================================================
-:mod:`setlyze.analysis.attraction_intra` --- Analysis 2, Attraction within species
-==================================================================================
+===============================================================================
+:mod:`setlyze.analysis.attraction_intra` --- Analysis Attraction within Species
+===============================================================================
 
 :Author: Serrano Pereira, Adam van Adrichem, Fedde Schaeffer
 :Release: |release|

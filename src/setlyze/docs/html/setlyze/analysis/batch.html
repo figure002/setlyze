@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.analysis.batch — Batch mode &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.analysis.batch — Batch mode &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../../index.html" />
     <link rel="up" title="Analysis Modules" href="../../setlyze_modules_analysis.html" />
-    <link rel="next" title="setlyze.analysis.common — Common code for analysis modules" href="common.html" />
-    <link rel="prev" title="setlyze.analysis.attraction_intra — Analysis 2, Attraction within species" href="attraction_intra.html" /> 
+    <link rel="next" title="setlyze.analysis.common — Shared routines for analysis modules" href="common.html" />
+    <link rel="prev" title="setlyze.analysis.attraction_intra — Analysis Attraction within Species" href="attraction_intra.html" /> 
   </head>
   <body>
     <div class="related">
@@ -41,14 +41,14 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="common.html" title="setlyze.analysis.common — Common code for analysis modules"
+          <a href="common.html" title="setlyze.analysis.common — Shared routines for analysis modules"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis 2, Attraction within species"
+          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis Attraction within Species"
              accesskey="P">previous</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>
@@ -69,38 +69,34 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.3</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 22, 2013</td>
 </tr>
 </tbody>
 </table>
-<span class="target" id="module-setlyze.analysis.batch"></span><p>This module starts analyses in batch mode.</p>
-<p>The selected analysis is repeated for a selection of species. If all species
-are selected by the user, the analysis is repeated for each species and the
-results are displayed in a single report.</p>
+<div class="section" id="module-setlyze.analysis.batch">
+<span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.analysis.batch" title="Permalink to this headline">¶</a></h2>
+<p>Start an analysis in batch mode.</p>
+<p>Batch mode for an analysis is started by instantiating its <tt class="xref py py-class docutils literal"><span class="pre">BeginBatch</span></tt>
+class. In batch mode, the selected analysis is repeated for a selection of
+species. The user can select multiple species and the analysis is repeated for
+each species separately and the results are displayed in a summary report.</p>
 <dl class="class">
 <dt id="setlyze.analysis.batch.Begin">
 <em class="property">class </em><tt class="descclassname">setlyze.analysis.batch.</tt><tt class="descname">Begin</tt><a class="reference internal" href="../../_modules/setlyze/analysis/batch.html#Begin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.batch.Begin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Select which analysis to run in batch mode:</p>
-<ol class="arabic simple">
-<li>Let the user select an analysis.</li>
-<li>Run the analysis in batch mode.</li>
-</ol>
+<dd><p>Start an analysis in batch mode.</p>
+<p>First the user can select which analysis to start, then the analysis is
+started in batch mode.</p>
 <dl class="method">
 <dt id="setlyze.analysis.batch.Begin.on_analysis_selected">
 <tt class="descname">on_analysis_selected</tt><big>(</big><em>sender</em>, <em>analysis</em><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/batch.html#Begin.on_analysis_selected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.batch.Begin.on_analysis_selected" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start the selected analysis in batch mode.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.analysis.batch.Begin.set_signal_handlers">
-<tt class="descname">set_signal_handlers</tt><big>(</big><big>)</big><a class="reference internal" href="../../_modules/setlyze/analysis/batch.html#Begin.set_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.analysis.batch.Begin.set_signal_handlers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Respond to signals emitted by the application.</p>
+<dd><p>Start the selected analysis <cite>analysis</cite> in batch mode.</p>
 </dd></dl>
 
 </dd></dl>
 
+</div>
 </div>
 
 
@@ -112,12 +108,20 @@ results are displayed in a single report.</p>
             <p class="logo"><a href="../../index.html">
               <img class="logo" src="../../_static/setlyze-logo.png" alt="Logo"/>
             </a></p>
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">setlyze.analysis.batch</span></tt> &#8212; Batch mode</a><ul>
+<li><a class="reference internal" href="#module-setlyze.analysis.batch">Module Contents</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="attraction_intra.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis 2, Attraction within species</a></p>
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis Attraction within Species</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="common.html"
-                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.common</span></tt> &#8212; Common code for analysis modules</a></p>
+                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.common</span></tt> &#8212; Shared routines for analysis modules</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/setlyze/analysis/batch.txt"
@@ -150,14 +154,14 @@ results are displayed in a single report.</p>
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="common.html" title="setlyze.analysis.common — Common code for analysis modules"
+          <a href="common.html" title="setlyze.analysis.common — Shared routines for analysis modules"
              >next</a> |</li>
         <li class="right" >
-          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis 2, Attraction within species"
+          <a href="attraction_intra.html" title="setlyze.analysis.attraction_intra — Analysis Attraction within Species"
              >previous</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li>

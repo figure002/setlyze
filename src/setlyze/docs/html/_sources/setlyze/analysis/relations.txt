@@ -1,6 +1,6 @@
-===========================================================================
-:mod:`setlyze.analysis.relations` --- Analysis 4, Relations between species
-===========================================================================
+========================================================================
+:mod:`setlyze.analysis.relations` --- Analysis Relations between Species
+========================================================================
 
 :Author: Serrano Pereira, Adam van Adrichem, Fedde Schaeffer
 :Release: |release|
