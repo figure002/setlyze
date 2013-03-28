@@ -92,12 +92,15 @@ def make_remarks(results, attributes):
         conclusions = ('Attraction','Repulsion')
 
     if 'p_value' in results:
-        if math.isnan(results['p_value']):
-            remarks.append("Not significant")
-        elif results['p_value'] > setlyze.config.cfg.get('alpha-level'):
-            remarks.append("Not significant")
-        else:
+        try:
+            significant = is_significant(results['p_value'], setlyze.config.cfg.get('alpha-level'))
+        except ValueError:
+            significant = False
+
+        if significant:
             remarks.append("Significant")
+        else:
+            remarks.append("Not significant")
 
             # If significant, also add attraction/repulsion.
             if 'mean_observed' in results and 'mean_expected' in results:
@@ -664,6 +667,22 @@ def mean(x):
     """
     return sum(x, 0.0) / len(x)
 
+def is_significant(p_value, alpha_level=0.05):
+    """Returns True if the p-value `p_value` is significant, False otherwise.
+
+    The p-value is significant if it is less or equal to the alpha level
+    `alpha_level`. The default value for the alpha level is 0.05.
+
+    Will raise ValueError if the p-value is NaN, or TypeError if one of the
+    arguments are not of type 'float'.
+    """
+    if math.isnan(p_value):
+        raise ValueError("The p-value is not a number")
+    if not isinstance(p_value, float):
+        raise TypeError("The p-value is not a float")
+    if not isinstance(alpha_level, float):
+        raise TypeError("The alpha level is not a float")
+    return p_value <= alpha_level
 
 class Sender(gobject.GObject):
     """Custom GObject for emitting SETLyze specific application signals.

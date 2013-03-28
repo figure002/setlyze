@@ -360,7 +360,14 @@ class BeginBatch(Begin):
 
             # Add the results for the Chi squared test.
             if chi_squared:
-                significant = chi_squared['results']['p_value'] < self.alpha_level
+                # Check if the result was significant. When all values are
+                # 0 the p-value will be NaN. Function `is_significant` will
+                # raise ValueError if the p-value is NaN.
+                try:
+                    significant = setlyze.std.is_significant(chi_squared['results']['p_value'], self.alpha_level)
+                except ValueError:
+                    significant = False
+
                 if significant:
                     row.append('s')
                 else:
@@ -1035,10 +1042,16 @@ class Analysis(AnalysisWorker):
                 conf_level = 1 - self.alpha_level,
                 conf_int = False)
 
+            # Check if the result was significant. When all values are 0
+            # the p-value will be NaN. Function `is_significant` will raise
+            # ValueError if the p-value is NaN.
+            try:
+                significant = setlyze.std.is_significant(test_result['p.value'], self.alpha_level)
+            except ValueError:
+                continue
+
             # Save basic results for this repeated test.
-            # Check if the result was significant (P-value < alpha-level).
-            p_value = float(test_result['p.value'])
-            if p_value < self.alpha_level and not math.isnan(p_value):
+            if significant:
                 # If so, increase significant counter with one.
                 self.statistics['wilcoxon_areas_repeats']['results'][area_group_str]['n_significant'] += 1
 
