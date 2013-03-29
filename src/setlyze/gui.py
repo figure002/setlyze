@@ -157,7 +157,6 @@ class SelectAnalysis(object):
         self.radio_spot_pref = self.builder.get_object('radio_spot_pref')
         self.radio_attraction_intra = self.builder.get_object('radio_attraction_intra')
         self.radio_attraction_inter = self.builder.get_object('radio_attraction_inter')
-        self.radio_relation = self.builder.get_object('radio_relation')
         self.radio_batch_mode = self.builder.get_object('radio_batch_mode')
         self.frame_descr = self.builder.get_object('frame_descr')
         self.label_descr = self.builder.get_object('label_descr')
@@ -218,9 +217,6 @@ class SelectAnalysis(object):
         elif self.radio_attraction_inter.get_active():
             self.frame_descr.set_label("Attraction between species")
             self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
-        elif self.radio_relation.get_active():
-            self.frame_descr.set_label("Relation between species")
-            self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
         elif self.radio_batch_mode.get_active():
             self.frame_descr.set_label("Batch mode")
             self.label_descr.set_text(setlyze.locale.text('analysis-batch-descr'))
@@ -267,8 +263,6 @@ class SelectAnalysis(object):
             setlyze.std.sender.emit('on-start-analysis', 'attraction_intra')
         elif self.radio_attraction_inter.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'attraction_inter')
-        elif self.radio_relation.get_active():
-            setlyze.std.sender.emit('on-start-analysis', 'relations')
         elif self.radio_batch_mode.get_active():
             setlyze.std.sender.emit('on-start-analysis', 'batch')
 
@@ -366,7 +360,6 @@ class SelectBatchAnalysis(object):
         self.radio_ana_spot_pref = self.builder.get_object('radio_ana_spot_pref')
         self.radio_ana_attraction_intra = self.builder.get_object('radio_ana_attraction_intra')
         self.radio_ana_attraction_inter = self.builder.get_object('radio_ana_attraction_inter')
-        self.radio_ana_relation = self.builder.get_object('radio_ana_relation')
         self.frame_descr = self.builder.get_object('frame_descr')
         self.label_descr = self.builder.get_object('label_descr')
         self.chooser_save_path = self.builder.get_object('chooser_save_path')
@@ -422,10 +415,6 @@ class SelectBatchAnalysis(object):
             self.frame_descr.set_label("Attraction between species")
             self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
 
-        elif self.radio_ana_relation.get_active():
-            self.frame_descr.set_label("Relation between species")
-            self.label_descr.set_text(setlyze.locale.text('analysis4-descr'))
-
     def on_ok(self, button):
         """Send the `on-start-analysis` signal with the selected analysis as
         signal attribute.
@@ -436,8 +425,6 @@ class SelectBatchAnalysis(object):
             setlyze.std.sender.emit('batch-analysis-selected', 'attraction_intra')
         elif self.radio_ana_attraction_inter.get_active():
             setlyze.std.sender.emit('batch-analysis-selected', 'attraction_inter')
-        elif self.radio_ana_relation.get_active():
-            setlyze.std.sender.emit('batch-analysis-selected', 'relations')
 
     def on_close(self, button):
         """Go back to the main window."""
