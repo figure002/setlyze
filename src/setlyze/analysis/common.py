@@ -312,8 +312,6 @@ class PrepareAnalysis(object):
         self.n_processes = None
         self.report_prefix = "report_"
         self.results = []
-        self.save_individual_results = setlyze.config.cfg.get('save-batch-job-results')
-        self.save_path = setlyze.config.cfg.get('job-results-save-path')
         self.signal_handlers = {}
         self.start_time = None
         self.species_selection = None

@@ -141,10 +141,6 @@ DEFAULT_CONFIG = [
     ('spot-dist-to-prob-inter', SPOT_DIST_TO_PROB_INTER),
     # Number of repeats to perform for statistical tests.
     ('test-repeats', 20),
-    # Save individual batch results.
-    ('save-batch-job-results', False),
-    # Save path for individual batch results.
-    ('job-results-save-path', None),
     # Number of CPUs.
     ('cpu-count', CPU_COUNT),
     # Number of concurrent processes for batch mode.

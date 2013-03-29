@@ -386,19 +386,6 @@ class SelectBatchAnalysis(object):
         # Prevent default action.
         return True
 
-    def on_checkbox_save_reports_toggled(self, checkbox):
-        if checkbox.get_active():
-            self.chooser_save_path.set_sensitive(True)
-            setlyze.config.cfg.set('save-batch-job-results', True)
-            self.on_chooser_save_path_file_set(self.chooser_save_path)
-        else:
-            self.chooser_save_path.set_sensitive(False)
-            setlyze.config.cfg.set('save-batch-job-results', False)
-
-    def on_chooser_save_path_file_set(self, chooser):
-        path = chooser.get_filename()
-        setlyze.config.cfg.set('job-results-save-path', path)
-
     def on_toggled(self, radiobutton=None):
         """Update the description frame."""
         if self.radio_ana_spot_pref.get_active():
