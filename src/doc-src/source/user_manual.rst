@@ -5,8 +5,9 @@ SETLyze User Manual
 Welcome to the user manual for SETLyze. This manual explains the usage of
 SETLyze.
 
+-----------------------
 Introduction to SETLyze
-#######################
+-----------------------
 
 SETLyze is a part of the SETL project, a fouling community study focussing on
 marine invasive species. The website describes the SETL project as follows:
@@ -91,8 +92,9 @@ With 25 spots x 2500 records = 625000+ booleans for the presence/absence of
 species, automatic methods of analyzing this data are required. Hence SETLyze
 was developed, a tool for analyzing the settlement of species on SETL plates.
 
+------------
 Requirements
-############
+------------
 
 To use SETLyze you will need:
 
@@ -105,9 +107,9 @@ Software
 
 * Microsoft Windows or GNU/Linux
 
-
+------------
 Installation
-############
+------------
 
 Microsoft Windows
 ===================
@@ -140,9 +142,9 @@ You can also just run SETLyze by (double) clicking ``setlyze.pyw`` in the
 source directory. For this to work, ``setlyze.pyw`` needs to have execute
 rights.
 
-
+-------------
 Using SETLyze
-#############
+-------------
 
 SETLyze comes with a graphical user interface (GUI). The GUI consists
 of dialogs which all have a specific task. These dialogs will guide
@@ -225,8 +227,9 @@ Spot
 
 .. _setlyze-dialogs:
 
+---------------
 SETLyze dialogs
-###############
+---------------
 
 SETLyze comes with a graphical user interface consisting of separate
 dialogs. The dialogs are described in this section.
@@ -548,46 +551,65 @@ Analysis Report dialog
 
    Analysis Report dialog
 
-The analysis report dialog shows the results for the anaylysis. The report is
-divided into sub sections. Each sub section is described in separate sections
+The analysis report dialog shows the results for an analysis. The dialog
+consists of the results frame and a toolbar on top. The toolbar holds a number
+of buttons. Hover your mouse pointer over the buttons to reveal a tooltip which
+explains the button's action. Some buttons are explained below:
+
+Save
+    The "Save" button allows you to save the report to a file. Clicking
+    this button first shows a File Save dialog which allows you to select a
+    target directory and filename. One file type is supported:
+
+    * reStructuredText (\*.rst) - Plain text files in an easy-to-read markup
+      syntax. One can use `Docutils <http://docutils.sourceforge.net/>`_ to
+      convert `reStructuredText <http://docutils.sourceforge.net/rst.html>`_
+      files into useful formats, such as HTML, LaTeX, man-pages, open-document
+      or XML.
+
+Save All
+    The "Save All" button is only enabled in batch mode and allows you to export
+    the reports of the individual analyses. Clicking the "Save" button in batch
+    mode only saves the summary report which is based on the individual reports.
+
+Repeat
+    The "Repeat" button can be used to repeat an analysis with different
+    parameters. Clicking this button will open a dialog which shows the same
+    parameters available in the :ref:`dialog-preferences`. So one can, for
+    example, quickly repeat the analysis with a different number of repeats.
+
+The report dialog can display two types of reports:
+
+* Standard: When running an analysis in standard mode (not in batch mode) the
+  report is divided into sub sections. Each subsection shows detailed results.
+* Summary: When running an analysis in batch mode the report will be a summary
+  of all standard reports that were generated. This report will show less
+  details than a standard report.
+
+Both types of reports will be explained below.
+
+Standard Report
+---------------
+
+A standard report is divided into subsections. You have to click on a
+subsection to reveal its contents. Find the explanation for each subsection
 below.
 
-The toolbar holds a number of buttons. Hover your mouse pointer over the
-buttons to reveal a tooltip which explains the button's action.
-
-The "Save" button allows you to save the report to a file. Clicking
-this button first shows a File Save dialog which allows you to select a
-target directory and filename. One file type is supported:
-
-* reStructuredText (*.rst) - Plain text files in an easy-to-read markup syntax.
-  One can use `Docutils <http://docutils.sourceforge.net/>`_ to convert
-  `reStructuredText <http://docutils.sourceforge.net/rst.html>`_ files into
-  useful formats, such as HTML, LaTeX, man-pages, open-document or XML.
-
-The "Save All" button is only enabled in batch mode and allows you to export
-the reports of the individual analyses. Clicking the "Save" button in batch
-mode only saves the summary report which is based on the individual reports.
-
-The "Repeat" button can be used to repeat an analysis with different
-parameters. Clicking this button will open a dialog which shows the same
-parameters available in the :ref:`dialog-preferences`. So one can, for example,
-quickly repeat the analysis with a different number of repeats.
-
 Locations and Species Selections
---------------------------------
+````````````````````````````````
 
 Displays the locations and species selections. If multiple selections
 were made, each element is suffixed by a number. For example "Species
 selection (2)" stands for the second species selection.
 
 Spot Distances
---------------
+``````````````
 
 Displays the observed and expected spot distances. How these distances
 are calculated is described below.
 
 Observed spot distances (intra)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+'''''''''''''''''''''''''''''''
 
 All possible distances between the spots on each plate are calculated
 using the Pythagorean theorem. Consider the case of species A and the
@@ -614,7 +636,7 @@ there can be no distance 0 (in contrast to inter-specific spot
 distances).
 
 Observed spot distances (inter)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+'''''''''''''''''''''''''''''''
 
 First the plate records are collected that contain both of the selected
 species. Then all possible spot distances are calculated between the
@@ -651,7 +673,7 @@ The distances for this figure are calculated as follows:
 | :math:`spot\_distance(c) = \sqrt{0^2 + 2^2} = 2`
 
 Expected spot distances
-^^^^^^^^^^^^^^^^^^^^^^^
+'''''''''''''''''''''''
 
 The expected spot distances are calculated by generating a copy of
 each plate record matching the species selection. Each copy has the
@@ -664,7 +686,7 @@ length as the observed spot distances.
 .. _results-wilcoxon-rank-sum-test:
 
 Wilcoxon rank sum test with continuity correction
--------------------------------------------------
+`````````````````````````````````````````````````
 
 Shows the results for the non-repeated Wilcoxon rank-sum tests.
 
@@ -758,7 +780,7 @@ in the list of results.
 .. _results-wilcoxon-repeated:
 
 Wilcoxon rank sum test with continuity correction (repeated)
-------------------------------------------------------------
+````````````````````````````````````````````````````````````
 
 Shows the significance results for the repeated Wilcoxon tests. For more
 information about the Wilcoxon rank-sum test results, see
@@ -804,8 +826,8 @@ n (repulsion)
 
 .. _results-pearsons-chisq-test:
 
-Results for Pearson's Chi-squared Test for Count Data
------------------------------------------------------
+Chi-squared test for given probabilities
+````````````````````````````````````````
 
 Shows the results for Pearson's Chi-squared Test for Count Data.
 
@@ -822,8 +844,8 @@ probability for spot distance *d*. The probability *p* has been
 pre-calculated for each spot distance. The probabilities for intra-specific
 spot distances are from the model of :ref:`fig_distance_distribution_intra`
 and the probabilities for inter-specific distances are from the model of
-:ref:`fig_distance_distribution_inter`. The probabilities
-have been hard coded into the application:
+:ref:`fig_distance_distribution_inter`. The probabilities have been hard coded
+into the application:
 
 Intra-specific spot distances:
 
@@ -868,13 +890,13 @@ Spot Distance  Probability
 5.66           4/625
 =============  ===========
 
-Depending on the analysis, the records matching the species selection
-are first grouped by positive spots number (analysis "Attraction within Species") or by ratios
-group (analysis "Attraction between Species"). See section :ref:`record grouping <record-grouping>`.
+Depending on the analysis, the records matching the species selection are first
+grouped by positive spots number (analysis "Attraction within Species") or by
+ratios group (analysis "Attraction between Species"). See section
+:ref:`record-grouping`.
 
-Each row for the results of the Chi-squared tests contains the results
-of a single test on a spots/ratios group. Each row can have the
-following elements:
+Each row for the results of the Chi-squared tests contains the results of a
+single test on a spots/ratios group. Each row can have the following elements:
 
 Positive Spots
     A number representing the number of positive spots. For this test
@@ -895,7 +917,7 @@ P-value
     The P-value for the test.
 
 Chi squared
-    The value the chi-squared test statistic.
+    The value the Chi-squared test statistic.
 
 df
     The degrees of freedom of the approximate chi-squared distribution
@@ -917,16 +939,21 @@ Some spots/ratios groups might me missing from the list of results. This is
 because spots/ratios groups that don't have matching records are skipped,
 so they are not displayed in the list of results.
 
-Plate Areas Definition
-----------------------
+.. _plate-areas-definition:
+
+Plate Areas Definition for Chi-squared Test
+```````````````````````````````````````````
 
 Describes the definition of the plate areas set with the
-:ref:`define plate areas dialog <dialog-define-plate-areas>`. Read the
-description for that dialog to get the meaning of the letters A, B, C
-and D.
+:ref:`dialog-define-plate-areas`. See the description for that dialog to get
+the meaning of the letters A, B, C and D.
 
-Species Total per Plate Area
-----------------------------
+Species Totals per Plate Area for Chi-squared Test
+``````````````````````````````````````````````````
+
+Area ID
+    See the :ref:`plate-areas-definition` section of the report to see the
+    definition of each area.
 
 Observed Totals
     How many times the selected species was found present in each of
@@ -935,6 +962,80 @@ Observed Totals
 Expected Totals
     The expected totals for the selected species.
 
+Summary Report
+--------------
+
+A summary report contains basic information from multiple standard reports.
+Such a summary report is basically a table where each row represents a single
+analysis and the columns contain the results.
+
+At this moment the presentation of a report in the report dialog is very
+minimal. You are encouraged to save the report to an .rst file with the "Save"
+button and view it in a text editor. The .rst report will include a definition
+list explaining the meaning of the codes.
+
+Here are a few examples of summary reports:
+
+Analysis "Spot Preference":
+
+==================================================  ==========  ==  ==  ==  ==  ===  ===  =====  =====  =======
+..                                                                      Wilcoxon rank sum test           Chi-sq
+--------------------------------------------------------------  --------------------------------------  -------
+Species                                             n (plates)   A   B   C   D  A+B  C+D  A+B+C  B+C+D  A,B,C,D
+==================================================  ==========  ==  ==  ==  ==  ===  ===  =====  =====  =======
+*Obelia dichotoma*                                         177  pr   n  rj   n    n   rj      n      n        s
+*Obelia geniculata*                                         91   n   n  rj   n    n   rj      n      n        s
+*Obelia longissima*                                        341  pr   n  rj  rj   pr   rj      n     rj        s
+==================================================  ==========  ==  ==  ==  ==  ===  ===  =====  =====  =======
+
+In the above example the columns containing letters (A,B,..) represent plate
+areas. See :ref:`record-grouping-plate-area`.
+
+Analysis "Attraction between Species":
+
+==================================================  ==================================================  ==========  ===  ==  ==  ==  ==  ==  ===  ==  ==  ==  ==  ==
+..                                                                                                                   Wilcoxon rank sum test      Chi-squared test
+------------------------------------------------------------------------------------------------------------------  -----------------------  -----------------------
+Species A                                           Species B                                           n (plates)  1-5   1   2   3   4   5  1-5   1   2   3   4   5
+==================================================  ==================================================  ==========  ===  ==  ==  ==  ==  ==  ===  ==  ==  ==  ==  ==
+*Actinia equina*                                    *Aurelia aurita*                                            33    n   n   n   n   n   n    n   n   n  at   n   n
+*Actinia equina*                                    *Halichondria panicea*                                      10    n   n   n   n  na  na   rp   n   n   n  na  na
+*Actinia equina*                                    *Hydrozoa sp.*                                               1    n   n  na  na  na  na   rp  rp  na  na  na  na
+==================================================  ==================================================  ==========  ===  ==  ==  ==  ==  ==  ===  ==  ==  ==  ==  ==
+
+In this example the columns containing numbers (1,2,..) represent positive
+spot ratio groups. See :ref:`record-grouping-ratio-groups`.
+
+For analysis "Attraction within Species" (no example here) the columns also
+contain numbers (2,3,..), but in that case they represent positive
+spot numbers. See :ref:`record-grouping-positive-spots`.
+
+Definitions
+```````````
+
+Below are the definitions for the codes used in summary reports.
+
+na
+  There is not enough data for the analysis or in case of the
+  Chi Squared test one of the expected frequencies is less than 5.
+
+s
+  The result for the statistical test was significant.
+
+n
+  The result for the statistical test was not significant.
+
+pr
+  There was a significant preference for the plate area in question.
+
+rj
+  There was a significant rejection for the plate area in question.
+
+at
+  There was a significant attraction for the species in question.
+
+rp
+  There was a significant repulsion for the species in question.
 
 .. _record-grouping:
 
@@ -1124,8 +1225,9 @@ column tells you to which group each result belongs.
 
 .. _export-setl-data:
 
+--------------------------------------------
 Exporting SETL data from the Access database
-############################################
+--------------------------------------------
 
 This section describes how to export the SETL data from the Microsoft
 Access database to CSV files.
@@ -1150,9 +1252,9 @@ Access database to CSV files.
 5. You should end up with four files, one CSV file for each table. Put
    these files in one folder.
 
-
+---------
 Use Cases
-#########
+---------
 
 Possible use cases which describe how SETLyze can be used to find answers to
 biological questions regarding the settlement of species on SETL plates.

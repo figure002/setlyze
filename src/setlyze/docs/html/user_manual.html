@@ -486,39 +486,59 @@ dialog.</p>
 <a class="reference internal image-reference" href="_images/dialog_analysis_report.png"><img alt="Analysis Report dialog" src="_images/dialog_analysis_report.png" style="width: 777.0px; height: 582.0px;" /></a>
 <p class="caption">Analysis Report dialog</p>
 </div>
-<p>The analysis report dialog shows the results for the anaylysis. The report is
-divided into sub sections. Each sub section is described in separate sections
-below.</p>
-<p>The toolbar holds a number of buttons. Hover your mouse pointer over the
-buttons to reveal a tooltip which explains the button&#8217;s action.</p>
-<p>The &#8220;Save&#8221; button allows you to save the report to a file. Clicking
+<p>The analysis report dialog shows the results for an analysis. The dialog
+consists of the results frame and a toolbar on top. The toolbar holds a number
+of buttons. Hover your mouse pointer over the buttons to reveal a tooltip which
+explains the button&#8217;s action. Some buttons are explained below:</p>
+<dl class="docutils">
+<dt>Save</dt>
+<dd><p class="first">The &#8220;Save&#8221; button allows you to save the report to a file. Clicking
 this button first shows a File Save dialog which allows you to select a
 target directory and filename. One file type is supported:</p>
-<ul class="simple">
-<li>reStructuredText (<a href="#id3"><span class="problematic" id="id4">*</span></a>.rst) - Plain text files in an easy-to-read markup syntax.
-One can use <a class="reference external" href="http://docutils.sourceforge.net/">Docutils</a> to convert
-<a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a> files into
-useful formats, such as HTML, LaTeX, man-pages, open-document or XML.</li>
+<ul class="last simple">
+<li>reStructuredText (*.rst) - Plain text files in an easy-to-read markup
+syntax. One can use <a class="reference external" href="http://docutils.sourceforge.net/">Docutils</a> to
+convert <a class="reference external" href="http://docutils.sourceforge.net/rst.html">reStructuredText</a>
+files into useful formats, such as HTML, LaTeX, man-pages, open-document
+or XML.</li>
 </ul>
-<p>The &#8220;Save All&#8221; button is only enabled in batch mode and allows you to export
+</dd>
+<dt>Save All</dt>
+<dd>The &#8220;Save All&#8221; button is only enabled in batch mode and allows you to export
 the reports of the individual analyses. Clicking the &#8220;Save&#8221; button in batch
-mode only saves the summary report which is based on the individual reports.</p>
-<p>The &#8220;Repeat&#8221; button can be used to repeat an analysis with different
+mode only saves the summary report which is based on the individual reports.</dd>
+<dt>Repeat</dt>
+<dd>The &#8220;Repeat&#8221; button can be used to repeat an analysis with different
 parameters. Clicking this button will open a dialog which shows the same
-parameters available in the <a class="reference internal" href="#dialog-preferences"><em>Preferences dialog</em></a>. So one can, for example,
-quickly repeat the analysis with a different number of repeats.</p>
+parameters available in the <a class="reference internal" href="#dialog-preferences"><em>Preferences dialog</em></a>. So one can, for
+example, quickly repeat the analysis with a different number of repeats.</dd>
+</dl>
+<p>The report dialog can display two types of reports:</p>
+<ul class="simple">
+<li>Standard: When running an analysis in standard mode (not in batch mode) the
+report is divided into sub sections. Each subsection shows detailed results.</li>
+<li>Summary: When running an analysis in batch mode the report will be a summary
+of all standard reports that were generated. This report will show less
+details than a standard report.</li>
+</ul>
+<p>Both types of reports will be explained below.</p>
+<div class="section" id="standard-report">
+<h4>Standard Report<a class="headerlink" href="#standard-report" title="Permalink to this headline">¶</a></h4>
+<p>A standard report is divided into subsections. You have to click on a
+subsection to reveal its contents. Find the explanation for each subsection
+below.</p>
 <div class="section" id="locations-and-species-selections">
-<h4>Locations and Species Selections<a class="headerlink" href="#locations-and-species-selections" title="Permalink to this headline">¶</a></h4>
+<h5>Locations and Species Selections<a class="headerlink" href="#locations-and-species-selections" title="Permalink to this headline">¶</a></h5>
 <p>Displays the locations and species selections. If multiple selections
 were made, each element is suffixed by a number. For example &#8220;Species
 selection (2)&#8221; stands for the second species selection.</p>
 </div>
 <div class="section" id="spot-distances">
-<h4>Spot Distances<a class="headerlink" href="#spot-distances" title="Permalink to this headline">¶</a></h4>
+<h5>Spot Distances<a class="headerlink" href="#spot-distances" title="Permalink to this headline">¶</a></h5>
 <p>Displays the observed and expected spot distances. How these distances
 are calculated is described below.</p>
 <div class="section" id="observed-spot-distances-intra">
-<h5>Observed spot distances (intra)<a class="headerlink" href="#observed-spot-distances-intra" title="Permalink to this headline">¶</a></h5>
+<h6>Observed spot distances (intra)<a class="headerlink" href="#observed-spot-distances-intra" title="Permalink to this headline">¶</a></h6>
 <p>All possible distances between the spots on each plate are calculated
 using the Pythagorean theorem. Consider the case of species A and the
 following plate:</p>
@@ -540,7 +560,7 @@ there can be no distance 0 (in contrast to inter-specific spot
 distances).</p>
 </div>
 <div class="section" id="observed-spot-distances-inter">
-<h5>Observed spot distances (inter)<a class="headerlink" href="#observed-spot-distances-inter" title="Permalink to this headline">¶</a></h5>
+<h6>Observed spot distances (inter)<a class="headerlink" href="#observed-spot-distances-inter" title="Permalink to this headline">¶</a></h6>
 <p>First the plate records are collected that contain both of the selected
 species. Then all possible spot distances are calculated between the
 two species. The following figure shows an example with positive spots
@@ -565,7 +585,7 @@ possible to have a distance of 0 as visualized in the next figure.</p>
 </div>
 </div>
 <div class="section" id="expected-spot-distances">
-<h5>Expected spot distances<a class="headerlink" href="#expected-spot-distances" title="Permalink to this headline">¶</a></h5>
+<h6>Expected spot distances<a class="headerlink" href="#expected-spot-distances" title="Permalink to this headline">¶</a></h6>
 <p>The expected spot distances are calculated by generating a copy of
 each plate record matching the species selection. Each copy has the
 same number of positive spots as its original, except the positive
@@ -576,7 +596,7 @@ length as the observed spot distances.</p>
 </div>
 </div>
 <div class="section" id="wilcoxon-rank-sum-test-with-continuity-correction">
-<span id="results-wilcoxon-rank-sum-test"></span><h4>Wilcoxon rank sum test with continuity correction<a class="headerlink" href="#wilcoxon-rank-sum-test-with-continuity-correction" title="Permalink to this headline">¶</a></h4>
+<span id="results-wilcoxon-rank-sum-test"></span><h5>Wilcoxon rank sum test with continuity correction<a class="headerlink" href="#wilcoxon-rank-sum-test-with-continuity-correction" title="Permalink to this headline">¶</a></h5>
 <p>Shows the results for the non-repeated Wilcoxon rank-sum tests.</p>
 <blockquote>
 <div>&#8220;In statistics, the Mann–Whitney U test (also called the
@@ -653,7 +673,7 @@ groups that don&#8217;t have matching records are skipped, so they are not displ
 in the list of results.</p>
 </div>
 <div class="section" id="wilcoxon-rank-sum-test-with-continuity-correction-repeated">
-<span id="results-wilcoxon-repeated"></span><h4>Wilcoxon rank sum test with continuity correction (repeated)<a class="headerlink" href="#wilcoxon-rank-sum-test-with-continuity-correction-repeated" title="Permalink to this headline">¶</a></h4>
+<span id="results-wilcoxon-repeated"></span><h5>Wilcoxon rank sum test with continuity correction (repeated)<a class="headerlink" href="#wilcoxon-rank-sum-test-with-continuity-correction-repeated" title="Permalink to this headline">¶</a></h5>
 <p>Shows the significance results for the repeated Wilcoxon tests. For more
 information about the Wilcoxon rank-sum test results, see
 <a class="reference internal" href="#results-wilcoxon-rank-sum-test"><em>Wilcoxon rank sum test with continuity correction</em></a>.</p>
@@ -669,10 +689,10 @@ repeated tests on a data group. Each row can have the following elements:</p>
 <dd>See description for <a class="reference internal" href="#results-wilcoxon-rank-sum-test"><em>Wilcoxon rank sum test with continuity correction</em></a>.</dd>
 <dt>n (significant)</dt>
 <dd>Shows how many times the test turned out significant for the repeats
-(P-value &lt; alpha level).</dd>
+(P-value &lt;= alpha level).</dd>
 <dt>n (non-significant)</dt>
 <dd>Shows how many times the test turned out to be not significant for the
-repeats (P-value &gt;= alpha level).</dd>
+repeats (P-value &gt; alpha level).</dd>
 <dt>n (preference)</dt>
 <dd>Shows how many times there was a significant preference for the plate
 area in question.</dd>
@@ -687,8 +707,8 @@ question.</dd>
 question.</dd>
 </dl>
 </div>
-<div class="section" id="results-for-pearson-s-chi-squared-test-for-count-data">
-<span id="results-pearsons-chisq-test"></span><h4>Results for Pearson&#8217;s Chi-squared Test for Count Data<a class="headerlink" href="#results-for-pearson-s-chi-squared-test-for-count-data" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="chi-squared-test-for-given-probabilities">
+<span id="results-pearsons-chisq-test"></span><h5>Chi-squared test for given probabilities<a class="headerlink" href="#chi-squared-test-for-given-probabilities" title="Permalink to this headline">¶</a></h5>
 <p>Shows the results for Pearson&#8217;s Chi-squared Test for Count Data.</p>
 <blockquote>
 <div>&#8220;Pearson&#8217;s chi-square (χ2) test is the
@@ -701,20 +721,10 @@ expected values are calculated with the formula <img class="math" src="_images/m
 where <em>N</em> is the total number of observed distances and <em>p</em> is the
 probability for spot distance <em>d</em>. The probability <em>p</em> has been
 pre-calculated for each spot distance. The probabilities for intra-specific
-spot distances are from the model of <a class="reference internal" href="testing_optimization.html#fig-distance-distribution-intra"><em>Figure 13. Distribution for intra-specific spot distances. The
-frequencies were obtained by calculating all possible distances
-between two spots if all 25 spots are covered.
-The same test was done with different numbers of positive spots
-randomly placed on a plate with 100.000 repeats. All
-resulting distributions are very similar to this figure.</em></a>
+spot distances are from the model of <a class="reference internal" href="testing_optimization.html#fig-distance-distribution-intra"><em>Distribution for intra-specific spot distances</em></a>
 and the probabilities for inter-specific distances are from the model of
-<a class="reference internal" href="testing_optimization.html#fig-distance-distribution-inter"><em>Figure 14. Distribution for inter-specific spot distances. The
-frequencies were obtained by calculating all possible distances
-between two spots with ratio 25:25 (species A and B have all 25 spots
-covered). The same test was done with different positive spots
-ratios (spots randomly placed on a plate, 100.000 repeats). All
-resulting distributions are very similar to this figure.</em></a>. The probabilities
-have been hard coded into the application:</p>
+<a class="reference internal" href="testing_optimization.html#fig-distance-distribution-inter"><em>Distribution for inter-specific spot distances</em></a>. The probabilities have been hard coded
+into the application:</p>
 <p>Intra-specific spot distances:</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -830,12 +840,12 @@ have been hard coded into the application:</p>
 </tr>
 </tbody>
 </table>
-<p>Depending on the analysis, the records matching the species selection
-are first grouped by positive spots number (analysis &#8220;Attraction within Species&#8221;) or by ratios
-group (analysis &#8220;Attraction between Species&#8221;). See section <a class="reference internal" href="#record-grouping"><em>record grouping</em></a>.</p>
-<p>Each row for the results of the Chi-squared tests contains the results
-of a single test on a spots/ratios group. Each row can have the
-following elements:</p>
+<p>Depending on the analysis, the records matching the species selection are first
+grouped by positive spots number (analysis &#8220;Attraction within Species&#8221;) or by
+ratios group (analysis &#8220;Attraction between Species&#8221;). See section
+<a class="reference internal" href="#record-grouping"><em>Record Grouping</em></a>.</p>
+<p>Each row for the results of the Chi-squared tests contains the results of a
+single test on a spots/ratios group. Each row can have the following elements:</p>
 <dl class="docutils">
 <dt>Positive Spots</dt>
 <dd>A number representing the number of positive spots. For this test
@@ -851,7 +861,7 @@ positive spots number.</dd>
 <dt>P-value</dt>
 <dd>The P-value for the test.</dd>
 <dt>Chi squared</dt>
-<dd>The value the chi-squared test statistic.</dd>
+<dd>The value the Chi-squared test statistic.</dd>
 <dt>df</dt>
 <dd>The degrees of freedom of the approximate chi-squared distribution
 of the test statistic.</dd>
@@ -869,16 +879,18 @@ species attract (observed mean &lt; expected mean) or repel
 because spots/ratios groups that don&#8217;t have matching records are skipped,
 so they are not displayed in the list of results.</p>
 </div>
-<div class="section" id="plate-areas-definition">
-<h4>Plate Areas Definition<a class="headerlink" href="#plate-areas-definition" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="plate-areas-definition-for-chi-squared-test">
+<span id="plate-areas-definition"></span><h5>Plate Areas Definition for Chi-squared Test<a class="headerlink" href="#plate-areas-definition-for-chi-squared-test" title="Permalink to this headline">¶</a></h5>
 <p>Describes the definition of the plate areas set with the
-<a class="reference internal" href="#dialog-define-plate-areas"><em>define plate areas dialog</em></a>. Read the
-description for that dialog to get the meaning of the letters A, B, C
-and D.</p>
+<a class="reference internal" href="#dialog-define-plate-areas"><em>Define Plate Areas dialog</em></a>. See the description for that dialog to get
+the meaning of the letters A, B, C and D.</p>
 </div>
-<div class="section" id="species-total-per-plate-area">
-<h4>Species Total per Plate Area<a class="headerlink" href="#species-total-per-plate-area" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="species-totals-per-plate-area-for-chi-squared-test">
+<h5>Species Totals per Plate Area for Chi-squared Test<a class="headerlink" href="#species-totals-per-plate-area-for-chi-squared-test" title="Permalink to this headline">¶</a></h5>
 <dl class="docutils">
+<dt>Area ID</dt>
+<dd>See the <a class="reference internal" href="#plate-areas-definition"><em>Plate Areas Definition for Chi-squared Test</em></a> section of the report to see the
+definition of each area.</dd>
 <dt>Observed Totals</dt>
 <dd>How many times the selected species was found present in each of
 the plate areas.</dd>
@@ -887,8 +899,212 @@ the plate areas.</dd>
 </dl>
 </div>
 </div>
+<div class="section" id="summary-report">
+<h4>Summary Report<a class="headerlink" href="#summary-report" title="Permalink to this headline">¶</a></h4>
+<p>A summary report contains basic information from multiple standard reports.
+Such a summary report is basically a table where each row represents a single
+analysis and the columns contain the results.</p>
+<p>At this moment the presentation of a report in the report dialog is very
+minimal. You are encouraged to save the report to an .rst file with the &#8220;Save&#8221;
+button and view it in a text editor. The .rst report will include a definition
+list explaining the meaning of the codes.</p>
+<p>Here are a few examples of summary reports:</p>
+<p>Analysis &#8220;Spot Preference&#8221;:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="55%" />
+<col width="11%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="2%" />
+<col width="3%" />
+<col width="3%" />
+<col width="5%" />
+<col width="5%" />
+<col width="8%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="2"></th>
+<th class="head" colspan="8">Wilcoxon rank sum test</th>
+<th class="head">Chi-sq</th>
+</tr>
+<tr class="row-even"><th class="head">Species</th>
+<th class="head">n (plates)</th>
+<th class="head">A</th>
+<th class="head">B</th>
+<th class="head">C</th>
+<th class="head">D</th>
+<th class="head">A+B</th>
+<th class="head">C+D</th>
+<th class="head">A+B+C</th>
+<th class="head">B+C+D</th>
+<th class="head">A,B,C,D</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-odd"><td><em>Obelia dichotoma</em></td>
+<td>177</td>
+<td>pr</td>
+<td>n</td>
+<td>rj</td>
+<td>n</td>
+<td>n</td>
+<td>rj</td>
+<td>n</td>
+<td>n</td>
+<td>s</td>
+</tr>
+<tr class="row-even"><td><em>Obelia geniculata</em></td>
+<td>91</td>
+<td>n</td>
+<td>n</td>
+<td>rj</td>
+<td>n</td>
+<td>n</td>
+<td>rj</td>
+<td>n</td>
+<td>n</td>
+<td>s</td>
+</tr>
+<tr class="row-odd"><td><em>Obelia longissima</em></td>
+<td>341</td>
+<td>pr</td>
+<td>n</td>
+<td>rj</td>
+<td>rj</td>
+<td>pr</td>
+<td>rj</td>
+<td>n</td>
+<td>rj</td>
+<td>s</td>
+</tr>
+</tbody>
+</table>
+<p>In the above example the columns containing letters (A,B,..) represent plate
+areas. See <a class="reference internal" href="#record-grouping-plate-area"><em>Grouping by Plate Area</em></a>.</p>
+<p>Analysis &#8220;Attraction between Species&#8221;:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="37%" />
+<col width="37%" />
+<col width="7%" />
+<col width="2%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="2%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+<col width="1%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head" colspan="3"></th>
+<th class="head" colspan="6">Wilcoxon rank sum test</th>
+<th class="head" colspan="6">Chi-squared test</th>
+</tr>
+<tr class="row-even"><th class="head">Species A</th>
+<th class="head">Species B</th>
+<th class="head">n (plates)</th>
+<th class="head">1-5</th>
+<th class="head">1</th>
+<th class="head">2</th>
+<th class="head">3</th>
+<th class="head">4</th>
+<th class="head">5</th>
+<th class="head">1-5</th>
+<th class="head">1</th>
+<th class="head">2</th>
+<th class="head">3</th>
+<th class="head">4</th>
+<th class="head">5</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-odd"><td><em>Actinia equina</em></td>
+<td><em>Aurelia aurita</em></td>
+<td>33</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>at</td>
+<td>n</td>
+<td>n</td>
+</tr>
+<tr class="row-even"><td><em>Actinia equina</em></td>
+<td><em>Halichondria panicea</em></td>
+<td>10</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>na</td>
+<td>na</td>
+<td>rp</td>
+<td>n</td>
+<td>n</td>
+<td>n</td>
+<td>na</td>
+<td>na</td>
+</tr>
+<tr class="row-odd"><td><em>Actinia equina</em></td>
+<td><em>Hydrozoa sp.</em></td>
+<td>1</td>
+<td>n</td>
+<td>n</td>
+<td>na</td>
+<td>na</td>
+<td>na</td>
+<td>na</td>
+<td>rp</td>
+<td>rp</td>
+<td>na</td>
+<td>na</td>
+<td>na</td>
+<td>na</td>
+</tr>
+</tbody>
+</table>
+<p>In this example the columns containing numbers (1,2,..) represent positive
+spot ratio groups. See <a class="reference internal" href="#record-grouping-ratio-groups"><em>Record grouping by ratios groups</em></a>.</p>
+<p>For analysis &#8220;Attraction within Species&#8221; (no example here) the columns also
+contain numbers (2,3,..), but in that case they represent positive
+spot numbers. See <a class="reference internal" href="#record-grouping-positive-spots"><em>Record grouping by number of positive spots</em></a>.</p>
+<div class="section" id="definitions">
+<h5>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h5>
+<p>Below are the definitions for the codes used in summary reports.</p>
+<dl class="docutils">
+<dt>na</dt>
+<dd>There is not enough data for the analysis or in case of the
+Chi Squared test one of the expected frequencies is less than 5.</dd>
+<dt>s</dt>
+<dd>The result for the statistical test was significant.</dd>
+<dt>n</dt>
+<dd>The result for the statistical test was not significant.</dd>
+<dt>pr</dt>
+<dd>There was a significant preference for the plate area in question.</dd>
+<dt>rj</dt>
+<dd>There was a significant rejection for the plate area in question.</dd>
+<dt>at</dt>
+<dd>There was a significant attraction for the species in question.</dd>
+<dt>rp</dt>
+<dd>There was a significant repulsion for the species in question.</dd>
+</dl>
+</div>
+</div>
+</div>
 <div class="section" id="record-grouping">
-<span id="id5"></span><h3>Record Grouping<a class="headerlink" href="#record-grouping" title="Permalink to this headline">¶</a></h3>
+<span id="id3"></span><h3>Record Grouping<a class="headerlink" href="#record-grouping" title="Permalink to this headline">¶</a></h3>
 <p>SETLyze performs statistical tests to determine the significance of
 results. The key statistical tests used to determine significance are
 the Wilcoxon rank-sum test and Pearson&#8217;s Chi-squared test. The tests
@@ -1135,6 +1351,7 @@ biological questions regarding the settlement of species on SETL plates.</p>
 <li><a class="reference internal" href="#change-data-source-dialog">Change Data Source dialog</a></li>
 <li><a class="reference internal" href="#define-plate-areas-dialog">Define Plate Areas dialog</a></li>
 <li><a class="reference internal" href="#analysis-report-dialog">Analysis Report dialog</a><ul>
+<li><a class="reference internal" href="#standard-report">Standard Report</a><ul>
 <li><a class="reference internal" href="#locations-and-species-selections">Locations and Species Selections</a></li>
 <li><a class="reference internal" href="#spot-distances">Spot Distances</a><ul>
 <li><a class="reference internal" href="#observed-spot-distances-intra">Observed spot distances (intra)</a></li>
@@ -1144,9 +1361,15 @@ biological questions regarding the settlement of species on SETL plates.</p>
 </li>
 <li><a class="reference internal" href="#wilcoxon-rank-sum-test-with-continuity-correction">Wilcoxon rank sum test with continuity correction</a></li>
 <li><a class="reference internal" href="#wilcoxon-rank-sum-test-with-continuity-correction-repeated">Wilcoxon rank sum test with continuity correction (repeated)</a></li>
-<li><a class="reference internal" href="#results-for-pearson-s-chi-squared-test-for-count-data">Results for Pearson&#8217;s Chi-squared Test for Count Data</a></li>
-<li><a class="reference internal" href="#plate-areas-definition">Plate Areas Definition</a></li>
-<li><a class="reference internal" href="#species-total-per-plate-area">Species Total per Plate Area</a></li>
+<li><a class="reference internal" href="#chi-squared-test-for-given-probabilities">Chi-squared test for given probabilities</a></li>
+<li><a class="reference internal" href="#plate-areas-definition-for-chi-squared-test">Plate Areas Definition for Chi-squared Test</a></li>
+<li><a class="reference internal" href="#species-totals-per-plate-area-for-chi-squared-test">Species Totals per Plate Area for Chi-squared Test</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#summary-report">Summary Report</a><ul>
+<li><a class="reference internal" href="#definitions">Definitions</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a class="reference internal" href="#record-grouping">Record Grouping</a><ul>

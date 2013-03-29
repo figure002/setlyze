@@ -70,7 +70,7 @@
 </tr>
 <tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.3</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 22, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 28, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -549,6 +549,16 @@ from <cite>record</cite>, a sequence of 25 spot booleans.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="setlyze.std.is_significant">
+<tt class="descclassname">setlyze.std.</tt><tt class="descname">is_significant</tt><big>(</big><em>p_value</em>, <em>alpha_level=0.05</em><big>)</big><a class="headerlink" href="#setlyze.std.is_significant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns True if the p-value <cite>p_value</cite> is significant, False otherwise.</p>
+<p>The p-value is significant if it is less or equal to the alpha level
+<cite>alpha_level</cite>. The default value for the alpha level is 0.05.</p>
+<p>Will raise ValueError if the p-value is NaN, or TypeError if one of the
+arguments are not of type &#8216;float&#8217;.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="setlyze.std.make_remarks">
 <tt class="descclassname">setlyze.std.</tt><tt class="descname">make_remarks</tt><big>(</big><em>results</em>, <em>attributes</em><big>)</big><a class="reference internal" href="../_modules/setlyze/std.html#make_remarks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.std.make_remarks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a remarks string that contains a summary of the results
@@ -727,7 +737,7 @@ documentation, type <tt class="docutils literal"><span class="pre">help(wilcox.t
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="locale.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../setlyze_modules_analysis.html"
                         title="next chapter">Analysis Modules</a></p>
