@@ -92,20 +92,6 @@ ENGLISH = [
         "You've chosen to combine all plate areas together, resulting "
         "in a single plate area. This analysis requires at least two plate "
         "areas. Please change your plate areas definition."),
-    ('change-data-source',
-        "Click on one of the tabs below to change to a different data "
-        "source."),
-    ('change-data-source-csv',
-        "Load SETL data from CSV files. These data files must "
-        "be exported from the Microsoft Access SETL database in CSV "
-        "format. The user manual describes how to export these files."),
-    ('change-data-source-xls',
-        "Load SETL data from xls files. "
-        "The user manual describes how to export these files."),
-    ('change-data-source-db',
-        "Load SETL data from the remote SETL database. This requires a "
-        "direct connection with the SETL database server. This feature "
-        "has not been implemented yet."),
     ('analysis-running',
         "Please stand by while the analysis is running. This may take "
         "a while..."),
@@ -131,21 +117,6 @@ ENGLISH = [
         "Results for Shapiro-Wilk tests of normality"),
     ('t-significance-results-repeats',
         "Significance results for repeated %s tests"),
-    ('csv-files-not-selected',
-        "You didn't select all CSV files. SETLyze requires four CSV files "
-        "as input. See the user manual for more information. Please select "
-        "all four files and try again."),
-    ('xls-files-not-selected',
-        "You didn't select all xls files. SETLyze requires four xls files "
-        "as input. See the user manual for more information. Please select "
-        "all four files and try again."),
-    ('csv-import-failed',
-        "Failed to load the SETL data from the CSV or XLS files. "
-        "This is probably caused by an incorrect format of the input file. "
-        "SETLyze requires the input files to be in a specific format. "
-        "Please follow the instructions in the user manual on how to "
-        "create the CSV files in the required format.\n\n"
-        "The error returned was: %s"),
     ('cancel-pressed',
         "Analysis aborted by user."),
     ('no-results',

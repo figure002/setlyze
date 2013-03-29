@@ -308,10 +308,8 @@ class SelectAnalysis(object):
             # Construct a message for the user.
             if source == "setl-database":
                 source_str = "the SETL database"
-            elif source == "csv-msaccess":
-                source_str = "MS Access exported CSV files"
-            elif source == "xls":
-                source_str = "Microsoft Excel spreadsheet files"
+            elif source == "data-files":
+                source_str = "local data files"
             else:
                 raise ValueError("Unknown data source '%s'." % source)
 
@@ -1316,7 +1314,7 @@ class DefinePlateAreas(gtk.Window):
         # Return the normalized definition.
         return new_definition
 
-class ChangeDataSource(gtk.Window):
+class ChangeDataSource(object):
     """Display a dialog that allows the user to change to a different
     data source. The following data sources are supported:
 
@@ -1332,446 +1330,75 @@ class ChangeDataSource(gtk.Window):
     """
 
     def __init__(self):
-        super(ChangeDataSource, self).__init__()
-        self.set_icon_name('setlyze')
-        self.set_title("Change Data Source")
-        self.set_size_request(-1, -1)
-        self.set_border_width(10)
-        self.set_position(gtk.WIN_POS_CENTER)
-        self.set_resizable(False)
-        self.set_keep_above(False)
-        self.set_modal(True)
-        self.signal_handlers = {}
+        # Get some GTK objects.
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(os.path.join(module_path(), 'glade/load_data.glade'))
+        self.dialog = self.builder.get_object('dialog_load_data')
+        self.notebook = self.builder.get_object('notebook')
+        self.button_cancel = self.builder.get_object('button_cancel')
+        self.button_ok = self.builder.get_object('button_ok')
+        self.filechooserbutton_loc = self.builder.get_object('filechooserbutton_loc')
+        self.filechooserbutton_spe = self.builder.get_object('filechooserbutton_spe')
+        self.filechooserbutton_rec = self.builder.get_object('filechooserbutton_rec')
+        self.filechooserbutton_pla = self.builder.get_object('filechooserbutton_pla')
 
-        # Create the layout for the dialog.
-        self.create_layout()
+        # Create file filterz for the file chooser.
+        filefilter_all = gtk.FileFilter()
+        filefilter_all.set_name("All supported")
+        filefilter_all.add_mime_type("text/csv")
+        filefilter_all.add_mime_type("application/vnd.ms-excel")
+        filefilter_all.add_pattern("*.csv")
+        filefilter_all.add_pattern("*.txt")
+        filefilter_all.add_pattern("*.xls")
+
+        filefilter_csv = gtk.FileFilter()
+        filefilter_csv.set_name("Comma Separated File (*.csv, *.txt)")
+        filefilter_csv.add_mime_type("text/csv")
+        filefilter_csv.add_pattern("*.csv")
+        filefilter_csv.add_pattern("*.txt")
+
+        filefilter_xls = gtk.FileFilter()
+        filefilter_xls.set_name("Excel File (*.xls)")
+        filefilter_xls.add_mime_type("application/vnd.ms-excel")
+        filefilter_xls.add_pattern("*.xls")
+
+        # Set the filters.
+        self.filechooserbutton_loc.add_filter(filefilter_all)
+        self.filechooserbutton_loc.add_filter(filefilter_csv)
+        self.filechooserbutton_loc.add_filter(filefilter_xls)
+        self.filechooserbutton_pla.add_filter(filefilter_all)
+        self.filechooserbutton_pla.add_filter(filefilter_csv)
+        self.filechooserbutton_pla.add_filter(filefilter_xls)
+        self.filechooserbutton_rec.add_filter(filefilter_all)
+        self.filechooserbutton_rec.add_filter(filefilter_csv)
+        self.filechooserbutton_rec.add_filter(filefilter_xls)
+        self.filechooserbutton_spe.add_filter(filefilter_all)
+        self.filechooserbutton_spe.add_filter(filefilter_csv)
+        self.filechooserbutton_spe.add_filter(filefilter_xls)
+
+        # Connect the window signals to the handlers.
+        self.builder.connect_signals(self)
 
         # Bind handles to application signals.
+        self.signal_handlers = {}
         self.set_signal_handlers()
 
         # Display all widgets.
-        self.show_all()
+        self.dialog.show_all()
 
     def set_signal_handlers(self):
         """Respond to signals emitted by the application."""
         self.signal_handlers = {
             # Show an epic fail message when import fails.
-            'csv-import-failed': setlyze.std.sender.connect('csv-import-failed', self.on_csv_import_failed),
-
+            'file-import-failed': setlyze.std.sender.connect('file-import-failed', self.on_import_failed),
             # Make sure the above handle is disconnected when loading new SETL data succeeds.
             'local-db-created': setlyze.std.sender.connect('local-db-created', self.unset_signal_handlers)
         }
 
     def unset_signal_handlers(self, sender=None, data=None):
-        """Disconnect all signal connections with signal handlers created by
-        this class.
-        """
+        """Disconnect all signal handlers created by this class."""
         for handler in self.signal_handlers.values():
             setlyze.std.sender.disconnect(handler)
-
-    def create_layout(self):
-        """Construct the layout for the dialog."""
-
-        # Create a new notebook, place the position of the tabs
-        notebook = gtk.Notebook()
-        notebook.set_tab_pos(gtk.POS_TOP)
-
-        # Create a vertical box container.
-        vbox = gtk.VBox(homogeneous=False, spacing=5)
-        vbox.set_border_width(0)
-
-        # Create pages for the notebook.
-        page_csv = self.create_page_csv()
-        page_db = self.create_page_db()
-        page_xls = self.create_page_xls()
-
-        # Add the pages to the notebook.
-        label_csv = gtk.Label("CSV Files From Access DB")
-        notebook.append_page(page_csv, label_csv)
-
-        label_db = gtk.Label("Remote SETL DB")
-        notebook.append_page(page_db, label_db)
-
-        # Microsoft Excel spreadsheet files
-        label_xls = gtk.Label("XLS Files From Microsoft Excel")
-        notebook.append_page(page_xls, label_xls)
-
-        # Add a header to the dialog.
-        label_header = gtk.Label()
-        label_header.set_alignment(xalign=0, yalign=0)
-        label_header.set_line_wrap(True)
-        label_header.set_justify(gtk.JUSTIFY_FILL)
-        label_header.set_markup(markup_header("Change Data Source"))
-        vbox.add(label_header)
-
-        # Add a label to the vertical box.
-        label_descr = gtk.Label( setlyze.locale.text('change-data-source') )
-        label_descr.set_alignment(xalign=0, yalign=0)
-        label_descr.set_line_wrap(True)
-        label_descr.set_justify(gtk.JUSTIFY_FILL)
-        vbox.add(label_descr)
-
-        # Add the notebook to the vertical box.
-        vbox.add(notebook)
-
-        # Add the vertical box to the main window.
-        self.add(vbox)
-
-    def create_page_db(self):
-        """Return a notebook page for switching to SETL data from
-        the remote SETL database."""
-
-        # Create a table to organize the widgets in.
-        table = gtk.Table(rows=1, columns=2, homogeneous=False)
-        table.set_col_spacings(10)
-        table.set_row_spacings(10)
-        table.set_border_width(10)
-
-        # Create a description label.
-        label_descr = gtk.Label( setlyze.locale.text('change-data-source-db') )
-        label_descr.set_alignment(xalign=0, yalign=0)
-        label_descr.set_line_wrap(True)
-        label_descr.set_justify(gtk.JUSTIFY_FILL)
-        table.attach(child=label_descr, left_attach=0, right_attach=2,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        return table
-
-    def create_page_csv(self):
-        """Return a notebook page for switching to SETL data from
-        CSV files."""
-
-        # Create a table to organize the widgets in.
-        table = gtk.Table(rows=6, columns=2, homogeneous=False)
-        table.set_col_spacings(10)
-        table.set_row_spacings(10)
-        table.set_border_width(10)
-
-        # Create a description label.
-        label_descr = gtk.Label( setlyze.locale.text('change-data-source-csv') )
-        label_descr.set_alignment(xalign=0, yalign=0)
-        label_descr.set_line_wrap(True)
-        label_descr.set_justify(gtk.JUSTIFY_FILL)
-        table.attach(child=label_descr, left_attach=0, right_attach=2,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create a filter for the file chooser.
-        csv_filter = gtk.FileFilter()
-        csv_filter.set_name("Comma Separated File (*.csv, *.txt)")
-        csv_filter.add_mime_type("text/csv")
-        csv_filter.add_pattern("*.csv")
-        csv_filter.add_pattern("*.txt")
-
-        # Create labels.
-        label_localities = gtk.Label("Select localities file:")
-        label_localities.set_alignment(xalign=0, yalign=0)
-        label_species = gtk.Label("Select species file:")
-        label_species.set_alignment(xalign=0, yalign=0)
-        label_records = gtk.Label("Select records file:")
-        label_records.set_alignment(xalign=0, yalign=0)
-        label_plates = gtk.Label("Select plates file:")
-        label_plates.set_alignment(xalign=0, yalign=0)
-
-        # Create a localities file chooser button.
-        self.loc_file_chooser = gtk.FileChooserButton('Select file...')
-        self.loc_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.loc_file_chooser.add_filter(csv_filter)
-        self.loc_file_chooser.connect('current-folder-changed',
-            self.update_working_folder)
-
-        # Create a plates file chooser button.
-        self.pla_file_chooser = gtk.FileChooserButton('Select file...')
-        self.pla_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.pla_file_chooser.add_filter(csv_filter)
-
-        # Create a records file chooser button.
-        self.rec_file_chooser = gtk.FileChooserButton('Select file...')
-        self.rec_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.rec_file_chooser.add_filter(csv_filter)
-
-        # Create a species file chooser button.
-        self.spe_file_chooser = gtk.FileChooserButton('Select file...')
-        self.spe_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.spe_file_chooser.add_filter(csv_filter)
-
-        # Add the labels to the table.
-        table.attach(label_localities, left_attach=0, right_attach=1,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(label_plates, left_attach=0, right_attach=1,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(label_records, left_attach=0, right_attach=1,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(label_species, left_attach=0, right_attach=1,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Add the file choosers to the table.
-        table.attach(self.loc_file_chooser, left_attach=1, right_attach=2,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(self.pla_file_chooser, left_attach=1, right_attach=2,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(self.rec_file_chooser, left_attach=1, right_attach=2,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(self.spe_file_chooser, left_attach=1, right_attach=2,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # OK button
-        button_ok = gtk.Button(stock=gtk.STOCK_OK)
-        button_ok.set_size_request(-1, -1)
-        button_ok.connect("clicked", self.on_csv_ok)
-
-        # Cancel button
-        button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
-        button_cancel.set_size_request(-1, -1)
-        button_cancel.connect("clicked", self.on_cancel)
-
-        # But the button in a horizontal button box.
-        button_box_r = gtk.HButtonBox()
-        button_box_r.set_layout(gtk.BUTTONBOX_END)
-        button_box_r.set_spacing(5)
-        button_box_r.pack_start(button_cancel, expand=True, fill=True,
-            padding=0)
-        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
-
-        # Add the aligned box to the table
-        table.attach(button_box_r, left_attach=1, right_attach=2,
-            top_attach=5, bottom_attach=6, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        return table
-
-    def create_page_xls(self):
-        """Return a notebook page for switching to SETL data from
-        XLS files."""
-
-        # Create a table to organize the widgets in.
-        table = gtk.Table(rows=6, columns=2, homogeneous=False)
-        table.set_col_spacings(10)
-        table.set_row_spacings(10)
-        table.set_border_width(10)
-
-        # Create a description label.
-        label_descr = gtk.Label( setlyze.locale.text('change-data-source-xls') )
-        label_descr.set_alignment(xalign=0, yalign=0)
-        label_descr.set_line_wrap(True)
-        label_descr.set_justify(gtk.JUSTIFY_FILL)
-        table.attach(child=label_descr, left_attach=0, right_attach=2,
-            top_attach=0, bottom_attach=1, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Create a filter for the file chooser.
-        xls_filter = gtk.FileFilter()
-        xls_filter.set_name("Excel File (*.xls)")
-        xls_filter.add_mime_type("application/vnd.ms-excel")
-        xls_filter.add_pattern("*.xls")
-
-        # Create labels.
-        label_localities = gtk.Label("Select localities file:")
-        label_localities.set_alignment(xalign=0, yalign=0)
-        label_species = gtk.Label("Select species file:")
-        label_species.set_alignment(xalign=0, yalign=0)
-        label_records = gtk.Label("Select records file:")
-        label_records.set_alignment(xalign=0, yalign=0)
-        label_plates = gtk.Label("Select plates file:")
-        label_plates.set_alignment(xalign=0, yalign=0)
-
-
-        # Create a localities file chooser button.
-        self.loc_xls_file_chooser = gtk.FileChooserButton('Select file...')
-        self.loc_xls_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.loc_xls_file_chooser.add_filter(xls_filter)
-        self.loc_xls_file_chooser.connect('current-folder-changed',
-            self.update_working_folder)
-
-        # Create a plates file chooser button.
-        self.pla_xls_file_chooser = gtk.FileChooserButton('Select file...')
-        self.pla_xls_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.pla_xls_file_chooser.add_filter(xls_filter)
-
-        # Create a records file chooser button.
-        self.rec_xls_file_chooser = gtk.FileChooserButton('Select file...')
-        self.rec_xls_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.rec_xls_file_chooser.add_filter(xls_filter)
-
-        # Create a species file chooser button.
-        self.spe_xls_file_chooser = gtk.FileChooserButton('Select file...')
-        self.spe_xls_file_chooser.set_action(gtk.FILE_CHOOSER_ACTION_OPEN)
-        self.spe_xls_file_chooser.add_filter(xls_filter)
-
-        # Add the labels to the table.
-        table.attach(label_localities, left_attach=0, right_attach=1,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(label_plates, left_attach=0, right_attach=1,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(label_records, left_attach=0, right_attach=1,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(label_species, left_attach=0, right_attach=1,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # Add the file choosers to the table.
-        table.attach(self.loc_xls_file_chooser, left_attach=1, right_attach=2,
-            top_attach=1, bottom_attach=2, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(self.pla_xls_file_chooser, left_attach=1, right_attach=2,
-            top_attach=2, bottom_attach=3, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(self.rec_xls_file_chooser, left_attach=1, right_attach=2,
-            top_attach=3, bottom_attach=4, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-        table.attach(self.spe_xls_file_chooser, left_attach=1, right_attach=2,
-            top_attach=4, bottom_attach=5, xoptions=gtk.FILL|gtk.EXPAND,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        # OK button for xls files.
-        button_ok = gtk.Button(stock=gtk.STOCK_OK)
-        button_ok.set_size_request(-1, -1)
-        button_ok.connect("clicked", self.on_xls_ok)
-
-        # Cancel button
-        button_cancel = gtk.Button(stock=gtk.STOCK_CANCEL)
-        button_cancel.set_size_request(-1, -1)
-        button_cancel.connect("clicked", self.on_cancel)
-
-        # But the button in a horizontal button box.
-        button_box_r = gtk.HButtonBox()
-        button_box_r.set_layout(gtk.BUTTONBOX_END)
-        button_box_r.set_spacing(5)
-        button_box_r.pack_start(button_cancel, expand=True, fill=True, padding=0)
-        button_box_r.pack_start(button_ok, expand=True, fill=True, padding=0)
-
-        # Add the aligned box to the table
-        table.attach(button_box_r, left_attach=1, right_attach=2,
-            top_attach=5, bottom_attach=6, xoptions=gtk.FILL,
-            yoptions=gtk.SHRINK, xpadding=0, ypadding=0)
-
-        return table
-
-    def on_csv_ok(self, widget, data=None):
-        """Save the paths to the CSV files, set the new value for the
-        data source configuration, load the SETL data from the CSV file
-        into the local database, and close the dialog.
-        """
-
-        # Check if all files are selected.
-        if not self.loc_file_chooser.get_filename() or \
-            not self.spe_file_chooser.get_filename() or \
-            not self.rec_file_chooser.get_filename() or \
-            not self.pla_file_chooser.get_filename():
-            dialog = gtk.MessageDialog(parent=None, flags=0,
-                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                message_format="Not all CSV files selected")
-            dialog.format_secondary_text( setlyze.locale.text(
-                'csv-files-not-selected') )
-            dialog.set_position(gtk.WIN_POS_CENTER)
-            dialog.run()
-            dialog.destroy()
-            return False
-
-        # Save the paths.
-        setlyze.config.cfg.set('localities-file',
-            self.loc_file_chooser.get_filename() )
-        setlyze.config.cfg.set('species-file',
-            self.spe_file_chooser.get_filename() )
-        setlyze.config.cfg.set('records-file',
-            self.rec_file_chooser.get_filename() )
-        setlyze.config.cfg.set('plates-file',
-            self.pla_file_chooser.get_filename() )
-
-        # Let the application know that we are now using user selected CSV files.
-        setlyze.config.cfg.set('data-source', 'csv-msaccess')
-
-        # Show a progress dialog.
-        pd = setlyze.gui.ProgressDialog(title="Loading data",
-            description="Please wait while the data is being loaded...")
-
-        # Make a new local database.
-        t = setlyze.database.MakeLocalDB(pd)
-        t.start()
-
-        # Close the dialog.
-        self.destroy()
-
-    def on_xls_ok(self, widget, data=None):
-        """Save the paths to the XLS files, set the new value for the
-        data source configuration, load the SETL data from the XLS file
-        into the local database, and close the dialog.
-        """
-
-        # Check if all files are selected.
-        if not self.loc_xls_file_chooser.get_filename() or \
-            not self.spe_xls_file_chooser.get_filename() or \
-            not self.rec_xls_file_chooser.get_filename() or \
-            not self.pla_xls_file_chooser.get_filename():
-            dialog = gtk.MessageDialog(parent=None, flags=0,
-                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                message_format="Not all xls files selected")
-            dialog.format_secondary_text( setlyze.locale.text(
-                'xls-files-not-selected') )
-            dialog.set_position(gtk.WIN_POS_CENTER)
-            dialog.run()
-            dialog.destroy()
-            return False
-
-        # Save the paths.
-        setlyze.config.cfg.set('localities-file',
-            self.loc_xls_file_chooser.get_filename() )
-        setlyze.config.cfg.set('species-file',
-            self.spe_xls_file_chooser.get_filename() )
-        setlyze.config.cfg.set('records-file',
-            self.rec_xls_file_chooser.get_filename() )
-        setlyze.config.cfg.set('plates-file',
-            self.pla_xls_file_chooser.get_filename() )
-
-        # Let the application know that we are now using user selected xls files.
-        setlyze.config.cfg.set('data-source', 'xls')
-
-        # Show a progress dialog.
-        pd = setlyze.gui.ProgressDialog(title="Loading data",
-            description="Please wait while the data is being loaded...")
-
-        # Make a new local database.
-        t = setlyze.database.MakeLocalDB(pd)
-        t.start()
-
-        # Close the dialog.
-        self.destroy()
-
-    def on_csv_import_failed(self, sender, error, data=None):
-        """Display an error message showing the user that importing SETL data
-        from the selected CSV or XLS files failed.
-        """
-        self.unset_signal_handlers()
-
-        dialog = gtk.MessageDialog(parent=None, flags=0,
-            type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-            message_format="Loading SETL data failed")
-        dialog.format_secondary_text( setlyze.locale.text('csv-import-failed',
-            error) )
-        dialog.set_position(gtk.WIN_POS_CENTER)
-        dialog.run()
-        dialog.destroy()
-
-        # Returning True indicates that the event has been handled, and that
-        # it should not propagate further.
-        return True
-
-    def on_cancel(self, widget, data=None):
-        """Close the dialog."""
-        self.unset_signal_handlers()
-        self.destroy()
 
     def update_working_folder(self, chooser, data=None):
         """Set the working folder for the file choosers to the folder
@@ -1783,14 +1410,82 @@ class ChangeDataSource(gtk.Window):
         path = chooser.get_filename()
         if path:
             folder = os.path.dirname(path)
-            # For the CSV files
-            self.spe_file_chooser.set_current_folder(folder)
-            self.rec_file_chooser.set_current_folder(folder)
-            self.pla_file_chooser.set_current_folder(folder)
-            # For the XLS files
-            self.spe_xls_file_chooser.set_current_folder(folder)
-            self.rec_xls_file_chooser.set_current_folder(folder)
-            self.pla_xls_file_chooser.set_current_folder(folder)
+            self.filechooserbutton_spe.set_current_folder(folder)
+            self.filechooserbutton_rec.set_current_folder(folder)
+            self.filechooserbutton_pla.set_current_folder(folder)
+
+    def on_button_ok_clicked(self, widget, data=None):
+        """Save the paths to the CSV files, set the new value for the
+        data source configuration, load the SETL data from the CSV file
+        into the local database, and close the dialog.
+        """
+
+        # Check if all files are selected.
+        if not (self.filechooserbutton_loc.get_filename() and \
+            self.filechooserbutton_spe.get_filename() and \
+            self.filechooserbutton_rec.get_filename() and \
+            self.filechooserbutton_pla.get_filename()):
+            dialog = gtk.MessageDialog(parent=None, flags=0,
+                type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                message_format="Not all data files selected")
+            dialog.format_secondary_text("Not all data files were selected. "
+                "Four data files are required as input. See the user manual "
+                "for more information. Please select all four files and try again.")
+            dialog.set_position(gtk.WIN_POS_CENTER)
+            dialog.run()
+            dialog.destroy()
+            return False
+
+        # Save the paths.
+        setlyze.config.cfg.set('localities-file',
+            self.filechooserbutton_loc.get_filename() )
+        setlyze.config.cfg.set('species-file',
+            self.filechooserbutton_spe.get_filename() )
+        setlyze.config.cfg.set('records-file',
+            self.filechooserbutton_rec.get_filename() )
+        setlyze.config.cfg.set('plates-file',
+            self.filechooserbutton_pla.get_filename() )
+
+        # Let the application know that we are now using user selected data files.
+        setlyze.config.cfg.set('data-source', 'data-files')
+
+        # Show a progress dialog.
+        pd = setlyze.gui.ProgressDialog(title="Loading data",
+            description="Please wait while the data is being loaded...")
+
+        # Make a new local database.
+        t = setlyze.database.MakeLocalDB(pd)
+        t.start()
+
+        # Close the dialog.
+        self.dialog.destroy()
+
+    def on_import_failed(self, sender, error, data=None):
+        """Display an error message showing the user that importing SETL data
+        from the selected CSV or XLS files failed.
+        """
+        self.unset_signal_handlers()
+
+        dialog = gtk.MessageDialog(parent=None, flags=0,
+            type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+            message_format="Loading SETL data failed")
+        dialog.format_secondary_text("Failed to load SETL data from one of the "
+            "selected data files. This is probably caused by an incorrect "
+            "format of the input file. Please see the user manual for the "
+            "supported formats.\n\n"
+            "The error returned was: %s" % error)
+        dialog.set_position(gtk.WIN_POS_CENTER)
+        dialog.run()
+        dialog.destroy()
+
+        # Returning True indicates that the event has been handled, and that
+        # it should not propagate further.
+        return True
+
+    def on_button_cancel_clicked(self, widget, data=None):
+        """Close the dialog."""
+        self.unset_signal_handlers()
+        self.dialog.destroy()
 
 class ProgressDialog(gtk.Window):
     """Display a progress dialog.

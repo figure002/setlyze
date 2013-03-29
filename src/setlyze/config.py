@@ -124,13 +124,13 @@ DEFAULT_CONFIG = [
     ('data-path', DATA_PATH),
     # Absolute path to the local database file.
     ('db-file', DB_FILE),
-    # Path to localities CSV or XLS file.
+    # Path to localities file.
     ('localities-file', None),
-    # Path to species CSV or XLS file.
+    # Path to species file.
     ('species-file', None),
-    # Path to records CSV or XLS file.
+    # Path to records file.
     ('records-file', None),
-    # Path to plates CSV or XLS file.
+    # Path to plates file.
     ('plates-file', None),
     # Alpha level for significance tests. The confidence level is calculated
     # with "1 - alpha-level".
@@ -233,15 +233,14 @@ class ConfigManager(object):
     def set_data_source(self, source):
         """Set the configuration with name ``data-source`` to `source`.
 
-        Possible values for `source` are ``setl-database``, ``xls`` and
-        ``csv-msaccess``. The value of this configuration tells the
+        Possible values for `source` are ``setl-database`` and
+        ``data-files``. The value of this configuration tells the
         application where to look for SETL data. This is especially used
         by the database module.
 
         If an unknown data source is given, an error is printed.
         """
-        legal_sources = ("setl-database", "csv-msaccess", "xls")
-        if source in legal_sources:
+        if source in ("setl-database", "data-files"):
             # Set the new data source.
             self._conf['data-source'] = source
             # A new database file must be created when the data source has
