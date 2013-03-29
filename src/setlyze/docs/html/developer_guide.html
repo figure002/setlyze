@@ -269,29 +269,11 @@ keyword name and the value:</p>
 </div>
 <div class="section" id="module-imports">
 <h3>Module Imports<a class="headerlink" href="#module-imports" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">Imports should be done at the top-level of the file, unless there is
+<ul class="simple">
+<li>Imports should be done at the top-level of the file, unless there is
 a strong reason to have them lazily loaded when a particular
 function runs. Import statements have a cost, so try to make sure
-they don&#8217;t run inside hot functions.</p>
-</li>
-<li><p class="first">Preserved namespaces when importing modules, e.g.:</p>
-<p>Correct:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">setlyze.config</span>
-</pre></div>
-</div>
-<p>But avoid this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">setlyze.config</span> <span class="kn">as</span> <span class="nn">config</span>
-</pre></div>
-</div>
-<p>Preserving the namespaces makes it easier for the developers to understand
-where a specific class, method, function or variable originates from.</p>
-<p>We do make one exception:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlite3</span> <span class="kn">import</span> <span class="n">dbapi2</span> <span class="k">as</span> <span class="n">sqlite</span>
-</pre></div>
-</div>
-<p>This is because we want to avoid the use of version numbers in namespaces.</p>
-</li>
+they don&#8217;t run inside hot functions.</li>
 </ul>
 </div>
 <div class="section" id="naming">
