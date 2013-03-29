@@ -553,14 +553,14 @@ class SelectionWindow(gtk.Window):
             yoptions=gtk.FILL|gtk.EXPAND, xpadding=10, ypadding=0)
 
         # User Data File button
-        self.button_chg_source = gtk.Button(" Change _Data Source ")
-        self.button_chg_source.set_size_request(-1, -1)
-        self.button_chg_source.connect("clicked", self.on_change_data_source)
+        self.button_load_data = gtk.Button("Load Data")
+        self.button_load_data.set_size_request(-1, -1)
+        self.button_load_data.connect("clicked", self.on_load_data)
 
         # But the button in a horizontal button box.
         button_box_l = gtk.HButtonBox()
         button_box_l.set_layout(gtk.BUTTONBOX_START)
-        button_box_l.pack_start(self.button_chg_source, expand=True, fill=True,
+        button_box_l.pack_start(self.button_load_data, expand=True, fill=True,
             padding=0)
 
         # Add the button box to the table.
@@ -718,12 +718,12 @@ class SelectionWindow(gtk.Window):
         # Emit the signal that a selection dialog was closed.
         setlyze.std.sender.emit('selection-dialog-closed')
 
-    def on_change_data_source(self, button):
-        """Display the ChangeDataSource dialog.
+    def on_load_data(self, button):
+        """Display the LoadData dialog.
 
         Design Part: 1.11
         """
-        ChangeDataSource()
+        LoadData()
 
 class SelectLocations(SelectionWindow):
     """Display a selection dialog that allows the user to make a
@@ -1301,17 +1301,13 @@ class DefinePlateAreas(gtk.Window):
         # Return the normalized definition.
         return new_definition
 
-class ChangeDataSource(object):
-    """Display a dialog that allows the user to change to a different
-    data source. The following data sources are supported:
+class LoadData(object):
+    """Display a dialog for loading SETL data.
 
-        * CSV files with SETL data exported from the MS Access SETL
-          database.
+    SETL data can be loaded from the following data sources:
 
-        * Import of Microsoft Excel spread-sheet files.
-
-        * TODO: The remote SETL database. This requires a direct
-          connection with the SETL database server.
+    * CSV files; text files with semicolon as field separator.
+    * Microsoft Excel spread-sheet files.
 
     Design Part: 1.90
     """

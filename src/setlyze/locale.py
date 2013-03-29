@@ -48,8 +48,7 @@ ENGLISH = [
         "from which you want to select species."),
     ('option-change-source',
         "By default, the data is loaded from the remote SETL database. To load "
-        "data from a different data source, click the \"Change Data "
-        "Source\" button below."),
+        "data from a different data source, click the \"Load Data\" button below."),
     ('selection-tips',
         "Tip: Hold Ctrl or Shift to select multiple items. To select all "
         "items, press Ctrl+A."),
