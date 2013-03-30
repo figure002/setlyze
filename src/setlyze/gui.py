@@ -1586,6 +1586,7 @@ class Report(object):
 
     def __init__(self, report, header="Report"):
         self.report = None
+        self.report_saved = False
         self.set_report(report)
 
         # Get some GTK objects.
@@ -1632,16 +1633,25 @@ class Report(object):
         self.label_subheader.set_markup(markup_subheader(text))
 
     def on_close(self, button):
-        """Close the dialog and emit the `report-dialog-closed` signal."""
-        dialog = gtk.MessageDialog(parent=None, flags=0,
-            type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_OK_CANCEL,
-            message_format="Unsaved results will be lost. Continue to the main window?")
-        dialog.set_position(gtk.WIN_POS_CENTER)
-        response = dialog.run()
-        if response == gtk.RESPONSE_OK:
+        """Close the dialog and emit the `report-dialog-closed` signal.
+
+        This displays a confirmation dialog if the report has not been saved
+        yet.
+        """
+        if not self.report_saved:
+            dialog = gtk.MessageDialog(parent=None, flags=0,
+                type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_OK_CANCEL,
+                message_format="The report has not been saved and will be lost. Continue to the main window?")
+            dialog.set_position(gtk.WIN_POS_CENTER)
+            response = dialog.run()
+
+            if response == gtk.RESPONSE_OK:
+                self.window.destroy()
+                setlyze.std.sender.emit('report-dialog-closed')
+            dialog.destroy()
+        else:
             self.window.destroy()
             setlyze.std.sender.emit('report-dialog-closed')
-        dialog.destroy()
 
     def on_save(self, button):
         """Display a dialog that allows the user to save the report to
@@ -1674,6 +1684,9 @@ class Report(object):
             # File type = reStructuredText
             if "*.rst" in filter_name:
                 setlyze.report.export(self.report, path, 'rst')
+
+            # Set the saved flag to true.
+            self.report_saved = True
 
         # Close the filechooser.
         chooser.destroy()
