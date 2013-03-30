@@ -2530,12 +2530,16 @@ class Report(object):
 
         # Create cell renderers.
         render_text = gtk.CellRendererText()
-        render_toggle = gtk.CellRendererToggle()
+        render_text1 = gtk.CellRendererText()
 
         # Add columns to the tree view.
         column_names = statistics['attr']['columns']
         for i, name in enumerate(column_names):
-            column = gtk.TreeViewColumn(name, render_text, text=i)
+            if i > 1:
+                # Columns 3-11 get colored background.
+                column = gtk.TreeViewColumn(name, render_text, text=i, cell_background=9+i)
+            else:
+                column = gtk.TreeViewColumn(name, render_text1, text=i)
             column.set_sort_column_id(i)
             if i == 0: column.set_expand(True)
             tree.append_column(column)
@@ -2544,18 +2548,24 @@ class Report(object):
         liststore = gtk.ListStore(
             gobject.TYPE_STRING,
             gobject.TYPE_INT,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            # Background colors for columns 3-11
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
         )
 
         for row in statistics['results']:
+            # Set the background colors based on the values.
+            for i in range(1,10):
+                if row[i+1] == 'n':
+                    row.append('#FFC1C1')
+                elif row[i+1] is None:
+                    row.append(None)
+                else:
+                    row.append('#B4EEB4')
             liststore.append(row)
 
         # Set the tree model.
@@ -2597,12 +2607,16 @@ class Report(object):
 
         # Create cell renderers.
         render_text = gtk.CellRendererText()
-        render_toggle = gtk.CellRendererToggle()
+        render_text1 = gtk.CellRendererText()
 
         # Add columns to the tree view.
         column_names = statistics['attr']['columns']
         for i, name in enumerate(column_names):
-            column = gtk.TreeViewColumn(name, render_text, text=i)
+            if i > 1:
+                # Columns 3-50 get colored background.
+                column = gtk.TreeViewColumn(name, render_text, text=i, cell_background=48+i)
+            else:
+                column = gtk.TreeViewColumn(name, render_text1, text=i)
             column.set_sort_column_id(i)
             if i == 0: column.set_expand(True)
             tree.append_column(column)
@@ -2611,57 +2625,50 @@ class Report(object):
         liststore = gtk.ListStore(
             gobject.TYPE_STRING,
             gobject.TYPE_INT,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            # Background colors for columns 3-50
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
         )
 
         for row in statistics['results']:
+            # Set the background colors based on the values.
+            for i in range(1,49):
+                if row[i+1] == 'n':
+                    row.append('#FFC1C1')
+                elif row[i+1] is None:
+                    row.append(None)
+                else:
+                    row.append('#B4EEB4')
             liststore.append(row)
 
         # Set the tree model.
@@ -2703,12 +2710,16 @@ class Report(object):
 
         # Create cell renderers.
         render_text = gtk.CellRendererText()
-        render_toggle = gtk.CellRendererToggle()
+        render_text1 = gtk.CellRendererText()
 
         # Add columns to the tree view.
         column_names = statistics['attr']['columns']
         for i, name in enumerate(column_names):
-            column = gtk.TreeViewColumn(name, render_text, text=i)
+            if i > 2:
+                # Columns 4-15 get colored background.
+                column = gtk.TreeViewColumn(name, render_text, text=i, cell_background=12+i)
+            else:
+                column = gtk.TreeViewColumn(name, render_text1, text=i)
             column.set_sort_column_id(i)
             if i in (0,1): column.set_expand(True)
             tree.append_column(column)
@@ -2718,21 +2729,26 @@ class Report(object):
             gobject.TYPE_STRING,
             gobject.TYPE_STRING,
             gobject.TYPE_INT,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
-            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            # Background colors for columns 4-15
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
+            gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING,
         )
 
         for row in statistics['results']:
+            # Set the background colors based on the values.
+            for i in range(1,13):
+                if row[i+2] == 'n':
+                    row.append('#FFC1C1')
+                elif row[i+2] is None:
+                    row.append(None)
+                else:
+                    row.append('#B4EEB4')
             liststore.append(row)
 
         # Set the tree model.
