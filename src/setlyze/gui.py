@@ -1675,18 +1675,30 @@ class Report(object):
 
         response = chooser.run()
         if response == gtk.RESPONSE_OK:
-            # Get the filename to which the data should be exported.
-            path = chooser.get_filename()
+            try:
+                # Get the filename to which the data should be exported.
+                path = chooser.get_filename()
 
-            # Get the name of the selected file type.
-            filter_name = chooser.get_filter().get_name()
+                # Get the name of the selected file type.
+                filter_name = chooser.get_filter().get_name()
 
-            # File type = reStructuredText
-            if "*.rst" in filter_name:
-                setlyze.report.export(self.report, path, 'rst')
+                # File type = reStructuredText
+                if "*.rst" in filter_name:
+                    setlyze.report.export(self.report, path, 'rst')
 
-            # Set the saved flag to true.
-            self.report_saved = True
+                # Set the saved flag to true.
+                self.report_saved = True
+            except Exception as e:
+                # Display an error dialog if the save failed.
+                dialog = gtk.MessageDialog(parent=None, flags=0,
+                    type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+                    message_format="Save Failed")
+                dialog.format_secondary_text("An error occurred while trying "
+                    "to save the report. The error returned was:\n\n"
+                    "%s" % e)
+                dialog.set_position(gtk.WIN_POS_CENTER)
+                dialog.run()
+                dialog.destroy()
 
         # Close the filechooser.
         chooser.destroy()
