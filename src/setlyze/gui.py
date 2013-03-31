@@ -533,6 +533,7 @@ class SelectionWindow(gtk.Window):
 
         # Create a TreeView.
         self.treeview = gtk.TreeView()
+        self.treeview.set_rules_hint(True)
         # Make it so multiple items can be selected.
         self.treeview.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         # Save selection on each TreeView selection change.

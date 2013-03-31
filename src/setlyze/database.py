@@ -309,13 +309,31 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the CSV file and insert that row
         # into the local database.
         for row in setl_reader:
-            if len(row) not in (6, 7):
-                raise ValueError("Expecting 7 fields per row for the "
-                    "species CSV file, found %d fields." % len(row))
+            n = len(row)
+            if n not in (15,16):
+                raise ValueError("Expecting 16 fields per row for the "
+                    "species CSV file, found %d fields." % n)
 
-            self.cursor.execute("INSERT INTO species VALUES (?,?,?,?,?,?)",
-                (row[0],row[1],row[2],row[3],row[4],row[5])
-                )
+            row_new = []
+            for i in range(0,16):
+                try:
+                    val = row[i]
+                    if val == '':
+                        row_new.append(None)
+                    elif val == 'FALSE':
+                        row_new.append(False)
+                    elif val == 'TRUE':
+                        row_new.append(True)
+                    else:
+                        row_new.append(val)
+                except:
+                    row_new.append(None)
+
+            placeholders = ','.join('?' * 16)
+            self.cursor.execute("INSERT INTO species VALUES (%s)" %
+                placeholders,
+                row_new
+            )
 
     def insert_plates_from_csv(self, filename, delimiter=';', quotechar='"'):
         """Insert the plates from a CSV file into the local database.
