@@ -778,6 +778,9 @@ class SelectSpecies(SelectionWindow):
         self.saved_signal = 'species-selection-saved'
         self.info_key = 'info-spe-selection'
 
+        # This button should not be pressed now, so hide it.
+        self.button_load_data.hide()
+
     def create_model(self):
         """Create a model for the tree view from the species IDs and
         names.
@@ -786,38 +789,32 @@ class SelectSpecies(SelectionWindow):
         """
         db = setlyze.database.AccessLocalDB()
         self.store = gtk.ListStore(gobject.TYPE_INT,
-                                   gobject.TYPE_STRING,
-                                   gobject.TYPE_STRING)
-        for id,common,latin in db.get_species(self.locations):
-            self.store.append([id,common,latin])
+                                   gobject.TYPE_STRING,gobject.TYPE_STRING,
+                                   gobject.TYPE_STRING,gobject.TYPE_STRING,
+                                   gobject.TYPE_STRING,gobject.TYPE_STRING,
+                                   gobject.TYPE_STRING,gobject.TYPE_BOOLEAN,
+       )
+        for id,common,latin,invasive_in_nl,phylum,cls,order,family,genus in db.get_species(self.locations):
+            self.store.append([id,latin,common,phylum,cls,order,family,genus,invasive_in_nl])
 
         self.model = gtk.TreeModelSort(self.store)
-        self.model.set_sort_column_id(2, gtk.SORT_ASCENDING)
+        self.model.set_sort_column_id(1, gtk.SORT_ASCENDING)
 
     def create_columns(self, treeview):
         """Create columns for the tree view."""
+        columns = ("Species (Latin)","Species (common)","Phylum","Class","Order","Family","Genus","Invasive in NL")
         renderer_text = gtk.CellRendererText()
-        # Notice text=2, which means that we let the column display the
-        # attribute values for the cell renderer from column 2 in the
-        # TreeModel. Column 2 contains the species names (latin).
-        column = gtk.TreeViewColumn("Species (Latin)", renderer_text, text=2)
-        # Sort on column 2 from the model.
-        column.set_sort_column_id(2)
-        column.set_sort_order(gtk.SORT_ASCENDING)
-        column.set_resizable(True)
-        # Add the column to the tree view.
-        treeview.append_column(column)
-
-        renderer_text = gtk.CellRendererText()
-        # Notice text=1, which means that we let the column display the
-        # attribute values for the cell renderer from column 1 in the
-        # TreeModel. Column 1 contains the species names (common).
-        column = gtk.TreeViewColumn("Species (common)", renderer_text, text=1)
-        # Sort on column 1 from the model.
-        column.set_sort_column_id(1)
-        column.set_resizable(True)
-        # Add the column to the tree view.
-        treeview.append_column(column)
+        renderer_toggle = gtk.CellRendererToggle()
+        for i,name in enumerate(columns, start=1):
+            if i == 8:
+                column = gtk.TreeViewColumn(name, renderer_toggle, active=i)
+            else:
+                column = gtk.TreeViewColumn(name, renderer_text, text=i)
+            if i < 3:
+                column.set_expand(True)
+            column.set_sort_column_id(i)
+            column.set_resizable(True)
+            treeview.append_column(column)
 
 class DefinePlateAreas(gtk.Window):
     """Display a dialog that allows the user to define the areas on a

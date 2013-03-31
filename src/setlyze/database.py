@@ -539,18 +539,27 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the XLS file and insert that row
         # into the local database.
         for rownum in range(setl_reader.nrows):
-            if len(setl_reader.row_values(rownum)) not in (6, 7):
-                raise ValueError("Expecting 7 fields per row for the "
-                    "species XLS file, found %d fields." % len(setl_reader.row_values(rownum)))
+            n = len(setl_reader.row_values(rownum))
+            if n > 16:
+                raise ValueError("Expecting at most 16 fields per row for the "
+                    "species XLS file, found %d fields." % n)
 
-            self.cursor.execute("INSERT INTO species VALUES (?,?,?,?,?,?)",
-                (setl_reader.row_values(rownum)[0],
-                 setl_reader.row_values(rownum)[1],
-                 setl_reader.row_values(rownum)[2],
-                 setl_reader.row_values(rownum)[3],
-                 setl_reader.row_values(rownum)[4],
-                 setl_reader.row_values(rownum)[5])
-                )
+            placeholders = ','.join('?' * 16)
+            row = []
+            for i in range(0,16):
+                try:
+                    val = setl_reader.row_values(rownum)[i]
+                    if val == '':
+                        row.append(None)
+                    else:
+                        row.append(val)
+                except:
+                    row.append(None)
+
+            self.cursor.execute("INSERT INTO species VALUES (%s)" %
+                placeholders,
+                row
+            )
 
     def insert_from_db(self):
         """Create a new local database and load localities and species
@@ -706,11 +715,21 @@ class MakeLocalDB(threading.Thread):
         # Design Part: 2.3
         self.cursor.execute("CREATE TABLE species (\
             spe_id INTEGER PRIMARY KEY, \
+            spe_aphia_id INTEGER, \
             spe_name_venacular VARCHAR, \
             spe_name_latin VARCHAR, \
             spe_invasive_in_nl INTEGER, \
             spe_description VARCHAR, \
-            spe_remarks VARCHAR \
+            spe_remarks VARCHAR, \
+            spe_kingdom VARCHAR, \
+            spe_phylum VARCHAR, \
+            spe_class VARCHAR, \
+            spe_order VARCHAR, \
+            spe_family VARCHAR, \
+            spe_genus VARCHAR, \
+            spe_subgenus VARCHAR, \
+            spe_species VARCHAR, \
+            spe_subspecies VARCHAR \
         )")
 
     def create_table_plates(self):
@@ -1444,7 +1463,9 @@ class AccessLocalDB(AccessDBGeneric):
         #print "spe_ids: ", spe_ids
 
         # Select information from species that match those species IDs.
-        cursor.execute("SELECT spe_id, spe_name_venacular, spe_name_latin FROM species WHERE spe_id IN (%s)" % spe_ids_str)
+        cursor.execute("SELECT spe_id,spe_name_venacular,spe_name_latin,"
+            "spe_invasive_in_nl,spe_phylum,spe_class,spe_order,spe_family,"
+            "spe_genus FROM species WHERE spe_id IN (%s)" % spe_ids_str)
         species = cursor.fetchall()
 
         cursor.close()

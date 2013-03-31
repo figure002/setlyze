@@ -138,14 +138,12 @@ class Begin(PrepareAnalysis):
         """
         if locations_selection:
             self.locations_selection = locations_selection
-        select = setlyze.gui.SelectSpecies(self.locations_selection,
-            width=600)
+        select = setlyze.gui.SelectSpecies(self.locations_selection, width=600)
         select.set_title(setlyze.locale.text('analysis2'))
         select.set_description(setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
         )
-        # This button should not be pressed now, so hide it.
-        select.button_chg_source.hide()
+        select.maximize()
 
     def on_species_selection_saved(self, sender, selection, slot):
         """Set the species selection `selection` and start the analysis.

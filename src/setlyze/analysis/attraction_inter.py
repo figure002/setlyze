@@ -156,11 +156,11 @@ class Begin(PrepareAnalysis):
         save_slot = setlyze.std.sender.get_property('save-slot')
         select = setlyze.gui.SelectSpecies(self.locations_selection, width=600,
             slot=save_slot)
-        select.button_chg_source.hide()
         select.set_title(setlyze.locale.text('analysis3'))
         select.set_description( setlyze.locale.text('select-species') +
             "\n\n" + setlyze.locale.text('selection-tips')
         )
+        select.maximize()
 
         if self.in_batch_mode():
             # In batch mode at least two species must be selected.

@@ -165,14 +165,12 @@ class Begin(PrepareAnalysis):
         if locations_selection:
             self.locations_selection = locations_selection
         # Display the dialog.
-        select = setlyze.gui.SelectSpecies(self.locations_selection,
-            width=600)
+        select = setlyze.gui.SelectSpecies(self.locations_selection, width=600)
         select.set_title(setlyze.locale.text('analysis1'))
         select.set_description(setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
         )
-        # This button should not be pressed now, so hide it.
-        select.button_chg_source.hide()
+        select.maximize()
 
     def on_define_plate_areas(self, sender, species_selection, slot):
         """Display the window for defining the plate areas.
