@@ -331,7 +331,8 @@ class PrepareAnalysis(object):
     def get_progress_dialog(self):
         """Return a progress dialog and a handler for the dialog."""
         pd = setlyze.gui.ProgressDialog(title="Performing analysis",
-            description=setlyze.locale.text('analysis-running'))
+            description="Please stand by while the analysis is running. This "
+            "may take a while...")
         handler = setlyze.std.ProgressDialogHandler(pd)
         return (pd, handler)
 
@@ -388,7 +389,7 @@ class PrepareAnalysis(object):
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="Analysis canceled")
-        dialog.format_secondary_text(setlyze.locale.text('cancel-pressed'))
+        dialog.format_secondary_text("Analysis aborted by user.")
         dialog.set_position(gtk.WIN_POS_CENTER)
         dialog.run()
         dialog.destroy()
@@ -499,7 +500,8 @@ class PrepareAnalysis(object):
         dialog = gtk.MessageDialog(parent=None, flags=0,
             type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
             message_format="No results")
-        dialog.format_secondary_text(setlyze.locale.text('no-results'))
+        dialog.format_secondary_text("The analysis did not return any results, "
+            "most likely because there wasn't enough data for the analysis.")
         dialog.set_position(gtk.WIN_POS_CENTER)
         dialog.run()
         dialog.destroy()

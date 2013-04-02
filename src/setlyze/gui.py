@@ -210,16 +210,16 @@ class SelectAnalysis(object):
         """Update the description frame."""
         if self.radio_spot_pref.get_active():
             self.frame_descr.set_label("Spot preference")
-            self.label_descr.set_text(setlyze.locale.text('analysis1-descr'))
+            self.label_descr.set_text(setlyze.locale.text('analysis-spot-preference-descr'))
         elif self.radio_attraction_intra.get_active():
             self.frame_descr.set_label("Attraction within species")
-            self.label_descr.set_text(setlyze.locale.text('analysis2-descr'))
+            self.label_descr.set_text(setlyze.locale.text('analysis-attraction-intra-descr'))
         elif self.radio_attraction_inter.get_active():
             self.frame_descr.set_label("Attraction between species")
-            self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
+            self.label_descr.set_text(setlyze.locale.text('analysis-attraction-inter-descr'))
         elif self.radio_batch_mode.get_active():
             self.frame_descr.set_label("Batch mode")
-            self.label_descr.set_text(setlyze.locale.text('analysis-batch-descr'))
+            self.label_descr.set_text("Enter batch mode to repeat analyses for a selection of species.")
 
     def on_analysis_started(self, sender):
         """Destroy this object's signal handlers and hide the dialog."""
@@ -390,15 +390,15 @@ class SelectBatchAnalysis(object):
         """Update the description frame."""
         if self.radio_ana_spot_pref.get_active():
             self.frame_descr.set_label("Spot preference")
-            self.label_descr.set_text(setlyze.locale.text('analysis1-descr'))
+            self.label_descr.set_text(setlyze.locale.text('analysis-spot-preference-descr'))
 
         elif self.radio_ana_attraction_intra.get_active():
             self.frame_descr.set_label("Attraction within species")
-            self.label_descr.set_text(setlyze.locale.text('analysis2-descr'))
+            self.label_descr.set_text(setlyze.locale.text('analysis-attraction-intra-descr'))
 
         elif self.radio_ana_attraction_inter.get_active():
             self.frame_descr.set_label("Attraction between species")
-            self.label_descr.set_text(setlyze.locale.text('analysis3-descr'))
+            self.label_descr.set_text(setlyze.locale.text('analysis-attraction-inter-descr'))
 
     def on_ok(self, button):
         """Send the `on-start-analysis` signal with the selected analysis as
@@ -923,7 +923,14 @@ class DefinePlateAreas(gtk.Window):
         vbox.pack_start(header, expand=False, fill=True, padding=0)
 
         # Create a description label.
-        label_descr = gtk.Label( setlyze.locale.text('define-plate-areas') )
+        label_descr = gtk.Label("Please define the plate areas for the "
+            "Chi-squared test. You can keep the default setting, meaning that "
+            "A, B, C and D are treated as separate plate areas, or you can "
+            "combine specific areas by changing the setting below. Combining "
+            "areas means that the combined areas are treated as a single "
+            "plate area. One must define at least two plate areas.\n\n"
+            "In any case the Wilcoxon test will analyze the plate areas A, B, C, "
+            "D, A+B, C+D, A+B+C and B+C+D.")
         label_descr.set_alignment(xalign=0, yalign=0)
         label_descr.set_line_wrap(True)
         label_descr.set_justify(gtk.JUSTIFY_FILL)
@@ -1233,8 +1240,10 @@ class DefinePlateAreas(gtk.Window):
                 dialog = gtk.MessageDialog(parent=None, flags=0,
                     type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                     message_format="Invalid plate areas definition")
-                dialog.format_secondary_text( setlyze.locale.text(
-                    'error-single-plate-area') )
+                dialog.format_secondary_text("You've chosen to combine all "
+                    "plate areas together, resulting in a single plate area. "
+                    "This analysis requires at least two plate areas. Please "
+                    "change your plate areas definition.")
                 dialog.set_position(gtk.WIN_POS_CENTER)
                 dialog.run()
                 dialog.destroy()
@@ -1843,7 +1852,7 @@ class Report(object):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-plate-areas-definition'))
+        expander = gtk.Expander("Plate Areas Definition for Chi-squared Test")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)
@@ -1886,7 +1895,7 @@ class Report(object):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander(setlyze.locale.text('t-plate-area-totals'))
+        expander = gtk.Expander("Species Totals per Plate Area for Chi-squared Test")
         expander.set_expanded(False)
         # Add the scrolled window to the expander.
         expander.add(scrolled_window)

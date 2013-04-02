@@ -47,7 +47,7 @@ ENGLISH = [
         "Below are the available locations. Please select the locations "
         "from which you want to select species."),
     ('option-change-source',
-        "By default, the data is loaded from the remote SETL database. To load "
+        "By default the data is loaded from the SETL database. To load "
         "data from a different data source, click the \"Load Data\" button below."),
     ('selection-tips',
         "Tip: Hold Ctrl or Shift to select multiple items. To select all "
@@ -55,73 +55,21 @@ ENGLISH = [
     ('select-species',
         "Below are the available species for the selected location(s). Please "
         "select the species to be included for the analysis."),
-    ('analysis1',
+    ('analysis-spot-preference',
         'Analysis Spot preference'),
-    ('analysis1-descr',
+    ('analysis-spot-preference-descr',
         "Determine if a species has preference for a specific area on SETL "
         "plates."),
-    ('analysis2',
+    ('analysis-attraction-intra',
         'Analysis Attraction within Species'),
-    ('analysis2-descr',
+    ('analysis-attraction-intra-descr',
         "Determine if a species attracts or repels individuals of its "
         "own kind."),
-    ('analysis3',
+    ('analysis-attraction-inter',
         'Analysis Attraction between Species'),
-    ('analysis3-descr',
+    ('analysis-attraction-inter-descr',
         "Determine if two different species attract or repel each other."),
-    ('analysis4',
-        'Analysis Relation between Species'),
-    ('analysis4-descr',
-        "Determine if there is a relation between the presence/absence of two "
-        "species in a specific location."),
-    ('analysis-batch',
-        'Batch mode'),
-    ('analysis-batch-descr',
-        "Enter batch mode to repeat analyses for a selection of species."),
-    ('define-plate-areas',
-        "Please define the plate areas for the Chi-squared test. You can keep "
-        "the default setting, meaning that A, B, C and D are treated as "
-        "separate plate areas, or you can combine specific areas by "
-        "changing the setting below. Combining areas means that the "
-        "combined areas are treated as a single plate area. One must define at "
-        "least two plate areas.\n\n"
-        "In any case the Wilcoxon test will analyze the plate areas A, B, C, "
-        "D, A+B, C+D, A+B+C and B+C+D."),
-    ('error-single-plate-area',
-        "You've chosen to combine all plate areas together, resulting "
-        "in a single plate area. This analysis requires at least two plate "
-        "areas. Please change your plate areas definition."),
-    ('analysis-running',
-        "Please stand by while the analysis is running. This may take "
-        "a while..."),
-    ('invalid-alpha-level',
-        "You entered an invalid alpha level. The alpha level must be a "
-        "probability between 0 and 1."),
-    ('invalid-repeats-number',
-        "You entered an invalid repeats number. The number of repeats for "
-        "statistical tests must be 2 or higher."),
-    ('empty-plate-areas',
-        "The selected species weren't found on any SETL plates from the selected "
-        "locations. Try again with different locations or select more "
-        "locations."),
-    ('t-plate-areas-definition',
-        "Plate Areas Definition for Chi-squared Test"),
-    ('t-plate-area-totals',
-        "Species Totals per Plate Area for Chi-squared Test"),
-    ('t-results-wilcoxon-rank-sum',
-        "Results for Wilcoxon rank-sum tests (non-repeated)"),
-    ('t-results-pearson-chisq',
-        "Results for Pearson's Chi-squared Tests for Count Data"),
-    ('t-results-shapiro-wilk',
-        "Results for Shapiro-Wilk tests of normality"),
-    ('t-significance-results-repeats',
-        "Significance results for repeated %s tests"),
-    ('cancel-pressed',
-        "Analysis aborted by user."),
-    ('no-results',
-        "The analysis did not return any results, most likely because there "
-        "wasn't enough data for the analysis."),
-    ]
+]
 
 # Turn the list into a dictionary. This provides easier access to its
 # items.
@@ -134,8 +82,8 @@ def text(key, *args):
     A simple example:
 
         >>> import setlyze.locale
-        >>> setlyze.locale.text('analysis-running')
-        'Please stand by while the analysis is running. This may take a while...'
+        >>> setlyze.locale.text('analysis-spot-preference-descr')
+        'Determine if a species has preference for a specific area on SETL plates.'
 
     Substitution is also supported:
 

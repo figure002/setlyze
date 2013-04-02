@@ -124,7 +124,7 @@ class Begin(PrepareAnalysis):
         The "species-dialog-back" signal provides the save slot `slot`.
         """
         select = setlyze.gui.SelectLocations(slot=0)
-        select.set_title(setlyze.locale.text('analysis2'))
+        select.set_title(setlyze.locale.text('analysis-attraction-intra'))
         select.set_description(setlyze.locale.text('select-locations') + "\n" +
             setlyze.locale.text('option-change-source') + "\n\n" +
             setlyze.locale.text('selection-tips')
@@ -139,7 +139,7 @@ class Begin(PrepareAnalysis):
         if locations_selection:
             self.locations_selection = locations_selection
         select = setlyze.gui.SelectSpecies(self.locations_selection, width=600)
-        select.set_title(setlyze.locale.text('analysis2'))
+        select.set_title(setlyze.locale.text('analysis-attraction-intra'))
         select.set_description(setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
         )
@@ -417,7 +417,7 @@ class Analysis(AnalysisWorker):
 
     def __init__(self, locations, species, execute_queue=None):
         super(Analysis, self).__init__(execute_queue)
-        logging.info("Performing %s" % setlyze.locale.text('analysis2'))
+        logging.info("Performing %s" % setlyze.locale.text('analysis-attraction-intra'))
         self.locations_selection = locations
         self.species_selection = species
         self.statistics = {
@@ -515,7 +515,7 @@ class Analysis(AnalysisWorker):
         self.generate_report()
 
         # Update the progress bar.
-        logging.info("%s was completed!" % setlyze.locale.text('analysis2'))
+        logging.info("%s was completed!" % setlyze.locale.text('analysis-attraction-intra'))
         self.exec_task('progress.increase', "")
 
         # Run finalizers.

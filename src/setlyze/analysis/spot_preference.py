@@ -150,7 +150,7 @@ class Begin(PrepareAnalysis):
         The "species-dialog-back" signal provides the save slot `slot`.
         """
         select = setlyze.gui.SelectLocations()
-        select.set_title(setlyze.locale.text('analysis1'))
+        select.set_title(setlyze.locale.text('analysis-spot-preference'))
         select.set_description(setlyze.locale.text('select-locations') + "\n\n" +
             setlyze.locale.text('option-change-source') + "\n\n" +
             setlyze.locale.text('selection-tips')
@@ -166,7 +166,7 @@ class Begin(PrepareAnalysis):
             self.locations_selection = locations_selection
         # Display the dialog.
         select = setlyze.gui.SelectSpecies(self.locations_selection, width=600)
-        select.set_title(setlyze.locale.text('analysis1'))
+        select.set_title(setlyze.locale.text('analysis-spot-preference'))
         select.set_description(setlyze.locale.text('select-species') + "\n\n" +
             setlyze.locale.text('selection-tips')
         )
@@ -181,7 +181,7 @@ class Begin(PrepareAnalysis):
         self.species_selection = species_selection
         # Display the dialog.
         spots = setlyze.gui.DefinePlateAreas()
-        spots.set_title(setlyze.locale.text('analysis1'))
+        spots.set_title(setlyze.locale.text('analysis-spot-preference'))
 
     def on_plate_areas_defined(self, sender, definition):
         """Set the plate areas definitions `definition` and start the analysis.
@@ -457,7 +457,7 @@ class Analysis(AnalysisWorker):
 
     def __init__(self, locations, species, areas_definition, execute_queue=None):
         super(Analysis, self).__init__(execute_queue)
-        logging.info("Performing %s" % setlyze.locale.text('analysis1'))
+        logging.info("Performing %s" % setlyze.locale.text('analysis-spot-preference'))
         self.locations_selection = locations
         self.species_selection = species
         self.areas_definition = areas_definition
@@ -544,7 +544,10 @@ class Analysis(AnalysisWorker):
                 areas_total += area_total
             if areas_total == 0:
                 logging.info("The species was not found on any plates, aborting.")
-                self.exec_task('emit', 'analysis-aborted', setlyze.locale.text('empty-plate-areas'))
+                self.exec_task('emit', 'analysis-aborted',
+                    "The selected species weren't found on any SETL plates "
+                    "from the selected locations. Try again with different "
+                    "locations or select more locations.")
                 self.on_exit()
                 return None
 
@@ -576,7 +579,7 @@ class Analysis(AnalysisWorker):
         self.generate_report()
 
         # Update the progress dialog.
-        logging.info("%s was completed!" % setlyze.locale.text('analysis1'))
+        logging.info("%s was completed!" % setlyze.locale.text('analysis-spot-preference'))
         self.exec_task('progress.increase', "")
 
         # Run finalizers.
