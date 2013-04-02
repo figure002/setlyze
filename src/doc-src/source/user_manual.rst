@@ -372,7 +372,7 @@ analysis.
 
 It is possible to select more than one species (see `Making a selection`).
 Selecting more than one species in a single species selection dialog
-means that the selected species are threated as one species for the
+means that the selected species are treated as one species for the
 analysis. However, if the selected analysis requires two or more
 separate species selections (i.e. two species are compared), it will
 display the selection dialog multiple times. In this case, the

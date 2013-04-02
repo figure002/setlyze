@@ -54,7 +54,22 @@ ENGLISH = [
         "items, press Ctrl+A."),
     ('select-species',
         "Below are the available species for the selected location(s). Please "
-        "select the species to be included for the analysis."),
+        "select the species to be included for the analysis.\n\n"
+        "It is possible to select more than one species. Selecting more than "
+        "one species means that the selected species are treated as one "
+        "species for the analysis."),
+    ('select-species-batch-mode',
+        "Below are the available species for the selected location(s). Please "
+        "select the species to be included for the analysis.\n\n"
+        "It is possible to select more than one species. Selecting more than "
+        "one species means that the analysis is repeated for each of the "
+        "selected species."),
+    ('select-species-batch-mode-inter',
+        "Below are the available species for the selected location(s). Please "
+        "select the species to be included for the analysis.\n\n"
+        "It is possible to select more than one species. Selecting more than "
+        "one species means that the analysis is repeated for each possible "
+        "inter species combination of the selected species."),
     ('analysis-spot-preference',
         'Analysis Spot preference'),
     ('analysis-spot-preference-descr',

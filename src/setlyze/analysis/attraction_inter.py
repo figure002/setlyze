@@ -157,9 +157,14 @@ class Begin(PrepareAnalysis):
         select = setlyze.gui.SelectSpecies(self.locations_selection, width=600,
             slot=save_slot)
         select.set_title(setlyze.locale.text('analysis-attraction-inter'))
-        select.set_description( setlyze.locale.text('select-species') +
-            "\n\n" + setlyze.locale.text('selection-tips')
-        )
+        if self.in_batch_mode():
+            select.set_description( setlyze.locale.text('select-species-batch-mode-inter') +
+                "\n\n" + setlyze.locale.text('selection-tips')
+            )
+        else:
+            select.set_description( setlyze.locale.text('select-species') +
+                "\n\n" + setlyze.locale.text('selection-tips')
+            )
         select.maximize()
 
         if self.in_batch_mode():
