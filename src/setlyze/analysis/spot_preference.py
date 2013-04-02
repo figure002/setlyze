@@ -47,11 +47,12 @@ in batch mode. Finally the analysis is performed with :class:`Analysis`.
 
 """
 
-import logging
-import time
-import math
 import collections
+import logging
+import math
 import multiprocessing
+import re
+import time
 
 import gobject
 import pygtk
@@ -347,16 +348,24 @@ class BeginBatch(Begin):
                     continue
                 stats = wilcoxon['results'].get(plate_area, None)
                 if stats:
-                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 1-self.alpha_level
-                    if significant:
+                    # Calculate the P-value.
+                    # Preference and rejection should not be summed up
+                    # because they contradict. Only use the major value.
+                    if stats['n_preference'] > stats['n_rejection']:
+                        major = stats['n_preference']
+                    else:
+                        major = stats['n_rejection']
+                    p = 1 - float(major) / wilcoxon['attr']['repeats']
+
+                    if setlyze.std.is_significant(p, self.alpha_level):
                         # Significant: preference or rejection.
                         if stats['n_preference'] > stats['n_rejection']:
-                            row.append('pr')
+                            row.append("pr; p=%.4f" % p)
                         else:
-                            row.append('rj')
+                            row.append("rj; p=%.4f" % p)
                     else:
                         # Not significant.
-                        row.append('n')
+                        row.append("ns; p=%.4f" % p)
                 else:
                     # No data.
                     row.append(None)
@@ -372,20 +381,20 @@ class BeginBatch(Begin):
                     significant = False
 
                 if significant:
-                    row.append("s; chi-sq=%.2f; p=%.4f" %
-                        (chi_squared['results']['chi_squared'],
-                        chi_squared['results']['p_value']))
+                    code = 's'
                 else:
-                    row.append('n')
+                    code = 'ns'
+
+                row.append("%s; χ²=%.2f; p=%.4f" %
+                    (code, chi_squared['results']['chi_squared'],
+                    chi_squared['results']['p_value']))
             else:
                 row.append(None)
 
             # Only add the row to the summary if one item in the row was
             # significant.
-            for c in row:
-                if c in (None,'n'):
-                    continue
-                else:
+            for val in row:
+                if val and re.match('^(s|pr|rj);', val):
                     r = [species, result.get_option('Total plates')]
                     r.extend(row)
                     summary['results'].append(r)
@@ -425,7 +434,7 @@ class BeginBatch(Begin):
         # Set a definition list for the report.
         report.set_definitions({
             's': "The result for the statistical test was significant.",
-            'n': "The result for the statistical test was not significant.",
+            'ns': "The result for the statistical test was not significant.",
             'pr': "There was a significant preference for the plate area in question.",
             'rj': "There was a significant rejection for the plate area in question.",
             'na': "There is not enough data for the analysis or in case of the\n"

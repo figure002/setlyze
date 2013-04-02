@@ -1115,9 +1115,9 @@ class ExportRstReport(object):
             c_row = []
             for col,val in enumerate(row):
                 if val is True:
-                    c_row.append('y')
+                    c_row.append('s')
                 elif val is False:
-                    c_row.append('n')
+                    c_row.append('ns')
                 elif val is None:
                     c_row.append('na')
                 elif col in species_cols:

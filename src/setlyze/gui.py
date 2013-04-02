@@ -47,9 +47,10 @@ then do the following to get a list of the selected locations.
     >>> setlyze.config.cfg.get('locations-selection')
 """
 
-import sys
-import os
 import logging
+import os
+import re
+import sys
 import webbrowser
 
 import pygtk
@@ -2570,12 +2571,16 @@ class Report(object):
             bg = []
             # Set the background colors based on the values.
             for i in range(1,10):
-                if row[i+1] == 'n':
-                    bg.append('#FFC1C1')
-                elif row[i+1] is None:
+                val = row[i+1]
+                if not val:
                     bg.append(None)
-                else:
+                elif re.match('^(s|pr|rj);', val):
                     bg.append('#B4EEB4')
+                elif re.match('^(ns);', val):
+                    bg.append('#FFC1C1')
+                else:
+                    bg.append(None)
+
             liststore.append(row+bg)
 
         # Set the tree model.
@@ -2676,12 +2681,15 @@ class Report(object):
             bg = []
             # Set the background colors based on the values.
             for i in range(1,49):
-                if row[i+1] == 'n':
-                    bg.append('#FFC1C1')
-                elif row[i+1] is None:
+                val = row[i+1]
+                if not val:
                     bg.append(None)
-                else:
+                elif re.match('^(s|at|rp);', val):
                     bg.append('#B4EEB4')
+                elif re.match('^(ns);', val):
+                    bg.append('#FFC1C1')
+                else:
+                    bg.append(None)
             liststore.append(row+bg)
 
         # Set the tree model.
@@ -2759,12 +2767,15 @@ class Report(object):
             bg = []
             # Set the background colors based on the values.
             for i in range(1,13):
-                if row[i+2] == 'n':
-                    bg.append('#FFC1C1')
-                elif row[i+2] is None:
+                val = row[i+2]
+                if not val:
                     bg.append(None)
-                else:
+                elif re.match('^(s|at|rp);', val):
                     bg.append('#B4EEB4')
+                elif re.match('^(ns);', val):
+                    bg.append('#FFC1C1')
+                else:
+                    bg.append(None)
             liststore.append(row+bg)
 
         # Set the tree model.

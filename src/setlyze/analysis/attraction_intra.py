@@ -34,12 +34,13 @@ in batch mode. Finally the analysis is performed with :class:`Analysis`.
 
 """
 
-import os
-import logging
 import itertools
-import time
+import logging
 import math
 import multiprocessing
+import os
+import re
+import time
 
 import gtk
 
@@ -302,18 +303,24 @@ class BeginBatch(Begin):
                     continue
                 stats = wilcoxon['results'].get(spots, None)
                 if stats:
-                    significant = float(stats['n_significant']) / wilcoxon['attr']['repeats'] >= 1-self.alpha_level
-                    if significant:
-                        # Significant: attraction or repulsion.
-                        if stats['n_attraction'] > stats['n_repulsion']:
-                            row.append('at')
-                        else:
-                            row.append('rp')
+                    # Calculate the P-value.
+                    # Attraction and repulsion should not be summed up
+                    # because they contradict. Only use the major value.
+                    if stats['n_attraction'] > stats['n_repulsion']:
+                        major = stats['n_attraction']
                     else:
-                        # Not significant.
-                        row.append('n')
+                        major = stats['n_repulsion']
+                    p = 1 - float(major) / wilcoxon['attr']['repeats']
+
+                    if setlyze.std.is_significant(p, self.alpha_level):
+                        if stats['n_attraction'] > stats['n_repulsion']:
+                            code = 'at'
+                        else:
+                            code = 'rp'
+                    else:
+                        code = 'ns'
+                    row.append("%s; p=%.4f" % (code,p))
                 else:
-                    # No data.
                     row.append(None)
 
             # Add the results for the Chi squared tests.
@@ -336,21 +343,19 @@ class BeginBatch(Begin):
                             code = 'at'
                         else:
                             code = 'rp'
-                        row.append("%s; chi-sq=%.2f; p=%.4f" %
-                            (code, stats['chi_squared'], stats['p_value']))
                     else:
-                        # Not significant.
-                        row.append('n')
+                        code = 'ns'
+
+                    row.append("%s; χ²=%.2f; p=%.4f" %
+                        (code, stats['chi_squared'], stats['p_value']))
                 else:
                     # No data.
                     row.append(None)
 
             # Only add the row to the report if one item in the row was
             # significant.
-            for c in row:
-                if c in (None,'n'):
-                    continue
-                else:
+            for val in row:
+                if val and re.match('^(s|at|rp);', val):
                     r = [species, result.get_option('Total plates')]
                     r.extend(row)
                     summary['results'].append(r)
@@ -378,7 +383,7 @@ class BeginBatch(Begin):
 
         # Set a definition list for the report.
         definitions = {
-            'n': "The result for the statistical test was not significant.",
+            'ns': "The result for the statistical test was not significant.",
             'at': "There was a significant attraction for the species in question.",
             'rp': "There was a significant repulsion for the species in question.",
             'na': "There is not enough data for the analysis or in case of the\n"
