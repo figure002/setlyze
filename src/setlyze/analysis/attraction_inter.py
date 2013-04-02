@@ -408,9 +408,11 @@ class BeginBatch(Begin):
 
                     if significant:
                         if stats['mean_observed'] < stats['mean_expected']:
-                            row.append('at')
+                            code = 'at'
                         else:
-                            row.append('rp')
+                            code = 'rp'
+                        row.append("%s; chi-sq=%.2f; p=%.4f" %
+                            (code, stats['chi_squared'], stats['p_value']))
                     else:
                         # Not significant.
                         row.append('n')
@@ -421,7 +423,9 @@ class BeginBatch(Begin):
             # Only add the row to the report if one item in the row was
             # significant.
             for c in row:
-                if c and c in ('at','rp'):
+                if c in (None,'n'):
+                    continue
+                else:
                     r = [species_a, species_b, result.get_option('Total plates')]
                     r.extend(row)
                     summary['results'].append(r)

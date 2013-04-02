@@ -2556,15 +2556,18 @@ class Report(object):
         )
 
         for row in statistics['results']:
+            # Create a separate list for the background colors so we don't
+            # affect the statistics object.
+            bg = []
             # Set the background colors based on the values.
             for i in range(1,10):
                 if row[i+1] == 'n':
-                    row.append('#FFC1C1')
+                    bg.append('#FFC1C1')
                 elif row[i+1] is None:
-                    row.append(None)
+                    bg.append(None)
                 else:
-                    row.append('#B4EEB4')
-            liststore.append(row)
+                    bg.append('#B4EEB4')
+            liststore.append(row+bg)
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2659,15 +2662,18 @@ class Report(object):
         )
 
         for row in statistics['results']:
+            # Create a separate list for the background colors so we don't
+            # affect the statistics object.
+            bg = []
             # Set the background colors based on the values.
             for i in range(1,49):
                 if row[i+1] == 'n':
-                    row.append('#FFC1C1')
+                    bg.append('#FFC1C1')
                 elif row[i+1] is None:
-                    row.append(None)
+                    bg.append(None)
                 else:
-                    row.append('#B4EEB4')
-            liststore.append(row)
+                    bg.append('#B4EEB4')
+            liststore.append(row+bg)
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2739,15 +2745,18 @@ class Report(object):
         )
 
         for row in statistics['results']:
+            # Create a separate list for the background colors so we don't
+            # affect the statistics object.
+            bg = []
             # Set the background colors based on the values.
             for i in range(1,13):
                 if row[i+2] == 'n':
-                    row.append('#FFC1C1')
+                    bg.append('#FFC1C1')
                 elif row[i+2] is None:
-                    row.append(None)
+                    bg.append(None)
                 else:
-                    row.append('#B4EEB4')
-            liststore.append(row)
+                    bg.append('#B4EEB4')
+            liststore.append(row+bg)
 
         # Set the tree model.
         tree.set_model(liststore)

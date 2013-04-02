@@ -367,7 +367,9 @@ class BeginBatch(Begin):
                     significant = False
 
                 if significant:
-                    row.append('s')
+                    row.append("s; chi-sq=%.2f; p=%.4f" %
+                        (chi_squared['results']['chi_squared'],
+                        chi_squared['results']['p_value']))
                 else:
                     row.append('n')
             else:
@@ -376,7 +378,9 @@ class BeginBatch(Begin):
             # Only add the row to the summary if one item in the row was
             # significant.
             for c in row:
-                if c and c in ('s','pr','rj'):
+                if c in (None,'n'):
+                    continue
+                else:
                     r = [species, result.get_option('Total plates')]
                     r.extend(row)
                     summary['results'].append(r)

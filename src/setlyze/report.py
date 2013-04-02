@@ -1091,7 +1091,7 @@ class ExportRstReport(object):
     def add_batch_summary(self, statistics, title):
         """Generate a batch summary report."""
         yield self.section("Batch summary - %s" % title)
-        t_header, t_row, t_footer = self.table(statistics['attr']['columns'], mincolwidth=2)
+        t_header, t_row, t_footer = self.table(statistics['attr']['columns'], mincolwidth=30)
 
         # Figure out which columns display species names.
         species_cols = []
@@ -1101,7 +1101,7 @@ class ExportRstReport(object):
 
         # Return a complicated table header consisting of two rows and cells
         # that span multiple rows. Used instead of the simple `t_header`.
-        col_widths = self.get_column_widths(statistics['attr']['columns'], mincolwidth=2)
+        col_widths = self.get_column_widths(statistics['attr']['columns'], mincolwidth=30)
         yield self.table_rule(col_widths)
         yield self.table_span_header(col_widths,
             statistics['attr']['columns_over'],
@@ -1124,7 +1124,11 @@ class ExportRstReport(object):
                     c_row.append("*%s*" % val)
                 else:
                     c_row.append(val)
-            yield t_row % tuple(c_row)
+            try:
+                yield t_row % tuple(c_row)
+            except:
+                print t_row
+                print c_row
         yield t_footer
 
     def export(self, path, elements=None):
