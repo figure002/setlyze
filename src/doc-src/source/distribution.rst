@@ -158,9 +158,10 @@ the latest py2exe for Python 2.6 from `here <http://sourceforge.net/projects/py2
 and install it on your Windows machine.
 
 Once you have py2exe installed, building the Windows executable should be a
-breeze with the provided ``[setlyze-repo]\src\build-win32-exe.py``. Open up a
+breeze with the provided ``setlyze\src\build-win32-exe.py``. Open up a
 DOS window and run the following command: ::
 
+    cd setlyze\src\
     python build-win32-exe.py py2exe
 
 .. note::
@@ -179,6 +180,20 @@ DOS window and run the following command: ::
    The `Python on Windows FAQ <http://docs.python.org/faq/windows.html>`_
    explains how to do this. Search for "PATH environment variable" on that page
    (Ctrl+F, type "PATH environment variable", hit Enter).
+
+.. note::
+
+   The above command may raise an error similar to the following ::
+
+        *** finding dlls needed ***
+        error: R.dll: No such file or directory
+
+   This means that py2exe was unable to find some DLL files that are required
+   for the Windows executable. In the above error message py2exe was unable to
+   find R.dll, which is a DLL file for R. Py2exe will look in ``C:\Python2x\DLLs``
+   for these DLL files. The DLL files for R can be found in ``C:\Program Files\R\R-2.12.1\bin\i386``.
+   You can solve this error by copying the DLL files in ``C:\Program Files\R\R-2.12.1\bin\i386``
+   to ``C:\Python2x\DLLs``.
 
 This should create a new folder called ``[setlyze-repo]\src\dist\``. Open this
 folder in Windows Explorer. You should now see a whole bunch of files,
