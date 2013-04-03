@@ -78,12 +78,12 @@ setup(name='setlyze',
     ],
     options= {
         'py2exe': {
-            'includes': 'pango,atk,gobject,gio,cairo,pangocairo,_rpy2091',
+            'includes': 'pango,atk,gobject,gio,cairo,pangocairo,_rpy2121',
             'dll_excludes': [],
             },
     },
     data_files=[('test-data', glob.glob('../test-data/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
-        ('.',['../COPYING','../README']),
+        ('.',['../COPYING','../README.md']),
         ],
 )
