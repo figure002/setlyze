@@ -845,17 +845,11 @@ class AccessDBGeneric(object):
         These include the creation date and the data source.
         """
         cursor = self.conn.cursor()
-        cursor.execute("SELECT value FROM info WHERE name='source'")
-        source = cursor.fetchone()
-        cursor.execute("SELECT value FROM info WHERE name='date'")
-        date = cursor.fetchone()
+        cursor.execute("SELECT name,value FROM info;")
+        info = cursor.fetchall()
         cursor.close()
-        info = {'source': None, 'date': None}
-        if source:
-            info['source'] = source[0]
-        if date:
-            info['date'] = date[0]
-        return info
+
+        return dict(info)
 
     def get_locations(self):
         """Return a list of all locations from the local database.
