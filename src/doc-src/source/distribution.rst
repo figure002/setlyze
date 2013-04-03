@@ -53,27 +53,29 @@ Look at the suffix of the installer's filenames, they should end with "-py2.6.ex
 Download only 32bit versions of the tools below. The 32bit installers often
 have "win32" or "x86" (not "x86-64") in the filename.
 
-#. `Python <http://www.python.org/download/releases/2.6.6/>`_ (>=2.6 & <2.7)
-#. `GTK2 Runtime <http://gtk-win.sourceforge.net/home/index.php/Downloads>`_ (>=2.22)
-#. `R <http://cran.xl-mirror.nl/bin/windows/base/old/2.9.1/>`_ (=2.9.1)
-#. `PyGTK <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/>`_ (>=2.22) *
-#. `PyCairo <http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/>`_ (>=1.8.6) *
-#. `PyGObject <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/>`_ (>=2.26) *
+#. `Python <http://www.python.org/download/releases/>`_ (>=2.7 & <3)
+#. `R <http://cran.xl-mirror.nl/bin/windows/base/old/2.12.1/>`_ (=2.12.1)
+#. `PyGTK (bundle with PyCairo, PyGObject, GTK+ 2.24.0) <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/>`_ (=2.24.0) *
 #. `RPy <http://sourceforge.net/projects/rpy/files/rpy/>`_ (>=1.0.3) *
 #. `xlrd <http://pypi.python.org/pypi/xlrd>`_ (>=0.7.1) *
-#. `Python Win32 Extensions <http://sourceforge.net/projects/pywin32/files/pywin32/>`_ (>=214) *
+#. `Python Win32 Extensions <http://sourceforge.net/projects/pywin32/files/pywin32/>`_ (>=218) *
 
-You might wonder why Python 2.6, and not the latest version, Python 3. The
-reason we're using an older version is because of the Python modules SETLyze
-requires. Most are only available for Python 2.6 and Python 2.7. There's a
-good chance that SETLyze runs on Python 2.7 as well, but for now Python 2.6 is
-sufficient.
+SETLyze will probably run fine with Python 2.6 too, but the latest Python 2.7
+is recommended and used in this tutorial.
 
-Also notice that we are specifically using R version 2.9.1. This is because
+We are specifically using GTK+ version 2.24.0 for Windows. At the time of
+writing this there are also GTK+ 2.24.8 and 2.24.10 available for Windows,
+but we are not using those versions because of a huge memory leak
+(`bug 685959 <https://bugzilla.gnome.org/show_bug.cgi?id=685959>`_)
+that was introduced in GTK+ 2.24.8 (fixed in 2.24.14). The memory leak causes
+SETLyze to use a huge amount of memory which results in a crash when running
+long batch analyses.
+
+Also notice that we are specifically using R version 2.12.1. This is because
 the RPy module must correspond to the version of R and Python you have
 installed. The latest version of RPy at the time of writing this is version
-1.0.3, which has the filename ``rpy-1.0.3-R-2.9.0-R-2.9.1-win32-py2.6.exe``.
-This means it requires R versions 2.9.0 through 2.9.1. There is also RPy2, a
+1.0.3, which has the filename ``rpy-1.0.3.win32-py2.7-R.2.12.1.exe``.
+This means it requires R version 2.12.1. There is also RPy2, a
 redesign and rewrite of RPy. During the development of the initial version
 of SETLyze, it was too hard to get RPy2 working well on Windows, which is why
 was decided to use the older but stable RPy. It is possible to migrate to RPy2
@@ -137,9 +139,9 @@ to the `Sphinx documentation <http://sphinx.pocoo.org/contents.html>`_
 for instructions.
 
 To prepare the folder containing SETLyze's Bazaar repository for creating
-distributions, you need to opy the Windows installer for R 2.9.1 in the
+distributions, you need to opy the Windows installer for R 2.12.1 in the
 ``[setlyze-repo]/win32/dependencies`` folder. The installer is called
-``R-2.9.1-win32.exe`` and can be downloaded from the R homepage.
+``R-2.12.1-win32.exe`` and can be downloaded from the R homepage.
 
 Building the Windows Executable for SETLyze
 ===========================================
@@ -181,25 +183,23 @@ DOS window and run the following command: ::
    explains how to do this. Search for "PATH environment variable" on that page
    (Ctrl+F, type "PATH environment variable", hit Enter).
 
-.. note::
-
-   The above command may raise an error similar to the following ::
-
-        *** finding dlls needed ***
-        error: R.dll: No such file or directory
-
-   This means that py2exe was unable to find some DLL files that are required
-   for the Windows executable. In the above error message py2exe was unable to
-   find R.dll, which is a DLL file for R. Py2exe will look in ``C:\Python2x\DLLs``
-   for these DLL files. The DLL files for R can be found in ``C:\Program Files\R\R-2.12.1\bin\i386``.
-   You can solve this error by copying the DLL files in ``C:\Program Files\R\R-2.12.1\bin\i386``
-   to ``C:\Python2x\DLLs``.
-
 This should create a new folder called ``[setlyze-repo]\src\dist\``. Open this
 folder in Windows Explorer. You should now see a whole bunch of files,
 including ``setlyze.exe``.
 
-Go ahead and see if it runs. Double clicking ``setlyze.exe`` should open up
+Py2exe is unable to find some DLL files that are required for the Windows
+executable. These include some DLL files from R. Py2exe will look in ``C:\Python2x\DLLs``
+for these DLL files, but the DLL files for R can be found in ``C:\Program Files\R\R-2.12.1\bin\i386\``.
+
+Manually copy the following DLL files to the ``setlyze\src\dist\`` folder:
+
+* ``C:\Program Files\R\R-2.12.1\bin\i386\Rblas.dll``
+* ``C:\Program Files\R\R-2.12.1\bin\i386\Riconv.dll``
+* ``C:\Program Files\R\R-2.12.1\bin\i386\Rgraphapp.dll``
+* ``C:\Program Files\R\R-2.12.1\bin\i386\R.dll``
+* ``C:\Program Files\R\R-2.12.1\bin\i386\Rzlib.dll``
+
+Go ahead and see if ``setlyze.exe`` runs. Double clicking ``setlyze.exe`` should open up
 SETLyze's main window. You might notice something different though. For example,
 the dialogs look really ugly. Remember that this Windows executable doesn't
 need to have Python etc. installed. The executable is now actually using
@@ -273,7 +273,7 @@ structure matches. ::
         ├── tests
         └── win32
             ├── dependencies
-            │   ├── R-2.9.1-win32.exe
+            │   ├── R-2.12.1-win32.exe
             │   └── README
             ├── icon.ico
             └── setlyze_setup_modern.nsi
@@ -295,7 +295,7 @@ files and folders it uses are as follows: ::
         ├── dist
         └── win32
             ├── dependencies
-            │   └── R-2.9.1-win32.exe
+            │   └── R-2.12.1-win32.exe
             └── icon.ico
 
 Open ``setlyze_setup_modern.nsi`` in a text editor (e.g. Notepad++ or gedit) and see if
