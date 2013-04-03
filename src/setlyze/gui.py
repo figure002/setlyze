@@ -1613,6 +1613,7 @@ class Report(object):
         self.window.connect('delete-event', on_quit)
 
         # Modify some widgets.
+        self.window.maximize()
         toolbutton_help.connect('clicked', on_help, 'analysis-report-dialog')
 
         # Set the report header.
