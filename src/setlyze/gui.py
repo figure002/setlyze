@@ -1730,6 +1730,9 @@ class Report(object):
         if hasattr(self.report, 'analysis_name'):
             self.set_subheader(self.report.analysis_name)
 
+        if hasattr(self.report, 'options'):
+                self.add_report_info(self.report.options)
+
         if hasattr(self.report, 'locations_selections') and \
             hasattr(self.report, 'species_selections'):
             self.add_selections(self.report.locations_selections, self.report.species_selections)
@@ -1788,6 +1791,51 @@ class Report(object):
         if 'ratio_groups_summary' in self.report.statistics:
             for stats in self.report.statistics['ratio_groups_summary']:
                 self.add_ratio_groups_summary(stats)
+
+    def add_report_info(self, options):
+        """Add report information to the report dialog."""
+
+        # Create a Scrolled Window
+        scrolled_window = gtk.ScrolledWindow()
+        scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
+        scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Report Information")
+        expander.set_expanded(False)
+        expander.add(scrolled_window)
+
+        # Create a TreeView for the selections.
+        tree = gtk.TreeView()
+        tree.set_size_request(-1, 150)
+
+        # Add columns to the tree view.
+        renderer_text = gtk.CellRendererText()
+        column_names = ['Name','Value']
+        for i, name in enumerate(column_names):
+            column = gtk.TreeViewColumn(name, renderer_text, text=i)
+            tree.append_column(column)
+
+        # To store the data, we use the ListStore object.
+        liststore = gtk.ListStore(
+            gobject.TYPE_STRING,
+            gobject.TYPE_STRING,
+        )
+
+        for name, val in options.iteritems():
+            liststore.append([
+                name,
+                val,
+            ])
+
+        # Set the tree model.
+        tree.set_model(liststore)
+
+        # Add the tree to the scrolled window.
+        scrolled_window.add(tree)
+
+        # Add the ScrolledWindow to the vertcal box.
+        self.vbox_elements.pack_start(expander, expand=False, fill=True, padding=0)
 
     def add_selections(self, locations_selections, species_selections):
         """Add the location + species selections to the report dialog."""

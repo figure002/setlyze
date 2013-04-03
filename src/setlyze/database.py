@@ -957,6 +957,8 @@ class AccessDBGeneric(object):
         `spots_table2` are provided, column "n_spots_a" is filled
         from `spots_table1`, and column "n_spots_b" filled from `spots_table2`.
 
+        Returns a tuple (`rows affected`, `rows skipped`).
+
         Design Part: 1.73
         """
         cursor = self.conn.cursor()
