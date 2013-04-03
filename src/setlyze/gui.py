@@ -1730,8 +1730,13 @@ class Report(object):
         if hasattr(self.report, 'analysis_name'):
             self.set_subheader(self.report.analysis_name)
 
-        if hasattr(self.report, 'options'):
-                self.add_report_info(self.report.options)
+        options = getattr(self.report, 'options')
+        if options:
+                self.add_definitions(options, "Information")
+
+        definitions = getattr(self.report, 'definitions')
+        if definitions:
+                self.add_definitions(definitions, "Definitions", ('Code','Definition'))
 
         if hasattr(self.report, 'locations_selections') and \
             hasattr(self.report, 'species_selections'):
@@ -1792,8 +1797,8 @@ class Report(object):
             for stats in self.report.statistics['ratio_groups_summary']:
                 self.add_ratio_groups_summary(stats)
 
-    def add_report_info(self, options):
-        """Add report information to the report dialog."""
+    def add_definitions(self, definitions, title, columns=('Name','Value')):
+        """Add a definition list to the report dialog."""
 
         # Create a Scrolled Window
         scrolled_window = gtk.ScrolledWindow()
@@ -1801,19 +1806,21 @@ class Report(object):
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
         # Create the expander
-        expander = gtk.Expander("Report Information")
+        expander = gtk.Expander(title)
         expander.set_expanded(False)
         expander.add(scrolled_window)
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 150)
+        tree.set_size_request(-1, 200)
+        tree.set_rules_hint(True)
 
         # Add columns to the tree view.
         renderer_text = gtk.CellRendererText()
-        column_names = ['Name','Value']
+        column_names = columns
         for i, name in enumerate(column_names):
             column = gtk.TreeViewColumn(name, renderer_text, text=i)
+            column.set_sort_column_id(i)
             tree.append_column(column)
 
         # To store the data, we use the ListStore object.
@@ -1822,11 +1829,9 @@ class Report(object):
             gobject.TYPE_STRING,
         )
 
-        for name, val in options.iteritems():
-            liststore.append([
-                name,
-                val,
-            ])
+        for name, val in definitions.iteritems():
+            liststore.append([name,val])
+        liststore.set_sort_column_id(0, gtk.SORT_ASCENDING)
 
         # Set the tree model.
         tree.set_model(liststore)
@@ -2580,6 +2585,11 @@ class Report(object):
         scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
 
+        # Create the expander
+        expander = gtk.Expander("Results")
+        expander.set_expanded(True)
+        expander.add(scrolled_window)
+
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
         tree.set_size_request(-1, -1)
@@ -2639,7 +2649,7 @@ class Report(object):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox_elements.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=True, fill=True, padding=0)
 
     def add_positive_spots_summary(self, statistics):
         """Add a summary report for spot preference to the displayer.
@@ -2663,6 +2673,11 @@ class Report(object):
         scrolled_window = gtk.ScrolledWindow()
         scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Results")
+        expander.set_expanded(True)
+        expander.add(scrolled_window)
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
@@ -2748,7 +2763,7 @@ class Report(object):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox_elements.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=True, fill=True, padding=0)
 
     def add_ratio_groups_summary(self, statistics):
         """Add a summary report for spot preference to the displayer.
@@ -2772,6 +2787,11 @@ class Report(object):
         scrolled_window = gtk.ScrolledWindow()
         scrolled_window.set_shadow_type(gtk.SHADOW_NONE)
         scrolled_window.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+
+        # Create the expander
+        expander = gtk.Expander("Results")
+        expander.set_expanded(True)
+        expander.add(scrolled_window)
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
@@ -2834,7 +2854,7 @@ class Report(object):
         scrolled_window.add(tree)
 
         # Add the ScrolledWindow to the vertcal box.
-        self.vbox_elements.pack_start(scrolled_window, expand=True, fill=True, padding=0)
+        self.vbox_elements.pack_start(expander, expand=True, fill=True, padding=0)
 
 class Preferences(object):
     """Display the preferences dialog.

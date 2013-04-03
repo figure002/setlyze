@@ -69,8 +69,8 @@ class Report(object):
     def __init__(self):
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.statistics = {}
-        self.options = collections.OrderedDict()
-        self.definitions = collections.OrderedDict()
+        self.options = None
+        self.definitions = None
 
     def is_empty(self):
         """Return True if this is an empty report."""
@@ -82,6 +82,8 @@ class Report(object):
         This can be used for things like alpha level and the number of repeats
         for the analysis. They will appear in exported reports.
         """
+        if not self.options:
+            self.options = collections.OrderedDict()
         self.options[name] = value
 
     def set_definitions(self, definitions):
@@ -89,7 +91,7 @@ class Report(object):
 
         This is used to print a definition list in the report.
         """
-        self.definitions = definitions
+        self.definitions = collections.OrderedDict(definitions)
 
     def get_option(self, name):
         """Return the value for an analysis option `name`."""
