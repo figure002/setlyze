@@ -125,7 +125,7 @@ DEFAULT_CONFIG = [
     # Absolute path to the local database file.
     ('db-file', DB_FILE),
     # Minimum database version required.
-    ('minimum-db-version', 0.3),
+    ('minimum-db-version', 0.3.1),
     # Path to localities file.
     ('localities-file', None),
     # Path to species file.
