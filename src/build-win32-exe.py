@@ -79,7 +79,7 @@ setup(name='setlyze',
     options= {
         'py2exe': {
             'includes': 'pango,atk,gobject,gio,cairo,pangocairo,_rpy2121',
-            'dll_excludes': [],
+            'dll_excludes': 'Rblas.dll,Riconv.dll,Rgraphapp.dll,R.dll,Rzlib.dll',
             },
     },
     data_files=[('test-data', glob.glob('../test-data/*.*')),
