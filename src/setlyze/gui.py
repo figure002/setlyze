@@ -1805,7 +1805,7 @@ class Report(object):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 200)
+        tree.set_size_request(-1, 400)
         # Add columns to the tree view.
         cell = gtk.CellRendererText()
         column = gtk.TreeViewColumn("Locations and Species Selections", cell,
@@ -1951,7 +1951,7 @@ class Report(object):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 270)
+        tree.set_size_request(-1, 560)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -2145,7 +2145,7 @@ class Report(object):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 270)
+        tree.set_size_request(-1, 560)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
@@ -2399,7 +2399,7 @@ class Report(object):
 
         # Create a TreeView for the selections.
         tree = gtk.TreeView()
-        tree.set_size_request(-1, 270)
+        tree.set_size_request(-1, 560)
         # Set horizontal rules, makes it easier to read items.
         tree.set_rules_hint(True)
 
