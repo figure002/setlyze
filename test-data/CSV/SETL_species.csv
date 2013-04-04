@@ -1,6 +1,223 @@
-1;"Kwalpoliepjes";"Aurelia aurita";0;;;
-2;"Gorgelpijp";"Ectopleura larynx";0;;;
-3;"Penneschaft";"Tubularia indivisa";0;;;
-4;"Rode paardeanemoon";"Actinia equina";0;"Base round, often moderately adhesive, with many short, inward directed notches. Colour of column variable, plain with smooth surface.";;
-5;"Golfbrekeranemoon";"Diadumene cincta";1;"Base round, adhesive, with no or indistinctive lobes. Column is smooth and transparent with, often light, orange-red colouration. Distinctive light vertical striping pattern characterised by a sequence two close by stripes with a larger intermediate distance between the neighbouring pairs.";;
-6;"Zeeanjelier";"Metridium senile";0;"Base more or less round, adhesive, with irregular lobes covering the substrate around the base. Juvenile specimens can be plain white or orange but the column is often les transparent than D. cincta.";;
+1;135306;"Kwalpoliepjes";"Aurelia aurita";FALSE;;;"Animalia";"Cnidaria";"Scyphozoa";"Semaeostomeae";"Ulmaridae";"Aurelia";;"aurita"
+2;157933;"Gorgelpijp";"Ectopleura larynx";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Anthoathecata";"Tubulariidae";"Ectopleura";;"larynx"
+3;117994;"Penneschaft";"Tubularia indivisa";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Anthoathecata";"Tubulariidae";"Tubularia";;"indivisa"
+4;100803;"Rode paardeanemoon";"Actinia equina";FALSE;"Base round, often moderately adhesive, with many short, inward directed notches. Colour of column variable, plain with smooth surface.";;"Animalia";"Cnidaria";"Anthozoa";"Actiniaria";"Actiniidae";"Actinia";;"equina"
+5;100872;"Golfbrekeranemoon";"Diadumene cincta";TRUE;"Base round, adhesive, with no or indistinctive lobes. Column is smooth and transparent with, often light, orange-red colouration. Distinctive light vertical striping pattern characterised by a sequence two close by stripes with a larger intermediate distance between the neighbouring pairs.";;"Animalia";"Cnidaria";"Anthozoa";"Actiniaria";"Diadumenidae";"Diadumene";;"cincta"
+6;100982;"Zeeanjelier";"Metridium senile";FALSE;"Base more or less round, adhesive, with irregular lobes covering the substrate around the base. Juvenile specimens can be plain white or orange but the column is often les transparent than D. cincta.";;"Animalia";"Cnidaria";"Anthozoa";"Actiniaria";"Metridiidae";"Metridium";;"senile"
+7;106215;"Gekartelde zeepok";"Balanus crenatus";FALSE;;;"Animalia";"Arthropoda";"Maxillopoda";"Sessilia";"Balanidae";"Balanus";;"crenatus"
+8;106209;"Nieuw Zeelandse zeepok";"Elminius modestus";TRUE;;;"Animalia";"Arthropoda";"Maxillopoda";"Sessilia";"Austrobalanidae";"Elminius";;"modestus"
+9;119039;"Gewone zeepissebed";"Idotea balthica";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Isopoda";"Idoteidae";"Idotea";;"balthica"
+10;107486;"Kreeftgarnaal";"Athanas nitescens";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Alpheidae";"Athanas";;"nitescens"
+11;107613;"Roodsprietgranaal";"Palaemon adspersus";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Palaemonidae";"Palaemon";;"adspersus"
+12;;"Gewone steurgarnaal";"Palaemon elegans";FALSE;;;;;;;;;;
+13;107616;"Gezaagde steurgarnaal";"Palaemon serratus";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Palaemonidae";"Palaemon";;"serratus"
+14;107518;"Bochtige garnaal";"Hippolyte varians";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Hippolytidae";"Hippolyte";;"varians"
+15;389288;"Penseelkrab";"Hemigrapsus takanoi";TRUE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Varunidae";"Hemigrapsus";;"takanoi"
+16;158417;"Blaasjeskrab";"Hemigrapsus sanguineus";TRUE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Varunidae";"Hemigrapsus";;"sanguineus"
+17;107345;"Hooiwagenkrab";"Macropodia rostrata";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Inachidae";"Macropodia";;"rostrata"
+18;138963;"Muiltje";"Crepidula fornicata";TRUE;;;"Animalia";"Mollusca";"Gastropoda";"Littorinimorpha";"Calyptraeidae";"Crepidula";;"fornicata"
+19;140480;"Mossel";"Mytilus edulis";FALSE;;;"Animalia";"Mollusca";"Bivalvia";"Mytiloida";"Mytilidae";"Mytilus";;"edulis"
+20;140658;"Platte oester";"Ostrea edulis";FALSE;;;"Animalia";"Mollusca";"Bivalvia";"Ostreoida";"Ostreidae";"Ostrea";;"edulis"
+21;140656;"Japanse oester";"Crassostrea gigas";TRUE;;;"Animalia";"Mollusca";"Bivalvia";"Ostreoida";"Ostreidae";"Crassostrea";;"gigas"
+22;103732;"Doorschijnende zakpijp";"Ciona intestinalis";FALSE;;;"Animalia";"Chordata";"Ascidiacea";"Phlebobranchia";"Cionidae";"Ciona";;"intestinalis"
+23;103718;"Vuilwitte zakpijp";"Ascidiella aspersa";FALSE;;;"Animalia";"Chordata";"Ascidiacea";"Phlebobranchia";"Ascidiidae";"Ascidiella";;"aspersa"
+24;103788;"Ronde zakpijp";"Molgula manhattensis";TRUE;;;"Animalia";"Chordata";"Ascidiacea";"Stolidobranchia";"Molgulidae";"Molgula";;"manhattensis"
+25;103929;"Japanse knotszakpijp";"Styela clava";TRUE;;;"Animalia";"Chordata";"Ascidiacea";"Stolidobranchia";"Styelidae";"Styela";;"clava"
+26;103647;"Glanzende bolzakpijp";"Aplidium glabrum";TRUE;;;"Animalia";"Chordata";"Ascidiacea";"Aplousobranchia";"Polyclinidae";"Aplidium";;"glabrum"
+27;103579;"Grijze korstzakpijp";"Diplosoma listerianum";TRUE;;;"Animalia";"Chordata";"Ascidiacea";"Aplousobranchia";"Didemnidae";"Diplosoma";;"listerianum"
+28;103862;"Gesterde geleikorst";"Botryllus schlosseri";FALSE;;;"Animalia";"Chordata";"Ascidiacea";"Stolidobranchia";"Styelidae";"Botryllus";;"schlosseri"
+29;148715;"Gewone slingerzakpijp";"Botrylloides violaceus";TRUE;;;"Animalia";"Chordata";"Ascidiacea";"Stolidobranchia";"Styelidae";"Botrylloides";;"violaceus"
+30;250126;"Druipzakpijp";"Didemnum vexillum";TRUE;;;"Animalia";"Chordata";"Ascidiacea";"Aplousobranchia";"Didemnidae";"Didemnum";;"vexillum"
+31;132251;"Zakspons";"Sycon ciliatum";FALSE;;;"Animalia";"Porifera";"Calcarea";"Leucosolenida";"Sycettidae";"Sycon";;"ciliatum"
+32;132883;"Paarse buisjesspons";"Haliclona xena";TRUE;;;"Animalia";"Porifera";"Demospongiae";"Haplosclerida";"Chalinidae";"Haliclona";"Soestella";"xena"
+33;111355;"Harige vliescelpoliep";"Electra pilosa";FALSE;;;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Electridae";"Electra";;"pilosa"
+34;;"Gewone zeester";"Asterias rubens";FALSE;;;;;;;;;;
+35;124319;"Gewone zeeappel";"Psammechinus milliaris";FALSE;;;"Animalia";"Echinodermata";"Echinoidea";"Camarodonta";"Parechinidae";"Psammechinus";;"miliaris"
+36;558;"Porifera A";"Porifera A";FALSE;"Freshwater sponge white/yellowish";;"Animalia";"Porifera";;;;;;
+37;;"Obelia not geniculata";"Obelia not geniculata";FALSE;;;;;;;;;;
+38;131141;"Slikkokerworm";"Polydora ciliata";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Spionida";"Spionidae";"Polydora";;"ciliata"
+39;129631;"Janua sp.";"Janua sp.";TRUE;"Tube dextral, rounded in cross section, up to 2 mm in coil diameter. Up to four longitudinal ridges, three easily seen from above in larger specimens, smaller tubes only have one ridge.";;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";"Janua";;
+40;130967;"Pauwkokerworm";"Sabella pavonina";FALSE;"Slender and smooth tube, usually not longer than 5 cm (on SETL-plates with three month deployment intervals). Colour of tube greyish brown, colour of chaetae light red to pail orange with darker bands. Spiral arrangement of abdominal chaetae.";;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Sabellidae";"Sabella";;"pavonina"
+41;505319;"Quagga mossel";"Dreissena bugensis";TRUE;;;"Animalia";"Mollusca";"Bivalvia";"Veneroida";"Dreissenidae";"Dreissena";;"bugensis"
+42;181566;"Zebramossel";"Dreissena polymorpha";TRUE;;;"Animalia";"Mollusca";"Bivalvia";"Veneroida";"Dreissenidae";"Dreissena";;"polymorpha"
+43;;"Dreissena bad photograph";"Dreissena bad photograph";TRUE;;;;;;;;;;
+44;;"Barnacle bad photograph";"Barnacle bad photograph";FALSE;;;;;;;;;;
+45;;"Amphipod bad photograph";"Amphipod bad photograph";FALSE;;;;;;;;;;
+46;;"Isopod bad photograph";"Isopod bad photograph";FALSE;;;;;;;;;;
+47;;"Hemigrapsus bad photograph";"Hemigrapsus bad photograph";TRUE;;;;;;;;;;
+48;146142;"Bryozoa A";"Bryozoa A";FALSE;"Colony thick and encrusting with brownish colouration. 
+Zooids, compact, round in shape, arranged hexagonally in regular radiating series, with circular- almost D-shaped orifice. Colony, brown/red.";;"Animalia";"Bryozoa";;;;;;
+49;111343;"Bryozoa B";"Cryptosula pallasiana";FALSE;"Colony transparent with no or light brown colouration, thick, encrusting with concrete and smooth edges when intact. Zooids, porous, elongated, twice as long than wide, arranged hexagonally. Orifice located in distal part of zooid, D-shaped curved distally.";;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Cryptosulidae";"Cryptosula";;"pallasiana"
+50;146142;"Bryozoa C";"Bryozoa C";FALSE;"Colony encrusting, transparent, zooids small containing red/brown dots.";;"Animalia";"Bryozoa";;;;;;
+51;111250;"Steencelpoliep";"Scrupocellaria scruposa";FALSE;"Colony non-encrusting, bush-shaped, dichotomous branched. Bifurcations starting at the base of the bush-shaped colony. Six-ten zooids between bifurcations. Zooids alternating forming branches of maximum two zooids wide. Zooids transparent containing brown dots.";;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Candidae";"Scrupocellaria";;"scruposa"
+52;146142;"Bryozoa E";"Bryozoa E";FALSE;"Fresh water bryozoan, colony non-encrusting, branched, thick brown branches splitting of in light-brown zooids.";;"Animalia";"Bryozoa";;;;;;
+53;111159;"Gepluimde hoorncelpoliep";"Bugula plumosa";FALSE;"Colony non-encrusting feathery. Branches disposed in spirals. Zooids biserially arranged. A single spine on the outer distal part of zooid.";;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Bugulidae";"Bugula";;"plumosa"
+54;;"Bryozoa bad photograph";"Bryozoa bad photograph";FALSE;;;;;;;;;;
+55;;"Ascidian A";"Ascidian A";FALSE;;;;;;;;;;
+56;;"Scaleworm sp";"Scaleworm sp";FALSE;;;;;;;;;;
+57;;"Orange blobs";"Orange blobs";FALSE;"Small orange, solitary globules, one to few mm in diameter";;;;;;;;;
+58;;"Slimy sheath with black dots";"Slimy sheath with black dots";FALSE;;;;;;;;;;
+59;;"midge larvae";"midge larvae";FALSE;;;;;;;;;;
+60;;"eggs";"eggs";FALSE;;;;;;;;;;
+61;117428;"Brakwaterpoliep";"Cordylophora caspia";TRUE;;;"Animalia";"Cnidaria";"Hydrozoa";"Anthoathecata";"Cordylophoridae";"Cordylophora";;"caspia"
+63;111351;"Zeevitrage";"Conopeum reticulum";FALSE;;;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Electridae";"Conopeum";;"reticulum"
+64;111162;"Bugula simplex";"Bugula simplex";TRUE;;;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Bugulidae";"Bugula";;"simplex"
+65;130988;"Trompetkalkkokerworm";"Ficopomatus enigmaticus";TRUE;;;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";"Ficopomatus";;"enigmaticus"
+66;107190;"Harig porceleinkrabbetje";"Porcellana platycheles";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Porcellanidae";"Porcellana";;"platycheles"
+67;107188;"Porceleinkrabbetje";"Pisidia longicornis";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Porcellanidae";"Pisidia";;"longicornis"
+68;129572;"Pomatoceros sp.";"Pomatoceros sp.";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";"Pomatoceros";;
+69;131715;"Leucosolenia sp.";"Leucosolenia sp.";FALSE;;;"Animalia";"Porifera";"Calcarea";"Leucosolenida";"Leucosoleniidae";"Leucosolenia";;
+70;101002;"Weduweroos";"Sagartiogeton undatus";FALSE;;;"Animalia";"Cnidaria";"Anthozoa";"Actiniaria";"Sagartiidae";"Sagartiogeton";;"undatus"
+71;140032;"Bruine plooislak";"Goniodoris castanea";FALSE;;;"Animalia";"Mollusca";"Gastropoda";"Nudibranchia";"Goniodorididae";"Goniodoris";;"castanea"
+72;106218;"Brakwaterpok";"Balanus improvisus";TRUE;;;"Animalia";"Arthropoda";"Maxillopoda";"Sessilia";"Balanidae";"Balanus";;"improvisus"
+73;102101;"Slijkgarnaal (amphipod)";"Corophium volutator";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Amphipoda";"Corophiidae";"Corophium";;"volutator"
+74;117388;;"Obelia geniculata";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Leptothecata";"Campanulariidae";"Obelia";;"geniculata"
+75;117386;;"Obelia dichotoma";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Leptothecata";"Campanulariidae";"Obelia";;"dichotoma"
+76;158417;;"Hemigrapsus sanguineus";TRUE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Varunidae";"Hemigrapsus";;"sanguineus"
+77;117389;"Bruinstam takhydroied";"Obelia longissima";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Leptothecata";"Campanulariidae";"Obelia";;"longissima"
+78;152302;"Regenboogzager";"Hediste diversicolor";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Nereididae";"Hediste";;"diversicolor"
+79;144296;"Zeesla";"Ulva sp.";FALSE;;;"Plantae";"Chlorophyta";"Ulvophyceae";"Ulvales";"Ulvaceae";"Ulva";;
+80;107381;"Gewone strandkrab";"Carcinus maenas";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Portunidae";"Carcinus";;"maenas"
+81;111353;;"Electra crustalenta";FALSE;;;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Electridae";"Electra";;"crustulenta"
+82;152391;;"Nemertea sp. Wit";FALSE;;;"Animalia";"Nemertea";;;;;;
+83;129379;;"Nereis sp. Felle kleuren";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Nereididae";"Nereis";;
+84;117426;;"Clava multicornis";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Anthoathecata";"Hydractiniidae";"Clava";;"multicornis"
+85;988;;"Serpulidae sp. A";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";;;
+86;950;;"Nereidae sp. Tijgerpatroon";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Nereidae";;;
+87;146768;"Reuzen spookkreeft";"Caprella mutica";TRUE;;;"Animalia";"Arthropoda";"Malacostraca";"Amphipoda";"Caprellidae";"Caprella";;"mutica"
+88;129379;;"Nereis sp";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Nereididae";"Nereis";;
+89;122709;;"Emplectonema echinoderma";FALSE;;;"Animalia";"Nemertea";"Enopla";"Monostilifera";"Emplectonematidae";"Emplectonema";;"echinoderma"
+90;988;;"Serpulidae sp. A";FALSE;"kokerworm op substraat lonitudinale riggel";;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";;;
+91;950;;"Nereidae sp. A";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Nereidae";;;
+92;165801;"Sliertige broodspons";"Halichondria bowerbanki";FALSE;;;"Animalia";"Porifera";"Demospongiae";"Halichondrida";"Halichondriidae";"Halichondria";"Halichondria";"bowerbanki"
+93;;;"witte bolletjes";FALSE;;;;;;;;;;
+94;;;"rode bolletjes";FALSE;;;;;;;;;;
+95;;;"witte korstspons";FALSE;;;;;;;;;;
+96;;;"black amphipod";FALSE;;;;;;;;;;
+98;100991;"Sierlijke slibannemoon";"Sagartia elegans";FALSE;;;"Animalia";"Cnidaria";"Anthozoa";"Actiniaria";"Sagartiidae";"Sagartia";;"elegans"
+99;;"Slanke waaierslak";"Elabellina gracilis";FALSE;;;;;;;;;;
+100;131209;"Krulkokerworm";"Neodexiospira brasiliensis";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";"Neodexiospira";;"brasiliensis"
+101;165853;"Broodspons";"Halichondria panicea";FALSE;"gele spons";;"Animalia";"Porifera";"Demospongiae";"Halichondrida";"Halichondriidae";"Halichondria";"Halichondria";"panicea"
+102;479188;;"Maricola sp.";FALSE;"kleine wormpjes op spons";;"Animalia";"Platyhelminthes";"Rhabditophora";"Seriata";;;;
+103;152438;"gestippelde dieseltreinworm";"Anaitides maculata";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Phyllodocidae";"Anaitides";;"maculata"
+104;131027;;"Pomatoceros triqueter";FALSE;"kokerworm op substraatmet een lonitudinale riggel";;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";"Pomatoceros";;"triqueter"
+105;141641;;"Tergipes tergipes";FALSE;;;"Animalia";"Mollusca";"Gastropoda";"Nudibranchia";"Tergipedidae";"Tergipes";;"tergipes"
+106;;;"Amphipod kokertjes";FALSE;;;;;;;;;;
+107;209763;;"Nereis polychaeta";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Nereididae";"Nereis";;"pachychaeta"
+108;111495;;"Escharella variolosa";FALSE;;;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Romancheinidae";"Escharella";;"variolosa"
+109;144561;;"Ceramium rubrum";FALSE;"rood witte alg";;"Plantae";"Rhodophyta";"Florideophyceae";"Ceramiales";"Ceramiaceae";"Ceramium";;"rubrum"
+110;139686;"groene wierslak";"Elysia viridis";FALSE;;;"Animalia";"Mollusca";"Gastropoda";"Sacoglossa";"Plakobranchidae";"Elysia";;"viridis"
+111;102281;"vlokreeft";"Gammarus cf locusta";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Amphipoda";"Gammaridae";"Gammarus";;"locusta"
+112;;"Pluizige roodalg (5cm)";"cf Antithamnion cruciatum";FALSE;;;;;;;;;;
+113;;;"platworm";FALSE;;;;;;;;;;
+116;146912;"Gewimperde zwemkrab";"Liocarcinus arcuatus";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Polybiidae";"Liocarcinus";;"arcuatus"
+117;122599;"ribbon worm";"Cephalothrix rufifrons";FALSE;;;"Animalia";"Nemertea";"Palaeonemertea";;"Cephalothricidae";"Cephalothrix";;"rufifrons"
+118;;"Rood bolletje met bolletjes";"Rood bolletje met bolletjes";FALSE;"MG_6354";;;;;;;;;
+119;156714;"Slanke waaierslak";"Flabellina gracilis";FALSE;;;"Animalia";"Mollusca";"Gastropoda";"Nudibranchia";"Flabellinidae";"Flabellina";;"gracilis"
+121;139765;;"Eubranchus exiguus";FALSE;;;"Animalia";"Mollusca";"Gastropoda";"Nudibranchia";"Eubranchidae";"Eubranchus";;"exiguus"
+122;156123;"Geschubde worm";"Harmothoe propinqua";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Polynoidae";"Harmothoe";;"propinqua"
+123;117385;;"Obelia bidentata";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Leptothecata";"Campanulariidae";"Obelia";;"bidentata"
+124;130404;;"Nereis pelagica";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Nereididae";"Nereis";;"pelagica"
+125;101489;;"Corophium sp.";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Amphipoda";"Corophiidae";"Corophium";;
+126;;"platworm geel met rode stippen";"platworm geel met rode stippen";FALSE;;;;;;;;;;
+127;129642;"Krulkokerworm glad";"Spirorbis sp. Glad";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";"Spirorbis";;
+128;101537;;"Gammarus sp.";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Amphipoda";"Gammaridae";"Gammarus";;
+129;;;"Hydroid sp.";FALSE;;;;;;;;;;
+130;883;"Borstelworm klein (3mm)";"Polychaeta sp. (3 mm)";FALSE;;;"Animalia";"Annelida";"Polychaeta";;;;;
+131;;"roze eieren";"Eggs pink";FALSE;;;;;;;;;;
+132;;"Witte eieren (niet in eierkapsel)";"Eggs white (solitaire, no egg capsule)";FALSE;;;;;;;;;;
+133;102089;;"Corophium cf crassicorne";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Amphipoda";"Corophiidae";"Corophium";;"crassicorne"
+134;;;"Nereis sp. met bolletjes";FALSE;;;;;;;;;;
+135;;"Roodlob korstmosdiertje";;FALSE;;;;;;;;;;
+136;;;"Spirorbidae sp.";FALSE;;;;;;;;;;
+137;132258;;"Sycon scaldiensis";TRUE;;;"Animalia";"Porifera";"Calcarea";"Leucosolenida";"Sycettidae";"Sycon";;"scaldiense"
+138;;;"groene alg fijnsliertig max. 3cm";FALSE;;;;;;;;;;
+139;;;"rode alg fijnsliertig max. 3cm";FALSE;;;;;;;;;;
+140;;;"cf Bryopsis plumosa";FALSE;"groene alg, donker, sliertig, geveerd";;;;;;;;;
+142;132833;"Geweispons";"Haliclona oculata";FALSE;;;"Animalia";"Porifera";"Demospongiae";"Haplosclerida";"Chalinidae";"Haliclona";"Haliclona";"oculata"
+143;;;"worm 1cm geel";FALSE;"geen polychaeta?";;;;;;;;;
+144;;;"groen wier lang dun";FALSE;;;;;;;;;;
+145;117034;;"Obelia sp.";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Leptothecata";"Campanulariidae";"Obelia";;
+146;140685;;"Patella cf vulgata";FALSE;;;"Animalia";"Mollusca";"Gastropoda";;"Patellidae";"Patella";;"vulgata"
+147;144294;"Darmwier";"Enteromorpha sp.";FALSE;;;"Plantae";"Chlorophyta";"Ulvophyceae";"Ulvales";"Ulvaceae";"Enteromorpha";;
+148;126996;"Botervis";"Pholis gunnellus";FALSE;;;"Animalia";"Chordata";"Actinopterygii";"Perciformes";"Pholidae";"Pholis";;"gunnellus"
+149;107552;"Grijze garnaal";"Crangon crangon";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Crangonidae";"Crangon";;"crangon"
+150;122358;;"Lineus sp.";FALSE;;;"Animalia";"Nemertea";"Anopla";;"Lineidae";"Lineus";;
+151;145782;;"Plocamium cartilagineum";FALSE;;;"Plantae";"Rhodophyta";"Florideophyceae";"Plocamiales";"Plocamiaceae";"Plocamium";;"cartilagineum"
+152;145540;;"Halidrys siliquosa";FALSE;;;"Chromista";"Ochrophyta";"Phaeophyceae";"Fucales";"Sargassaceae";"Halidrys";;"siliquosa"
+153;145869;;"Scytosiphon lomentaria";FALSE;;;"Chromista";"Ochrophyta";"Phaeophyceae";"Scytosiphonales";"Scytosiphonaceae";"Scytosiphon";;"lomentaria"
+154;144716;;"Dasya corymbifera";FALSE;;;"Plantae";"Rhodophyta";"Florideophyceae";"Ceramiales";"Dasyaceae";"Dasya";;"corymbifera"
+155;334510;;"Phyllodoce maculata";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Phyllodocidae";"Phyllodoce";;"maculata"
+156;;"rossige pluimalg";;FALSE;"dikke hoofdtak; fijne rode algachtige zijdraadjes (1cm)";;;;;;;;;
+157;144440;;"Bonnemaisonia asparagoides";FALSE;;;"Plantae";"Rhodophyta";"Florideophyceae";"Bonnemaisoniales";"Bonnemaisoniaceae";"Bonnemaisonia";;"asparagoides"
+158;145825;;"Lomentaria clavellosa";FALSE;;;"Plantae";"Rhodophyta";"Florideophyceae";"Rhodymeniales";"Lomentariaceae";"Lomentaria";;"clavellosa"
+159;127204;"Zeedonderpad";"Taurulus bubalis";FALSE;;;"Animalia";"Chordata";"Actinopterygii";"Scorpaeniformes";"Cottidae";"Taurulus";;"bubalis"
+160;144457;;"Bryopsis plumosa";FALSE;;;"Plantae";"Chlorophyta";"Bryopsidophyceae";"Bryopsidales";"Bryopsidaceae";"Bryopsis";;"plumosa"
+161;130800;;"Lepidonotus clava";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Phyllodocida";"Polynoidae";"Lepidonotus";;"clava"
+162;101839;;"Caprella linearis";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Amphipoda";"Caprellidae";"Caprella";;"linearis"
+163;167144;"zoetwaterspons";"Ephydatia fluviatilis";FALSE;;;"Animalia";"Porifera";"Demospongiae";"Haplosclerida";"Spongillidae";"Ephydatia";;"fluviatilis"
+164;;;"worm 1 cm kleurig";FALSE;;;;;;;;;;
+165;;;"worm groen";FALSE;;;;;;;;;;
+166;142817;;"Oligocladus sanguinolentus";FALSE;;;"Animalia";"Platyhelminthes";"Rhabditophora";"Polycladida";"Euryleptidae";"Oligocladus";;"sanguinolentus"
+167;103804;"Ronde zakpijp";"Molgula socialis";FALSE;"manhattensis should be socialis";;"Animalia";"Chordata";"Ascidiacea";"Stolidobranchia";"Molgulidae";"Molgula";;"socialis"
+168;103509;;"Molgula sp.";FALSE;;;"Animalia";"Chordata";"Ascidiacea";"Stolidobranchia";"Molgulidae";"Molgula";;
+169;117093;;"Eudendrium sp.";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";"Anthoathecata";"Eudendriidae";"Eudendrium";;
+170;117538;;"Eudendrium album";FALSE;"white hydrozoa; 0.5 - 1.5 cm long. +/- 15 tentacles, with trumpet like structure in the centre. See image 1030165";;"Animalia";"Cnidaria";"Hydrozoa";"Anthoathecata";"Eudendriidae";"Eudendrium";;"album"
+171;;;"witte koker spons (= sycon ciliatum)";FALSE;"white sponge; very slender tube, 1 cm long; fluffy structure; coronet at the opening. See image 7098 (Breskens dec 09)";;;;;;;;;
+172;111603;;"Alcyonidium mytili";FALSE;"encrusting Bryozoan. Zooids hexagonal, uncalcified.";;"Animalia";"Bryozoa";"Gymnolaemata";"Ctenostomatida";"Alcyonidiidae";"Alcyonidium";;"mytili"
+173;107032;;"Palaemon sp.";FALSE;;;"Animalia";"Arthropoda";"Malacostraca";"Decapoda";"Palaemonidae";"Palaemon";;
+174;;;"sea slug A";FALSE;"slug; red with white patterns; 0,5 cm long. See image 8792 (Yerseke dec 09)";;;;;;;;;
+175;;;"eggs of Goniodoris castanea";FALSE;"curly ribbon of hundreds and hundreds of tiny white dots; unfolded about 3-6 cm long.";;;;;;;;;
+176;;;"white bulge (cf closed anemoon)";FALSE;"Round bulge; diameter 2 cm. Centred is a white circle with a small brown spot (hole); rest covered with white dots and dirt; flat foot, clean, with white stripes pointed to the centre. It can move. See image 8340 (Yerseke dec 09).";;;;;;;;;
+177;111164;;"Bugula stolonifera";TRUE;"simmilar to S. scruposa, only it has hooks on the sides of the zooids.";;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Bugulidae";"Bugula";;"stolonifera"
+178;111254;;"Tricellaria inopinata";TRUE;"non-encrusting Bryozoan; thin bush, long branches (up to 2,5 cm).";;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Candidae";"Tricellaria";;"inopinata"
+179;106122;;"Balanus sp.";FALSE;;;"Animalia";"Arthropoda";"Maxillopoda";"Sessilia";"Balanidae";"Balanus";;
+180;;;"black points";FALSE;"elongated black points, bottom transparent, cf larva Botryllidae /eggs; 0,25mm";;;;;;;;;
+181;334843;"Krulkokerworm";"Spirorbis tridentatus";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Sabellida";"Serpulidae";"Spirorbis";"Spirorbis";"tridentatus"
+182;;;"yellow sponge or tunicate";FALSE;"Bright yellow, round dot; one opening visible; diameter ca 0,3 cm, larger than zooid of Botrylloides violaceus; looks like a sponge or tunicate. See image 6735, 6736 (Vlissingen dec 09)";;;;;;;;;
+183;;;"transparant needle";FALSE;"transparant needle; edges of top are reflecting white; brown pigment in the middle of the top; bottom vanishes into nothing; ca 1 cm long. See image P1030560 (Hompelvoet mrt 09)";;;;;;;;;
+184;;;"Flatworm transparant";FALSE;"flatworm; transparant; 1 cm long, 0,2 cm wide. Image 6371 (Bommenede boot/drijvend dec 09).";;;;;;;;;
+185;;;"Crab bad photograph";FALSE;;;;;;;;;;
+186;;;"Isopod or amphipod bad photograph";FALSE;"tranparant-dark body; 2-7 mm long; ca 11 bodysegments. Image 5632, 5614";;;;;;;;;
+187;;;"Ceramium sp";FALSE;"red algae, 8 mm high. Image 5796";;;;;;;;;
+188;;;"Nemertea grey";FALSE;"grey, smooth, lighter colored belly side, >6 cm long, ca 0,8-1,2 mm wide. Image 5835, 5773.";;;;;;;;;
+189;;;"Nemertea transparant";FALSE;"whitish-transparant, smooth, >5 cm long, ca 0,4 mm wide. Image 5835";;;;;;;;;
+190;;;"cf Halisarca sp.";FALSE;;;;;;;;;;
+191;;;"Polychaeta bad photograph";FALSE;;;;;;;;;;
+192;;;"Nereidae or Nephtyidae";FALSE;;;;;;;;;;
+193;;;"red algae ball of threads";FALSE;"looks like small (ca 0,5 cm diameter) ball of thin threads, attached to other organisms.";;;;;;;;;
+194;;;"Jassa falcata";FALSE;"Tube building amphipod. Image 6042 (Hompelvoet dec 09)";;;;;;;;;
+195;;;"white bivalvia";FALSE;"formed very regular (not like oyster), no teeth visible, size 1,7cm, lijkt op nonnetje";;;;;;;;;
+196;;;"pink/red didemnum/diplosoma";FALSE;;;;;;;;;;
+197;;;"green yelly";FALSE;"sponge?, algae?";;;;;;;;;
+198;111411;;"Membranipora membranacea";FALSE;"bryozoan";;"Animalia";"Bryozoa";"Gymnolaemata";"Cheilostomatida";"Membraniporidae";"Membranipora";;"membranacea"
+199;;;"oyster";FALSE;;;;;;;;;;
+200;129619;;"Polydora sp.";FALSE;;;"Animalia";"Annelida";"Polychaeta";"Spionida";"Spionidae";"Polydora";;
+201;1337;;"Hydrozoa sp.";FALSE;;;"Animalia";"Cnidaria";"Hydrozoa";;;;;
+202;;;"Anemone bad photograph";FALSE;;;;;;;;;;
+203;;;"small white 'trees' on freshwater plates";FALSE;;;;;;;;;;
+204;;;"small yellow balls freshwater plates";FALSE;"small yellow balls looking like corn, balls about 0,6 mm big, allways arranged in groups, possibly eggs";;;;;;;;;
+205;;;"red plaque/jelly looking";FALSE;;;;;;;;;;
+206;;;"zoetwater polychaeta of amphipod";FALSE;;;;;;;;;;
+207;;;"Barnacle young";FALSE;"young, very small barnacle, little transparent, could be B.crenatus, B.improvisus, E. modestus";;;;;;;;;
+208;;;"brown orange dots";FALSE;"very small brown/orange dots";;;;;;;;;
+209;290131;"hydra circumcincta";"hydra circumcincta";FALSE;"pink translucent fresh water anemone";;"Animalia";"Cnidaria";"Hydrozoa";"Anthoathecata";"Hydridae";"Hydra";;"circumcincta"
+210;;"fresh water slug or flatworm";"freshwater slug or flatworm";FALSE;"pink tranclucent with white tips, arranged in about 4 rows of about 6 longitudinal bolletjes";;;;;;;;;
+211;;"freshwater bug";"freshwater bug";FALSE;"about 2 mm long, front half fluorescent blue, back half white, 2 antennae (about 0,2 mm long) on head";;;;;;;;;
+212;;"freshwater whitish whitish plaque";"freshwater whitish plaque";FALSE;"flat plaque, whitish, no movement, diameter about 4 mm, possibly beginning of sponge, or slug/flatworm";;;;;;;;;
+213;;;"freshwater white tube";FALSE;"white, looks like worm tube because of pointy end, about 2,5 mm long, just behind opening there are white antennae/tentacles/whatever growing like a sort of crown, about 1 mm long";;;;;;;;;
+214;;"freshwater pink/red plaque";"freshwater pink/red plaque";FALSE;"pink/red plaque, no movement visible, possibly algae";;;;;;;;;
+215;;"freshwater amphipod bad photograph";"freshwater amphipod bad photograph";FALSE;;;;;;;;;;
+216;;"freshwater blue slug or flatworm with white dots";"freshwater blue slug or flatworm with white dots";FALSE;"about 13 or 14 mm long ending in a point, on freshwater mussel, backside dark blueish, bellyside light brownish, 2 longitudinal rows of about 10 white dots";;;;;;;;;
+217;;"freshwater flatworm, class Turbellaria";"freshwater flatworm, class Turbellaria";FALSE;"about 1,2 cm big, dark transparantish with white unsharp dots inside";;;;;;;;;
+218;;"Roodalg";"CF Callithamnion roseum";FALSE;"Small treelike trunk. Up to 10cm. Fine branches. Red. See Veldgids Flora en fauna van de Zee, Rob Leewis.";;;;;;;;;
+219;;"Groenalg fernlike";"CF Bryopsis spp.";FALSE;"Looks like small fern, up to 5 cm. Olive green. See Guide to seaweeds of britain and ireland, F. Bunker";;;;;;;;;
+220;;"CF roodalg";"CF Roodalg";FALSE;"2,8cm, forks irregularly, renflements, branches close to eachother, picture 5072 bommenede 20-9-11";;;;;;;;;
+221;;"CF codium";"CF codium";FALSE;"Tubular green algea. Large. About 10cm. Seashores and shallow seas.  Picture 4638 bommenede 20/9/11";;;;;;;;;
+222;;"CF kwalpoliep";"CF kwalpoliep";FALSE;"Around 2mm, slit white, rest transparant grey. Picture 5211 bommenede 20/9/11";;;;;;;;;
+223;;"CF naaktslak";"CF slug";FALSE;"Found only eggs, 1-2 mm, crescentmoonshaped";;;;;;;;;
+224;;"CF zee-egel";"CF Echinoidea";FALSE;;;;;;;;;;
+225;;"CF zeepok";"CF Zeepok";FALSE;"Bommenede 20/9/11 5031. Zeepok, cannot count number of plates";;;;;;;;;
+226;;"CF kreeftachtige";"CF crustacea";FALSE;"up to 2mm, white / yellow, no pattern, transparant";;;;;;;;;
+227;;"CF Roodalg";"CF Polysiphonia";FALSE;;;;;;;;;;
+228;;;"CF Groenalg";FALSE;"Small green algea. See 4995, bommenede 20-9-11";;;;;;;;;
