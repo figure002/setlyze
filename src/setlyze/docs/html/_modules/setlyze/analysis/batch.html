@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.analysis.batch &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.analysis.batch &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../../../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
              >modules</a> |</li>
     <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -73,11 +73,13 @@
 <span class="c">#  You should have received a copy of the GNU General Public License</span>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 
-<span class="sd">&quot;&quot;&quot;This module starts analyses in batch mode.</span>
+<span class="sd">&quot;&quot;&quot;Start an analysis in batch mode.</span>
 
-<span class="sd">The selected analysis is repeated for a selection of species. If all species</span>
-<span class="sd">are selected by the user, the analysis is repeated for each species and the</span>
-<span class="sd">results are displayed in a single report.</span>
+<span class="sd">Batch mode for an analysis is started by instantiating its :class:`BeginBatch`</span>
+<span class="sd">class. In batch mode, the selected analysis is repeated for a selection of</span>
+<span class="sd">species. The user can select multiple species and the analysis is repeated for</span>
+<span class="sd">each species separately and the results are displayed in a summary report.</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
@@ -97,24 +99,18 @@
 <span class="n">__maintainer__</span> <span class="o">=</span> <span class="s">&quot;Serrano Pereira&quot;</span>
 <span class="n">__email__</span> <span class="o">=</span> <span class="s">&quot;serrano.pereira@gmail.com&quot;</span>
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
-<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2013/02/24&quot;</span>
+<span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2013/02/12&quot;</span>
 
 <div class="viewcode-block" id="Begin"><a class="viewcode-back" href="../../../setlyze/analysis/batch.html#setlyze.analysis.batch.Begin">[docs]</a><span class="k">class</span> <span class="nc">Begin</span><span class="p">(</span><span class="n">PrepareAnalysis</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Select which analysis to run in batch mode:</span>
+    <span class="sd">&quot;&quot;&quot;Start an analysis in batch mode.</span>
 
-<span class="sd">    1. Let the user select an analysis.</span>
-<span class="sd">    2. Run the analysis in batch mode.</span>
+<span class="sd">    First the user can select which analysis to start, then the analysis is</span>
+<span class="sd">    started in batch mode.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Begin</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="c"># Bind handles to application signals.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_signal_handlers</span><span class="p">()</span>
-        <span class="c"># Display the window for selecting the batch analysis.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">select_batch_analysis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-<div class="viewcode-block" id="Begin.set_signal_handlers"><a class="viewcode-back" href="../../../setlyze/analysis/batch.html#setlyze.analysis.batch.Begin.set_signal_handlers">[docs]</a>    <span class="k">def</span> <span class="nf">set_signal_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Respond to signals emitted by the application.&quot;&quot;&quot;</span>
+        <span class="c"># Set some signal handlers.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">signal_handlers</span> <span class="o">=</span> <span class="p">{</span>
             <span class="c"># Unset signal handlers of this class once an analysis has started.</span>
             <span class="s">&#39;beginning-analysis&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unset_signal_handlers</span><span class="p">),</span>
@@ -123,9 +119,11 @@
             <span class="c"># An analysis was selected.</span>
             <span class="s">&#39;batch-analysis-selected&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;batch-analysis-selected&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_selected</span><span class="p">),</span>
         <span class="p">}</span>
-</div>
+        <span class="c"># Display the window for selecting the batch analysis.</span>
+        <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">select_batch_analysis</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
 <div class="viewcode-block" id="Begin.on_analysis_selected"><a class="viewcode-back" href="../../../setlyze/analysis/batch.html#setlyze.analysis.batch.Begin.on_analysis_selected">[docs]</a>    <span class="k">def</span> <span class="nf">on_analysis_selected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">analysis</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Start the selected analysis in batch mode.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Start the selected analysis `analysis` in batch mode.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">analysis</span> <span class="o">==</span> <span class="s">&#39;spot_preference&#39;</span><span class="p">:</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">analysis</span><span class="o">.</span><span class="n">spot_preference</span><span class="o">.</span><span class="n">BeginBatch</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">analysis</span> <span class="o">==</span> <span class="s">&#39;attraction_intra&#39;</span><span class="p">:</span>
@@ -172,7 +170,7 @@
              >modules</a> |</li>
     <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../../index.html" >Module code</a> &raquo;</li> 
       </ul>

@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>SETLyze Developer Guide &mdash; SETLyze 0.2 documentation</title>
+    <title>SETLyze Developer Guide &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="index.html" />
     <link rel="next" title="SETLyze Design Parts" href="design_parts_index.html" />
     <link rel="prev" title="Use Cases for SETLyze" href="usecases.html" /> 
   </head>
@@ -47,7 +47,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze 0.3 documentation</a> &raquo;</li>
  
       </ul>
     </div>  
@@ -167,21 +167,30 @@ the <em>[source]</em> link on the right side of the description.</p>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="setlyze_modules_analysis.html">Analysis Modules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_inter.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt> &#8212; Analysis 3, Attraction between species</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_inter.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_inter</span></tt> &#8212; Analysis Attraction between Species</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/attraction_inter.html#module-setlyze.analysis.attraction_inter">Module Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_intra.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis 2, Attraction within species</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/attraction_intra.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.attraction_intra</span></tt> &#8212; Analysis Attraction within Species</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/attraction_intra.html#module-setlyze.analysis.attraction_intra">Module Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/batch.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.batch</span></tt> &#8212; Batch mode</a></li>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/common.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.common</span></tt> &#8212; Common code for analysis modules</a></li>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/relations.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.relations</span></tt> &#8212; Analysis 4, Relations between species</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/batch.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.batch</span></tt> &#8212; Batch mode</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/batch.html#module-setlyze.analysis.batch">Module Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/common.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.common</span></tt> &#8212; Shared routines for analysis modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/common.html#module-setlyze.analysis.common">Module Contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/relations.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.relations</span></tt> &#8212; Analysis Relations between Species</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/relations.html#module-setlyze.analysis.relations">Module Contents</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/spot_preference.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.spot_preference</span></tt> &#8212; Analysis 1, Spot preference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="setlyze/analysis/spot_preference.html"><tt class="docutils literal"><span class="pre">setlyze.analysis.spot_preference</span></tt> &#8212; Analysis Spot Preference</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="setlyze/analysis/spot_preference.html#module-setlyze.analysis.spot_preference">Module Contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -260,29 +269,11 @@ keyword name and the value:</p>
 </div>
 <div class="section" id="module-imports">
 <h3>Module Imports<a class="headerlink" href="#module-imports" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">Imports should be done at the top-level of the file, unless there is
+<ul class="simple">
+<li>Imports should be done at the top-level of the file, unless there is
 a strong reason to have them lazily loaded when a particular
 function runs. Import statements have a cost, so try to make sure
-they don&#8217;t run inside hot functions.</p>
-</li>
-<li><p class="first">Preserved namespaces when importing modules, e.g.:</p>
-<p>Correct:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">setlyze.config</span>
-</pre></div>
-</div>
-<p>But avoid this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">setlyze.config</span> <span class="kn">as</span> <span class="nn">config</span>
-</pre></div>
-</div>
-<p>Preserving the namespaces makes it easier for the developers to understand
-where a specific class, method, function or variable originates from.</p>
-<p>We do make one exception:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">sqlite3</span> <span class="kn">import</span> <span class="n">dbapi2</span> <span class="k">as</span> <span class="n">sqlite</span>
-</pre></div>
-</div>
-<p>This is because we want to avoid the use of version numbers in namespaces.</p>
-</li>
+they don&#8217;t run inside hot functions.</li>
 </ul>
 </div>
 <div class="section" id="naming">
@@ -465,7 +456,7 @@ installers for SETLyze.</p>
              >previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze 0.3 documentation</a> &raquo;</li>
  
       </ul>
     </div>

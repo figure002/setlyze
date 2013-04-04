@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.analysis.attraction_inter &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.analysis.attraction_inter &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../../../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../../../index.html" />
     <link rel="up" title="Module code" href="../../index.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
              >modules</a> |</li>
     <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -73,47 +73,18 @@
 <span class="c">#  You should have received a copy of the GNU General Public License</span>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 
-<span class="sd">&quot;&quot;&quot;This module performs analysis 3 &quot;Attraction between species&quot;. This analysis</span>
-<span class="sd">can be broken down in the following steps:</span>
+<span class="sd">&quot;&quot;&quot;This module performs analysis *Attraction between Species*.</span>
 
-<span class="sd">1. Show a list of all localities and let the user perform a localities</span>
-<span class="sd">   selection.</span>
+<span class="sd">This analysis determines whether two different marine species attract or repel</span>
+<span class="sd">each other.</span>
 
-<span class="sd">2. Show a list of all species that match the locations selection and</span>
-<span class="sd">   let the user perform the first species selection.</span>
+<span class="sd">Two statistical tests are performed:</span>
 
-<span class="sd">3. Show a list of all species that match the locations selection and</span>
-<span class="sd">   let the user perform the second species selection.</span>
+<span class="sd">* Chi-squared test for given probabilities</span>
+<span class="sd">* Wilcoxon rank sum test with continuity correction</span>
 
-<span class="sd">4. Get all SETL records that match the localities + first species</span>
-<span class="sd">   selection and save these to table &quot;species_spots_1&quot; in the local</span>
-<span class="sd">   database.</span>
-
-<span class="sd">5. Merge records with the same plate ID in table &quot;species_spots_1&quot; to</span>
-<span class="sd">   make the plate IDs unique.</span>
-
-<span class="sd">6. Get all SETL records that match the localities + second species</span>
-<span class="sd">   selection and save these to table &quot;species_spots_2&quot; in the local</span>
-<span class="sd">   database.</span>
-
-<span class="sd">7. Merge records with the same plate ID in table &quot;species_spots_2&quot; to</span>
-<span class="sd">   make the plate IDs unique.</span>
-
-<span class="sd">8. Calculate the inter-specific spot distances from the records in both</span>
-<span class="sd">   species spots tables and save the distances to table</span>
-<span class="sd">   &quot;spot_distances_observed&quot; in the local database.</span>
-
-<span class="sd">9. Calculate expected inter-specific spot distances by generating</span>
-<span class="sd">   random spots and save the distances to table</span>
-<span class="sd">   &quot;spot_distances_expected&quot; in the local database.</span>
-
-<span class="sd">10. Calculate the significance in difference between the observed and</span>
-<span class="sd">    expected spot distances. Two tests of significance are performed:</span>
-<span class="sd">    the Wilcoxon rank-sum test and the Chi-squared test.</span>
-
-<span class="sd">11. Generate the analysis report.</span>
-
-<span class="sd">12. Show the analysis report to the user.</span>
+<span class="sd">First the analysis is prepared with :class:`Begin`, or with :class:`BeginBatch`</span>
+<span class="sd">in batch mode. Finally the analysis is performed with :class:`Analysis`.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 
@@ -123,9 +94,9 @@
 <span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 
-<span class="kn">import</span> <span class="nn">gobject</span>
+<span class="kn">import</span> <span class="nn">gtk</span>
 
-<span class="kn">from</span> <span class="nn">setlyze.analysis.common</span> <span class="kn">import</span> <span class="n">calculatestar</span><span class="p">,</span><span class="n">ProcessTaskExec</span><span class="p">,</span><span class="n">PrepareAnalysis</span><span class="p">,</span><span class="n">AnalysisWorker</span>
+<span class="kn">from</span> <span class="nn">setlyze.analysis.common</span> <span class="kn">import</span> <span class="n">calculatestar</span><span class="p">,</span><span class="n">ProcessGateway</span><span class="p">,</span><span class="n">PrepareAnalysis</span><span class="p">,</span><span class="n">AnalysisWorker</span>
 <span class="kn">import</span> <span class="nn">setlyze.locale</span>
 <span class="kn">import</span> <span class="nn">setlyze.config</span>
 <span class="kn">import</span> <span class="nn">setlyze.gui</span>
@@ -143,23 +114,23 @@
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2013/02/02&quot;</span>
 
 <span class="c"># The number of progress steps for this analysis.</span>
-<span class="n">PROGRESS_STEPS</span> <span class="o">=</span> <span class="mi">11</span>
+<span class="n">PROGRESS_STEPS</span> <span class="o">=</span> <span class="mi">10</span>
 
 <div class="viewcode-block" id="Begin"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin">[docs]</a><span class="k">class</span> <span class="nc">Begin</span><span class="p">(</span><span class="n">PrepareAnalysis</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make the preparations for analysis 3:</span>
+    <span class="sd">&quot;&quot;&quot;Make the preparations for the analysis.</span>
 
-<span class="sd">    1. Show a list of all localities and let the user perform a localities</span>
-<span class="sd">       selection.</span>
+<span class="sd">    The preparations can be broken down in the following steps:</span>
 
-<span class="sd">    2. Show a list of all species that match the locations selection and</span>
-<span class="sd">       let the user perform the first species selection.</span>
-
-<span class="sd">    3. Show a list of all species that match the locations selection and</span>
-<span class="sd">       let the user perform the second species selection.</span>
-
-<span class="sd">    4. Start the analysis.</span>
-
-<span class="sd">    5. Show the analysis report to the user.</span>
+<span class="sd">        1. Show a list of all locations and let the user select from which</span>
+<span class="sd">           locations to select species.</span>
+<span class="sd">        2. Show a list of all species that match the locations selection and</span>
+<span class="sd">           let the user perform the first species selection. If multiple</span>
+<span class="sd">           species are selected they are treated as a single species.</span>
+<span class="sd">        3. Show a list of all species that match the locations selection and</span>
+<span class="sd">           let the user perform the second species selection. If multiple</span>
+<span class="sd">           species are selected they are treated as a single species.</span>
+<span class="sd">        4. Start the analysis with :class:`Analysis`.</span>
+<span class="sd">        5. Display the results.</span>
 
 <span class="sd">    Design Part: 1.5.1</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -170,10 +141,6 @@
 
         <span class="c"># Bind handles to application signals.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_signal_handlers</span><span class="p">()</span>
-
-        <span class="c"># Reset the settings when an analysis is beginning.</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
 
         <span class="c"># Reset the save slot.</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
@@ -200,91 +167,133 @@
             <span class="s">&#39;report-dialog-closed&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;report-dialog-closed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">),</span>
             <span class="c"># Cancel button pressed.</span>
             <span class="s">&#39;analysis-canceled&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-canceled&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_cancel_button</span><span class="p">),</span>
-            <span class="c"># Progress dialog closed</span>
-            <span class="s">&#39;progress-dialog-closed&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;progress-dialog-closed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_cancel_button</span><span class="p">),</span>
             <span class="c"># The process pool has finished.</span>
             <span class="s">&#39;pool-finished&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;pool-finished&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_display_results</span><span class="p">),</span>
             <span class="c"># There were no results.</span>
             <span class="s">&#39;no-results&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;no-results&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_no_results</span><span class="p">),</span>
+            <span class="c"># Request to repeat the analysis.</span>
+            <span class="s">&#39;repeat-analysis&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;repeat-analysis&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_repeat_analysis</span><span class="p">),</span>
+            <span class="c"># Request to save the individual reports for a batch analysis.</span>
+            <span class="s">&#39;save-individual-reports&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;save-individual-reports&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_save_individual_reports</span><span class="p">),</span>
         <span class="p">}</span>
 </div>
-    <span class="k">def</span> <span class="nf">on_locations_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">save_slot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="c"># Make sure the second slot for the locations selection is the</span>
-        <span class="c"># same as the first slot, as the same selections should be used</span>
-        <span class="c"># for both species selections.</span>
-        <span class="n">selection</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="viewcode-block" id="Begin.on_select_locations"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_select_locations">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the locations selection dialog.</span>
 
-        <span class="c"># Show species selection dialog.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">on_species_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">save_slot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">sender</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">()</span>
-            <span class="k">return</span>
-        <span class="k">elif</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">on_start_analysis</span><span class="p">()</span>
-            <span class="k">return</span>
-
-    <span class="k">def</span> <span class="nf">on_species_back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">save_slot</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_locations</span><span class="p">()</span>
-            <span class="k">return</span>
-        <span class="k">elif</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">sender</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">()</span>
-            <span class="k">return</span>
-
-<div class="viewcode-block" id="Begin.on_select_locations"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_select_locations">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Display the window for selecting the locations.&quot;&quot;&quot;</span>
-
-        <span class="c"># Display the species selection window.</span>
-        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectLocations</span><span class="p">(</span><span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="sd">        The &quot;species-dialog-back&quot; signal provides the save slot `slot`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectLocations</span><span class="p">()</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
-
-        <span class="c"># Change the header text.</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Locations Selection&quot;</span><span class="p">)</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-locations&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;option-change-source&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="Begin.on_select_species"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_select_species">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Display the window for selecting the species.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Begin.on_locations_saved"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_locations_saved">[docs]</a>    <span class="k">def</span> <span class="nf">on_locations_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">selection</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handler for the &quot;locations-selection-saved&quot; signal.</span>
 
-        <span class="c"># Find out to which selection slot this species selection</span>
-        <span class="c"># should be saved.</span>
+<span class="sd">        The &quot;locations-selection-saved&quot; signal provides the locations selection</span>
+<span class="sd">        `selection` and the save slot `slot`.</span>
+
+<span class="sd">        When the locations selection was made it shows the first species</span>
+<span class="sd">        selection dialog.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">selection</span><span class="p">:</span>
+            <span class="c"># Use the same locations selection for both species selections.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">locations_selection</span> <span class="o">=</span> <span class="n">selection</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span> <span class="o">=</span> <span class="p">[</span><span class="n">selection</span><span class="p">,</span><span class="n">selection</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Begin.on_select_species"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_select_species">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Display the species selection dialog.&quot;&quot;&quot;</span>
         <span class="n">save_slot</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">)</span>
-
-        <span class="c"># Display the species selection window.</span>
-        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="n">save_slot</span><span class="p">)</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selection</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>
+            <span class="n">slot</span><span class="o">=</span><span class="n">save_slot</span><span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
-            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
-            <span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">)</span> <span class="o">+</span>
+            <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
+        <span class="p">)</span>
 
-        <span class="c"># Change the header text.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">():</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">():</span>
+            <span class="c"># In batch mode at least two species must be selected.</span>
+            <span class="n">select</span><span class="o">.</span><span class="n">set_selection_minimum</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span>
+                <span class="s">&quot;Please select at least two species from the list.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># In normal mode we have two separate species selections.</span>
             <span class="k">if</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">select</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;First Species Selection&quot;</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">select</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Second Species Selection&quot;</span><span class="p">)</span>
-
-        <span class="c"># This button should not be pressed now, so hide it.</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="Begin.on_start_analysis"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_start_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Start the analysis.&quot;&quot;&quot;</span>
-        <span class="n">locations</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">)</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">)</span>
+<div class="viewcode-block" id="Begin.on_species_back"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_species_back">[docs]</a>    <span class="k">def</span> <span class="nf">on_species_back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handler for the &quot;species-dialog-back&quot; signal.</span>
 
-        <span class="c"># Show a progress dialog.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Performing Analysis&quot;</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-running&#39;</span><span class="p">))</span>
+<span class="sd">        The &quot;species-dialog-back&quot; signal provides the save slot `slot`.</span>
 
-        <span class="c"># Create a progress dialog handler.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="p">)</span>
+<span class="sd">        If the Back button on the first species selection dialog was clicked</span>
+<span class="sd">        (`slot` is set to 0) the locations selection dialog is shown.</span>
+<span class="sd">        If the Back button on the second species selection dialog was clicked</span>
+<span class="sd">        (`slot` is set to 1) the first species selection dialog is shown.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_locations</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">slot</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Begin.on_species_saved"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_species_saved">[docs]</a>    <span class="k">def</span> <span class="nf">on_species_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">slot</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Handler for the &quot;species-selection-saved&quot; signal.</span>
+
+<span class="sd">        The &quot;species-selection-saved&quot; signal provides the species selection</span>
+<span class="sd">        `selection` and the save slot `slot`.</span>
+
+<span class="sd">        If the first species selection was made (`slot` is set to 0) it</span>
+<span class="sd">        shows the second species selection dialog. If the second species</span>
+<span class="sd">        selection was made (`slot` is set to 1) it starts the analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">():</span>
+            <span class="c"># In batch mode we need only one species selection.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_selection</span> <span class="o">=</span> <span class="n">selection</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_selection</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># In normal mode we need two species selections.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span><span class="p">[</span><span class="n">slot</span><span class="p">]</span> <span class="o">=</span> <span class="n">selection</span>
+            <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">sender</span><span class="o">.</span><span class="n">set_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_select_species</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Begin.on_repeat_analysis"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_repeat_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">on_repeat_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Repeat the analysis with modified options.&quot;&quot;&quot;</span>
+        <span class="n">dialog</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">RepeatAnalysis</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="n">gtk</span><span class="o">.</span><span class="n">RESPONSE_OK</span><span class="p">:</span>
+            <span class="c"># Update the analysis options.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_analysis_options</span><span class="p">()</span>
+            <span class="c"># Repeat the analysis.</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_selection</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span><span class="p">)</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Begin.on_start_analysis"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Begin.on_start_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start the analysis.</span>
+
+<span class="sd">        Starts the analysis with the locations selections `locations` and the</span>
+<span class="sd">        species selections `species`. Both must be tuples containing two lists,</span>
+<span class="sd">        each list being a selection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> \
+            <span class="s">&quot;The locations tuple does not contain two items.&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">species</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> \
+            <span class="s">&quot;The species tuple does not contain two items.&quot;</span>
+
+        <span class="c"># Create a progress dialog and a handler.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_progress_dialog</span><span class="p">()</span>
 
         <span class="c"># Set the total number of times we decide to update the progress dialog.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span>
@@ -292,114 +301,64 @@
         <span class="p">)</span>
 
         <span class="c"># Create a progress task executor.</span>
-        <span class="n">exe</span> <span class="o">=</span> <span class="n">ProcessTaskExec</span><span class="p">()</span>
-        <span class="n">exe</span><span class="o">.</span><span class="n">set_pdialog_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="p">)</span>
-        <span class="n">exe</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">gw</span> <span class="o">=</span> <span class="n">ProcessGateway</span><span class="p">()</span>
+        <span class="n">gw</span><span class="o">.</span><span class="n">set_pdialog_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="p">)</span>
+        <span class="n">gw</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="c"># Create a process pool with a single worker.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="c"># Create a list of jobs.</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">Analysis</span><span class="p">,</span> <span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">exe</span><span class="o">.</span><span class="n">queue</span><span class="p">))]</span>
+        <span class="c"># Create a list with the job.</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">[(</span><span class="n">Analysis</span><span class="p">,</span> <span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">gw</span><span class="o">.</span><span class="n">queue</span><span class="p">))]</span>
 
         <span class="c"># Add the job to the pool.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">map_async</span><span class="p">(</span><span class="n">calculatestar</span><span class="p">,</span> <span class="n">jobs</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">on_pool_finished</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="BeginBatch"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch">[docs]</a><span class="k">class</span> <span class="nc">BeginBatch</span><span class="p">(</span><span class="n">Begin</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make the preparations for batch analysis:</span>
+    <span class="sd">&quot;&quot;&quot;Make the preparations for the analysis in batch mode.</span>
 
-<span class="sd">    1. Show a list of all localities and let the user perform a localities</span>
-<span class="sd">       selection.</span>
+<span class="sd">    This class inherits from :class:`Begin`. The preparations can be broken</span>
+<span class="sd">    down in the following steps:</span>
 
-<span class="sd">    2. Show a list of all species that match the locations selection and</span>
-<span class="sd">       let the user perform the first species selection.</span>
-
-<span class="sd">    3. Show a list of all species that match the locations selection and</span>
-<span class="sd">       let the user perform the second species selection.</span>
-
-<span class="sd">    4. Start the analysis.</span>
-
-<span class="sd">    5. Show the analysis report to the user.</span>
+<span class="sd">        1. Show a list of all locations and let the user select from which</span>
+<span class="sd">           locations to select species.</span>
+<span class="sd">        2. Show a list of all species that match the locations selection and</span>
+<span class="sd">           let the user perform the species selection. If multiple</span>
+<span class="sd">           species are selected the analysis will be repeated for each</span>
+<span class="sd">           possible inter species combination of the selected species.</span>
+<span class="sd">        3. Repeat the analysis with :class:`Analysis` for each possible inter</span>
+<span class="sd">           species combination.</span>
+<span class="sd">        4. Obtain the results from all analyses and create a summary report.</span>
+<span class="sd">        5. Display the batch report.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">BeginBatch</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;We are in batch mode&quot;</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">report_prefix</span> <span class="o">=</span> <span class="s">&quot;attraction_inter_&quot;</span>
 
-<div class="viewcode-block" id="BeginBatch.set_signal_handlers"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch.set_signal_handlers">[docs]</a>    <span class="k">def</span> <span class="nf">set_signal_handlers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Respond to signals emitted by the application.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">signal_handlers</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c"># This analysis has just started.</span>
-            <span class="s">&#39;beginning-analysis&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;beginning-analysis&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_select_locations</span><span class="p">),</span>
-            <span class="c"># The user pressed the X button of a locations/species selection window.</span>
-            <span class="s">&#39;selection-dialog-closed&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;selection-dialog-closed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">),</span>
-            <span class="c"># User pressed the Back button in the locations selection window.</span>
-            <span class="s">&#39;locations-dialog-back&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;locations-dialog-back&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">),</span>
-            <span class="c"># User pressed the Back button in the species selection window.</span>
-            <span class="s">&#39;species-dialog-back&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;species-dialog-back&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_select_locations</span><span class="p">),</span>
-            <span class="c"># The user selected locations have been saved.</span>
-            <span class="s">&#39;locations-selection-saved&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;locations-selection-saved&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_locations_saved</span><span class="p">),</span>
-            <span class="c"># The user selected species have been saved.</span>
-            <span class="s">&#39;species-selection-saved&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;species-selection-saved&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_start_analysis</span><span class="p">),</span>
-            <span class="c"># The report window was closed.</span>
-            <span class="s">&#39;report-dialog-closed&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;report-dialog-closed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_analysis_closed</span><span class="p">),</span>
-            <span class="c"># Cancel button pressed.</span>
-            <span class="s">&#39;analysis-canceled&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;analysis-canceled&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_cancel_button</span><span class="p">),</span>
-            <span class="c"># Progress dialog closed</span>
-            <span class="s">&#39;progress-dialog-closed&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;progress-dialog-closed&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_cancel_button</span><span class="p">),</span>
-            <span class="c"># The process pool has finished.</span>
-            <span class="s">&#39;pool-finished&#39;</span><span class="p">:</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">&#39;pool-finished&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">on_display_results</span><span class="p">),</span>
-        <span class="p">}</span>
-</div>
-<div class="viewcode-block" id="BeginBatch.on_select_species"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch.on_select_species">[docs]</a>    <span class="k">def</span> <span class="nf">on_select_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Display the window for selecting the species.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="BeginBatch.on_start_analysis"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch.on_start_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the analysis for all possible inter species combinations.</span>
 
-        <span class="c"># Find out to which selection slot this species selection</span>
-        <span class="c"># should be saved.</span>
-        <span class="n">save_slot</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">get_property</span><span class="p">(</span><span class="s">&#39;save-slot&#39;</span><span class="p">)</span>
-
-        <span class="c"># Display the species selection window.</span>
-        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="n">save_slot</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
-            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c"># At least two species must be selected.</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_selection_minimum</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span>
-            <span class="s">&quot;Please select at least two species from the list.&quot;</span><span class="p">)</span>
-
-        <span class="c"># Change the header text.</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">select</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;First Species Selection&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">save_slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">select</span><span class="o">.</span><span class="n">set_header</span><span class="p">(</span><span class="s">&quot;Second Species Selection&quot;</span><span class="p">)</span>
-
-        <span class="c"># This button should not be pressed now, so hide it.</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
-</div>
-<div class="viewcode-block" id="BeginBatch.on_start_analysis"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch.on_start_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">on_start_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run the analysis in batch mode.</span>
-
-<span class="sd">        Repeat the analysis for each possible combination of two species for</span>
-<span class="sd">        the two species selections.</span>
+<span class="sd">        Creates a pool of worker processes. A job is set for every possible</span>
+<span class="sd">        inter species combination of the species selection. The jobs are then</span>
+<span class="sd">        added to the pool for execution. If multiple workers were created,</span>
+<span class="sd">        analyses will run in parallel. When the results are ready,</span>
+<span class="sd">        :meth:`~setlyze.analysis.common.PrepareAnalysis.on_pool_finished` is</span>
+<span class="sd">        applied to it.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">locations</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">)</span>
-        <span class="n">species</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> \
+            <span class="s">&quot;The locations tuple does not contain two items.&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">species</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">,</span> \
+            <span class="s">&quot;The species tuple has less than two items.&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 
-        <span class="c"># Get all species combinations for the two species selections.</span>
+        <span class="c"># Get all inter species combinations for the species selection.</span>
         <span class="n">species_combos</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
 
-        <span class="c"># Show a progress dialog.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Performing analysis&quot;</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-running&#39;</span><span class="p">))</span>
-
-        <span class="c"># Create a progress dialog handler.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="p">)</span>
+        <span class="c"># Create a progress dialog and a handler.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_progress_dialog</span><span class="p">()</span>
 
         <span class="c"># Set the total number of times we decide to update the progress dialog.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span>
@@ -407,9 +366,9 @@
         <span class="p">)</span>
 
         <span class="c"># Create a progress task executor.</span>
-        <span class="n">exe</span> <span class="o">=</span> <span class="n">ProcessTaskExec</span><span class="p">()</span>
-        <span class="n">exe</span><span class="o">.</span><span class="n">set_pdialog_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="p">)</span>
-        <span class="n">exe</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="n">gw</span> <span class="o">=</span> <span class="n">ProcessGateway</span><span class="p">()</span>
+        <span class="n">gw</span><span class="o">.</span><span class="n">set_pdialog_handler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="p">)</span>
+        <span class="n">gw</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
         <span class="c"># Create a process pool with workers.</span>
         <span class="n">cp</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;concurrent-processes&#39;</span><span class="p">)</span>
@@ -417,13 +376,13 @@
 
         <span class="c"># Create a list of jobs.</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Adding </span><span class="si">%d</span><span class="s"> jobs to the queue&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">species_combos</span><span class="p">))</span>
-        <span class="n">jobs</span> <span class="o">=</span> <span class="p">((</span><span class="n">Analysis</span><span class="p">,</span> <span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">sp_comb</span><span class="p">,</span> <span class="n">exe</span><span class="o">.</span><span class="n">queue</span><span class="p">))</span> <span class="k">for</span> <span class="n">sp_comb</span> <span class="ow">in</span> <span class="n">species_combos</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="p">((</span><span class="n">Analysis</span><span class="p">,</span> <span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="n">sp_comb</span><span class="p">,</span> <span class="n">gw</span><span class="o">.</span><span class="n">queue</span><span class="p">))</span> <span class="k">for</span> <span class="n">sp_comb</span> <span class="ow">in</span> <span class="n">species_combos</span><span class="p">)</span>
 
         <span class="c"># Add the jobs to the pool.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="o">.</span><span class="n">map_async</span><span class="p">(</span><span class="n">calculatestar</span><span class="p">,</span> <span class="n">jobs</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">on_pool_finished</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="BeginBatch.summarize_results"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch.summarize_results">[docs]</a>    <span class="k">def</span> <span class="nf">summarize_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">results</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Join results from multiple analyses to a single report.</span>
+        <span class="sd">&quot;&quot;&quot;Return a summary report from a list of analysis reports `results`.</span>
 
 <span class="sd">        Creates a dictionary in the following format ::</span>
 
@@ -440,7 +399,7 @@
 <span class="sd">                ]</span>
 <span class="sd">            }</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">report</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s">&#39;columns_over&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;..&#39;</span><span class="p">,</span> <span class="s">&#39;Wilcoxon rank sum test&#39;</span><span class="p">,</span> <span class="s">&#39;Chi-squared test&#39;</span><span class="p">),</span>
                 <span class="s">&#39;columns_over_spans&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
@@ -512,24 +471,28 @@
                 <span class="k">if</span> <span class="n">c</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;at&#39;</span><span class="p">,</span><span class="s">&#39;rp&#39;</span><span class="p">):</span>
                     <span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="n">species_a</span><span class="p">,</span> <span class="n">species_b</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="s">&#39;Total plates&#39;</span><span class="p">)]</span>
                     <span class="n">r</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
-                    <span class="n">report</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+                    <span class="n">summary</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
                     <span class="k">break</span>
-
-        <span class="k">return</span> <span class="n">report</span>
-</div>
-<div class="viewcode-block" id="BeginBatch.on_display_results"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch.on_display_results">[docs]</a>    <span class="k">def</span> <span class="nf">on_display_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">[]):</span>
-        <span class="sd">&quot;&quot;&quot;Display the results.&quot;&quot;&quot;</span>
-        <span class="c"># Create a summary from all results.</span>
-        <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summarize_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
         <span class="c"># Create a report object from the dictionary.</span>
         <span class="n">report</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">report</span><span class="o">.</span><span class="n">Report</span><span class="p">()</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;ratio_groups_summary&#39;</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">report</span>
+</div>
+<div class="viewcode-block" id="BeginBatch.on_display_results"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.BeginBatch.on_display_results">[docs]</a>    <span class="k">def</span> <span class="nf">on_display_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">results</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&quot;&quot;&quot;Create a summary report and display it in a report dialog.</span>
+
+<span class="sd">        This method is used as a handler for the &quot;pool-finished&quot; signal.</span>
+<span class="sd">        The batch results `results` are attached to the signal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summarize_results</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 
         <span class="c"># Set analysis options.</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s">&#39;Alpha level&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s">&#39;Repeats&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s">&#39;Statistical tests&#39;</span><span class="p">,</span> <span class="s">&quot;Chi-squared test, Wilcoxon rank sum test&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s">&#39;Running time&#39;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">seconds_to_hms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span><span class="p">))</span>
 
         <span class="c"># Set a definition list for the report.</span>
         <span class="n">definitions</span> <span class="o">=</span> <span class="p">{</span>
@@ -541,81 +504,79 @@
         <span class="p">}</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_definitions</span><span class="p">(</span><span class="n">definitions</span><span class="p">)</span>
 
-        <span class="c"># Set elapsed time.</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span><span class="p">:</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s">&#39;Running time&#39;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">seconds_to_hms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">elapsed_time</span><span class="p">))</span>
-
         <span class="c"># Display the report.</span>
-        <span class="n">w</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">Report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="s">&quot;Results: Batch summary for Attraction between Species&quot;</span><span class="p">)</span>
-        <span class="n">w</span><span class="o">.</span><span class="n">set_size_request</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">Report</span><span class="p">(</span><span class="n">report</span><span class="p">,</span> <span class="s">&quot;Batch report for analysis Attraction between Species&quot;</span><span class="p">)</span>
+        <span class="c"># Enable export of individual reports.</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">w</span><span class="o">.</span><span class="n">toolbutton_save_all</span><span class="o">.</span><span class="n">set_sensitive</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="Analysis"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis">[docs]</a><span class="k">class</span> <span class="nc">Analysis</span><span class="p">(</span><span class="n">AnalysisWorker</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Perform the calculations for analysis 3.</span>
+    <span class="sd">&quot;&quot;&quot;Perform the calculations for the analysis.</span>
 
-<span class="sd">    1. Get all SETL records that match the localities + first species</span>
-<span class="sd">       selection and save these to table &quot;species_spots_1&quot; in the local</span>
-<span class="sd">       database.</span>
+<span class="sd">    Argument `locations` is the locations selection, `species` is the species</span>
+<span class="sd">    selection, and `execute_queue` is an optional</span>
+<span class="sd">    :class:`~setlyze.analysis.common.ProcessGateway` queue.</span>
 
-<span class="sd">    2. Merge records with the same plate ID in table &quot;species_spots_1&quot; to</span>
-<span class="sd">       make the plate IDs unique.</span>
+<span class="sd">    The analysis can be broken down in the following steps:</span>
 
-<span class="sd">    3. Get all SETL records that match the localities + second species</span>
-<span class="sd">       selection and save these to table &quot;species_spots_2&quot; in the local</span>
-<span class="sd">       database.</span>
-
-<span class="sd">    4. Merge records with the same plate ID in table &quot;species_spots_2&quot; to</span>
-<span class="sd">       make the plate IDs unique.</span>
-
-<span class="sd">    5. Calculate the inter-specific spot distances from the records in both</span>
-<span class="sd">       species spots tables and save the distances to table</span>
-<span class="sd">       &quot;spot_distances_observed&quot; in the local database.</span>
-
-<span class="sd">    6. Calculate expected inter-specific spot distances by generating</span>
-<span class="sd">       random spots and save the distances to table</span>
-<span class="sd">       &quot;spot_distances_expected&quot; in the local database.</span>
-
-<span class="sd">    7. Calculate the significance in difference between the observed and</span>
-<span class="sd">       expected spot distances. Two tests of significance are performed:</span>
-<span class="sd">       the Wilcoxon rank-sum test and the Chi-squared test.</span>
-
-<span class="sd">    8. Generate the analysis report.</span>
+<span class="sd">        1. Get all SETL records that match the localities + first species</span>
+<span class="sd">           selection and save these to table &quot;species_spots_1&quot; in the local</span>
+<span class="sd">           database.</span>
+<span class="sd">        2. Merge records with the same plate ID in table &quot;species_spots_1&quot; to</span>
+<span class="sd">           make the plate IDs unique.</span>
+<span class="sd">        3. Get all SETL records that match the localities + second species</span>
+<span class="sd">           selection and save these to table &quot;species_spots_2&quot; in the local</span>
+<span class="sd">           database.</span>
+<span class="sd">        4. Merge records with the same plate ID in table &quot;species_spots_2&quot; to</span>
+<span class="sd">           make the plate IDs unique.</span>
+<span class="sd">        5. Calculate the inter specific spot distances from the records in both</span>
+<span class="sd">           species spots tables and save the distances to table</span>
+<span class="sd">           &quot;spot_distances_observed&quot; in the local database.</span>
+<span class="sd">        6. Calculate expected inter specific spot distances by generating</span>
+<span class="sd">           random spots and save the distances to table</span>
+<span class="sd">           &quot;spot_distances_expected&quot; in the local database.</span>
+<span class="sd">        7. Calculate the significance in difference between the observed and</span>
+<span class="sd">           expected spot distances. Two tests of significance are performed:</span>
+<span class="sd">           the Wilcoxon rank-sum test and the Chi-squared test.</span>
+<span class="sd">        8. Generate the analysis report.</span>
 
 <span class="sd">    Design Part: 1.5.2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations_selections</span><span class="p">,</span> <span class="n">species_selections</span><span class="p">,</span> <span class="n">execute_queue</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">execute_queue</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Analysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">execute_queue</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span> <span class="o">=</span> <span class="n">locations_selections</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span> <span class="o">=</span> <span class="n">species_selections</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span> <span class="o">=</span> <span class="n">locations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span> <span class="o">=</span> <span class="n">species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;results&#39;</span><span class="p">:{}},</span>
             <span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;results&#39;</span><span class="p">:{}},</span>
             <span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;results&#39;</span><span class="p">:{}}</span>
         <span class="p">}</span>
 
-        <span class="c"># Create log message.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
-
 <div class="viewcode-block" id="Analysis.run"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Call the necessary methods for the analysis in the right order:</span>
-<span class="sd">            * For the first species selection:</span>
-<span class="sd">                * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or</span>
-<span class="sd">                  :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`</span>
-<span class="sd">                * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or</span>
-<span class="sd">                  :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`</span>
-<span class="sd">                * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`</span>
-<span class="sd">            * For the second species selection:</span>
-<span class="sd">                * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or</span>
-<span class="sd">                  :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`</span>
-<span class="sd">                * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or</span>
-<span class="sd">                  :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`</span>
-<span class="sd">                * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`</span>
-<span class="sd">            * :meth:`~setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table`</span>
-<span class="sd">            * :meth:`calculate_distances_inter`</span>
-<span class="sd">            * :meth:`repeat_test`</span>
-<span class="sd">            * :meth:`calculate_significance`</span>
-<span class="sd">            * :meth:`generate_report`</span>
+        <span class="sd">&quot;&quot;&quot;Perform the analysis and return the analysis report.</span>
+
+<span class="sd">        Calls the necessary methods for the analysis in the right order</span>
+<span class="sd">        and do some data checks:</span>
+
+<span class="sd">        * For the first species selection:</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or</span>
+<span class="sd">              :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or</span>
+<span class="sd">              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`</span>
+<span class="sd">        * For the second species selection:</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessLocalDB.get_record_ids` or</span>
+<span class="sd">              :meth:`~setlyze.database.AccessRemoteDB.get_record_ids`</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessLocalDB.set_species_spots` or</span>
+<span class="sd">              :meth:`~setlyze.database.AccessRemoteDB.set_species_spots`</span>
+<span class="sd">            * :meth:`~setlyze.database.AccessDBGeneric.make_plates_unique`</span>
+<span class="sd">        * :meth:`~setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table`</span>
+<span class="sd">        * :meth:`calculate_distances_inter`</span>
+<span class="sd">        * :meth:`repeat_wilcoxon_test`</span>
+<span class="sd">        * :meth:`calculate_significance`</span>
+<span class="sd">        * :meth:`generate_report`</span>
 
 <span class="sd">        Design Part: 1.60</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -634,116 +595,86 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span><span class="p">():</span>
             <span class="c"># SELECTION 1</span>
 
-            <span class="c"># Update progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Creating first table with species spots...&quot;</span><span class="p">)</span>
             <span class="c"># Get the record IDs that match the selections.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Creating first table with species spots...&quot;</span><span class="p">)</span>
             <span class="n">rec_ids1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_record_ids</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-            <span class="c"># Update progress dialog.</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Total records that match the first species+locations selection: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec_ids1</span><span class="p">))</span>
 
-            <span class="c"># Create log message.</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Creating first table with species spots...&quot;</span><span class="p">)</span>
             <span class="c"># Make a spots table for both species selections.</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Creating first table with species spots...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_species_spots</span><span class="p">(</span><span class="n">rec_ids1</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-            <span class="c"># Update progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Making plate IDs in species spots table unique...&quot;</span><span class="p">)</span>
-            <span class="c"># Create log message.</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Making plate IDs in species spots table unique...&quot;</span><span class="p">)</span>
-            <span class="c"># Make the plate IDs unique.</span>
+            <span class="c"># Combine records with the same plate ID.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Combining records with the same plate ID...&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Combining records with the same plate ID...&quot;</span><span class="p">)</span>
             <span class="n">n_plates_unique</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">make_plates_unique</span><span class="p">(</span><span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="c"># Create log message.</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">  </span><span class="si">%d</span><span class="s"> records remaining.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n_plates_unique</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span><span class="p">():</span>
             <span class="c"># SELECTION 2</span>
 
-            <span class="c"># Update progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Creating second table with species spots...&quot;</span><span class="p">)</span>
             <span class="c"># Get the record IDs that match the selections.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Creating second table with species spots...&quot;</span><span class="p">)</span>
             <span class="n">rec_ids2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">get_record_ids</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-            <span class="c"># Create log message.</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Total records that match the second species+locations selection: </span><span class="si">%d</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">rec_ids2</span><span class="p">))</span>
 
-            <span class="c"># Create log message.</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Creating second table with species spots...&quot;</span><span class="p">)</span>
             <span class="c"># Make a spots table for both species selections.</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Creating second table with species spots...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">set_species_spots</span><span class="p">(</span><span class="n">rec_ids2</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-            <span class="c"># Update progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Making plate IDs in species spots table unique...&quot;</span><span class="p">)</span>
-            <span class="c"># Create log message.</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Making plate IDs in species spots table unique...&quot;</span><span class="p">)</span>
-            <span class="c"># Make the plate IDs unique.</span>
+            <span class="c"># Combine records with the same plate ID.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Combining records with the same plate ID...&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">Combining records with the same plate ID...&quot;</span><span class="p">)</span>
             <span class="n">n_plates_unique</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">make_plates_unique</span><span class="p">(</span><span class="n">slot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="c"># Create log message.</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t\t</span><span class="s">  </span><span class="si">%d</span><span class="s"> records remaining.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n_plates_unique</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span><span class="p">():</span>
-            <span class="c"># Create log message.</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Saving the positive spot totals for each plate...&quot;</span><span class="p">)</span>
-            <span class="c"># Update progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Saving the positive spot totals for each plate...&quot;</span><span class="p">)</span>
             <span class="c"># Save the positive spot totals for each plate to the database.</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Saving the positive spot totals for each plate...&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Saving the positive spot totals for each plate...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">affected</span><span class="p">,</span> <span class="n">skipped</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">fill_plate_spot_totals_table</span><span class="p">(</span><span class="s">&#39;species_spots_1&#39;</span><span class="p">,</span><span class="s">&#39;species_spots_2&#39;</span><span class="p">)</span>
 
-            <span class="c"># Update progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Calculating the inter-specific distances for the selected species...&quot;</span><span class="p">)</span>
-            <span class="c"># Create log message.</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Calculating the inter-specific distances for the selected species...&quot;</span><span class="p">)</span>
             <span class="c"># Calculate the observed spot distances.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Calculating the inter-specific distances for the selected species...&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Calculating the inter-specific distances for the selected species...&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">calculate_distances_inter</span><span class="p">()</span>
 
-            <span class="c"># Create log message.</span>
+            <span class="c"># Perform the repeats for the Wilcoxon rank sum test. This will</span>
+            <span class="c"># repeatedly calculate the expected totals. The expected values of</span>
+            <span class="c"># the last repeat will be used for the non-repeated Wilcoxon test.</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Performing statistical tests with </span><span class="si">%d</span><span class="s"> repeats...&quot;</span> <span class="o">%</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">)</span>
-            <span class="c"># Update progress dialog.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Performing statistical tests with </span><span class="si">%s</span><span class="s"> repeats...&quot;</span> <span class="o">%</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">)</span>
-            <span class="c"># Perform the repeats for the statistical tests. This will repeatedly</span>
-            <span class="c"># calculate the expected totals, so we&#39;ll use the expected values</span>
-            <span class="c"># of the last repeat for the non-repeated tests.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">repeat_test</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">repeat_wilcoxon_test</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span><span class="p">():</span>
-            <span class="c"># Create log message.</span>
+            <span class="c"># Perform the Chi-squared and Wilcoxon rank sum test (non-repeated).</span>
+            <span class="c"># The expected values for the last repeat is used for this Wilcoxon</span>
+            <span class="c"># test.</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Performing statistical tests...&quot;</span><span class="p">)</span>
-            <span class="c"># Update progress dialog.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Performing statistical tests...&quot;</span><span class="p">)</span>
-            <span class="c"># Performing the statistical tests. The expected values for the last</span>
-            <span class="c"># repeat is used for this test.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">calculate_significance</span><span class="p">()</span>
-
-            <span class="c"># Create log message.</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Generating the analysis report...&quot;</span><span class="p">)</span>
-            <span class="c"># Update progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
 
         <span class="c"># If the cancel button is pressed don&#39;t finish this function.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span><span class="p">():</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Analysis aborted by user&quot;</span><span class="p">)</span>
-
-            <span class="c"># Exit gracefully.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_exit</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">None</span>
 
-        <span class="c"># Update progress dialog.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
         <span class="c"># Generate the report.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\t</span><span class="s">Generating the analysis report...&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;Generating the analysis report...&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
 
         <span class="c"># Update progress dialog.</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
 
-        <span class="c"># Emit the signal that the analysis has finished.</span>
-        <span class="c"># Note that the signal will be sent from a separate thread,</span>
-        <span class="c"># so we must use gobject.idle_add.</span>
-        <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;analysis-finished&#39;</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">))</span>
-
-        <span class="c"># Exit gracefully.</span>
+        <span class="c"># Run finalizers.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">on_exit</span><span class="p">()</span>
 
+        <span class="c"># Return the result.</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">result</span>
 </div>
 <div class="viewcode-block" id="Analysis.generate_spot_ratio_groups"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.generate_spot_ratio_groups">[docs]</a>    <span class="k">def</span> <span class="nf">generate_spot_ratio_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -774,19 +705,19 @@
         <span class="k">yield</span> <span class="n">all_ratios</span>
 </div>
 <div class="viewcode-block" id="Analysis.calculate_distances_inter"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_distances_inter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate the inter-specific spot distances for each plate</span>
-<span class="sd">        and save the distances to table &quot;spot_distances_observed&quot; in</span>
-<span class="sd">        the local database.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the inter specific spot distances.</span>
+
+<span class="sd">        This is done for each plate in the species_spots tables and the</span>
+<span class="sd">        distances are saved to the &quot;spot_distances_observed&quot; table in the local</span>
+<span class="sd">        database.</span>
 
 <span class="sd">        Design Part: 1.27</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Make a connection with the local database.</span>
         <span class="n">connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">conn</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">cursor2</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
-        <span class="c"># Empty the spot_distances_observed table before we use it</span>
-        <span class="c"># again.</span>
+        <span class="c"># Empty the spot_distances_observed table before we use it again.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;DELETE FROM spot_distances_observed&quot;</span><span class="p">)</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
@@ -839,43 +770,40 @@
 
         <span class="c"># Commit the transaction.</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
-        <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">cursor2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Analysis.calculate_distances_inter_expected"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.calculate_distances_inter_expected">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_distances_inter_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Calculate the expected distances based on the observed</span>
-<span class="sd">        inter-specific distances and save these to table</span>
-<span class="sd">        &quot;spot_distances_expected&quot; in the local database.</span>
+        <span class="sd">&quot;&quot;&quot;Calculate the expected spot distances.</span>
+
+<span class="sd">        This is based on the observed inter specific distances and the</span>
+<span class="sd">        distances are saved to the &quot;spot_distances_expected&quot; table in the local</span>
+<span class="sd">        database.</span>
 
 <span class="sd">        Design Part: 1.69</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Make a connection with the local database.</span>
         <span class="n">connection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">conn</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">cursor2</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
-        <span class="c"># Empty the spot_distances_expected table before we use it</span>
-        <span class="c"># again.</span>
+        <span class="c"># Empty the spot_distances_expected table before we use it again.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;DELETE FROM spot_distances_expected&quot;</span><span class="p">)</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
-        <span class="c"># Get the number of positive spots for each plate. This</span>
-        <span class="c"># will serve as a template for the random spots.</span>
+        <span class="c"># Get the number of positive spots for each plate. This will serve</span>
+        <span class="c"># as a template for the random spots.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT pla_id, n_spots_a, n_spots_b &quot;</span>
                         <span class="s">&quot;FROM plate_spot_totals&quot;</span>
                         <span class="p">)</span>
 
         <span class="k">for</span> <span class="n">plate_id</span><span class="p">,</span> <span class="n">n_spots_a</span><span class="p">,</span> <span class="n">n_spots_b</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span>
-            <span class="c"># Use that number of spots to generate the same number of</span>
-            <span class="c"># random positive spots for both records.</span>
+            <span class="c"># Use that number of spots to generate the same number of random</span>
+            <span class="c"># positive spots for both records.</span>
             <span class="n">random_spots1</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_random_for_plate</span><span class="p">(</span><span class="n">n_spots_a</span><span class="p">)</span>
             <span class="n">random_spots2</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">get_random_for_plate</span><span class="p">(</span><span class="n">n_spots_b</span><span class="p">)</span>
 
-            <span class="c"># Get all possible combinations between the two sets of</span>
-            <span class="c"># random spots.</span>
+            <span class="c"># Get all possible combinations between the two sets of random</span>
+            <span class="c"># spots.</span>
             <span class="n">combos</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">random_spots1</span><span class="p">,</span><span class="n">random_spots2</span><span class="p">)</span>
 
             <span class="c"># Get all spot combination pairs.</span>
@@ -898,33 +826,35 @@
 
         <span class="c"># Commit the transaction.</span>
         <span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
-        <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">cursor2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Analysis.calculate_significance"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.calculate_significance">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_significance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform statistical tests to check if the differences between</span>
-<span class="sd">        the means of the two sets of distances are statistically</span>
-<span class="sd">        significant.</span>
+        <span class="sd">&quot;&quot;&quot;Perform statistical tests to check for significant differences.</span>
+
+<span class="sd">        The differences between the observed and expected spot distances are</span>
+<span class="sd">        checked.</span>
 
 <span class="sd">        We perform two statistical tests:</span>
 
-<span class="sd">        1. The unpaired Wilcoxon rank sum test. We use unpaired</span>
-<span class="sd">           because the two sets of distances are unrelated</span>
-<span class="sd">           (:ref:`Dalgaard &lt;ref-dalgaard&gt;`). In other words,</span>
-<span class="sd">           a distance n in &#39;observed&#39; is unrelated to distance n in</span>
-<span class="sd">           &#39;expected&#39; (where n is an item number in the lists).</span>
+<span class="sd">        1. The unpaired Wilcoxon rank sum test. We use unpaired because the two</span>
+<span class="sd">           sets of distances are unrelated (:ref:`Dalgaard &lt;ref-dalgaard&gt;`). In</span>
+<span class="sd">           other words, a distance n in &#39;observed&#39; is unrelated to distance n</span>
+<span class="sd">           in &#39;expected&#39; (where n is an item number in the lists).</span>
 
 <span class="sd">        2. The Chi-squared test for given probabilities</span>
-<span class="sd">           (:ref:`Millar &lt;ref-dalgaard&gt;`,</span>
-<span class="sd">           :ref:`Dalgaard &lt;ref-millar&gt;`). The probabilities</span>
-<span class="sd">           for all spot distances have been pre-calcualted. So the</span>
-<span class="sd">           observed probabilities are compared with the pre-calculated</span>
+<span class="sd">           (:ref:`Millar &lt;ref-dalgaard&gt;`, :ref:`Dalgaard &lt;ref-millar&gt;`). The</span>
+<span class="sd">           probabilities for all spot distances have been pre-calcualted. So</span>
+<span class="sd">           the observed probabilities are compared with the pre-calculated</span>
 <span class="sd">           probabilities.</span>
 
-<span class="sd">        Based on the results of the tests we can decide which</span>
-<span class="sd">        hypothesis we can assume to be true.</span>
+<span class="sd">           For the Chi-squared test the expected frequencies should not be</span>
+<span class="sd">           less than 5 (:ref:`Buijs &lt;ref-buijs&gt;`). If we find an expected</span>
+<span class="sd">           frequency that is less than 5, the result for this test is not</span>
+<span class="sd">           saved.</span>
+
+<span class="sd">        Based on the results of the tests we can decide which hypothesis</span>
+<span class="sd">        we can assume to be true.</span>
 
 <span class="sd">        Null hypothesis</span>
 <span class="sd">            The species in question doesn&#39;t attract or repel itself.</span>
@@ -1010,7 +940,7 @@
             <span class="n">mean_expected</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
 
             <span class="c"># Perform two sample Wilcoxon tests.</span>
-            <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
+            <span class="n">test_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
                 <span class="n">alternative</span> <span class="o">=</span> <span class="s">&quot;two.sided&quot;</span><span class="p">,</span> <span class="n">paired</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
                 <span class="n">conf_level</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
                 <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
@@ -1018,8 +948,8 @@
             <span class="c"># Save the significance result.</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">][</span><span class="s">&#39;attr&#39;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">][</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
+                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
+                    <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
                     <span class="s">&#39;conf_level&#39;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
                     <span class="s">&#39;paired&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
                     <span class="s">&#39;repeats&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_repeats</span><span class="p">,</span>
@@ -1028,8 +958,8 @@
 
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">][</span><span class="s">&#39;attr&#39;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">][</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
-                    <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
+                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
+                    <span class="s">&#39;alternative&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;alternative&#39;</span><span class="p">],</span>
                     <span class="s">&#39;conf_level&#39;</span><span class="p">:</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
                     <span class="s">&#39;paired&#39;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span>
                     <span class="s">&#39;groups&#39;</span><span class="p">:</span> <span class="s">&#39;ratios&#39;</span><span class="p">,</span>
@@ -1038,11 +968,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="n">n_group</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;n_plates&#39;</span><span class="p">:</span> <span class="n">n_plates</span><span class="p">,</span>
                 <span class="s">&#39;n_values&#39;</span><span class="p">:</span> <span class="n">count_observed</span><span class="p">,</span>
-                <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
+                <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
                 <span class="s">&#39;mean_observed&#39;</span><span class="p">:</span> <span class="n">mean_observed</span><span class="p">,</span>
                 <span class="s">&#39;mean_expected&#39;</span><span class="p">:</span> <span class="n">mean_expected</span><span class="p">,</span>
-                <span class="c">#&#39;conf_int_start&#39;: sig_result[&#39;conf.int&#39;][0],</span>
-                <span class="c">#&#39;conf_int_end&#39;: sig_result[&#39;conf.int&#39;][1],</span>
             <span class="p">}</span>
 
             <span class="c"># Get the probability for each spot distance. Required for</span>
@@ -1054,47 +982,73 @@
             <span class="n">observed_freq</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">distance_frequency</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="s">&#39;inter&#39;</span><span class="p">)</span>
 
             <span class="c"># Also perform Chi-squared test.</span>
-            <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">chisq_test</span><span class="p">(</span><span class="n">observed_freq</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
+            <span class="n">test_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">chisq_test</span><span class="p">(</span><span class="n">observed_freq</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span>
                 <span class="n">p</span> <span class="o">=</span> <span class="n">spot_dist_to_prob</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 
-            <span class="c"># For the Chi^2 test the expected frequencies should not be less than</span>
-            <span class="c"># 5. If we find an expected frequency that is less than 5, do not save</span>
-            <span class="c"># the result. (:ref:`Buijs &lt;ref-buijs&gt;`)</span>
-            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;expected&#39;</span><span class="p">]:</span>
+            <span class="c"># If we find an expected frequency that is less than 5, do not save</span>
+            <span class="c"># the result.</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;expected&#39;</span><span class="p">]:</span>
                 <span class="k">if</span> <span class="n">f</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">:</span>
                     <span class="k">continue</span>
 
             <span class="c"># Save the significance result.</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">][</span><span class="s">&#39;attr&#39;</span><span class="p">]:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">][</span><span class="s">&#39;attr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
+                    <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;method&#39;</span><span class="p">],</span>
                     <span class="s">&#39;groups&#39;</span><span class="p">:</span> <span class="s">&#39;ratios&#39;</span><span class="p">,</span>
                 <span class="p">}</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="n">n_group</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s">&#39;n_plates&#39;</span><span class="p">:</span> <span class="n">n_plates</span><span class="p">,</span>
                 <span class="s">&#39;n_values&#39;</span><span class="p">:</span> <span class="n">count_observed</span><span class="p">,</span>
-                <span class="s">&#39;chi_squared&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;statistic&#39;</span><span class="p">][</span><span class="s">&#39;X-squared&#39;</span><span class="p">],</span>
-                <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
-                <span class="s">&#39;df&#39;</span><span class="p">:</span> <span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;parameter&#39;</span><span class="p">][</span><span class="s">&#39;df&#39;</span><span class="p">],</span>
+                <span class="s">&#39;chi_squared&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;statistic&#39;</span><span class="p">][</span><span class="s">&#39;X-squared&#39;</span><span class="p">],</span>
+                <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span>
+                <span class="s">&#39;df&#39;</span><span class="p">:</span> <span class="n">test_result</span><span class="p">[</span><span class="s">&#39;parameter&#39;</span><span class="p">][</span><span class="s">&#39;df&#39;</span><span class="p">],</span>
                 <span class="s">&#39;mean_observed&#39;</span><span class="p">:</span> <span class="n">mean_observed</span><span class="p">,</span>
                 <span class="s">&#39;mean_expected&#39;</span><span class="p">:</span> <span class="n">mean_expected</span><span class="p">,</span>
             <span class="p">}</span>
 </div>
-<div class="viewcode-block" id="Analysis.calculate_significance_for_repeats"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.calculate_significance_for_repeats">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_significance_for_repeats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method does the same Wilcoxon test from :meth:`calculate_significance`,</span>
-<span class="sd">        but instead is designed to be called repeatedly, saving the results</span>
+<div class="viewcode-block" id="Analysis.repeat_wilcoxon_test"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.repeat_wilcoxon_test">[docs]</a>    <span class="k">def</span> <span class="nf">repeat_wilcoxon_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Repeat the Wilcoxon rank sum test `n` times.</span>
+
+<span class="sd">        The significance test is performed by</span>
+<span class="sd">        :meth:`wilcoxon_test_for_repeats`.</span>
+
+<span class="sd">        Each time before :meth:`wilcoxon_test_for_repeats` is called,</span>
+<span class="sd">        :meth:`calculate_distances_inter_expected` is called to re-calculate</span>
+<span class="sd">        the expected values (which are random).</span>
+
+<span class="sd">        Design Part: 1.105</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span><span class="p">():</span>
+                <span class="k">return</span>
+
+            <span class="c"># Update the progess bar.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">)</span>
+
+            <span class="c"># The expected spot distances are random. So the expected values</span>
+            <span class="c"># differ a little on each repeat.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_distances_inter_expected</span><span class="p">()</span>
+
+            <span class="c"># And then we calculate the siginificance for each repeat.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wilcoxon_test_for_repeats</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Analysis.wilcoxon_test_for_repeats"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.wilcoxon_test_for_repeats">[docs]</a>    <span class="k">def</span> <span class="nf">wilcoxon_test_for_repeats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform the Wilcoxon rank sum test for repeats.</span>
+
+<span class="sd">        This method does the same Wilcoxon test from :meth:`calculate_significance`,</span>
+<span class="sd">        but it is designed to be called repeatedly, saving the results</span>
 <span class="sd">        of the repeated test. This method doesn&#39;t save the detailed</span>
 <span class="sd">        results of the Wilcoxon test, but just saves whether the p-value</span>
 <span class="sd">        was significant, and whether it was attraction or repulsion for the</span>
 <span class="sd">        different numbers of positive spots.</span>
 
-<span class="sd">        Repeation of the Wilcoxon test is necessary, as the expected values</span>
-<span class="sd">        are calculated randomly. The test needs to be repeated many times</span>
-<span class="sd">        if you want to draw a solid conclusion from the results.</span>
+<span class="sd">        Repeation of the Wilcoxon test is necessary because the expected values</span>
+<span class="sd">        are calculated randomly. The test needs to be repeated many times if</span>
+<span class="sd">        you want to draw a solid conclusion from the test.</span>
 
-<span class="sd">        The number of times this method is called depends on the configuration</span>
-<span class="sd">        setting &quot;test-repeats&quot;.</span>
+<span class="sd">        This method will be put in a loop by :meth:`repeat_wilcoxon_test`.</span>
 
 <span class="sd">        Design Part: 1.104</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1150,14 +1104,14 @@
             <span class="n">mean_expected</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">expected</span><span class="p">)</span>
 
             <span class="c"># Perform two sample Wilcoxon tests.</span>
-            <span class="n">sig_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
+            <span class="n">test_result</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">wilcox_test</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">expected</span><span class="p">,</span>
                 <span class="n">alternative</span> <span class="o">=</span> <span class="s">&quot;two.sided&quot;</span><span class="p">,</span> <span class="n">paired</span> <span class="o">=</span> <span class="bp">False</span><span class="p">,</span>
                 <span class="n">conf_level</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
                 <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
 
             <span class="c"># Save basic results for this repeated test.</span>
             <span class="c"># Check if the result was significant (P-value &lt; alpha-level).</span>
-            <span class="n">p_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">sig_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">])</span>
+            <span class="n">p_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">test_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">])</span>
             <span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p_value</span><span class="p">):</span>
                 <span class="c"># If so, increase significant counter with one.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="n">n_group</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
@@ -1171,30 +1125,6 @@
                     <span class="c"># Increase repulsion counter with one.</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="n">n_group</span><span class="p">][</span><span class="s">&#39;n_repulsion&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 </div>
-<div class="viewcode-block" id="Analysis.repeat_test"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.repeat_test">[docs]</a>    <span class="k">def</span> <span class="nf">repeat_test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Repeats the siginificance test `number` times. The significance</span>
-<span class="sd">        test is performed by :meth:`calculate_significance_for_repeats`.</span>
-
-<span class="sd">        Each time before :meth:`calculate_significance_for_repeats` is called,</span>
-<span class="sd">        :meth:`calculate_distances_inter_expected` is called to re-calculate the</span>
-<span class="sd">        expected values (which are random).</span>
-
-<span class="sd">        Design Part: 1.105</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stopped</span><span class="p">():</span>
-                <span class="k">return</span>
-
-            <span class="c"># Update the progess bar.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">)</span>
-
-            <span class="c"># The expected spot distances are random. So the expected values</span>
-            <span class="c"># differ a little on each repeat.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_distances_inter_expected</span><span class="p">()</span>
-
-            <span class="c"># And then we calculate the siginificance for each repeat.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">calculate_significance_for_repeats</span><span class="p">()</span>
-</div>
 <div class="viewcode-block" id="Analysis.generate_report"><a class="viewcode-back" href="../../../setlyze/analysis/attraction_inter.html#setlyze.analysis.attraction_inter.Analysis.generate_report">[docs]</a>    <span class="k">def</span> <span class="nf">generate_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate the analysis report.</span>
 
@@ -1206,8 +1136,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s">&#39;Total plates&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">affected</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_location_selections</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selections</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_species_selections</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">species_selections</span><span class="p">)</span>
-        <span class="c">#self.result.set_spot_distances_observed()</span>
-        <span class="c">#self.result.set_spot_distances_expected()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_ratios_repeats&#39;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">set_statistics</span><span class="p">(</span><span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;chi_squared_ratios&#39;</span><span class="p">])</span></div></div>
@@ -1249,7 +1177,7 @@
              >modules</a> |</li>
     <li><a href="../../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../../index.html" >Module code</a> &raquo;</li> 
       </ul>

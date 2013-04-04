@@ -187,25 +187,6 @@ Module Imports
   function runs. Import statements have a cost, so try to make sure
   they don't run inside hot functions.
 
-* Preserved namespaces when importing modules, e.g.:
-
-  Correct: ::
-
-    import setlyze.config
-
-  But avoid this: ::
-
-    import setlyze.config as config
-
-  Preserving the namespaces makes it easier for the developers to understand
-  where a specific class, method, function or variable originates from.
-
-  We do make one exception: ::
-
-    from sqlite3 import dbapi2 as sqlite
-
-  This is because we want to avoid the use of version numbers in namespaces.
-
 Naming
 ======
 

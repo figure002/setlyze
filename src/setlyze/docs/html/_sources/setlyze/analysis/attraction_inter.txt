@@ -1,6 +1,6 @@
-===================================================================================
-:mod:`setlyze.analysis.attraction_inter` --- Analysis 3, Attraction between species
-===================================================================================
+================================================================================
+:mod:`setlyze.analysis.attraction_inter` --- Analysis Attraction between Species
+================================================================================
 
 :Author: Serrano Pereira, Adam van Adrichem, Fedde Schaeffer
 :Release: |release|

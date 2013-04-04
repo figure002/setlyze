@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.database &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.database &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -1628,29 +1628,23 @@
 <span class="s">            area_d INTEGER </span><span class="se">\</span>
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="AccessLocalDB.get_species"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.get_species">[docs]</a>    <span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc_slot</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="AccessLocalDB.get_species"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.get_species">[docs]</a>    <span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a list of species tuples in the format ``(spe_id,</span>
 <span class="sd">        &#39;spe_name_venacular&#39;, &#39;spe_name_latin&#39;)`` from the local</span>
 <span class="sd">        database that match the localities selection.</span>
 
-<span class="sd">        The values for `loc_slot` are ``0`` for the first localities</span>
-<span class="sd">        selection and ``1`` for the second localities selection.</span>
+<span class="sd">        Only species matching a list of location IDs `locations` will be</span>
+<span class="sd">        returned.</span>
 
 <span class="sd">        Design Part: 1.96</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Get one of the location selections.</span>
-        <span class="n">locations_selection</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="n">loc_slot</span><span class="p">)</span>
-
-        <span class="c"># Connect to the local database.</span>
-
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
         <span class="c"># Select all plate IDs from plates that are from the selected</span>
         <span class="c"># locations.</span>
-        <span class="n">placeholders</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;?&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations_selection</span><span class="p">))</span>
+        <span class="n">placeholders</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;?&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">locations</span><span class="p">))</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT pla_id FROM plates WHERE pla_loc_id IN (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span>
-            <span class="p">(</span><span class="n">placeholders</span><span class="p">),</span> <span class="n">locations_selection</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">placeholders</span><span class="p">),</span> <span class="n">locations</span><span class="p">)</span>
         <span class="c"># Construct a list with the IDs</span>
         <span class="n">pla_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">]</span>
         <span class="c"># Remove duplicates.</span>
@@ -1869,7 +1863,7 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>

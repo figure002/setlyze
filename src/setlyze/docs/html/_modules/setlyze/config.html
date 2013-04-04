@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.config &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.config &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" /> 
   </head>
   <body>
@@ -40,7 +40,7 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
@@ -83,14 +83,8 @@
 
 <span class="sd">    &gt;&gt;&gt; import setlyze.config</span>
 <span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;alpha-level&#39;, 0.01)</span>
-<span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;species-selection&#39;, [11, 12, 13, 14], slot=0)</span>
-<span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;species-selection&#39;, [15, 16, 17], slot=1)</span>
 <span class="sd">    &gt;&gt;&gt; print &quot;The alpha level for the t-test and Wilcoxon test is set to&quot;, setlyze.config.cfg.get(&#39;alpha-level&#39;)</span>
 <span class="sd">    The alpha level for the t-test and Wilcoxon test is set to 0.01</span>
-<span class="sd">    &gt;&gt;&gt; print &quot;The first species selection is&quot;, setlyze.config.cfg.get(&#39;species-selection&#39;, slot=0)</span>
-<span class="sd">    The first species selection is [11, 12, 13, 14]</span>
-<span class="sd">    &gt;&gt;&gt; print &quot;The second species selection is&quot;, setlyze.config.cfg.get(&#39;species-selection&#39;, slot=1)</span>
-<span class="sd">    The second species selection is [15, 16, 17]</span>
 
 <span class="sd">Importing this module in a different module gives access to the same</span>
 <span class="sd">``cfg`` object, and thus its variables can be obtained or manipulated</span>
@@ -185,12 +179,6 @@
     <span class="p">(</span><span class="s">&#39;data-path&#39;</span><span class="p">,</span> <span class="n">DATA_PATH</span><span class="p">),</span>
     <span class="c"># Absolute path to the local database file.</span>
     <span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">,</span> <span class="n">DB_FILE</span><span class="p">),</span>
-    <span class="c"># Location selections.</span>
-    <span class="c"># Design Part: 2.6</span>
-    <span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">]),</span>
-    <span class="c"># Species selections.</span>
-    <span class="c"># Design Part: 2.7</span>
-    <span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">]),</span>
     <span class="c"># Path to localities CSV or XLS file.</span>
     <span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
     <span class="c"># Path to species CSV or XLS file.</span>
@@ -199,15 +187,6 @@
     <span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
     <span class="c"># Path to plates CSV or XLS file.</span>
     <span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Plate areas definition for analysis 1</span>
-    <span class="c"># Design Part: 2.24</span>
-    <span class="p">(</span><span class="s">&#39;plate-areas-definition&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Progress dialog.</span>
-    <span class="p">(</span><span class="s">&#39;progress-dialog&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Analysis report.</span>
-    <span class="p">(</span><span class="s">&#39;analysis-report&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Alpha level for normality tests.</span>
-    <span class="p">(</span><span class="s">&#39;alpha-level-normality&#39;</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
     <span class="c"># Alpha level for significance tests. The confidence level is calculated</span>
     <span class="c"># with &quot;1 - alpha-level&quot;.</span>
     <span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
@@ -379,10 +358,9 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
-<span class="c"># Create an instance of ConfigManager. This instance is only created</span>
-<span class="c"># once, upon the first import. Subsequent imports will use the first</span>
-<span class="c"># instance (so it seems). So this instance is accessible between all</span>
-<span class="c"># modules.</span></div></div>
+<span class="c"># Create an instance of ConfigManager. This instance is only created once,</span>
+<span class="c"># upon the first import. Subsequent imports of this module will use the</span>
+<span class="c"># same instance. So this instance is accessible between all modules.</span></div></div>
 <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigManager</span><span class="p">()</span>
 </pre></div>
 
@@ -422,7 +400,7 @@
              >modules</a> |</li>
     <li><a href="../../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../index.html" >Module code</a> &raquo;</li> 
       </ul>

@@ -1,31 +1,30 @@
 # SETLyze 0.3
 
-The purpose of SETLyze is to provide the people involved with the SETL-project
+The purpose of SETLyze is to provide the people involved with the SETL project
 an easy and fast way of getting useful information from the data stored in the
 SETL database. The SETL database at GiMaRIS contains data about the settlement
 of species in Dutch waters. SETLyze helps provide more insight in a set of
-biological questions by analyzing this data. SETLyze is capable of performing
-the following set of analyses:
+biological questions by analyzing this data. SETLyze can perform the following
+set of analyses:
 
 **Spot Preference**
-Determine a species’ preference for a specific location on a SETL plate.
-Species can be combined so that they are treated as a single species.
+  Determine a species' preference for a specific location on a SETL plate.
+  Species can be combined so that they are treated as a single species.
 
 **Attraction within Species**
-Determine if a species attracts or repels individuals of its own kind.
-Species can be combined so that they are treated as a single species.
+  Determine if a species attracts or repels individuals of its own kind.
+  Species can be combined so that they are treated as a single species.
 
 **Attraction between Species**
-Determine if two different species attract or repel each other. Species
-can be combined so that they are treated as a single species.
+  Determine if two different species attract or repel each other. Species
+  can be combined so that they are treated as a single species.
 
-The following analysis will be implemented in the next version:
+Additionally, any of the above analyses can be performed in batch mode, meaning
+that the analysis is repeated for each species of a species selection. Thus
+an analysis can be easily performed on an entire data set without intervention.
+Batch mode for analyses are parallelized so that the computing power of a
+computer is optimally used.
 
-**Relation between Species**
-Determine if there is a relation between two species on SETL-plates in a
-specific location. Plates per location are compared. Also instead of
-looking at different plate surfaces, only the presence or absence of a
-species on a plate is taken into account.
 
 ## Documentation
 

@@ -45,8 +45,8 @@ First step was to calculate the probabilities for the spot distances on a
 SETL-plate. A Python script was written to calculate the probabilities for
 all possible spot distances on a single SETL-plate. This was done for both
 intra-specific and inter-specific spot distances. The results were then loaded
-into R and visualised in a histogram (see :ref:`figure 13 <fig_distance_distribution_intra>`
-and :ref:`14 <fig_distance_distribution_inter>`).
+into R and visualised in a histogram (see :ref:`fig_distance_distribution_intra`
+and :ref:`fig_distance_distribution_inter`).
 
 .. _fig_distance_distribution_intra:
 
@@ -55,12 +55,13 @@ and :ref:`14 <fig_distance_distribution_inter>`).
    :alt: Distribution for intra-specific spot distances
    :align: center
 
-   Figure 13. Distribution for intra-specific spot distances. The
-   frequencies were obtained by calculating all possible distances
-   between two spots if all 25 spots are covered.
-   The same test was done with different numbers of positive spots
-   randomly placed on a plate with 100.000 repeats. All
-   resulting distributions are very similar to this figure.
+   Distribution for intra-specific spot distances
+
+The frequencies were obtained by calculating all possible distances
+between two spots if all 25 spots are covered.
+The same test was done with different numbers of positive spots
+randomly placed on a plate with 100.000 repeats. All
+resulting distributions are very similar to this figure.
 
 
 .. _fig_distance_distribution_inter:
@@ -70,12 +71,13 @@ and :ref:`14 <fig_distance_distribution_inter>`).
    :alt: Distribution for inter-specific spot distances
    :align: center
 
-   Figure 14. Distribution for inter-specific spot distances. The
-   frequencies were obtained by calculating all possible distances
-   between two spots with ratio 25:25 (species A and B have all 25 spots
-   covered). The same test was done with different positive spots
-   ratios (spots randomly placed on a plate, 100.000 repeats). All
-   resulting distributions are very similar to this figure.
+   Distribution for inter-specific spot distances
+
+The frequencies were obtained by calculating all possible distances
+between two spots with ratio 25:25 (species A and B have all 25 spots
+covered). The same test was done with different positive spots
+ratios (spots randomly placed on a plate, 100.000 repeats). All
+resulting distributions are very similar to this figure.
 
 The histograms show that there is a tendency towards a normal distrubution, but
 this is obstructed because of the limited number of possible spot distances.

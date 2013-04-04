@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>setlyze.config — Configuration manager &mdash; SETLyze 0.2 documentation</title>
+    <title>setlyze.config — Configuration manager &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="../index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="../index.html" />
     <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
     <link rel="next" title="setlyze.database — Database access" href="database.html" />
     <link rel="prev" title="SETLyze Standard Modules" href="../setlyze_modules.html" /> 
@@ -48,7 +48,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
@@ -68,96 +68,67 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira, Adam van Adrichem, Fedde Schaeffer</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.2</td>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.3</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 08, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 22, 2013</td>
 </tr>
 </tbody>
 </table>
 <div class="section" id="module-setlyze.config">
 <span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.config" title="Permalink to this headline">¶</a></h2>
-<p>This modules provides application-wide access to SETLyze&#8217;s
-configuration and data variables.</p>
-<p>This module provides an object <tt class="docutils literal"><span class="pre">cfg</span></tt> for handling a fixed set of
-configuration and data variables for SETLyze. The big advantage is that
-this makes the variables available across all modules. Here is a small
-usage example,</p>
+<p>This modules provides application-wide access to SETLyze&#8217;s configuration
+variables.</p>
+<p>This module provides an object <em>cfg</em> for handling a fixed set of configuration
+variables for SETLyze. The big advantage is that this makes the variables
+available across all modules. Here is a small usage example,</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">setlyze.config</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">],</span> <span class="n">slot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;The alpha level for the t-test and Wilcoxon test is set to&quot;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span>
-<span class="go">The alpha level for the t-test and Wilcoxon test is set to 0.01</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;The first species selection is&quot;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">The first species selection is [11, 12, 13, 14]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;The second species selection is&quot;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-selection&#39;</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="go">The second species selection is [15, 16, 17]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="s">&quot;The alpha level for statistical tests is set to </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span>
+<span class="go">The alpha level for statistical tests is set to 0.01</span>
 </pre></div>
 </div>
-<p>Importing this module in a different module gives access to the same
-<tt class="docutils literal"><span class="pre">cfg</span></tt> object, and thus its variables can be obtained or manipulated
-using its get() and set() methods.</p>
+<p>Importing this module in a different module gives access to the same <em>cfg</em>
+object, and thus its variables can be obtained or manipulated using its
+<a class="reference internal" href="#setlyze.config.ConfigManager.get" title="setlyze.config.ConfigManager.get"><tt class="xref py py-meth docutils literal"><span class="pre">ConfigManager.get()</span></tt></a> and <a class="reference internal" href="#setlyze.config.ConfigManager.set" title="setlyze.config.ConfigManager.set"><tt class="xref py py-meth docutils literal"><span class="pre">ConfigManager.set()</span></tt></a> methods.</p>
 <dl class="class">
 <dt id="setlyze.config.ConfigManager">
 <em class="property">class </em><tt class="descclassname">setlyze.config.</tt><tt class="descname">ConfigManager</tt><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class for managing SETLyze&#8217;s data and configuration variables.</p>
-<p>An instance of this class provides access to a fixed set of
-variables that need to be accessable across SETLyze&#8217;s modules. By
-importing this module, one instance of this class is created.
-Subsequent imports in other modules provides access to that same
-instance.</p>
-<p>The method set() is used to change the value of variables. The
-method get() is used to get the value of a variable.</p>
-<p>All variables and their default values can be found in the variable
-<tt class="docutils literal"><span class="pre">DEFAULT_CONFIG</span></tt> of this module.</p>
+<dd><p>Class for managing SETLyze&#8217;s configuration variables.</p>
+<p>An instance of this class provides access to a fixed set of variables
+that need to be accessable across SETLyze&#8217;s modules. By importing this
+module, one instance of this class is created. Subsequent imports in other
+modules provides access to that same instance.</p>
+<p>The method <a class="reference internal" href="#setlyze.config.ConfigManager.set" title="setlyze.config.ConfigManager.set"><tt class="xref py py-meth docutils literal"><span class="pre">set()</span></tt></a> is used to change the value of variables. The
+method <a class="reference internal" href="#setlyze.config.ConfigManager.get" title="setlyze.config.ConfigManager.get"><tt class="xref py py-meth docutils literal"><span class="pre">get()</span></tt></a> is used to get the value of a variable.</p>
+<p>All configurations and their default values can be found in global variable
+<cite>DEFAULT_CONFIG</cite> of this module.</p>
 <p>Design Part: 1.57</p>
 <dl class="method">
 <dt id="setlyze.config.ConfigManager.get">
-<tt class="descname">get</tt><big>(</big><em>key</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.get" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the value for the configuration with name <cite>key</cite>.</p>
-<p>Some configurations have extra keyword arguments. These
-arguments are handled by <cite>kwargs</cite>. The configurations that have
-extra arguments are as follows:</p>
-<blockquote>
-<div><dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">locations-selection</span></tt>, <tt class="docutils literal"><span class="pre">species-selection</span></tt></dt>
-<dd>If <cite>slot</cite> is set to 0 (default), the value of the
-first selection is returned. If set to 1,the second
-selection is returned.</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.config.ConfigManager.read_from_file">
 <tt class="descname">read_from_file</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.read_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.read_from_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read settings from a configuration file.</p>
-<p>The configuration file is by default saved to
-<tt class="docutils literal"><span class="pre">~/.setlyze/setlyze.cfg</span></tt>. If a configuration file <tt class="docutils literal"><span class="pre">setlyze.cfg</span></tt>
-is present in the working directory, that file is used instead.</p>
+<dd><p>Try to read settings from a configuration file.</p>
+<p>The default location of the configuration file is
+<tt class="docutils literal"><span class="pre">~/.setlyze/setlyze.cfg</span></tt>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.config.ConfigManager.save_to_file">
 <tt class="descname">save_to_file</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.save_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.save_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save user customizable settings to a configuration file.</p>
+<p>The configuration file is by default saved to
+<tt class="docutils literal"><span class="pre">~/.setlyze/setlyze.cfg</span></tt>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="setlyze.config.ConfigManager.set">
-<tt class="descname">set</tt><big>(</big><em>key</em>, <em>value</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.set" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">set</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/setlyze/config.html#ConfigManager.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.config.ConfigManager.set" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the configuration with name <cite>key</cite> to <cite>value</cite>.</p>
-<p>Some configurations have extra keyword arguments. These
-arguments are handled by <cite>kwargs</cite>. The configurations that have
-extra arguments are as follows:</p>
-<blockquote>
-<div><dl class="docutils">
-<dt><tt class="docutils literal"><span class="pre">locations-selection</span></tt>, <tt class="docutils literal"><span class="pre">species-selection</span></tt></dt>
-<dd>If <cite>slot</cite> is set to 0 (default), the value is saved
-as the first selection. If set to 1, the value is saved
-as the second selection.</dd>
-</dl>
-</div></blockquote>
 </dd></dl>
 
 <dl class="method">
@@ -238,7 +209,7 @@ by the database module.</p>
              >previous</a> |</li>
     <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="../index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="../index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
           <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 

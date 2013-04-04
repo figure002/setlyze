@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to SETLyze’s documentation! &mdash; SETLyze 0.2 documentation</title>
+    <title>Welcome to SETLyze’s documentation! &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="#" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="#" />
     <link rel="next" title="SETLyze User Manual" href="user_manual.html" /> 
   </head>
   <body>
@@ -43,7 +43,7 @@
              accesskey="N">next</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="#">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="#">SETLyze 0.3 documentation</a> &raquo;</li>
  
       </ul>
     </div>  
@@ -57,26 +57,31 @@
 <h1>Welcome to SETLyze&#8217;s documentation!<a class="headerlink" href="#welcome-to-setlyze-s-documentation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="about-setlyze">
 <h2>About SETLyze<a class="headerlink" href="#about-setlyze" title="Permalink to this headline">¶</a></h2>
-<p>The purpose of SETLyze is to provide the people involved with the SETL-project
+<p>The purpose of SETLyze is to provide the people involved with the SETL project
 an easy and fast way of getting useful information from the data stored in the
-SETL database. The SETL database at <a class="reference external" href="http://www.gimaris.com/">GiMaRIS</a> contains data about the settlement
-of species in Dutch waters. SETLyze helps provide more insight in a set of
-biological questions by analyzing this data. SETLyze is capable of performing
-the following set of analyses:</p>
+SETL database. The SETL database at <a class="reference external" href="http://www.gimaris.com/">GiMaRIS</a>
+contains data about the settlement of species in Dutch waters. SETLyze helps
+provide more insight in a set of biological questions by analyzing this data.
+SETLyze can perform the following set of analyses:</p>
 <dl class="docutils">
-<dt><em>Analysis 1 &#8220;Spot Preference&#8221;</em></dt>
-<dd>Determine a species’ preference for a specific location on a SETL plate.
+<dt><em>Spot Preference</em></dt>
+<dd>Determine a species&#8217; preference for a specific location on a SETL plate.
 Species can be combined so that they are treated as a single species.</dd>
-<dt><em>Analysis 2 &#8220;Attraction within Species&#8221;</em></dt>
+<dt><em>Attraction within Species</em></dt>
 <dd>Determine if a species attracts or repels individuals of its own kind.
 Species can be combined so that they are treated as a single species.</dd>
-<dt><em>Analysis 3 &#8220;Attraction between Species&#8221;</em></dt>
+<dt><em>Attraction between Species</em></dt>
 <dd>Determine if two different species attract or repel each other. Species
 can be combined so that they are treated as a single species.</dd>
 </dl>
+<p>Additionally, any of the above analyses can be performed in batch mode, meaning
+that the analysis is repeated for each species of a species selection. Thus
+an analysis can be easily performed on an entire data set without intervention.
+Batch mode for analyses are parallelized such that the computing power of a
+computer is optimally used.</p>
 <p>The following analysis will be implemented in the next version:</p>
 <dl class="docutils">
-<dt><em>Analysis 4 &#8220;Relation between Species&#8221;</em></dt>
+<dt><em>Relation between Species</em></dt>
 <dd>Determine if there is a relation between the presence/absence of two
 species in a specific location. Plates per location are compared. Also
 instead of looking at different plate surfaces, only the presence or
@@ -93,7 +98,7 @@ absence of a species on a plate is taken into account.</dd>
 <li class="toctree-l2"><a class="reference internal" href="user_manual.html#installation">Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_manual.html#using-setlyze">Using SETLyze</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_manual.html#setlyze-dialogs">SETLyze dialogs</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user_manual.html#exporting-setl-data-to-csv-files">Exporting SETL data to CSV files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_manual.html#exporting-setl-data-from-the-access-database">Exporting SETL data from the Access database</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_manual.html#use-cases">Use Cases</a></li>
 </ul>
 </li>
@@ -195,7 +200,7 @@ absence of a species on a plate is taken into account.</dd>
              >next</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="#">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="#">SETLyze 0.3 documentation</a> &raquo;</li>
  
       </ul>
     </div>

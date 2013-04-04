@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Testing and Optimization &mdash; SETLyze 0.2 documentation</title>
+    <title>Testing and Optimization &mdash; SETLyze 0.3 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.2',
+        VERSION:     '0.3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,10 +25,10 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.2 documentation" href="index.html" />
+    <link rel="top" title="SETLyze 0.3 documentation" href="index.html" />
     <link rel="up" title="SETLyze Developer Guide" href="developer_guide.html" />
     <link rel="next" title="Distribution of SETLyze" href="distribution.html" />
-    <link rel="prev" title="setlyze.analysis.spot_preference — Analysis 1, Spot preference" href="setlyze/analysis/spot_preference.html" /> 
+    <link rel="prev" title="setlyze.analysis.spot_preference — Analysis Spot Preference" href="setlyze/analysis/spot_preference.html" /> 
   </head>
   <body>
     <div class="related">
@@ -44,11 +44,11 @@
           <a href="distribution.html" title="Distribution of SETLyze"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="setlyze/analysis/spot_preference.html" title="setlyze.analysis.spot_preference — Analysis 1, Spot preference"
+          <a href="setlyze/analysis/spot_preference.html" title="setlyze.analysis.spot_preference — Analysis Spot Preference"
              accesskey="P">previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="developer_guide.html" accesskey="U">SETLyze Developer Guide</a> &raquo;</li> 
       </ul>
@@ -92,26 +92,26 @@ distribution while some do not.</p>
 SETL-plate. A Python script was written to calculate the probabilities for
 all possible spot distances on a single SETL-plate. This was done for both
 intra-specific and inter-specific spot distances. The results were then loaded
-into R and visualised in a histogram (see <a class="reference internal" href="#fig-distance-distribution-intra"><em>figure 13</em></a>
-and <a class="reference internal" href="#fig-distance-distribution-inter"><em>14</em></a>).</p>
+into R and visualised in a histogram (see <a class="reference internal" href="#fig-distance-distribution-intra"><em>Distribution for intra-specific spot distances</em></a>
+and <a class="reference internal" href="#fig-distance-distribution-inter"><em>Distribution for inter-specific spot distances</em></a>).</p>
 <div class="figure align-center" id="fig-distance-distribution-intra">
 <a class="reference internal image-reference" href="_images/distance_distribution_intra.png"><img alt="Distribution for intra-specific spot distances" src="_images/distance_distribution_intra.png" style="width: 480.0px; height: 480.0px;" /></a>
-<p class="caption">Figure 13. Distribution for intra-specific spot distances. The
-frequencies were obtained by calculating all possible distances
+<p class="caption">Distribution for intra-specific spot distances</p>
+</div>
+<p>The frequencies were obtained by calculating all possible distances
 between two spots if all 25 spots are covered.
 The same test was done with different numbers of positive spots
 randomly placed on a plate with 100.000 repeats. All
 resulting distributions are very similar to this figure.</p>
-</div>
 <div class="figure align-center" id="fig-distance-distribution-inter">
 <a class="reference internal image-reference" href="_images/distance_distribution_inter.png"><img alt="Distribution for inter-specific spot distances" src="_images/distance_distribution_inter.png" style="width: 480.0px; height: 480.0px;" /></a>
-<p class="caption">Figure 14. Distribution for inter-specific spot distances. The
-frequencies were obtained by calculating all possible distances
+<p class="caption">Distribution for inter-specific spot distances</p>
+</div>
+<p>The frequencies were obtained by calculating all possible distances
 between two spots with ratio 25:25 (species A and B have all 25 spots
 covered). The same test was done with different positive spots
 ratios (spots randomly placed on a plate, 100.000 repeats). All
 resulting distributions are very similar to this figure.</p>
-</div>
 <p>The histograms show that there is a tendency towards a normal distrubution, but
 this is obstructed because of the limited number of possible spot distances.
 To test if the distribution of spot distances really don&#8217;t follow a standard
@@ -262,7 +262,7 @@ on run time.</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="setlyze/analysis/spot_preference.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.analysis.spot_preference</span></tt> &#8212; Analysis 1, Spot preference</a></p>
+                        title="previous chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.spot_preference</span></tt> &#8212; Analysis Spot Preference</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="distribution.html"
                         title="next chapter">Distribution of SETLyze</a></p>
@@ -301,11 +301,11 @@ on run time.</p>
           <a href="distribution.html" title="Distribution of SETLyze"
              >next</a> |</li>
         <li class="right" >
-          <a href="setlyze/analysis/spot_preference.html" title="setlyze.analysis.spot_preference — Analysis 1, Spot preference"
+          <a href="setlyze/analysis/spot_preference.html" title="setlyze.analysis.spot_preference — Analysis Spot Preference"
              >previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze 0.2 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze 0.3 documentation</a> &raquo;</li>
 
           <li><a href="developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li> 
       </ul>
