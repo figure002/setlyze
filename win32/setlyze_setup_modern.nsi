@@ -14,7 +14,7 @@
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "icon.ico"
+!define MUI_ICON "..\icons\setlyze.ico"
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 ; Language Selection Dialog Settings
@@ -70,17 +70,17 @@ Section "SETLyze Core" SEC01
   CreateShortCut "$SMPROGRAMS\GiMaRIS\SETLyze\Documentation.lnk" "$INSTDIR\docs\html\index.html"
 SectionEnd
 
-Section "R 2.9.1" SEC02
+Section "R 2.12.1" SEC02
   MessageBox MB_OK \
     "SETLyze requires R, a free software environment for statistical computing \
-    and graphics. The installer for R 2.9.1 will now be started. You can choose \
-    to abort this installer if you already have R 2.9.1 installed on your system. \
-    Newer versions of R are not supported! You can safely install this version of \
+    and graphics. The installer for R 2.12.1 will now be started. You can choose \
+    to abort this installer if you already have R 2.12.1 installed on your system. \
+    Other versions of R are not supported! You can safely install this version of \
     R next to other R versions on the same system."
   SetOutPath "$INSTDIR\dependencies"
-  File "dependencies\R-2.9.1-win32.exe"
-  ExecWait "$INSTDIR\dependencies\R-2.9.1-win32.exe"
-  Delete "$INSTDIR\dependencies\R-2.9.1-win32.exe"
+  File "dependencies\R-2.12.1-win32.exe"
+  ExecWait "$INSTDIR\dependencies\R-2.12.1-win32.exe"
+  Delete "$INSTDIR\dependencies\R-2.12.1-win32.exe"
   RMDir "$INSTDIR\dependencies"
 SectionEnd
 
@@ -104,7 +104,7 @@ SectionEnd
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "The core files for SETLyze."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "SETLyze requires R 2.9.1, a free \
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "SETLyze requires R 2.12.1, a free \
     software environment for statistical computing and graphics."
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 

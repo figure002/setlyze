@@ -263,16 +263,17 @@ building the Windows installer for SETLyze. The structure of the
 repository folder is important because the NSIS script
 ("setlyze_setup_modern.nsi") expects to find a number of files and folders in
 the repository folder, and packs these into a single installer. The
-files and folders it uses are as follows: ::
+files and folders it uses are as follows ::
 
-    .
-        ├── COPYING
-        ├── README.md
-        ├── dist
-        └── win32
-            ├── dependencies
-            │   └── R-2.12.1-win32.exe
-            └── icon.ico
+  .
+    ├── COPYING
+    ├── dist
+    ├── icons
+    │   └── setlyze.ico
+    ├── README.md
+    └── win32
+        └── dependencies
+               └── R-2.12.1-win32.exe
 
 Open ``setlyze_setup_modern.nsi`` in a text editor (e.g. Notepad++ or gedit) and see if
 you can find the directives that load these files (hint: search for "File"). You
