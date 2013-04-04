@@ -623,7 +623,7 @@ the format ::
 
 A string variable representing the current data source.
 
-Can be either ``setl-database`` or ``csv-msaccess``. Several application
+Can be either ``setl-database`` or ``data-files``. Several application
 functions check this variable to figure out where to obtain data from.
 The first means the PostgreSQL SETL database, and the second from user
 selected CSV files exported from the MS Access SETL database.

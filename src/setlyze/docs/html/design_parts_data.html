@@ -462,7 +462,7 @@ number can be inserted with</p>
 </pre></div>
 </div>
 <p>The creation date and data source is inserted by the methods
-<a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.insert_from_csv" title="setlyze.database.MakeLocalDB.insert_from_csv"><tt class="xref py py-meth docutils literal"><span class="pre">insert_from_csv()</span></tt></a> and
+<tt class="xref py py-meth docutils literal"><span class="pre">insert_from_csv()</span></tt> and
 <a class="reference internal" href="setlyze/database.html#setlyze.database.MakeLocalDB.insert_from_db" title="setlyze.database.MakeLocalDB.insert_from_db"><tt class="xref py py-meth docutils literal"><span class="pre">insert_from_db()</span></tt></a>. The date can be
 inserted with</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO info VALUES (null, &#39;date&#39;, date(&#39;now&#39;))&quot;</span> <span class="p">)</span>
@@ -574,7 +574,7 @@ the format</p>
 <div class="section" id="design-part-data-2-22">
 <span id="id29"></span><h3>2.22<a class="headerlink" href="#design-part-data-2-22" title="Permalink to this headline">¶</a></h3>
 <p>A string variable representing the current data source.</p>
-<p>Can be either <tt class="docutils literal"><span class="pre">setl-database</span></tt> or <tt class="docutils literal"><span class="pre">csv-msaccess</span></tt>. Several application
+<p>Can be either <tt class="docutils literal"><span class="pre">setl-database</span></tt> or <tt class="docutils literal"><span class="pre">data-files</span></tt>. Several application
 functions check this variable to figure out where to obtain data from.
 The first means the PostgreSQL SETL database, and the second from user
 selected CSV files exported from the MS Access SETL database.</p>
@@ -628,7 +628,7 @@ calculating them on run time.</p>
 <p>Where <tt class="docutils literal"><span class="pre">list</span></tt> is a list of strings. The possible
 strings are <tt class="docutils literal"><span class="pre">A</span></tt>, <tt class="docutils literal"><span class="pre">B</span></tt>, <tt class="docutils literal"><span class="pre">C</span></tt> and <tt class="docutils literal"><span class="pre">D</span></tt>. Each letter represents a
 surface on a SETL plate. For a clearer picture, refer to
-<a class="reference internal" href="user_manual.html#fig-plate-areas-default"><em>Figure 7. Default plate areas</em></a>.</p>
+<a class="reference internal" href="user_manual.html#fig-plate-areas-default"><em>Default plate areas</em></a>.</p>
 <p>The default value for the plate areas definition is</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
 <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">],</span>

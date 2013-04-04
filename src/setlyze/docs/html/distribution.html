@@ -100,26 +100,27 @@ Look at the suffix of the installer&#8217;s filenames, they should end with &#82
 Download only 32bit versions of the tools below. The 32bit installers often
 have &#8220;win32&#8221; or &#8220;x86&#8221; (not &#8220;x86-64&#8221;) in the filename.</p>
 <ol class="arabic simple">
-<li><a class="reference external" href="http://www.python.org/download/releases/2.6.6/">Python</a> (&gt;=2.6 &amp; &lt;2.7)</li>
-<li><a class="reference external" href="http://gtk-win.sourceforge.net/home/index.php/Downloads">GTK2 Runtime</a> (&gt;=2.22)</li>
-<li><a class="reference external" href="http://cran.xl-mirror.nl/bin/windows/base/old/2.9.1/">R</a> (=2.9.1)</li>
-<li><a class="reference external" href="http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/">PyGTK</a> (&gt;=2.22) *</li>
-<li><a class="reference external" href="http://ftp.gnome.org/pub/GNOME/binaries/win32/pycairo/">PyCairo</a> (&gt;=1.8.6) *</li>
-<li><a class="reference external" href="http://ftp.gnome.org/pub/GNOME/binaries/win32/pygobject/">PyGObject</a> (&gt;=2.26) *</li>
+<li><a class="reference external" href="http://www.python.org/download/releases/">Python</a> (&gt;=2.7 &amp; &lt;3)</li>
+<li><a class="reference external" href="http://cran.xl-mirror.nl/bin/windows/base/old/2.12.1/">R</a> (=2.12.1)</li>
+<li><a class="reference external" href="http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/">PyGTK (bundle with PyCairo, PyGObject, GTK+ 2.24.0)</a> (=2.24.0) *</li>
 <li><a class="reference external" href="http://sourceforge.net/projects/rpy/files/rpy/">RPy</a> (&gt;=1.0.3) *</li>
 <li><a class="reference external" href="http://pypi.python.org/pypi/xlrd">xlrd</a> (&gt;=0.7.1) *</li>
-<li><a class="reference external" href="http://sourceforge.net/projects/pywin32/files/pywin32/">Python Win32 Extensions</a> (&gt;=214) *</li>
+<li><a class="reference external" href="http://sourceforge.net/projects/pywin32/files/pywin32/">Python Win32 Extensions</a> (&gt;=218) *</li>
 </ol>
-<p>You might wonder why Python 2.6, and not the latest version, Python 3. The
-reason we&#8217;re using an older version is because of the Python modules SETLyze
-requires. Most are only available for Python 2.6 and Python 2.7. There&#8217;s a
-good chance that SETLyze runs on Python 2.7 as well, but for now Python 2.6 is
-sufficient.</p>
-<p>Also notice that we are specifically using R version 2.9.1. This is because
+<p>SETLyze will probably run fine with Python 2.6 too, but the latest Python 2.7
+is recommended and used in this tutorial.</p>
+<p>We are specifically using GTK+ version 2.24.0 for Windows. At the time of
+writing this there are also GTK+ 2.24.8 and 2.24.10 available for Windows,
+but we are not using those versions because of a huge memory leak
+(<a class="reference external" href="https://bugzilla.gnome.org/show_bug.cgi?id=685959">bug 685959</a>)
+that was introduced in GTK+ 2.24.8 (fixed in 2.24.14). The memory leak causes
+SETLyze to use a huge amount of memory which results in a crash when running
+long batch analyses.</p>
+<p>Also notice that we are specifically using R version 2.12.1. This is because
 the RPy module must correspond to the version of R and Python you have
 installed. The latest version of RPy at the time of writing this is version
-1.0.3, which has the filename <tt class="docutils literal"><span class="pre">rpy-1.0.3-R-2.9.0-R-2.9.1-win32-py2.6.exe</span></tt>.
-This means it requires R versions 2.9.0 through 2.9.1. There is also RPy2, a
+1.0.3, which has the filename <tt class="docutils literal"><span class="pre">rpy-1.0.3.win32-py2.7-R.2.12.1.exe</span></tt>.
+This means it requires R version 2.12.1. There is also RPy2, a
 redesign and rewrite of RPy. During the development of the initial version
 of SETLyze, it was too hard to get RPy2 working well on Windows, which is why
 was decided to use the older but stable RPy. It is possible to migrate to RPy2
@@ -145,29 +146,29 @@ the Bazaar repository for SETLyze. So you need to manually copy some extra
 files to the folder. First I will explain some of the important files and
 folders.</p>
 <dl class="docutils">
-<dt>[setlyze-repo]/win32</dt>
+<dt>setlyze/win32</dt>
 <dd>This folder contains some files required for creating the Windows installer.</dd>
-<dt>[setlyze-repo]/win32/dependencies</dt>
+<dt>setlyze/win32/dependencies</dt>
 <dd>This folder is for Windows installers of some of SETLyze&#8217;s pre-requisites that
 will be incorporated in SETLyze&#8217;s Windows installer. For SETLyze 0.3, this
 folder should just contain the installer for R.</dd>
-<dt>[setlyze-repo]/win32/setlyze_setup_modern.nsi</dt>
+<dt>setlyze/win32/setlyze_setup_modern.nsi</dt>
 <dd>This is the NSIS script we will use to build SETLyze&#8217;s Windows installer.
 This script is a regular text file. You can open it in a text editor
 (e.g. Notepad++ or gedit). This script contains all the information
 required for building the Windows installer.</dd>
-<dt>[setlyze-repo]/src</dt>
+<dt>setlyze/src</dt>
 <dd>This folder contains SETLyze&#8217;s main code base.</dd>
-<dt>[setlyze-repo]/src/build-win32-exe.py</dt>
+<dt>setlyze/src/build-win32-exe.py</dt>
 <dd><p class="first">This script is used to build the Windows executable for SETLyze. This
 script uses py2exe for that. This script is <em>not</em> intended for installing
 SETLyze.</p>
 <p class="last">FYI: It would make more sense to put this file in the &#8216;win32&#8217; folder,
-but SETLyze&#8217;s module folder (<tt class="docutils literal"><span class="pre">[setlyze-repo]/src/setlyze/</span></tt>) needs to be
+but SETLyze&#8217;s module folder (<tt class="docutils literal"><span class="pre">setlyze/src/setlyze/</span></tt>) needs to be
 in the same folder as this script.</p>
 </dd>
 </dl>
-<p>The folder <tt class="docutils literal"><span class="pre">[setlyze-repo]/src/doc-src/source</span></tt> contains the source files of
+<p>The folder <tt class="docutils literal"><span class="pre">setlyze/src/doc-src/source</span></tt> contains the source files of
 the documentation. The source files end with the extension &#8221;.rst&#8221;. You can
 edit these with a text editor.  After editing the source files (<tt class="docutils literal"><span class="pre">*.rst</span></tt>)
 for the documentation, you can use the make files (&#8220;Makefile&#8221; on Linux,
@@ -175,9 +176,9 @@ for the documentation, you can use the make files (&#8220;Makefile&#8221; on Lin
 to the <a class="reference external" href="http://sphinx.pocoo.org/contents.html">Sphinx documentation</a>
 for instructions.</p>
 <p>To prepare the folder containing SETLyze&#8217;s Bazaar repository for creating
-distributions, you need to opy the Windows installer for R 2.9.1 in the
-<tt class="docutils literal"><span class="pre">[setlyze-repo]/win32/dependencies</span></tt> folder. The installer is called
-<tt class="docutils literal"><span class="pre">R-2.9.1-win32.exe</span></tt> and can be downloaded from the R homepage.</p>
+distributions, you need to opy the Windows installer for R 2.12.1 in the
+<tt class="docutils literal"><span class="pre">setlyze/win32/dependencies</span></tt> folder. The installer is called
+<tt class="docutils literal"><span class="pre">R-2.12.1-win32.exe</span></tt> and can be downloaded from the R homepage.</p>
 </div>
 <div class="section" id="building-the-windows-executable-for-setlyze">
 <h3>Building the Windows Executable for SETLyze<a class="headerlink" href="#building-the-windows-executable-for-setlyze" title="Permalink to this headline">¶</a></h3>
@@ -194,9 +195,10 @@ this purpose we&#8217;re going to use <a class="reference external" href="http:/
 the latest py2exe for Python 2.6 from <a class="reference external" href="http://sourceforge.net/projects/py2exe/files/">here</a>
 and install it on your Windows machine.</p>
 <p>Once you have py2exe installed, building the Windows executable should be a
-breeze with the provided <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\build-win32-exe.py</span></tt>. Open up a
+breeze with the provided <tt class="docutils literal"><span class="pre">setlyze\src\build-win32-exe.py</span></tt>. Open up a
 DOS window and run the following command:</p>
-<div class="highlight-python"><pre>python build-win32-exe.py py2exe</pre>
+<div class="highlight-python"><pre>cd setlyze\src\
+python build-win32-exe.py py2exe</pre>
 </div>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
@@ -212,101 +214,80 @@ PATH, which is a list of directories where Windows will look for programs.</p>
 explains how to do this. Search for &#8220;PATH environment variable&#8221; on that page
 (Ctrl+F, type &#8220;PATH environment variable&#8221;, hit Enter).</p>
 </div>
-<p>This should create a new folder called <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\dist\</span></tt>. Open this
+<p>This should create a new folder called <tt class="docutils literal"><span class="pre">setlyze\src\dist\</span></tt>. Open this
 folder in Windows Explorer. You should now see a whole bunch of files,
 including <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt>.</p>
-<p>Go ahead and see if it runs. Double clicking <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt> should open up
-SETLyze&#8217;s main window. You might notice something different though. For example,
-the dialogs look really ugly. Remember that this Windows executable doesn&#8217;t
-need to have Python etc. installed. The executable is now actually using
-it&#8217;s own copy of Python (<tt class="docutils literal"><span class="pre">python26.dll</span></tt>), GTK (<tt class="docutils literal"><span class="pre">libgtk-win32-2.0-0.dll</span></tt>),
+<p>Go ahead and see if <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt> runs. Double clicking <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt>
+should open up SETLyze&#8217;s main window. You might notice something different
+though. The dialogs look really ugly. Remember that this Windows executable
+doesn&#8217;t need to have Python etc. installed. The executable is now actually
+using its own copy of Python (<tt class="docutils literal"><span class="pre">python27.dll</span></tt>), GTK (<tt class="docutils literal"><span class="pre">libgtk-win32-2.0-0.dll</span></tt>),
 and all the other stuff it requires. Py2exe has automatically collected all the
-files required to run SETLyze and put them in one folder. But the GTK2-Runtime
+files required to run SETLyze and put them in one folder. But the GTK+ Runtime
 requires some extra files to make the GTK dialogs look nice (py2exe doesn&#8217;t
 include these files automatically). So we need to manually copy these files to
-the <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\dist\</span></tt> folder.</p>
-<p>Manually copy the following folders to the <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\dist\</span></tt> folder:</p>
-<ul class="simple">
-<li><tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\GTK2-Runtime\etc\</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\GTK2-Runtime\lib\</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">C:\Program</span> <span class="pre">Files\GTK2-Runtime\share\</span></tt></li>
+the <tt class="docutils literal"><span class="pre">setlyze\src\dist\</span></tt> folder.</p>
+<p>We&#8217;ll need to manually copy some GTK+ Runtime files to the <tt class="docutils literal"><span class="pre">dist</span></tt> folder.
+First we need to figure out where the PyGTK installer installed the GTK+
+Runtime files. Open a Python interpreter and enter these commands</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">__import__</span><span class="p">(</span><span class="s">&#39;gtk&#39;</span><span class="p">)</span>
+<span class="go">&lt;module &#39;gtk&#39; from &#39;c:\Python27\lib\site-package</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s">&#39;gtk&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span> <span class="n">m</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="go">&#39;c:\\Python27\\lib\\site-packages\\gtk-2.0\\gtk&#39;</span>
+</pre></div>
+</div>
+<p>The example output tells us that the runtime files can be found in
+<tt class="docutils literal"><span class="pre">C:\Python27\Lib\site-packages\gtk-2.0\runtime\</span></tt>. Manually copy the
+following folders to the <tt class="docutils literal"><span class="pre">setlyze\src\dist\</span></tt> folder:</p>
+<ul>
+<li><p class="first"><tt class="docutils literal"><span class="pre">&lt;GTK_runtime_path&gt;\etc\</span></tt></p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">&lt;GTK_runtime_path&gt;\lib\</span></tt></p>
+<p>Only the *.dll files from the subdirectories are needed. Remove the other
+files to save space.</p>
+</li>
+<li><p class="first"><tt class="docutils literal"><span class="pre">&lt;GTK_runtime_path&gt;\share\</span></tt></p>
+<p>From this folder only the themes/ and locale/ subdirectories are needed.
+Remove the other files and folders to save space.</p>
+</li>
 </ul>
 <p>Again run <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt>. SETLyze should now look like a native
 Windows application, no more ugly dialogs. But we are not there yet. Try to
 use one of SETLyze Help buttons. You&#8217;ll notice that it doesn&#8217;t work. This is
-because it&#8217;s looking for the documentation files in the <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\dist\docs\</span></tt>
+because it&#8217;s looking for the documentation files in the <tt class="docutils literal"><span class="pre">setlyze\src\dist\docs\</span></tt>
 folder. This folder doesn&#8217;t exist yet. The <tt class="docutils literal"><span class="pre">build-win32-exe.py</span></tt> script doesn&#8217;t
-automatically copy the <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\setlyze\docs\</span></tt> folder to the <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\dist\</span></tt>
+automatically copy the <tt class="docutils literal"><span class="pre">setlyze\src\setlyze\docs\</span></tt> folder to the <tt class="docutils literal"><span class="pre">setlyze\src\dist\</span></tt>
 folder. This is not yet built into the <cite>build-win32-exe.py`</cite> script, so you&#8217;ll have
 to copy-paste it manually.</p>
-<p>Copy the folder <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\setlyze\docs\</span></tt> into
-the <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\dist\</span></tt> folder. The contents of
-<tt class="docutils literal"><span class="pre">[setlyze-repo]\src\setlyze\docs\</span></tt> were originally compiled from the
-<tt class="docutils literal"><span class="pre">[setlyze-repo]\src\doc-src\</span></tt> folder (see the Sphinx documentation on
-how to build the HTML documentation).  Again try one of SETLyze&#8217;s Help
-buttons. The help contents should now open in your browser.</p>
-<p>At this point, the <tt class="docutils literal"><span class="pre">[setlyze-repo]\src\dist\</span></tt> folder contains almost all files required to
-run SETLyze. I say almost, because one still needs to have R installed to
-run <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt>. But we&#8217;ll get to that later. Check, and double check that
-<tt class="docutils literal"><span class="pre">setlyze.exe</span></tt> works the way it should. The contents of your SETLyze repository
-folder should now look similar to the tree below. Verify that your directory
-structure matches.</p>
-<div class="highlight-python"><pre>(For the sake of simplicity, this tree only shows the important files and folders)
-
-.
-    ├── cmake
-    │   ├── cmake_uninstall.cmake.in
-    │   └── cpack_setlyze.cmake
-    ├── CMakeLists.txt
-    ├── COPYING
-    ├── INSTALL
-    ├── README
-    ├── src
-    │   ├── build-win32-exe.py
-    │   ├── CMakeLists.txt
-    │   ├── scripts
-    │   │   └── setlyze.in
-    │   ├── setlyze
-    │   │   ├── analysis
-    │   │   ├── docs
-    │   │   │   ├── html
-    │   │   │   │   ├── about_us.html
-    │   │   │   │   ├── building_windows_installer.html
-    │   │   │   │   ├── design_parts_data.html
-    │   │   │   │   ├── design_parts_docs.html
-    │   │   │   │   ├── design_parts_index.html
-    │   │   │   │   ├── developer_guide.html
-    │   │   │   │   ├── distribution.html
-    │   │   │   │   └── ...
-    │   │   │   └── ...
-    │   │   └── images
-    │   └── setlyze.pyw
-    ├── test-data
-    ├── tests
-    └── win32
-        ├── dependencies
-        │   ├── R-2.9.1-win32.exe
-        │   └── README
-        ├── icon.ico
-        └── setlyze_setup_modern.nsi</pre>
-</div>
+<p>Copy the folder <tt class="docutils literal"><span class="pre">setlyze\src\setlyze\docs\</span></tt> into the <tt class="docutils literal"><span class="pre">setlyze\src\dist\</span></tt>
+folder. The contents of <tt class="docutils literal"><span class="pre">setlyze\src\setlyze\docs\</span></tt> were generated from the
+<tt class="docutils literal"><span class="pre">setlyze\src\doc-src\</span></tt> folder with <a class="reference external" href="http://sphinx-doc.org/">Sphinx</a>
+documentation generator (see the Sphinx website).  Again try one of SETLyze&#8217;s
+Help buttons. The help contents should now open in your browser.</p>
+<p>At this point, the <tt class="docutils literal"><span class="pre">setlyze\src\dist\</span></tt> folder contains almost all files
+required to run SETLyze. I say almost, because one still needs to have R
+installed to run <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt>. But we&#8217;ll get to that later. Check, and
+double check that <tt class="docutils literal"><span class="pre">setlyze.exe</span></tt> works the way it should.</p>
 </div>
 <div class="section" id="building-the-windows-installer">
 <h3>Building the Windows Installer<a class="headerlink" href="#building-the-windows-installer" title="Permalink to this headline">¶</a></h3>
-<p>Now that you have prepared the repository folder, you can start
+<p>Now that you have prepared the <tt class="docutils literal"><span class="pre">dist</span></tt> folder, you can start
 building the Windows installer for SETLyze. The structure of the
 repository folder is important because the NSIS script
 (&#8220;setlyze_setup_modern.nsi&#8221;) expects to find a number of files and folders in
 the repository folder, and packs these into a single installer. The
-files and folders it uses are as follows:</p>
+files and folders it uses are as follows</p>
 <div class="highlight-python"><pre>.
-    ├── COPYING
-    ├── README
-    ├── dist
-    └── win32
-        ├── dependencies
-        │   └── R-2.9.1-win32.exe
-        └── icon.ico</pre>
+  ├── COPYING
+  ├── dist
+  ├── icons
+  │   └── setlyze.ico
+  ├── README.md
+  └── win32
+      └── dependencies
+             └── R-2.12.1-win32.exe</pre>
 </div>
 <p>Open <tt class="docutils literal"><span class="pre">setlyze_setup_modern.nsi</span></tt> in a text editor (e.g. Notepad++ or gedit) and see if
 you can find the directives that load these files (hint: search for &#8220;File&#8221;). You

@@ -70,7 +70,7 @@
 </tr>
 <tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">0.3</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">March 22, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">April 04, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -103,101 +103,6 @@ then do the following to get a list of the selected locations.</p>
 <dt id="setlyze.gui.About">
 <em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">About</tt><a class="reference internal" href="../_modules/setlyze/gui.html#About"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.About" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display SETLyze&#8217;s about dialog.</p>
-</dd></dl>
-
-<dl class="class">
-<dt id="setlyze.gui.ChangeDataSource">
-<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">ChangeDataSource</tt><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display a dialog that allows the user to change to a different
-data source. The following data sources are supported:</p>
-<blockquote>
-<div><ul class="simple">
-<li>CSV files with SETL data exported from the MS Access SETL
-database.</li>
-<li>Import of Microsoft Excel spread-sheet files.</li>
-<li>TODO: The remote SETL database. This requires a direct
-connection with the SETL database server.</li>
-</ul>
-</div></blockquote>
-<p>Design Part: 1.90</p>
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.create_layout">
-<tt class="descname">create_layout</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.create_layout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.create_layout" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct the layout for the dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.create_page_csv">
-<tt class="descname">create_page_csv</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.create_page_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.create_page_csv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a notebook page for switching to SETL data from
-CSV files.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.create_page_db">
-<tt class="descname">create_page_db</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.create_page_db"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.create_page_db" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a notebook page for switching to SETL data from
-the remote SETL database.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.create_page_xls">
-<tt class="descname">create_page_xls</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.create_page_xls"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.create_page_xls" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a notebook page for switching to SETL data from
-XLS files.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.on_cancel">
-<tt class="descname">on_cancel</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_cancel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_cancel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.on_csv_import_failed">
-<tt class="descname">on_csv_import_failed</tt><big>(</big><em>sender</em>, <em>error</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_csv_import_failed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_csv_import_failed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display an error message showing the user that importing SETL data
-from the selected CSV or XLS files failed.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.on_csv_ok">
-<tt class="descname">on_csv_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_csv_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_csv_ok" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the paths to the CSV files, set the new value for the
-data source configuration, load the SETL data from the CSV file
-into the local database, and close the dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.on_xls_ok">
-<tt class="descname">on_xls_ok</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.on_xls_ok"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.on_xls_ok" title="Permalink to this definition">¶</a></dt>
-<dd><p>Save the paths to the XLS files, set the new value for the
-data source configuration, load the SETL data from the XLS file
-into the local database, and close the dialog.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.set_signal_handlers">
-<tt class="descname">set_signal_handlers</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.set_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.set_signal_handlers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Respond to signals emitted by the application.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.unset_signal_handlers">
-<tt class="descname">unset_signal_handlers</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.unset_signal_handlers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.unset_signal_handlers" title="Permalink to this definition">¶</a></dt>
-<dd><p>Disconnect all signal connections with signal handlers created by
-this class.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="setlyze.gui.ChangeDataSource.update_working_folder">
-<tt class="descname">update_working_folder</tt><big>(</big><em>chooser</em>, <em>data=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#ChangeDataSource.update_working_folder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.ChangeDataSource.update_working_folder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the working folder for the file choosers to the folder
-where the first data file was selected from.</p>
-<p>This way the user doesn&#8217;t have to navigate to the same folder
-multiple times.</p>
-</dd></dl>
-
 </dd></dl>
 
 <dl class="class">
@@ -375,6 +280,60 @@ the definition and emit the signal with the definition as an attribute.</p>
 </dd></dl>
 
 <dl class="class">
+<dt id="setlyze.gui.LoadData">
+<em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">LoadData</tt><a class="headerlink" href="#setlyze.gui.LoadData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display a dialog for loading SETL data.</p>
+<p>SETL data can be loaded from the following data sources:</p>
+<ul class="simple">
+<li>CSV files; text files with semicolon as field separator.</li>
+<li>Microsoft Excel spread-sheet files.</li>
+</ul>
+<p>Design Part: 1.90</p>
+<dl class="method">
+<dt id="setlyze.gui.LoadData.on_button_cancel_clicked">
+<tt class="descname">on_button_cancel_clicked</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.LoadData.on_button_cancel_clicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.LoadData.on_button_ok_clicked">
+<tt class="descname">on_button_ok_clicked</tt><big>(</big><em>widget</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.LoadData.on_button_ok_clicked" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the paths to the CSV files, set the new value for the
+data source configuration, load the SETL data from the CSV file
+into the local database, and close the dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.LoadData.on_import_failed">
+<tt class="descname">on_import_failed</tt><big>(</big><em>sender</em>, <em>error</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.LoadData.on_import_failed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display an error message showing the user that importing SETL data
+from the selected CSV or XLS files failed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.LoadData.set_signal_handlers">
+<tt class="descname">set_signal_handlers</tt><big>(</big><big>)</big><a class="headerlink" href="#setlyze.gui.LoadData.set_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Respond to signals emitted by the application.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.LoadData.unset_signal_handlers">
+<tt class="descname">unset_signal_handlers</tt><big>(</big><em>sender=None</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.LoadData.unset_signal_handlers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Disconnect all signal handlers created by this class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.LoadData.update_working_folder">
+<tt class="descname">update_working_folder</tt><big>(</big><em>chooser</em>, <em>data=None</em><big>)</big><a class="headerlink" href="#setlyze.gui.LoadData.update_working_folder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the working folder for the file choosers to the folder
+where the first data file was selected from.</p>
+<p>This way the user doesn&#8217;t have to navigate to the same folder
+multiple times.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="setlyze.gui.Preferences">
 <em class="property">class </em><tt class="descclassname">setlyze.gui.</tt><tt class="descname">Preferences</tt><a class="reference internal" href="../_modules/setlyze/gui.html#Preferences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Preferences" title="Permalink to this definition">¶</a></dt>
 <dd><p>Display the preferences dialog.</p>
@@ -521,6 +480,12 @@ analysis.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="setlyze.gui.Report.add_definitions">
+<tt class="descname">add_definitions</tt><big>(</big><em>definitions</em>, <em>title</em>, <em>columns=('Name'</em>, <em>'Value')</em><big>)</big><a class="headerlink" href="#setlyze.gui.Report.add_definitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a definition list to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="setlyze.gui.Report.add_plate_areas_definition">
 <tt class="descname">add_plate_areas_definition</tt><big>(</big><em>definition</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.add_plate_areas_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.add_plate_areas_definition" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the plate areas definition to the report dialog.</p>
@@ -660,6 +625,8 @@ report dialog.</p>
 <dt id="setlyze.gui.Report.on_close">
 <tt class="descname">on_close</tt><big>(</big><em>button</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#Report.on_close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.Report.on_close" title="Permalink to this definition">¶</a></dt>
 <dd><p>Close the dialog and emit the <cite>report-dialog-closed</cite> signal.</p>
+<p>This displays a confirmation dialog if the report has not been saved
+yet.</p>
 </dd></dl>
 
 <dl class="method">
@@ -884,13 +851,6 @@ a species selection window.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="setlyze.gui.SelectionWindow.on_change_data_source">
-<tt class="descname">on_change_data_source</tt><big>(</big><em>button</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.on_change_data_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_change_data_source" title="Permalink to this definition">¶</a></dt>
-<dd><p>Display the ChangeDataSource dialog.</p>
-<p>Design Part: 1.11</p>
-</dd></dl>
-
-<dl class="method">
 <dt id="setlyze.gui.SelectionWindow.on_changed">
 <tt class="descname">on_changed</tt><big>(</big><em>treeview</em><big>)</big><a class="reference internal" href="../_modules/setlyze/gui.html#SelectionWindow.on_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_changed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Save the selection from a gtk.TreeView <cite>treeview</cite>.</p>
@@ -918,6 +878,13 @@ display a message dialog. If yes, call <tt class="xref py py-meth docutils liter
 the signal (that method must be set in a sub class), then close the
 selection dialog.</p>
 <p>Design Part: 1.44</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.gui.SelectionWindow.on_load_data">
+<tt class="descname">on_load_data</tt><big>(</big><em>button</em><big>)</big><a class="headerlink" href="#setlyze.gui.SelectionWindow.on_load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Display the LoadData dialog.</p>
+<p>Design Part: 1.11</p>
 </dd></dl>
 
 <dl class="method">
@@ -1018,7 +985,7 @@ application for displaying HTML files (usually a web browser).</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="database.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">setlyze.database</span></tt> &#8212; Database access</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="locale.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
