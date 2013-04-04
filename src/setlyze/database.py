@@ -54,6 +54,9 @@ __email__ = "serrano.pereira@gmail.com"
 __status__ = "Production"
 __date__ = "2013/02/01"
 
+# The current version of the local database.
+DB_VERSION = 0.4
+
 def get_database_accessor():
     """Return an object that facilitates access to the database.
 
@@ -700,7 +703,7 @@ class MakeLocalDB(threading.Thread):
             )
 
         self.cursor.execute("INSERT INTO info "
-            "VALUES (null, 'version', ?)", [__version__])
+            "VALUES (null, 'version', ?)", [DB_VERSION])
 
     def create_table_localities(self):
         """Create the "localities" table for the SETL locations.
@@ -847,9 +850,15 @@ class AccessDBGeneric(object):
         cursor = self.conn.cursor()
         cursor.execute("SELECT name,value FROM info;")
         info = cursor.fetchall()
+        info = dict(info)
         cursor.close()
 
-        return dict(info)
+        # Some types need to be converted from string.
+        to_float = ['version']
+        for key in to_float:
+            info[key] = float(info[key])
+
+        return info
 
     def get_locations(self):
         """Return a list of all locations from the local database.

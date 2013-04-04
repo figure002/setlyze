@@ -294,37 +294,44 @@ class SelectAnalysis(object):
         if os.path.isfile(dbfile):
             # Use the existing database.
             db = setlyze.database.get_database_accessor()
-            db_info = db.get_database_info()
+            info = db.get_database_info()
 
             # Check the database verion.
-            if db_info['version'] < setlyze.config.cfg.get('minimum-db-version'):
+            min_version = setlyze.config.cfg.get('minimum-db-version')
+            if info['version'] < min_version:
                 dialog = gtk.MessageDialog(parent=None, flags=0,
-                    type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+                    type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK_CANCEL,
                     message_format="Database out of date")
                 dialog.format_secondary_text("The SETLyze database on your "
-                    "harddisk is out of date. Please manually delete the "
-                    "database file (%s). You'll have to load new data." % dbfile)
+                    "computer is out of date. A new database should be created. "
+                    "Remove the out of date database?\n\n"
+                    "Once the database has been removed, you'll need to "
+                    "load new data with the Load Data button of the next "
+                    "dialog.")
                 dialog.set_position(gtk.WIN_POS_CENTER)
-                dialog.run()
+                response = dialog.run()
+
+                if response == gtk.RESPONSE_OK:
+                    self.on_make_local_db()
                 dialog.destroy()
                 return
 
             # Check if we got any results.
-            if not db_info['source'] or not db_info['date']:
+            if not info['source'] or not info['date']:
                 # No row was returned, just create a new local database.
                 self.on_make_local_db()
                 return
 
             # Construct a message for the user.
-            if db_info['source'] == "setl-database":
+            if info['source'] == "setl-database":
                 source_str = "the SETL database"
-            elif db_info['source'] == "data-files":
+            elif info['source'] == "data-files":
                 source_str = "local data files"
             else:
-                raise ValueError("Unknown data source '%s'." % db_info['source'])
+                raise ValueError("Unknown data source '%s'." % info['source'])
 
             message = ("The SETL data from the last session is being loaded. "
-                "This data was loaded on %s from %s.") % (db_info['date'], source_str)
+                "This data was loaded on %s from %s.") % (info['date'], source_str)
 
             # Show a dialog with the message.
             dialog = gtk.MessageDialog(parent=None, flags=0,
@@ -336,7 +343,7 @@ class SelectAnalysis(object):
             dialog.destroy()
 
             # Prevent a new database from being created.
-            setlyze.config.cfg.set('data-source', db_info['source'])
+            setlyze.config.cfg.set('data-source', info['source'])
             setlyze.config.cfg.set('make-new-db', False)
             setlyze.config.cfg.set('has-local-db', True)
 
