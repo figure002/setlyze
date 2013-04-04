@@ -210,11 +210,29 @@ requires some extra files to make the GTK dialogs look nice (py2exe doesn't
 include these files automatically). So we need to manually copy these files to
 the ``[setlyze-repo]\src\dist\`` folder.
 
-Manually copy the following folders to the ``[setlyze-repo]\src\dist\`` folder:
+We'll need to manually copy some GTK+ Runtime files to the ``dist`` folder.
+First we need to figure out where the PyGTK installer installed the GTK+
+Runtime files. Open a Python interpreter and enter these commands ::
 
-* ``C:\Program Files\GTK2-Runtime\etc\``
-* ``C:\Program Files\GTK2-Runtime\lib\``
-* ``C:\Program Files\GTK2-Runtime\share\``
+    >>> import sys
+    >>> __import__('gtk')
+    <module 'gtk' from 'c:\Python27\lib\site-package
+    >>> m = sys.modules['gtk']
+    >>> print m.__path__[0]
+    'c:\\Python27\\lib\\site-packages\\gtk-2.0\\gtk'
+
+This means we can find the runtime files in ``C:\Python27\Lib\site-packages\gtk-2.0\runtime\``.
+Manually copy the following folders to the ``setlyze\src\dist\`` folder:
+
+* ``<GTK_runtime_path>\etc\``
+* ``<GTK_runtime_path>\lib\``
+
+  Only the *.dll files from the subdirectories are needed. Remove the other
+  files to save space.
+* ``<GTK_runtime_path>\share\``
+
+  From this folder only the themes/ and locale/ subdirectories are needed.
+  Remove the other files and folders to save space.
 
 Again run ``setlyze.exe``. SETLyze should now look like a native
 Windows application, no more ugly dialogs. But we are not there yet. Try to
