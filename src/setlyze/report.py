@@ -787,9 +787,9 @@ class ExportRstReport(object):
         for i, selection in enumerate(species_selections, start=1):
             yield self.subsection("Species Selection (%d)" % i)
             for spe_id, species in selection.iteritems():
-                if len(species['name_latin']) ==  0:
+                if species['name_latin'] is None:
                     yield "- %s\n" % (species['name_common'])
-                elif len(species['name_common']) ==  0:
+                elif species['name_common'] is None:
                     yield "- *%s*\n" % (species['name_latin'])
                 else:
                     yield "- *%s* (%s)\n" % (species['name_latin'], species['name_common'])
