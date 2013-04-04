@@ -78,9 +78,9 @@ Section "R 2.12.1" SEC02
     Other versions of R are not supported! You can safely install this version of \
     R next to other R versions on the same system."
   SetOutPath "$INSTDIR\dependencies"
-  File "dependencies\R-2.12.1-win32.exe"
-  ExecWait "$INSTDIR\dependencies\R-2.12.1-win32.exe"
-  Delete "$INSTDIR\dependencies\R-2.12.1-win32.exe"
+  File "dependencies\R-2.12.1-win.exe"
+  ExecWait "$INSTDIR\dependencies\R-2.12.1-win.exe"
+  Delete "$INSTDIR\dependencies\R-2.12.1-win.exe"
   RMDir "$INSTDIR\dependencies"
 SectionEnd
 
