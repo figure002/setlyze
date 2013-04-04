@@ -187,25 +187,13 @@ This should create a new folder called ``setlyze\src\dist\``. Open this
 folder in Windows Explorer. You should now see a whole bunch of files,
 including ``setlyze.exe``.
 
-Py2exe is unable to find some DLL files that are required for the Windows
-executable. These include some DLL files from R. Py2exe will look in ``C:\Python2x\DLLs``
-for these DLL files, but the DLL files for R can be found in ``C:\Program Files\R\R-2.12.1\bin\i386\``.
-
-Manually copy the following DLL files to the ``setlyze\src\dist\`` folder:
-
-* ``C:\Program Files\R\R-2.12.1\bin\i386\Rblas.dll``
-* ``C:\Program Files\R\R-2.12.1\bin\i386\Riconv.dll``
-* ``C:\Program Files\R\R-2.12.1\bin\i386\Rgraphapp.dll``
-* ``C:\Program Files\R\R-2.12.1\bin\i386\R.dll``
-* ``C:\Program Files\R\R-2.12.1\bin\i386\Rzlib.dll``
-
-Go ahead and see if ``setlyze.exe`` runs. Double clicking ``setlyze.exe`` should open up
-SETLyze's main window. You might notice something different though. For example,
-the dialogs look really ugly. Remember that this Windows executable doesn't
-need to have Python etc. installed. The executable is now actually using
-it's own copy of Python (``python26.dll``), GTK (``libgtk-win32-2.0-0.dll``),
+Go ahead and see if ``setlyze.exe`` runs. Double clicking ``setlyze.exe``
+should open up SETLyze's main window. You might notice something different
+though. The dialogs look really ugly. Remember that this Windows executable
+doesn't need to have Python etc. installed. The executable is now actually
+using its own copy of Python (``python27.dll``), GTK (``libgtk-win32-2.0-0.dll``),
 and all the other stuff it requires. Py2exe has automatically collected all the
-files required to run SETLyze and put them in one folder. But the GTK2-Runtime
+files required to run SETLyze and put them in one folder. But the GTK+ Runtime
 requires some extra files to make the GTK dialogs look nice (py2exe doesn't
 include these files automatically). So we need to manually copy these files to
 the ``setlyze\src\dist\`` folder.
@@ -221,13 +209,14 @@ Runtime files. Open a Python interpreter and enter these commands ::
     >>> print m.__path__[0]
     'c:\\Python27\\lib\\site-packages\\gtk-2.0\\gtk'
 
-This means we can find the runtime files in ``C:\Python27\Lib\site-packages\gtk-2.0\runtime\``.
-Manually copy the following folders to the ``setlyze\src\dist\`` folder:
+The example output tells us that the runtime files can be found in
+``C:\Python27\Lib\site-packages\gtk-2.0\runtime\``. Manually copy the
+following folders to the ``setlyze\src\dist\`` folder:
 
 * ``<GTK_runtime_path>\etc\``
 * ``<GTK_runtime_path>\lib\``
 
-  Only the *.dll files from the subdirectories are needed. Remove the other
+  Only the \*.dll files from the subdirectories are needed. Remove the other
   files to save space.
 * ``<GTK_runtime_path>\share\``
 
