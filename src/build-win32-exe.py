@@ -73,17 +73,18 @@ setup(name='setlyze',
     scripts=['setlyze.pyw'],
     windows = [
         {'script': 'setlyze.pyw',
-        'icon_resources': [(1, '../win32/icon.ico')],
+        'icon_resources': [(1, '../icons/setlyze.ico')],
         }
     ],
     options= {
         'py2exe': {
             'includes': 'pango,atk,gobject,gio,cairo,pangocairo,_rpy2121',
-            'dll_excludes': 'Rblas.dll,Riconv.dll,Rgraphapp.dll,R.dll,Rzlib.dll',
-            },
+            'dll_excludes': 'R.dll',
+        },
     },
-    data_files=[('test-data', glob.glob('../test-data/*.*')),
+    data_files=[
+        ('test-data', glob.glob('../test-data/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
         ('.',['../COPYING','../README.md']),
-        ],
+    ],
 )
