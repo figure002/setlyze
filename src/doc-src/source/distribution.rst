@@ -103,34 +103,34 @@ the Bazaar repository for SETLyze. So you need to manually copy some extra
 files to the folder. First I will explain some of the important files and
 folders.
 
-[setlyze-repo]/win32
+setlyze/win32
     This folder contains some files required for creating the Windows installer.
 
-[setlyze-repo]/win32/dependencies
+setlyze/win32/dependencies
     This folder is for Windows installers of some of SETLyze's pre-requisites that
     will be incorporated in SETLyze's Windows installer. For SETLyze 0.3, this
     folder should just contain the installer for R.
 
-[setlyze-repo]/win32/setlyze_setup_modern.nsi
+setlyze/win32/setlyze_setup_modern.nsi
     This is the NSIS script we will use to build SETLyze's Windows installer.
     This script is a regular text file. You can open it in a text editor
     (e.g. Notepad++ or gedit). This script contains all the information
     required for building the Windows installer.
 
-[setlyze-repo]/src
+setlyze/src
     This folder contains SETLyze's main code base.
 
-[setlyze-repo]/src/build-win32-exe.py
+setlyze/src/build-win32-exe.py
     This script is used to build the Windows executable for SETLyze. This
     script uses py2exe for that. This script is *not* intended for installing
     SETLyze.
 
     FYI: It would make more sense to put this file in the 'win32' folder,
-    but SETLyze's module folder (``[setlyze-repo]/src/setlyze/``) needs to be
+    but SETLyze's module folder (``setlyze/src/setlyze/``) needs to be
     in the same folder as this script.
 
 
-The folder ``[setlyze-repo]/src/doc-src/source`` contains the source files of
+The folder ``setlyze/src/doc-src/source`` contains the source files of
 the documentation. The source files end with the extension ".rst". You can
 edit these with a text editor.  After editing the source files (``*.rst``)
 for the documentation, you can use the make files ("Makefile" on Linux,
@@ -140,7 +140,7 @@ for instructions.
 
 To prepare the folder containing SETLyze's Bazaar repository for creating
 distributions, you need to opy the Windows installer for R 2.12.1 in the
-``[setlyze-repo]/win32/dependencies`` folder. The installer is called
+``setlyze/win32/dependencies`` folder. The installer is called
 ``R-2.12.1-win32.exe`` and can be downloaded from the R homepage.
 
 Building the Windows Executable for SETLyze
@@ -183,7 +183,7 @@ DOS window and run the following command: ::
    explains how to do this. Search for "PATH environment variable" on that page
    (Ctrl+F, type "PATH environment variable", hit Enter).
 
-This should create a new folder called ``[setlyze-repo]\src\dist\``. Open this
+This should create a new folder called ``setlyze\src\dist\``. Open this
 folder in Windows Explorer. You should now see a whole bunch of files,
 including ``setlyze.exe``.
 
@@ -208,7 +208,7 @@ and all the other stuff it requires. Py2exe has automatically collected all the
 files required to run SETLyze and put them in one folder. But the GTK2-Runtime
 requires some extra files to make the GTK dialogs look nice (py2exe doesn't
 include these files automatically). So we need to manually copy these files to
-the ``[setlyze-repo]\src\dist\`` folder.
+the ``setlyze\src\dist\`` folder.
 
 We'll need to manually copy some GTK+ Runtime files to the ``dist`` folder.
 First we need to figure out where the PyGTK installer installed the GTK+
@@ -237,70 +237,28 @@ Manually copy the following folders to the ``setlyze\src\dist\`` folder:
 Again run ``setlyze.exe``. SETLyze should now look like a native
 Windows application, no more ugly dialogs. But we are not there yet. Try to
 use one of SETLyze Help buttons. You'll notice that it doesn't work. This is
-because it's looking for the documentation files in the ``[setlyze-repo]\src\dist\docs\``
+because it's looking for the documentation files in the ``setlyze\src\dist\docs\``
 folder. This folder doesn't exist yet. The ``build-win32-exe.py`` script doesn't
-automatically copy the ``[setlyze-repo]\src\setlyze\docs\`` folder to the ``[setlyze-repo]\src\dist\``
+automatically copy the ``setlyze\src\setlyze\docs\`` folder to the ``setlyze\src\dist\``
 folder. This is not yet built into the `build-win32-exe.py`` script, so you'll have
 to copy-paste it manually.
 
-Copy the folder ``[setlyze-repo]\src\setlyze\docs\`` into
-the ``[setlyze-repo]\src\dist\`` folder. The contents of
-``[setlyze-repo]\src\setlyze\docs\`` were originally compiled from the
-``[setlyze-repo]\src\doc-src\`` folder (see the Sphinx documentation on
-how to build the HTML documentation).  Again try one of SETLyze's Help
-buttons. The help contents should now open in your browser.
+Copy the folder ``setlyze\src\setlyze\docs\`` into the ``setlyze\src\dist\``
+folder. The contents of ``setlyze\src\setlyze\docs\`` were generated from the
+``setlyze\src\doc-src\`` folder with `Sphinx <http://sphinx-doc.org/>`_
+documentation generator (see the Sphinx website).  Again try one of SETLyze's
+Help buttons. The help contents should now open in your browser.
 
-At this point, the ``[setlyze-repo]\src\dist\`` folder contains almost all files required to
-run SETLyze. I say almost, because one still needs to have R installed to
-run ``setlyze.exe``. But we'll get to that later. Check, and double check that
-``setlyze.exe`` works the way it should. The contents of your SETLyze repository
-folder should now look similar to the tree below. Verify that your directory
-structure matches. ::
-
-    (For the sake of simplicity, this tree only shows the important files and folders)
-
-    .
-        ├── cmake
-        │   ├── cmake_uninstall.cmake.in
-        │   └── cpack_setlyze.cmake
-        ├── CMakeLists.txt
-        ├── COPYING
-        ├── INSTALL
-        ├── README
-        ├── src
-        │   ├── build-win32-exe.py
-        │   ├── CMakeLists.txt
-        │   ├── scripts
-        │   │   └── setlyze.in
-        │   ├── setlyze
-        │   │   ├── analysis
-        │   │   ├── docs
-        │   │   │   ├── html
-        │   │   │   │   ├── about_us.html
-        │   │   │   │   ├── building_windows_installer.html
-        │   │   │   │   ├── design_parts_data.html
-        │   │   │   │   ├── design_parts_docs.html
-        │   │   │   │   ├── design_parts_index.html
-        │   │   │   │   ├── developer_guide.html
-        │   │   │   │   ├── distribution.html
-        │   │   │   │   └── ...
-        │   │   │   └── ...
-        │   │   └── images
-        │   └── setlyze.pyw
-        ├── test-data
-        ├── tests
-        └── win32
-            ├── dependencies
-            │   ├── R-2.12.1-win32.exe
-            │   └── README
-            ├── icon.ico
-            └── setlyze_setup_modern.nsi
+At this point, the ``setlyze\src\dist\`` folder contains almost all files
+required to run SETLyze. I say almost, because one still needs to have R
+installed to run ``setlyze.exe``. But we'll get to that later. Check, and
+double check that ``setlyze.exe`` works the way it should.
 
 
 Building the Windows Installer
 ==============================
 
-Now that you have prepared the repository folder, you can start
+Now that you have prepared the ``dist`` folder, you can start
 building the Windows installer for SETLyze. The structure of the
 repository folder is important because the NSIS script
 ("setlyze_setup_modern.nsi") expects to find a number of files and folders in
@@ -309,7 +267,7 @@ files and folders it uses are as follows: ::
 
     .
         ├── COPYING
-        ├── README
+        ├── README.md
         ├── dist
         └── win32
             ├── dependencies
