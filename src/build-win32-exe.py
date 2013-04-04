@@ -84,6 +84,7 @@ setup(name='setlyze',
     },
     data_files=[
         ('test-data', glob.glob('../test-data/*.*')),
+        ('glade', glob.glob('setlyze/glade/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
         ('.',['../COPYING','../README.md']),
     ],
