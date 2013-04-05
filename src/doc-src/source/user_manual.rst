@@ -1229,6 +1229,9 @@ column tells you to which group each result belongs.
 Exporting SETL data from the Access database
 --------------------------------------------
 
+Export to CSV files
+===================
+
 This section describes how to export the SETL data from the Microsoft
 Access database to CSV files.
 
@@ -1251,6 +1254,13 @@ Access database to CSV files.
 
 5. You should end up with four files, one CSV file for each table. Put
    these files in one folder.
+
+Export to Excel files
+=====================
+
+The database tables can also be exported to Excel files. Only the import of
+Excel 97/2000/XP/2003 (\*.xls) files are supported by SETLyze, so be sure to
+select the right format.
 
 ---------
 Use Cases
