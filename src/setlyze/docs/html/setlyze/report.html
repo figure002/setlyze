@@ -1,0 +1,560 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>setlyze.report — Generate analysis reports &mdash; SETLyze 1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="SETLyze 1.0 documentation" href="../index.html" />
+    <link rel="up" title="SETLyze Standard Modules" href="../setlyze_modules.html" />
+    <link rel="next" title="setlyze.std — Standard functions and classes" href="std.html" />
+    <link rel="prev" title="setlyze.locale — English text retrieval" href="locale.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="std.html" title="setlyze.std — Standard functions and classes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="locale.html" title="setlyze.locale — English text retrieval"
+             accesskey="P">previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../index.html">SETLyze 1.0 documentation</a> &raquo;</li>
+
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" accesskey="U">SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="setlyze-report-generate-analysis-reports">
+<h1><a class="reference internal" href="#module-setlyze.report" title="setlyze.report"><tt class="xref py py-mod docutils literal"><span class="pre">setlyze.report</span></tt></a> &#8212; Generate analysis reports<a class="headerlink" href="#setlyze-report-generate-analysis-reports" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Author:</th><td class="field-body">Serrano Pereira</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">April 05, 2013</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="module-setlyze.report">
+<span id="module-contents"></span><h2>Module Contents<a class="headerlink" href="#module-setlyze.report" title="Permalink to this headline">¶</a></h2>
+<p>This module provides functions for generating analysis reports.</p>
+<dl class="class">
+<dt id="setlyze.report.ExportRstReport">
+<em class="property">class </em><tt class="descclassname">setlyze.report.</tt><tt class="descname">ExportRstReport</tt><big>(</big><em>report</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export an analysis report in reStructuredText format.</p>
+<p>The input is a <a class="reference internal" href="#setlyze.report.Report" title="setlyze.report.Report"><tt class="xref py py-class docutils literal"><span class="pre">Report</span></tt></a> object.</p>
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.add_batch_summary">
+<tt class="descname">add_batch_summary</tt><big>(</big><em>statistics</em>, <em>title</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.add_batch_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.add_batch_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a batch summary report.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.add_statistics_wilcoxon_areas">
+<tt class="descname">add_statistics_wilcoxon_areas</tt><big>(</big><em>statistics</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.add_statistics_wilcoxon_areas"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.add_statistics_wilcoxon_areas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add the statistic results to the report dialog.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.chapter">
+<tt class="descname">chapter</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.chapter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.chapter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for parts in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.deflist">
+<tt class="descname">deflist</tt><big>(</big><em>definitions</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.deflist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.deflist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a definition list from the dictionary <cite>definitions</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.export">
+<tt class="descname">export</tt><big>(</big><em>path</em>, <em>elements=None</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate and export the report to a file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.get_column_widths">
+<tt class="descname">get_column_widths</tt><big>(</big><em>headers</em>, <em>mincolwidth=1</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.get_column_widths"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.get_column_widths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the column widths for a list of column names.</p>
+<p>Argument <cite>headers</cite> is a list of strings representing the column names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.get_lines">
+<tt class="descname">get_lines</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.get_lines"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.get_lines" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the analysis report in reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.part">
+<tt class="descname">part</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.part"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.part" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for parts in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.section">
+<tt class="descname">section</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.section" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for sections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.set_report">
+<tt class="descname">set_report</tt><big>(</big><em>report</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.set_report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.set_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the report object <cite>report</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.subsection">
+<tt class="descname">subsection</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.subsection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.subsection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for subsections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.subsubsection">
+<tt class="descname">subsubsection</tt><big>(</big><em>header</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.subsubsection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.subsubsection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <cite>header</cite> marked up as a header for subsubsections in
+reStructuredText format.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.table">
+<tt class="descname">table</tt><big>(</big><em>headers</em>, <em>mincolwidth=1</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a table header with column names from <cite>headers</cite> in
+reStructuredText format.</p>
+<p><cite>headers</cite> is a list of strings representing the column names.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.table_rule">
+<tt class="descname">table_rule</tt><big>(</big><em>col_widths</em>, <em>char='='</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.table_rule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.table_rule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a rule for a table with column widths <cite>col_widths</cite>.</p>
+<p>Argument <cite>col_widths</cite> is a list with column widths (integers), and
+<cite>char</cite> the character used to make rules.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.ExportRstReport.table_span_header">
+<tt class="descname">table_span_header</tt><big>(</big><em>col_widths</em>, <em>headers</em>, <em>spans</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#ExportRstReport.table_span_header"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.ExportRstReport.table_span_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a table header row with main columns spanned headers.</p>
+<p>Argument <cite>col_widths</cite> is a list of widths for the main table columns,
+<cite>headers</cite> is a list of column names that need to be spanned over
+the main columns, <cite>spans</cite> is a list of integers, each integer
+indicating the number of columns the corresponding column in <cite>headers</cite>
+should span, hence <cite>headers</cite> and <cite>spans</cite> must have the same number
+of items.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="setlyze.report.Report">
+<em class="property">class </em><tt class="descclassname">setlyze.report.</tt><tt class="descname">Report</tt><a class="reference internal" href="../_modules/setlyze/report.html#Report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a report object.</p>
+<p>The results for an analysis are saved to an instance of this class using
+the set methods. An instance of this class is passed to an instance of
+<a class="reference internal" href="gui.html#setlyze.gui.Report" title="setlyze.gui.Report"><tt class="xref py py-class docutils literal"><span class="pre">setlyze.gui.Report</span></tt></a> to display the results graphically.</p>
+<dl class="method">
+<dt id="setlyze.report.Report.get_option">
+<tt class="descname">get_option</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.get_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.get_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the value for an analysis option <cite>name</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.is_empty">
+<tt class="descname">is_empty</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.is_empty"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.is_empty" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return True if this is an empty report.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_analysis">
+<tt class="descname">set_analysis</tt><big>(</big><em>name</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_analysis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_analysis" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the analysis name to <cite>name</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_area_totals_expected">
+<tt class="descname">set_area_totals_expected</tt><big>(</big><em>totals</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_area_totals_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_area_totals_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the expected plate area totals.</p>
+<p>Examples of <cite>totals</cite></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mf">235.96</span><span class="p">,</span>
+    <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mf">943.84</span><span class="p">,</span>
+    <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mf">2831.52</span><span class="p">,</span>
+    <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mf">1887.68</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+    <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mf">235.96</span><span class="p">,</span>
+    <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mf">943.84</span><span class="p">,</span>
+    <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mf">2831.52</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_area_totals_observed">
+<tt class="descname">set_area_totals_observed</tt><big>(</big><em>totals</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_area_totals_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_area_totals_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the observed plate area totals.</p>
+<p>Examples of <cite>totals</cite></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mi">261</span><span class="p">,</span>
+    <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mi">943</span><span class="p">,</span>
+    <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mi">2837</span><span class="p">,</span>
+    <span class="s">&#39;area4&#39;</span><span class="p">:</span> <span class="mi">1858</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+    <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="mi">261</span><span class="p">,</span>
+    <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="mi">943</span><span class="p">,</span>
+    <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="mi">2837</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_definitions">
+<tt class="descname">set_definitions</tt><big>(</big><em>definitions</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_definitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_definitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the definitions dictionary <cite>definitions</cite>.</p>
+<p>This is used to print a definition list in the report.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_location_selections">
+<tt class="descname">set_location_selections</tt><big>(</big><em>selections</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_location_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_location_selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the locations selections.</p>
+<p>This element will be filled with the locations selections <cite>selections</cite>,
+a list with location ID lists (e.g. [[1,2], ..., [3]]).</p>
+<p>The selections will be saved as follows:</p>
+<div class="highlight-python"><pre>self.locations_selections = [
+    {
+        1: {'nr':100, 'name':"Location A"},
+        2: {'nr':200, 'name':"Location B"},
+    },
+    ...
+    {
+        3: {'nr':300, 'name':"Location C"},
+    }
+]</pre>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_option">
+<tt class="descname">set_option</tt><big>(</big><em>name</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_option"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set an analysis option <cite>name</cite> to value <cite>value</cite>.</p>
+<p>This can be used for things like alpha level and the number of repeats
+for the analysis. They will appear in exported reports.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_plate_areas_definition">
+<tt class="descname">set_plate_areas_definition</tt><big>(</big><em>definition</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_plate_areas_definition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_plate_areas_definition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the plate areas definition <cite>definition</cite>.</p>
+<p>Examples of <cite>definition</cite></p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">],</span>
+    <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">],</span>
+    <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;C&#39;</span><span class="p">],</span>
+    <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;D&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="p">{</span>
+    <span class="s">&#39;area1&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;A&#39;</span><span class="p">],</span>
+    <span class="s">&#39;area2&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;B&#39;</span><span class="p">],</span>
+    <span class="s">&#39;area3&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s">&#39;C&#39;</span><span class="p">,</span> <span class="s">&#39;D&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_species_selections">
+<tt class="descname">set_species_selections</tt><big>(</big><em>selections</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_species_selections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_species_selections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the species selections.</p>
+<p>This element will be filled with the species selections <cite>selections</cite>,
+a list with location ID lists (e.g. [[1,2], ..., [3]]).</p>
+<p>The selections will be saved as follows:</p>
+<div class="highlight-python"><pre>self.species_selections = [
+    {
+        1: {'name_latin':"Ectopleura larynx", 'name_common':"Gorgelpijp"},
+        2: {'name_latin':"Metridium senile", 'name_common':"Zeeanjelier"},
+    },
+    ...
+    {
+        3: {'name_latin':"Balanus improvisus", 'name_common':"Brakwaterpok"},
+    }
+]</pre>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_spot_distances_expected">
+<tt class="descname">set_spot_distances_expected</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_spot_distances_expected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_spot_distances_expected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the expected spot distances.</p>
+<p>This element will be filled with the expected spot distances.</p>
+<p>The spot distances will be saved as follows</p>
+<div class="highlight-python"><pre>self.spot_distances_expected = {
+    63: [1.0, 3.16, ...],
+    229: [4.47, ...],
+    ...
+}</pre>
+</div>
+<p>Where the dictionary keys are plate numbers and the values are lists
+with distances for the corresponding plates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_spot_distances_observed">
+<tt class="descname">set_spot_distances_observed</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_spot_distances_observed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_spot_distances_observed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the observed spot distances.</p>
+<p>This element will be filled with the observed spot distances.</p>
+<p>The spot distances will be saved as follows</p>
+<div class="highlight-python"><pre>self.spot_distances_observed = {
+    63: [1.0, 2.0, ...],
+    229: [3.16, ...],
+    ...
+}</pre>
+</div>
+<p>Where the dictionary keys are plate numbers and the values are lists
+with distances for the corresponding plates.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="setlyze.report.Report.set_statistics">
+<tt class="descname">set_statistics</tt><big>(</big><em>name</em>, <em>data</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#Report.set_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.Report.set_statistics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set statistics results <cite>data</cite> under key <cite>name</cite> in self.statistics.</p>
+<p>This method is used to save results from statistical tests. The results
+must be supplied with the <cite>data</cite> argument. The <cite>data</cite> argument is a
+list containing dictionaries in the format
+{&#8216;attr&#8217;: {&#8216;&lt;key&gt;&#8217;: &lt;value&gt;, ...}, &#8216;results&#8217;: {&#8216;&lt;key&gt;&#8217;: &lt;value&gt;, ...}}
+where the value for &#8216;attr&#8217; is a dictionary with the attributes for the
+test and &#8216;results&#8217; is a dictionary with elements of the results.</p>
+<p>If the &#8216;attr&#8217; key is not set in <cite>data</cite> (or equals None/False), the
+results are assumed to be absent/incomplete, and the results are not
+stored.</p>
+<p>The value for <tt class="docutils literal"><span class="pre">data['attr']['groups']</span></tt> tells what the dictionary keys
+for <tt class="docutils literal"><span class="pre">data['results']</span></tt> represent. Possible groups are <tt class="docutils literal"><span class="pre">areas</span></tt> for
+plate areas, <tt class="docutils literal"><span class="pre">spots</span></tt> for total positive spots, and <tt class="docutils literal"><span class="pre">ratios</span></tt> for
+total positive spots ratio groups. If <tt class="docutils literal"><span class="pre">data['attr']['groups']</span></tt> is not
+set, there are no groups, meaning that the <tt class="docutils literal"><span class="pre">data['results']</span></tt>
+dictionary contains results for a single statistical test.</p>
+<p>Example of <cite>data</cite> without groups</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&#39;attr&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;method&#39;</span><span class="p">:</span> <span class="s">&quot;Chi-squared test for given probabilities&quot;</span>
+    <span class="p">},</span>
+    <span class="s">&#39;results&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s">&#39;df&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+        <span class="s">&#39;p_value&#39;</span><span class="p">:</span> <span class="mf">0.37</span><span class="p">,</span>
+        <span class="s">&#39;chi_squared&#39;</span><span class="p">:</span> <span class="mf">3.13</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Examples of <cite>data</cite> with groups</p>
+<div class="highlight-python"><pre>{
+    'attr': {
+        'method': "Chi-squared test for given probabilities",
+        'groups': "ratios",
+    },
+    'results': {
+        1: {
+            'n_plates': 2,
+            'n_distances': 56,
+            'df': 14.0,
+            'p_value': 0.90,
+            'chi_squared': 7.75,
+            'mean_expected': 2.77,
+            'mean_observed': 2.50
+        },
+        ...
+    }
+}
+
+{
+    'attr': {
+        'method': "Wilcoxon rank sum test with continuity correction",
+        'alternative': "two.sided",
+        'conf_level': 0.95,
+        'paired': False,
+        'groups': "areas",
+    },
+    'results': {
+        'A': {'p_value': 0.67, 'mean_expected': 1.33, 'mean_observed': 1.35},
+        'B': {'p_value': 0.97, 'mean_expected': 4.08, 'mean_observed': 4.07},
+        'A+B': {'p_value': 0.97, 'mean_expected': 2.70, 'mean_observed': 2.71},
+        ...
+    }
+}</pre>
+</div>
+<p>Of repeated tests</p>
+<div class="highlight-python"><pre>{
+    'attr': {
+        'method': "Wilcoxon rank sum test with continuity correction",
+        'groups': "areas",
+        'alpha_level': 0.05,
+        'repeats': 10,
+    },
+    'results': {
+        'A': {'n_significant': 10, 'n_preference': 10, 'n_rejection': 0},
+        'B': {'n_significant': 1, 'n_preference': 0, 'n_rejection': 1},
+        'A+B': {'n_significant': 9, 'n_preference': 9, 'n_rejection': 0},
+        ...
+    }
+}
+
+{
+    'attr': {
+        'method': "Wilcoxon rank sum test with continuity correction",
+        'groups': "spots|ratios",
+        'alpha_level': 0.05,
+        'repeats': 10,
+    },
+    'results': {
+        2: {'n_significant': 10, 'n_attraction': 10, 'n_repulsion': 0},
+        3: {'n_significant': 1, 'n_attraction': 0, 'n_repulsion': 1},
+        ...
+    }
+}</pre>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="setlyze.report.export">
+<tt class="descclassname">setlyze.report.</tt><tt class="descname">export</tt><big>(</big><em>report</em>, <em>path</em>, <em>type</em><big>)</big><a class="reference internal" href="../_modules/setlyze/report.html#export"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#setlyze.report.export" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export the data from a <a class="reference internal" href="#setlyze.report.Report" title="setlyze.report.Report"><tt class="xref py py-class docutils literal"><span class="pre">Report</span></tt></a> object <cite>report</cite> to a data file.</p>
+<p>The file is saved to <cite>path</cite> in a format specified by <cite>type</cite>. The following
+values for <cite>type</cite> are currently supported:</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">rst</span></tt> (reStructuredText)</li>
+</ul>
+</div></blockquote>
+<p>Design Part: 1.17</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/setlyze-logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><tt class="docutils literal"><span class="pre">setlyze.report</span></tt> &#8212; Generate analysis reports</a><ul>
+<li><a class="reference internal" href="#module-setlyze.report">Module Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="locale.html"
+                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.locale</span></tt> &#8212; English text retrieval</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="std.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.std</span></tt> &#8212; Standard functions and classes</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/setlyze/report.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="std.html" title="setlyze.std — Standard functions and classes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="locale.html" title="setlyze.locale — English text retrieval"
+             >previous</a> |</li>
+    <li><a href="../gimaris.html">GiMaRIS</a> &raquo;</li>
+    
+        <li><a href="../index.html">SETLyze 1.0 documentation</a> &raquo;</li>
+
+          <li><a href="../developer_guide.html" >SETLyze Developer Guide</a> &raquo;</li>
+          <li><a href="../setlyze_modules.html" >SETLyze Standard Modules</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2010, 2011, GiMaRIS.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

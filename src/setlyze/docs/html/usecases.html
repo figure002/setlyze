@@ -8,7 +8,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Use Cases for SETLyze &mdash; SETLyze 0.3 documentation</title>
+    <title>Use Cases for SETLyze &mdash; SETLyze 1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -16,7 +16,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
-        VERSION:     '0.3',
+        VERSION:     '1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="SETLyze 0.3 documentation" href="index.html" />
+    <link rel="top" title="SETLyze 1.0 documentation" href="index.html" />
     <link rel="up" title="SETLyze User Manual" href="user_manual.html" />
     <link rel="next" title="SETLyze Developer Guide" href="developer_guide.html" />
     <link rel="prev" title="SETLyze User Manual" href="user_manual.html" /> 
@@ -48,7 +48,7 @@
              accesskey="P">previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze 0.3 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze 1.0 documentation</a> &raquo;</li>
 
           <li><a href="user_manual.html" accesskey="U">SETLyze User Manual</a> &raquo;</li> 
       </ul>
@@ -73,7 +73,7 @@ on SETL-plates?&#8221;</p>
 </div>
 <div class="section" id="performing-the-analysis">
 <h3>Performing the analysis<a class="headerlink" href="#performing-the-analysis" title="Permalink to this headline">¶</a></h3>
-<p>Analysis 1 &#8220;Spot preference&#8221; was designed to analyse a species&#8217; preference
+<p>Analysis &#8220;Spot preference&#8221; was designed to analyse a species&#8217; preference
 for a specific location on a SETL-plates.</p>
 <p>For this analysis, we can define the following hypotheses:</p>
 <dl class="docutils">
@@ -95,12 +95,11 @@ expected mean).</dd>
 on all species of the genus <em>Obelia</em> from all available locations.</p>
 <p>Start SETLyze, and from the <a class="reference internal" href="user_manual.html#dialog-analysis-selection"><em>main window</em></a>
 select &#8220;Analysis 1&#8221;. Then click the OK button to start the selected analysis.
-The <a class="reference internal" href="user_manual.html#dialog-loc-selection"><em>locations selection dialog</em></a> will now show
-up. If this is your first time running SETLyze, then the list of locations
-will be empty. Clicking the &#8220;Change Data Source&#8221; button opens the
-<a class="reference internal" href="user_manual.html#dialog-change-data-source"><em>change data source dialog</em></a>. Use this
-dialog to load your SETL data. For this example, we&#8217;ll use the test data
-provided with SETLyze.</p>
+The <a class="reference internal" href="user_manual.html#dialog-loc-selection"><em>Locations Selection dialog</em></a> will now show up. If this is your first time
+running SETLyze, then the list of locations will be empty. Clicking the
+&#8220;Load Data&#8221; button opens the <a class="reference internal" href="user_manual.html#dialog-load-data"><em>Load Data dialog</em></a>. Use this dialog to load
+your SETL data. For this example, we&#8217;ll use the test data provided with
+SETLyze.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>On Windows, the test data can be found in the sub folder &#8220;test-data&#8221; of the
@@ -113,10 +112,10 @@ now select the locations from which you want to select species. For this
 example, we want to use all data available for the genus <em>Obelia</em>, so we&#8217;ll
 select all locations. Select a location and then press Ctrl+A to select all
 locations. Press the Continue button.</p>
-<p>The <a class="reference internal" href="user_manual.html#dialog-spe-selection"><em>species selection dialog</em></a> should now be
-displayed. By default, the species are sorted by their scientific name. Scroll
-down until you find the species who&#8217;s name start with <em>Obelia</em>. You should
-find the following six species:</p>
+<p>The <a class="reference internal" href="user_manual.html#dialog-spe-selection"><em>Species Selection dialog</em></a> should now be displayed. By default, the
+species are sorted by their scientific name. Scroll down until you find the
+species who&#8217;s name start with <em>Obelia</em>. You should find the following six
+species:</p>
 <ul class="simple">
 <li><em>Obelia not geniculata</em></li>
 <li><em>Obelia geniculata</em></li>
@@ -127,16 +126,16 @@ find the following six species:</p>
 </ul>
 <p>Select all six species by holding down the Shift key. Then press the Continue
 button.</p>
-<p>The <a class="reference internal" href="user_manual.html#dialog-define-plate-areas"><em>define plate areas dialog</em></a>
-should now be displayed. This dialog allows you to define the SETL-plate
-areas for the Chi-squared test. The result of the Chi-squared test for this
-analysis is only useful if you have large amounts of data for the species
-you&#8217;re analyzing. Because the Wilcoxon test for this analysis gives more
-specific information about the plate areas, we&#8217;ll focus on that instead. So
-we&#8217;ll skip the details of this dialog, and leave the default plate areas
-setting for the Chi-squared test. Press the Continue button to start the
-calculations for this analysis.</p>
-<p>In a few seconds you should be presented with the <a class="reference internal" href="user_manual.html#dialog-analysis-report"><em>analysis report dialog</em></a>. This dialog shows the results for the analysis.
+<p>The <a class="reference internal" href="user_manual.html#dialog-define-plate-areas"><em>Define Plate Areas dialog</em></a> should now be displayed. This dialog
+allows you to define the SETL-plate areas for the Chi-squared test. The result
+of the Chi-squared test for this analysis is only useful if you have large
+amounts of data for the species you&#8217;re analyzing. Because the Wilcoxon test
+for this analysis gives more specific information about the plate areas, we&#8217;ll
+focus on that instead. So we&#8217;ll skip the details of this dialog, and leave the
+default plate areas setting for the Chi-squared test. Press the Continue button
+to start the calculations for this analysis.</p>
+<p>In a few seconds you should be presented with the
+<a class="reference internal" href="user_manual.html#dialog-analysis-report"><em>Analysis Report dialog</em></a>. This dialog shows the results for the analysis.
 For this example, we&#8217;ll skip the results of the Chi-squared test, and focus
 on the results of the Wilcoxon tests.</p>
 </div>
@@ -144,8 +143,8 @@ on the results of the Wilcoxon tests.</p>
 <h3>Results<a class="headerlink" href="#results" title="Permalink to this headline">¶</a></h3>
 <p>You should see two sections for the results of the Wilcoxon test:</p>
 <ul class="simple">
-<li><a class="reference internal" href="user_manual.html#results-wilcoxon-rank-sum-test"><em>Results for Wilcoxon rank-sum tests (non-repeated)</em></a></li>
-<li><a class="reference internal" href="user_manual.html#results-wilcoxon-repeated"><em>Significance results for repeated Wilcoxon tests</em></a></li>
+<li><a class="reference internal" href="user_manual.html#results-wilcoxon-rank-sum-test"><em>Wilcoxon rank sum test with continuity correction</em></a></li>
+<li><a class="reference internal" href="user_manual.html#results-wilcoxon-repeated"><em>Wilcoxon rank sum test with continuity correction (repeated)</em></a></li>
 </ul>
 <p>Click on both sections to reveal the results. You should see something similar
 to the screenshot below.</p>
@@ -155,7 +154,7 @@ to the screenshot below.</p>
 </div>
 <p>Let&#8217;s first look at the results of the non-repeated tests. You can see that
 there seems to be a strong preference for the corners of a SETL-plate (see
-<a class="reference internal" href="user_manual.html#fig-plate-areas-default"><em>figure 7</em></a> for an overview of the plate areas).
+<a class="reference internal" href="user_manual.html#fig-plate-areas-default"><em>Default plate areas</em></a> for an overview of the plate areas).
 I say strong, because the P-value is very low (P &lt; 0.1%). At the same time,
 this species seems to reject the middle areas of the plates (areas C and D).
 There is no significance for area B, so it makes sense that the combination
@@ -179,7 +178,7 @@ found to be significant (P &lt; 5%). And out of these 10 significant results, al
 10 showed a preference for the area. Based on this result, we can almost safely
 say that the results we found are not a coincidence. I say almost, because
 a total of 10 repeats is very low. To be even more sure, you can set the
-number of repeats to a higher value in the <a class="reference internal" href="user_manual.html#dialog-preferences"><em>preferences dialog</em></a>.</p>
+number of repeats to a higher value in the <a class="reference internal" href="user_manual.html#dialog-preferences"><em>Preferences dialog</em></a>.</p>
 </div>
 <div class="section" id="conclusion">
 <h3>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this headline">¶</a></h3>
@@ -198,7 +197,7 @@ individuals of its own kind?&#8221;</p>
 </div>
 <div class="section" id="id2">
 <h3>Performing the analysis<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<p>Analysis 2 &#8220;Attraction of Species (intra-specific)&#8221; can be used to determine
+<p>Analysis &#8220;Attraction of Species (intra-specific)&#8221; can be used to determine
 if a species attracts or repels individuals of its own kind.</p>
 <p>For this analysis, we can define the following hypotheses:</p>
 <dl class="docutils">
@@ -219,13 +218,12 @@ the presence of other individuals of its own kind.</dd>
 <p>To find an answer to this research question, we&#8217;re going to run the analysis
 on <em>Balanus crenatus</em> from the location Aquadome Grevelingen.</p>
 <p>Start SETLyze, and from the <a class="reference internal" href="user_manual.html#dialog-analysis-selection"><em>main window</em></a>
-select &#8220;Analysis 2&#8221;. Then click the OK button to start the selected analysis.
-The <a class="reference internal" href="user_manual.html#dialog-loc-selection"><em>locations selection dialog</em></a> will now show
+select analysis &#8220;Attraction within Species&#8221;. Then click the OK button to start
+the selected analysis. The <a class="reference internal" href="user_manual.html#dialog-loc-selection"><em>Locations Selection dialog</em></a> will now show
 up. If this is your first time running SETLyze, then the list of locations
-will be empty. Clicking the &#8220;Change Data Source&#8221; button opens the
-<a class="reference internal" href="user_manual.html#dialog-change-data-source"><em>change data source dialog</em></a>. Use this
-dialog to load your SETL data. For this example, we&#8217;ll use the test data
-provided with SETLyze.</p>
+will be empty. Clicking the &#8220;Load Data&#8221; button opens the
+<a class="reference internal" href="user_manual.html#dialog-load-data"><em>Load Data dialog</em></a>. Use this dialog to load your SETL data. For this
+example, we&#8217;ll use the test data provided with SETLyze.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p>On Windows, the test data can be found in the sub folder &#8220;test-data&#8221; of the
@@ -237,11 +235,12 @@ directory to where you installed SETLyze (e.g.
 now select the locations from which you want to select species. For this
 example, we&#8217;re just interested in data from the location Aquadome Grevelingen.
 Select &#8220;Aquadome, Grevelingen&#8221; from the list. Press the Continue button.</p>
-<p>The <a class="reference internal" href="user_manual.html#dialog-spe-selection"><em>species selection dialog</em></a> should now be
-displayed. By default, the species are sorted by their scientific name. Select
-the species &#8220;<em>Balanus crenatus</em>&#8221;. Press the Continue button to start the
-calculations for this analysis.</p>
-<p>In a few seconds you should be presented with the <a class="reference internal" href="user_manual.html#dialog-analysis-report"><em>analysis report dialog</em></a>. This dialog shows the results for the analysis.</p>
+<p>The <a class="reference internal" href="user_manual.html#dialog-spe-selection"><em>Species Selection dialog</em></a> should now be displayed. By default, the
+species are sorted by their scientific name. Select the species &#8220;<em>Balanus
+crenatus</em>&#8221;. Press the Continue button to start the calculations for this
+analysis.</p>
+<p>In a few seconds you should be presented with the
+<a class="reference internal" href="user_manual.html#dialog-analysis-report"><em>Analysis Report dialog</em></a>. This dialog shows the results for the analysis.</p>
 </div>
 <div class="section" id="id3">
 <h3>Results<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
@@ -249,9 +248,9 @@ calculations for this analysis.</p>
 the Wilcoxon rank-sum test and Pearson&#8217;s Chi-squared test. The following
 sections should be present in the report dialog:</p>
 <ul class="simple">
-<li><a class="reference internal" href="user_manual.html#results-wilcoxon-rank-sum-test"><em>Results for Wilcoxon rank-sum tests (non-repeated)</em></a></li>
-<li><a class="reference internal" href="user_manual.html#results-wilcoxon-repeated"><em>Significance results for repeated Wilcoxon tests</em></a></li>
-<li><a class="reference internal" href="user_manual.html#results-pearsons-chisq-test"><em>Results for Pearson&#8217;s Chi-squared Tests for Count Data</em></a></li>
+<li><a class="reference internal" href="user_manual.html#results-wilcoxon-rank-sum-test"><em>Wilcoxon rank sum test with continuity correction</em></a></li>
+<li><a class="reference internal" href="user_manual.html#results-wilcoxon-repeated"><em>Wilcoxon rank sum test with continuity correction (repeated)</em></a></li>
+<li><a class="reference internal" href="user_manual.html#results-pearsons-chisq-test"><em>Chi-squared test for given probabilities</em></a></li>
 </ul>
 <p>Let&#8217;s first have a look at the results of the Wilcoxon tests. Click on both
 Wilcoxon sections to reveal the results. You should see something similar
@@ -375,7 +374,7 @@ kind.</p>
              >previous</a> |</li>
     <li><a href="gimaris.html">GiMaRIS</a> &raquo;</li>
     
-        <li><a href="index.html">SETLyze 0.3 documentation</a> &raquo;</li>
+        <li><a href="index.html">SETLyze 1.0 documentation</a> &raquo;</li>
 
           <li><a href="user_manual.html" >SETLyze User Manual</a> &raquo;</li> 
       </ul>
