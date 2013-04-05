@@ -30,14 +30,6 @@ an analysis can be easily performed on an entire data set without intervention.
 Batch mode for analyses are parallelized such that the computing power of a
 computer is optimally used.
 
-The following analysis will be implemented in the next version:
-
-*Relation between Species*
-    Determine if there is a relation between the presence/absence of two
-    species in a specific location. Plates per location are compared. Also
-    instead of looking at different plate surfaces, only the presence or
-    absence of a species on a plate is taken into account.
-
 Documentations
 =========================================
 
