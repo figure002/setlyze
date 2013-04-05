@@ -116,7 +116,7 @@ win32/
 win32/dependencies/
     This folder is for third party Windows installers of some of SETLyze's
     pre-requisites that will be incorporated in SETLyze's Windows installer.
-    For SETLyze 0.3, this folder must just contain the installer for R 2.12.1.
+    For SETLyze 1.0, this folder must just contain the installer for R 2.12.1.
 
 win32/setlyze_setup_modern.nsi
     This is the NSIS script we will use to build SETLyze's Windows installer.

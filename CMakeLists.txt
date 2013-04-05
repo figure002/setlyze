@@ -2,8 +2,8 @@ cmake_minimum_required (VERSION 2.6)
 project (setlyze)
 
 # The version number.
-set (setlyze_VERSION_MAJOR 0)
-set (setlyze_VERSION_MINOR 3)
+set (setlyze_VERSION_MAJOR 1)
+set (setlyze_VERSION_MINOR 0)
 set (setlyze_VERSION_PATCH 0)
 
 # Pass some of the CMake settings to the post install script.

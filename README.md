@@ -1,4 +1,4 @@
-# SETLyze 0.3
+# SETLyze 1.0
 
 The purpose of SETLyze is to provide the people involved with the SETL project
 an easy and fast way of getting useful information from the data stored in the
