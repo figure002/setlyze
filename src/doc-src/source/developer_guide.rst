@@ -14,6 +14,8 @@ internals, its programming style, what's unfinished, et cetera.
 Getting Started
 ###############
 
+.. _obtaining-the-source:
+
 Obtaining the source code
 =========================
 
