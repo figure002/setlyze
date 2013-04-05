@@ -23,7 +23,7 @@ on SETL-plates?"
 Performing the analysis
 =======================
 
-Analysis 1 "Spot preference" was designed to analyse a species' preference
+Analysis "Spot preference" was designed to analyse a species' preference
 for a specific location on a SETL-plates.
 
 For this analysis, we can define the following hypotheses:
@@ -49,12 +49,11 @@ on all species of the genus *Obelia* from all available locations.
 
 Start SETLyze, and from the :ref:`main window <dialog-analysis-selection>`
 select "Analysis 1". Then click the OK button to start the selected analysis.
-The :ref:`locations selection dialog <dialog-loc-selection>` will now show
-up. If this is your first time running SETLyze, then the list of locations
-will be empty. Clicking the "Change Data Source" button opens the
-:ref:`change data source dialog <dialog-change-data-source>`. Use this
-dialog to load your SETL data. For this example, we'll use the test data
-provided with SETLyze.
+The :ref:`dialog-loc-selection` will now show up. If this is your first time
+running SETLyze, then the list of locations will be empty. Clicking the
+"Load Data" button opens the :ref:`dialog-load-data`. Use this dialog to load
+your SETL data. For this example, we'll use the test data provided with
+SETLyze.
 
 .. note::
 
@@ -70,10 +69,10 @@ example, we want to use all data available for the genus *Obelia*, so we'll
 select all locations. Select a location and then press Ctrl+A to select all
 locations. Press the Continue button.
 
-The :ref:`species selection dialog <dialog-spe-selection>` should now be
-displayed. By default, the species are sorted by their scientific name. Scroll
-down until you find the species who's name start with *Obelia*. You should
-find the following six species:
+The :ref:`dialog-spe-selection` should now be displayed. By default, the
+species are sorted by their scientific name. Scroll down until you find the
+species who's name start with *Obelia*. You should find the following six
+species:
 
 * *Obelia not geniculata*
 * *Obelia geniculata*
@@ -85,18 +84,17 @@ find the following six species:
 Select all six species by holding down the Shift key. Then press the Continue
 button.
 
-The :ref:`define plate areas dialog <dialog-define-plate-areas>`
-should now be displayed. This dialog allows you to define the SETL-plate
-areas for the Chi-squared test. The result of the Chi-squared test for this
-analysis is only useful if you have large amounts of data for the species
-you're analyzing. Because the Wilcoxon test for this analysis gives more
-specific information about the plate areas, we'll focus on that instead. So
-we'll skip the details of this dialog, and leave the default plate areas
-setting for the Chi-squared test. Press the Continue button to start the
-calculations for this analysis.
+The :ref:`dialog-define-plate-areas` should now be displayed. This dialog
+allows you to define the SETL-plate areas for the Chi-squared test. The result
+of the Chi-squared test for this analysis is only useful if you have large
+amounts of data for the species you're analyzing. Because the Wilcoxon test
+for this analysis gives more specific information about the plate areas, we'll
+focus on that instead. So we'll skip the details of this dialog, and leave the
+default plate areas setting for the Chi-squared test. Press the Continue button
+to start the calculations for this analysis.
 
-In a few seconds you should be presented with the :ref:`analysis report dialog
-<dialog-analysis-report>`. This dialog shows the results for the analysis.
+In a few seconds you should be presented with the
+:ref:`dialog-analysis-report`. This dialog shows the results for the analysis.
 For this example, we'll skip the results of the Chi-squared test, and focus
 on the results of the Wilcoxon tests.
 
@@ -105,8 +103,8 @@ Results
 
 You should see two sections for the results of the Wilcoxon test:
 
-* :ref:`Results for Wilcoxon rank-sum tests (non-repeated) <results-wilcoxon-rank-sum-test>`
-* :ref:`Significance results for repeated Wilcoxon tests <results-wilcoxon-repeated>`
+* :ref:`results-wilcoxon-rank-sum-test`
+* :ref:`results-wilcoxon-repeated`
 
 Click on both sections to reveal the results. You should see something similar
 to the screenshot below.
@@ -120,7 +118,7 @@ to the screenshot below.
 
 Let's first look at the results of the non-repeated tests. You can see that
 there seems to be a strong preference for the corners of a SETL-plate (see
-:ref:`figure 7 <fig_plate_areas_default>` for an overview of the plate areas).
+:ref:`fig_plate_areas_default` for an overview of the plate areas).
 I say strong, because the P-value is very low (P < 0.1%). At the same time,
 this species seems to reject the middle areas of the plates (areas C and D).
 There is no significance for area B, so it makes sense that the combination
@@ -147,8 +145,7 @@ found to be significant (P < 5%). And out of these 10 significant results, all
 10 showed a preference for the area. Based on this result, we can almost safely
 say that the results we found are not a coincidence. I say almost, because
 a total of 10 repeats is very low. To be even more sure, you can set the
-number of repeats to a higher value in the :ref:`preferences dialog
-<dialog-preferences>`.
+number of repeats to a higher value in the :ref:`dialog-preferences`.
 
 Conclusion
 ==========
@@ -173,7 +170,7 @@ individuals of its own kind?"
 Performing the analysis
 =======================
 
-Analysis 2 "Attraction of Species (intra-specific)" can be used to determine
+Analysis "Attraction of Species (intra-specific)" can be used to determine
 if a species attracts or repels individuals of its own kind.
 
 For this analysis, we can define the following hypotheses:
@@ -198,13 +195,12 @@ To find an answer to this research question, we're going to run the analysis
 on *Balanus crenatus* from the location Aquadome Grevelingen.
 
 Start SETLyze, and from the :ref:`main window <dialog-analysis-selection>`
-select "Analysis 2". Then click the OK button to start the selected analysis.
-The :ref:`locations selection dialog <dialog-loc-selection>` will now show
+select analysis "Attraction within Species". Then click the OK button to start
+the selected analysis. The :ref:`dialog-loc-selection` will now show
 up. If this is your first time running SETLyze, then the list of locations
-will be empty. Clicking the "Change Data Source" button opens the
-:ref:`change data source dialog <dialog-change-data-source>`. Use this
-dialog to load your SETL data. For this example, we'll use the test data
-provided with SETLyze.
+will be empty. Clicking the "Load Data" button opens the
+:ref:`dialog-load-data`. Use this dialog to load your SETL data. For this
+example, we'll use the test data provided with SETLyze.
 
 .. note::
 
@@ -219,13 +215,13 @@ now select the locations from which you want to select species. For this
 example, we're just interested in data from the location Aquadome Grevelingen.
 Select "Aquadome, Grevelingen" from the list. Press the Continue button.
 
-The :ref:`species selection dialog <dialog-spe-selection>` should now be
-displayed. By default, the species are sorted by their scientific name. Select
-the species "*Balanus crenatus*". Press the Continue button to start the
-calculations for this analysis.
+The :ref:`dialog-spe-selection` should now be displayed. By default, the
+species are sorted by their scientific name. Select the species "*Balanus
+crenatus*". Press the Continue button to start the calculations for this
+analysis.
 
-In a few seconds you should be presented with the :ref:`analysis report dialog
-<dialog-analysis-report>`. This dialog shows the results for the analysis.
+In a few seconds you should be presented with the
+:ref:`dialog-analysis-report`. This dialog shows the results for the analysis.
 
 Results
 =======
@@ -234,9 +230,9 @@ For this analysis, two different statistical hypothesis tests are performed;
 the Wilcoxon rank-sum test and Pearson's Chi-squared test. The following
 sections should be present in the report dialog:
 
-* :ref:`Results for Wilcoxon rank-sum tests (non-repeated) <results-wilcoxon-rank-sum-test>`
-* :ref:`Significance results for repeated Wilcoxon tests <results-wilcoxon-repeated>`
-* :ref:`Results for Pearson's Chi-squared Tests for Count Data <results-pearsons-chisq-test>`
+* :ref:`results-wilcoxon-rank-sum-test`
+* :ref:`results-wilcoxon-repeated`
+* :ref:`results-pearsons-chisq-test`
 
 Let's first have a look at the results of the Wilcoxon tests. Click on both
 Wilcoxon sections to reveal the results. You should see something similar
