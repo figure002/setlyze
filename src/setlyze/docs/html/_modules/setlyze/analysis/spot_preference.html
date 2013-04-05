@@ -101,11 +101,12 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">math</span>
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="kn">import</span> <span class="nn">gobject</span>
 <span class="kn">import</span> <span class="nn">pygtk</span>
@@ -204,7 +205,7 @@
 <span class="sd">        The &quot;species-dialog-back&quot; signal provides the save slot `slot`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectLocations</span><span class="p">()</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-spot-preference&#39;</span><span class="p">))</span>
         <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-locations&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;option-change-source&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
             <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
@@ -219,14 +220,17 @@
         <span class="k">if</span> <span class="n">locations_selection</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">locations_selection</span> <span class="o">=</span> <span class="n">locations_selection</span>
         <span class="c"># Display the dialog.</span>
-        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selection</span><span class="p">,</span>
-            <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span>
-            <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="c"># This button should not be pressed now, so hide it.</span>
-        <span class="n">select</span><span class="o">.</span><span class="n">button_chg_source</span><span class="o">.</span><span class="n">hide</span><span class="p">()</span>
+        <span class="n">select</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">SelectSpecies</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">locations_selection</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-spot-preference&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">in_batch_mode</span><span class="p">():</span>
+            <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species-batch-mode&#39;</span><span class="p">)</span> <span class="o">+</span>
+                <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">select</span><span class="o">.</span><span class="n">set_description</span><span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">)</span> <span class="o">+</span>
+                <span class="s">&quot;</span><span class="se">\n\n</span><span class="s">&quot;</span> <span class="o">+</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">select</span><span class="o">.</span><span class="n">maximize</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="Begin.on_define_plate_areas"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_define_plate_areas">[docs]</a>    <span class="k">def</span> <span class="nf">on_define_plate_areas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">species_selection</span><span class="p">,</span> <span class="n">slot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Display the window for defining the plate areas.</span>
@@ -237,7 +241,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">species_selection</span> <span class="o">=</span> <span class="n">species_selection</span>
         <span class="c"># Display the dialog.</span>
         <span class="n">spots</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">DefinePlateAreas</span><span class="p">()</span>
-        <span class="n">spots</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="n">spots</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-spot-preference&#39;</span><span class="p">))</span>
 </div>
 <div class="viewcode-block" id="Begin.on_plate_areas_defined"><a class="viewcode-back" href="../../../setlyze/analysis/spot_preference.html#setlyze.analysis.spot_preference.Begin.on_plate_areas_defined">[docs]</a>    <span class="k">def</span> <span class="nf">on_plate_areas_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender</span><span class="p">,</span> <span class="n">definition</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the plate areas definitions `definition` and start the analysis.</span>
@@ -398,34 +402,53 @@
                     <span class="k">continue</span>
                 <span class="n">stats</span> <span class="o">=</span> <span class="n">wilcoxon</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">plate_area</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">stats</span><span class="p">:</span>
-                    <span class="n">significant</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">stats</span><span class="p">[</span><span class="s">&#39;n_significant&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="n">wilcoxon</span><span class="p">[</span><span class="s">&#39;attr&#39;</span><span class="p">][</span><span class="s">&#39;repeats&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span>
-                    <span class="k">if</span> <span class="n">significant</span><span class="p">:</span>
+                    <span class="c"># Calculate the P-value.</span>
+                    <span class="c"># Preference and rejection should not be summed up</span>
+                    <span class="c"># because they contradict. Only use the major value.</span>
+                    <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s">&#39;n_preference&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">stats</span><span class="p">[</span><span class="s">&#39;n_rejection&#39;</span><span class="p">]:</span>
+                        <span class="n">major</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s">&#39;n_preference&#39;</span><span class="p">]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">major</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s">&#39;n_rejection&#39;</span><span class="p">]</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nb">float</span><span class="p">(</span><span class="n">major</span><span class="p">)</span> <span class="o">/</span> <span class="n">wilcoxon</span><span class="p">[</span><span class="s">&#39;attr&#39;</span><span class="p">][</span><span class="s">&#39;repeats&#39;</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">is_significant</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">):</span>
                         <span class="c"># Significant: preference or rejection.</span>
                         <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s">&#39;n_preference&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">stats</span><span class="p">[</span><span class="s">&#39;n_rejection&#39;</span><span class="p">]:</span>
-                            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;pr&#39;</span><span class="p">)</span>
+                            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;pr; p=</span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;rj&#39;</span><span class="p">)</span>
+                            <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;rj; p=</span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c"># Not significant.</span>
-                        <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;n&#39;</span><span class="p">)</span>
+                        <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;ns; p=</span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">p</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c"># No data.</span>
                     <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
 
             <span class="c"># Add the results for the Chi squared test.</span>
             <span class="k">if</span> <span class="n">chi_squared</span><span class="p">:</span>
-                <span class="n">significant</span> <span class="o">=</span> <span class="n">chi_squared</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="s">&#39;p_value&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span>
+                <span class="c"># Check if the result was significant. When all values are</span>
+                <span class="c"># 0 the p-value will be NaN. Function `is_significant` will</span>
+                <span class="c"># raise ValueError if the p-value is NaN.</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">significant</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">is_significant</span><span class="p">(</span><span class="n">chi_squared</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="s">&#39;p_value&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">significant</span> <span class="o">=</span> <span class="bp">False</span>
+
                 <span class="k">if</span> <span class="n">significant</span><span class="p">:</span>
-                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;s&#39;</span><span class="p">)</span>
+                    <span class="n">code</span> <span class="o">=</span> <span class="s">&#39;s&#39;</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&#39;n&#39;</span><span class="p">)</span>
+                    <span class="n">code</span> <span class="o">=</span> <span class="s">&#39;ns&#39;</span>
+
+                <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s">; χ²=</span><span class="si">%.2f</span><span class="s">; p=</span><span class="si">%.4f</span><span class="s">&quot;</span> <span class="o">%</span>
+                    <span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">chi_squared</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="s">&#39;chi_squared&#39;</span><span class="p">],</span>
+                    <span class="n">chi_squared</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="s">&#39;p_value&#39;</span><span class="p">]))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
 
             <span class="c"># Only add the row to the summary if one item in the row was</span>
             <span class="c"># significant.</span>
-            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">c</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;s&#39;</span><span class="p">,</span><span class="s">&#39;pr&#39;</span><span class="p">,</span><span class="s">&#39;rj&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">&#39;^(s|pr|rj);&#39;</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
                     <span class="n">r</span> <span class="o">=</span> <span class="p">[</span><span class="n">species</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="s">&#39;Total plates&#39;</span><span class="p">)]</span>
                     <span class="n">r</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
                     <span class="n">summary</span><span class="p">[</span><span class="s">&#39;results&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
@@ -465,7 +488,7 @@
         <span class="c"># Set a definition list for the report.</span>
         <span class="n">report</span><span class="o">.</span><span class="n">set_definitions</span><span class="p">({</span>
             <span class="s">&#39;s&#39;</span><span class="p">:</span> <span class="s">&quot;The result for the statistical test was significant.&quot;</span><span class="p">,</span>
-            <span class="s">&#39;n&#39;</span><span class="p">:</span> <span class="s">&quot;The result for the statistical test was not significant.&quot;</span><span class="p">,</span>
+            <span class="s">&#39;ns&#39;</span><span class="p">:</span> <span class="s">&quot;The result for the statistical test was not significant.&quot;</span><span class="p">,</span>
             <span class="s">&#39;pr&#39;</span><span class="p">:</span> <span class="s">&quot;There was a significant preference for the plate area in question.&quot;</span><span class="p">,</span>
             <span class="s">&#39;rj&#39;</span><span class="p">:</span> <span class="s">&quot;There was a significant rejection for the plate area in question.&quot;</span><span class="p">,</span>
             <span class="s">&#39;na&#39;</span><span class="p">:</span> <span class="s">&quot;There is not enough data for the analysis or in case of the</span><span class="se">\n</span><span class="s">&quot;</span>
@@ -502,7 +525,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">areas_definition</span><span class="p">,</span> <span class="n">execute_queue</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Analysis</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">execute_queue</span><span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Performing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-spot-preference&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">locations_selection</span> <span class="o">=</span> <span class="n">locations</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_selection</span> <span class="o">=</span> <span class="n">species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">areas_definition</span> <span class="o">=</span> <span class="n">areas_definition</span>
@@ -589,7 +612,10 @@
                 <span class="n">areas_total</span> <span class="o">+=</span> <span class="n">area_total</span>
             <span class="k">if</span> <span class="n">areas_total</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;The species was not found on any plates, aborting.&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;emit&#39;</span><span class="p">,</span> <span class="s">&#39;analysis-aborted&#39;</span><span class="p">,</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;empty-plate-areas&#39;</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;emit&#39;</span><span class="p">,</span> <span class="s">&#39;analysis-aborted&#39;</span><span class="p">,</span>
+                    <span class="s">&quot;The selected species weren&#39;t found on any SETL plates &quot;</span>
+                    <span class="s">&quot;from the selected locations. Try again with different &quot;</span>
+                    <span class="s">&quot;locations or select more locations.&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_exit</span><span class="p">()</span>
                 <span class="k">return</span> <span class="bp">None</span>
 
@@ -621,7 +647,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">generate_report</span><span class="p">()</span>
 
         <span class="c"># Update the progress dialog.</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> was completed!&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-spot-preference&#39;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exec_task</span><span class="p">(</span><span class="s">&#39;progress.increase&#39;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">)</span>
 
         <span class="c"># Run finalizers.</span>
@@ -1089,10 +1115,16 @@
                 <span class="n">conf_level</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">,</span>
                 <span class="n">conf_int</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
 
+            <span class="c"># Check if the result was significant. When all values are 0</span>
+            <span class="c"># the p-value will be NaN. Function `is_significant` will raise</span>
+            <span class="c"># ValueError if the p-value is NaN.</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">significant</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">is_significant</span><span class="p">(</span><span class="n">test_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">continue</span>
+
             <span class="c"># Save basic results for this repeated test.</span>
-            <span class="c"># Check if the result was significant (P-value &lt; alpha-level).</span>
-            <span class="n">p_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">test_result</span><span class="p">[</span><span class="s">&#39;p.value&#39;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">p_value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">alpha_level</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p_value</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">significant</span><span class="p">:</span>
                 <span class="c"># If so, increase significant counter with one.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">statistics</span><span class="p">[</span><span class="s">&#39;wilcoxon_areas_repeats&#39;</span><span class="p">][</span><span class="s">&#39;results&#39;</span><span class="p">][</span><span class="n">area_group_str</span><span class="p">][</span><span class="s">&#39;n_significant&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 

@@ -366,8 +366,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_processes</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">report_prefix</span> <span class="o">=</span> <span class="s">&quot;report_&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_individual_results</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;save-batch-job-results&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_path</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;job-results-save-path&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">signal_handlers</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species_selection</span> <span class="o">=</span> <span class="bp">None</span>
@@ -387,7 +385,8 @@
 <div class="viewcode-block" id="PrepareAnalysis.get_progress_dialog"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.PrepareAnalysis.get_progress_dialog">[docs]</a>    <span class="k">def</span> <span class="nf">get_progress_dialog</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a progress dialog and a handler for the dialog.&quot;&quot;&quot;</span>
         <span class="n">pd</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">ProgressDialog</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">&quot;Performing analysis&quot;</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;analysis-running&#39;</span><span class="p">))</span>
+            <span class="n">description</span><span class="o">=</span><span class="s">&quot;Please stand by while the analysis is running. This &quot;</span>
+            <span class="s">&quot;may take a while...&quot;</span><span class="p">)</span>
         <span class="n">handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">pd</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
 </div>
@@ -444,7 +443,7 @@
         <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
             <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;Analysis canceled&quot;</span><span class="p">)</span>
-        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">))</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="s">&quot;Analysis aborted by user.&quot;</span><span class="p">)</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
@@ -555,7 +554,8 @@
         <span class="n">dialog</span> <span class="o">=</span> <span class="n">gtk</span><span class="o">.</span><span class="n">MessageDialog</span><span class="p">(</span><span class="n">parent</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="nb">type</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">MESSAGE_INFO</span><span class="p">,</span> <span class="n">buttons</span><span class="o">=</span><span class="n">gtk</span><span class="o">.</span><span class="n">BUTTONS_OK</span><span class="p">,</span>
             <span class="n">message_format</span><span class="o">=</span><span class="s">&quot;No results&quot;</span><span class="p">)</span>
-        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">locale</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s">&#39;no-results&#39;</span><span class="p">))</span>
+        <span class="n">dialog</span><span class="o">.</span><span class="n">format_secondary_text</span><span class="p">(</span><span class="s">&quot;The analysis did not return any results, &quot;</span>
+            <span class="s">&quot;most likely because there wasn&#39;t enough data for the analysis.&quot;</span><span class="p">)</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">set_position</span><span class="p">(</span><span class="n">gtk</span><span class="o">.</span><span class="n">WIN_POS_CENTER</span><span class="p">)</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
         <span class="n">dialog</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
@@ -602,7 +602,7 @@
             <span class="n">setlyze</span><span class="o">.</span><span class="n">gui</span><span class="o">.</span><span class="n">Report</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 </div></div>
 <div class="viewcode-block" id="AnalysisWorker"><a class="viewcode-back" href="../../../setlyze/analysis/common.html#setlyze.analysis.common.AnalysisWorker">[docs]</a><span class="k">class</span> <span class="nc">AnalysisWorker</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Super class for Analysis classes.&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Super class for :class:`Analysis` classes.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execute_queue</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stop</span> <span class="o">=</span> <span class="bp">False</span>

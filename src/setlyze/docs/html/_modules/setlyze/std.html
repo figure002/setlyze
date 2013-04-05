@@ -146,12 +146,15 @@
         <span class="n">conclusions</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;Attraction&#39;</span><span class="p">,</span><span class="s">&#39;Repulsion&#39;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="s">&#39;p_value&#39;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s">&#39;p_value&#39;</span><span class="p">]):</span>
-            <span class="n">remarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Not significant&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">results</span><span class="p">[</span><span class="s">&#39;p_value&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">):</span>
-            <span class="n">remarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Not significant&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">significant</span> <span class="o">=</span> <span class="n">is_significant</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="s">&#39;p_value&#39;</span><span class="p">],</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">significant</span> <span class="o">=</span> <span class="bp">False</span>
+
+        <span class="k">if</span> <span class="n">significant</span><span class="p">:</span>
             <span class="n">remarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Significant&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">remarks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Not significant&quot;</span><span class="p">)</span>
 
             <span class="c"># If significant, also add attraction/repulsion.</span>
             <span class="k">if</span> <span class="s">&#39;mean_observed&#39;</span> <span class="ow">in</span> <span class="n">results</span> <span class="ow">and</span> <span class="s">&#39;mean_expected&#39;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
@@ -717,7 +720,23 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="is_significant"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.is_significant">[docs]</a><span class="k">def</span> <span class="nf">is_significant</span><span class="p">(</span><span class="n">p_value</span><span class="p">,</span> <span class="n">alpha_level</span><span class="o">=</span><span class="mf">0.05</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns True if the p-value `p_value` is significant, False otherwise.</span>
 
+<span class="sd">    The p-value is significant if it is less or equal to the alpha level</span>
+<span class="sd">    `alpha_level`. The default value for the alpha level is 0.05.</span>
+
+<span class="sd">    Will raise ValueError if the p-value is NaN, or TypeError if one of the</span>
+<span class="sd">    arguments are not of type &#39;float&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p_value</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;The p-value is not a number&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p_value</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;The p-value is not a float&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alpha_level</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&quot;The alpha level is not a float&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p_value</span> <span class="o">&lt;=</span> <span class="n">alpha_level</span>
 </div>
 <div class="viewcode-block" id="Sender"><a class="viewcode-back" href="../../setlyze/std.html#setlyze.std.Sender">[docs]</a><span class="k">class</span> <span class="nc">Sender</span><span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">GObject</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Custom GObject for emitting SETLyze specific application signals.</span>
@@ -805,7 +824,7 @@
     <span class="c"># Create custom application signals.</span>
     <span class="n">__gsignals__</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s">&#39;on-start-analysis&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,)),</span>
-        <span class="s">&#39;csv-import-failed&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,)),</span>
+        <span class="s">&#39;file-import-failed&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_STRING</span><span class="p">,)),</span>
 
         <span class="s">&#39;beginning-analysis&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>
         <span class="s">&#39;analysis-started&#39;</span><span class="p">:</span> <span class="p">(</span><span class="n">gobject</span><span class="o">.</span><span class="n">SIGNAL_RUN_FIRST</span><span class="p">,</span> <span class="n">gobject</span><span class="o">.</span><span class="n">TYPE_NONE</span><span class="p">,</span> <span class="p">()),</span>

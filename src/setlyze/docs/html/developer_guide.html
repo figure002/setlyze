@@ -60,13 +60,29 @@
   <div class="section" id="setlyze-developer-guide">
 <span id="developer-guide"></span><h1>SETLyze Developer Guide<a class="headerlink" href="#setlyze-developer-guide" title="Permalink to this headline">¶</a></h1>
 <p>Welcome to the Developer Guide for SETLyze. This document describes the
-SETLyze internals. It’s meant for people who are involved in the
+SETLyze internals. It&#8217;s meant for people who are involved in the
 development process of SETLyze. It should be easy for a new developer
 to pick up where the last SETLyze developer left off. The purpose of
 this guide is to give the new developer full understanding of SETLyze&#8217;s
 internals, its programming style, what&#8217;s unfinished, et cetera.</p>
 <div class="section" id="getting-started">
 <h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="obtaining-the-source-code">
+<span id="obtaining-the-source"></span><h3>Obtaining the source code<a class="headerlink" href="#obtaining-the-source-code" title="Permalink to this headline">¶</a></h3>
+<p>The source code for SETLyze is currently hosted on GitHub. The project page
+can be found at the following URL: <a class="reference external" href="https://github.com/figure002/setlyze">https://github.com/figure002/setlyze</a></p>
+<p>The source code is version controlled with <a class="reference external" href="http://git-scm.com/">Git</a>. You&#8217;ll
+need to install Git before you can start working on SETLyze. Go to
+<a class="reference external" href="http://git-scm.com/">http://git-scm.com/</a> to get started with Git.</p>
+<p>If you are new to using Git, there is a well written online book
+<a class="reference external" href="http://git-scm.com/book">Pro Git</a> which explains everything you need to know
+about using Git. At least read through the
+<a class="reference external" href="http://git-scm.com/book/en/Getting-Started">Getting Started</a> section.</p>
+<p>Once you have Git installed and properly setup, you can obtain a copy of the
+source code for SETLyze with the following command</p>
+<div class="highlight-python"><pre>git clone git://github.com/figure002/setlyze.git</pre>
+</div>
+</div>
 <div class="section" id="navigating-the-setlyze-folder">
 <h3>Navigating the SETLyze folder<a class="headerlink" href="#navigating-the-setlyze-folder" title="Permalink to this headline">¶</a></h3>
 <p>The key files in SETLyze&#8217;s root folder are:</p>
@@ -87,7 +103,7 @@ in your web browser.</dd>
 done using Sphinx. Some parts of the documentation are from
 <tt class="docutils literal"><span class="pre">.rst</span></tt>-files within this folder, others are extracted from the
 documentation strings within the program source code.</dd>
-<dt>README</dt>
+<dt>README.md</dt>
 <dd>This text file contains a short description of the program and directs
 you to other documentation.</dd>
 <dt>COPYING</dt>
@@ -355,8 +371,8 @@ installers for SETLyze.</p>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="distribution.html">Distribution of SETLyze</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="distribution.html#distribution-on-windows-building-an-installer">Distribution on Windows: Building an Installer</a></li>
-<li class="toctree-l2"><a class="reference internal" href="distribution.html#building-a-source-package">Building a Source Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution.html#building-a-windows-installer">Building a Windows Installer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="distribution.html#building-source-and-linux-binary-packages">Building Source and Linux Binary Packages</a></li>
 </ul>
 </li>
 </ul>
@@ -377,6 +393,7 @@ installers for SETLyze.</p>
   <ul>
 <li><a class="reference internal" href="#">SETLyze Developer Guide</a><ul>
 <li><a class="reference internal" href="#getting-started">Getting Started</a><ul>
+<li><a class="reference internal" href="#obtaining-the-source-code">Obtaining the source code</a></li>
 <li><a class="reference internal" href="#navigating-the-setlyze-folder">Navigating the SETLyze folder</a></li>
 <li><a class="reference internal" href="#technical-design">Technical Design</a><ul>
 <li><a class="reference internal" href="#design-parts">Design Parts</a><ul>

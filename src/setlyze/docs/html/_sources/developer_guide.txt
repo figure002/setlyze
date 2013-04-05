@@ -5,7 +5,7 @@ SETLyze Developer Guide
 =========================================
 
 Welcome to the Developer Guide for SETLyze. This document describes the
-SETLyze internals. It’s meant for people who are involved in the
+SETLyze internals. It's meant for people who are involved in the
 development process of SETLyze. It should be easy for a new developer
 to pick up where the last SETLyze developer left off. The purpose of
 this guide is to give the new developer full understanding of SETLyze's
@@ -13,6 +13,29 @@ internals, its programming style, what's unfinished, et cetera.
 
 Getting Started
 ###############
+
+.. _obtaining-the-source:
+
+Obtaining the source code
+=========================
+
+The source code for SETLyze is currently hosted on GitHub. The project page
+can be found at the following URL: https://github.com/figure002/setlyze
+
+The source code is version controlled with `Git <http://git-scm.com/>`_. You'll
+need to install Git before you can start working on SETLyze. Go to
+http://git-scm.com/ to get started with Git.
+
+If you are new to using Git, there is a well written online book
+`Pro Git <http://git-scm.com/book>`_ which explains everything you need to know
+about using Git. At least read through the
+`Getting Started <http://git-scm.com/book/en/Getting-Started>`_ section.
+
+Once you have Git installed and properly setup, you can obtain a copy of the
+source code for SETLyze with the following command ::
+
+    git clone git://github.com/figure002/setlyze.git
+
 
 Navigating the SETLyze folder
 =============================
@@ -39,7 +62,7 @@ src/doc-src/
     ``.rst``-files within this folder, others are extracted from the
     documentation strings within the program source code.
 
-README
+README.md
     This text file contains a short description of the program and directs
     you to other documentation.
 

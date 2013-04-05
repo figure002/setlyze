@@ -101,110 +101,44 @@
         <span class="s">&quot;Below are the available locations. Please select the locations &quot;</span>
         <span class="s">&quot;from which you want to select species.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;option-change-source&#39;</span><span class="p">,</span>
-        <span class="s">&quot;By default, the data is loaded from the remote SETL database. To load &quot;</span>
-        <span class="s">&quot;data from a different data source, click the </span><span class="se">\&quot;</span><span class="s">Change Data &quot;</span>
-        <span class="s">&quot;Source</span><span class="se">\&quot;</span><span class="s"> button below.&quot;</span><span class="p">),</span>
+        <span class="s">&quot;By default the data is loaded from the SETL database. To load &quot;</span>
+        <span class="s">&quot;data from a different data source, click the </span><span class="se">\&quot;</span><span class="s">Load Data</span><span class="se">\&quot;</span><span class="s"> button below.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;selection-tips&#39;</span><span class="p">,</span>
         <span class="s">&quot;Tip: Hold Ctrl or Shift to select multiple items. To select all &quot;</span>
         <span class="s">&quot;items, press Ctrl+A.&quot;</span><span class="p">),</span>
     <span class="p">(</span><span class="s">&#39;select-species&#39;</span><span class="p">,</span>
         <span class="s">&quot;Below are the available species for the selected location(s). Please &quot;</span>
-        <span class="s">&quot;select the species to be included for the analysis.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis1&#39;</span><span class="p">,</span>
+        <span class="s">&quot;select the species to be included for the analysis.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+        <span class="s">&quot;It is possible to select more than one species. Selecting more than &quot;</span>
+        <span class="s">&quot;one species means that the selected species are treated as one &quot;</span>
+        <span class="s">&quot;species for the analysis.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;select-species-batch-mode&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Below are the available species for the selected location(s). Please &quot;</span>
+        <span class="s">&quot;select the species to be included for the analysis.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+        <span class="s">&quot;It is possible to select more than one species. Selecting more than &quot;</span>
+        <span class="s">&quot;one species means that the analysis is repeated for each of the &quot;</span>
+        <span class="s">&quot;selected species.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;select-species-batch-mode-inter&#39;</span><span class="p">,</span>
+        <span class="s">&quot;Below are the available species for the selected location(s). Please &quot;</span>
+        <span class="s">&quot;select the species to be included for the analysis.</span><span class="se">\n\n</span><span class="s">&quot;</span>
+        <span class="s">&quot;It is possible to select more than one species. Selecting more than &quot;</span>
+        <span class="s">&quot;one species means that the analysis is repeated for each possible &quot;</span>
+        <span class="s">&quot;inter species combination of the selected species.&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;analysis-spot-preference&#39;</span><span class="p">,</span>
         <span class="s">&#39;Analysis Spot preference&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis1-descr&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s">&#39;analysis-spot-preference-descr&#39;</span><span class="p">,</span>
         <span class="s">&quot;Determine if a species has preference for a specific area on SETL &quot;</span>
         <span class="s">&quot;plates.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis2&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s">&#39;analysis-attraction-intra&#39;</span><span class="p">,</span>
         <span class="s">&#39;Analysis Attraction within Species&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis2-descr&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s">&#39;analysis-attraction-intra-descr&#39;</span><span class="p">,</span>
         <span class="s">&quot;Determine if a species attracts or repels individuals of its &quot;</span>
         <span class="s">&quot;own kind.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis3&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s">&#39;analysis-attraction-inter&#39;</span><span class="p">,</span>
         <span class="s">&#39;Analysis Attraction between Species&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis3-descr&#39;</span><span class="p">,</span>
+    <span class="p">(</span><span class="s">&#39;analysis-attraction-inter-descr&#39;</span><span class="p">,</span>
         <span class="s">&quot;Determine if two different species attract or repel each other.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis4&#39;</span><span class="p">,</span>
-        <span class="s">&#39;Analysis Relation between Species&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis4-descr&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Determine if there is a relation between the presence/absence of two &quot;</span>
-        <span class="s">&quot;species in a specific location.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis-batch&#39;</span><span class="p">,</span>
-        <span class="s">&#39;Batch mode&#39;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis-batch-descr&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Enter batch mode to repeat analyses for a selection of species.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;define-plate-areas&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Please define the plate areas for the Chi-squared test. You can keep &quot;</span>
-        <span class="s">&quot;the default setting, meaning that A, B, C and D are treated as &quot;</span>
-        <span class="s">&quot;separate plate areas, or you can combine specific areas by &quot;</span>
-        <span class="s">&quot;changing the setting below. Combining areas means that the &quot;</span>
-        <span class="s">&quot;combined areas are treated as a single plate area. Empty plate &quot;</span>
-        <span class="s">&quot;areas are ignored. This plate area definition will not be used for the &quot;</span>
-        <span class="s">&quot;Wilcoxon test because a fixed set of plate areas will be tested.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;error-single-plate-area&#39;</span><span class="p">,</span>
-        <span class="s">&quot;You&#39;ve chosen to combine all plate areas together, resulting &quot;</span>
-        <span class="s">&quot;in a single plate area. This analysis requires at least two plate &quot;</span>
-        <span class="s">&quot;areas. Please change your plate areas definition.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;change-data-source&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Click on one of the tabs below to change to a different data &quot;</span>
-        <span class="s">&quot;source.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;change-data-source-csv&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Load SETL data from CSV files. These data files must &quot;</span>
-        <span class="s">&quot;be exported from the Microsoft Access SETL database in CSV &quot;</span>
-        <span class="s">&quot;format. The user manual describes how to export these files.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;change-data-source-xls&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Load SETL data from xls files. &quot;</span>
-        <span class="s">&quot;The user manual describes how to export these files.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;change-data-source-db&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Load SETL data from the remote SETL database. This requires a &quot;</span>
-        <span class="s">&quot;direct connection with the SETL database server. This feature &quot;</span>
-        <span class="s">&quot;has not been implemented yet.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;analysis-running&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Please stand by while the analysis is running. This may take &quot;</span>
-        <span class="s">&quot;a while...&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;invalid-alpha-level&#39;</span><span class="p">,</span>
-        <span class="s">&quot;You entered an invalid alpha level. The alpha level must be a &quot;</span>
-        <span class="s">&quot;probability between 0 and 1.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;invalid-repeats-number&#39;</span><span class="p">,</span>
-        <span class="s">&quot;You entered an invalid repeats number. The number of repeats for &quot;</span>
-        <span class="s">&quot;statistical tests must be 2 or higher.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;empty-plate-areas&#39;</span><span class="p">,</span>
-        <span class="s">&quot;The selected species weren&#39;t found on any SETL plates from the selected &quot;</span>
-        <span class="s">&quot;locations. Try again with different locations or select more &quot;</span>
-        <span class="s">&quot;locations.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;t-plate-areas-definition&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Plate Areas Definition for Chi-squared Test&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;t-plate-area-totals&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Species Totals per Plate Area for Chi-squared Test&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;t-results-wilcoxon-rank-sum&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Results for Wilcoxon rank-sum tests (non-repeated)&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;t-results-pearson-chisq&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Results for Pearson&#39;s Chi-squared Tests for Count Data&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;t-results-shapiro-wilk&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Results for Shapiro-Wilk tests of normality&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;t-significance-results-repeats&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Significance results for repeated </span><span class="si">%s</span><span class="s"> tests&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;csv-files-not-selected&#39;</span><span class="p">,</span>
-        <span class="s">&quot;You didn&#39;t select all CSV files. SETLyze requires four CSV files &quot;</span>
-        <span class="s">&quot;as input. See the user manual for more information. Please select &quot;</span>
-        <span class="s">&quot;all four files and try again.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;xls-files-not-selected&#39;</span><span class="p">,</span>
-        <span class="s">&quot;You didn&#39;t select all xls files. SETLyze requires four xls files &quot;</span>
-        <span class="s">&quot;as input. See the user manual for more information. Please select &quot;</span>
-        <span class="s">&quot;all four files and try again.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Failed to load the SETL data from the CSV or XLS files. &quot;</span>
-        <span class="s">&quot;This is probably caused by an incorrect format of the input file. &quot;</span>
-        <span class="s">&quot;SETLyze requires the input files to be in a specific format. &quot;</span>
-        <span class="s">&quot;Please follow the instructions in the user manual on how to &quot;</span>
-        <span class="s">&quot;create the CSV files in the required format.</span><span class="se">\n\n</span><span class="s">&quot;</span>
-        <span class="s">&quot;The error returned was: </span><span class="si">%s</span><span class="s">&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;cancel-pressed&#39;</span><span class="p">,</span>
-        <span class="s">&quot;Analysis aborted by user.&quot;</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">&#39;no-results&#39;</span><span class="p">,</span>
-        <span class="s">&quot;The analysis did not return any results, most likely because there &quot;</span>
-        <span class="s">&quot;wasn&#39;t enough data for the analysis.&quot;</span><span class="p">),</span>
-    <span class="p">]</span>
+<span class="p">]</span>
 
 <span class="c"># Turn the list into a dictionary. This provides easier access to its</span>
 <span class="c"># items.</span>
@@ -217,8 +151,8 @@
 <span class="sd">    A simple example:</span>
 
 <span class="sd">        &gt;&gt;&gt; import setlyze.locale</span>
-<span class="sd">        &gt;&gt;&gt; setlyze.locale.text(&#39;analysis-running&#39;)</span>
-<span class="sd">        &#39;Please stand by while the analysis is running. This may take a while...&#39;</span>
+<span class="sd">        &gt;&gt;&gt; setlyze.locale.text(&#39;analysis-spot-preference-descr&#39;)</span>
+<span class="sd">        &#39;Determine if a species has preference for a specific area on SETL plates.&#39;</span>
 
 <span class="sd">    Substitution is also supported:</span>
 

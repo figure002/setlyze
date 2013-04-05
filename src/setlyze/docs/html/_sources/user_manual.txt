@@ -171,7 +171,7 @@ analysis and press OK to begin. A new dialog will be displayed, most likely the
 If this is your first time running SETLyze, the locations selection dialog will
 show an empty locations list because no data has been loaded yet. To load SETL
 data, click on the `Change Data Source` button to open the
-:ref:`change data source dialog <dialog-change-data-source>`. This dialog
+:ref:`change data source dialog <dialog-load-data>`. This dialog
 allows you to load data from CSV or XLS files exported from the Microsoft
 Access SETL database.
 
@@ -283,11 +283,11 @@ Batch Mode dialog
    Batch Mode dialog
 
 Selecting "Batch mode" in the :ref:`dialog-analysis-selection` brings up the
-:ref:`dialog-batch-mode`. This dialog allows you to start an analysis in batch
+Batch Mode dialog. This dialog allows you to start an analysis in batch
 mode. In batch mode, the selected analysis is repeated for each species in a
 species selection (or each inter species combination for analysis "Attraction
 between Species"). When multiple species are selected the analysis is repeated
-for each species separately and the results are displayed in a summary report.
+for each species separately and the results are displayed in a :ref:`summary-report`.
 The summary report only displays the species that had significant results.
 
 .. _dialog-preferences:
@@ -365,7 +365,7 @@ locations. Subsequently this means that only the SETL records that match both
 the locations and species selection will be used for the analysis, as each SETL
 record is bound to a species and a SETL plate from a specific location.
 
-The `Change Data Source` button opens the :ref:`dialog-change-data-source`.
+The `Change Data Source` button opens the :ref:`dialog-load-data`.
 This dialog allows you to load new SETL data. After doing so, the locations
 selection dialog is automatically updated with the new data.
 
@@ -420,55 +420,37 @@ Just click on one of the species to select it. To select multiple
 species, hold Ctrl or Shift while selecting. To select all species
 at once, click on a species and press Ctrl+A.
 
-.. _dialog-change-data-source:
+.. _dialog-load-data:
 
-Change Data Source dialog
-=========================
+Load Data dialog
+================
 
 .. figure:: dialog_change_data_source.png
    :scale: 100%
-   :alt: Change Data Source dialog
+   :alt: Load Data dialog
    :align: center
 
-   Change Data Source dialog
+   Load Data dialog
 
-The change data source dialog allows you to switch to a different data
-source. Two data sources are possible:
+The Load Data dialog allows you to load SETL data into SETLyze. Two data
+sources are supported:
 
-* CSV files exported from the Microsoft Access SETL database. The CSV
-  files need to be exported by Microsoft Access, one file for each of
-  the four tables: SETL_localities, SETL_plates, SETL_records, and
+* Text CSV (\*.csv, \*.txt) files exported from the Microsoft Access SETL
+  database. The CSV files need to be exported by Microsoft Access, one file
+  for each of the four tables: SETL_localities, SETL_plates, SETL_records, and
   SETL_species. The section :ref:`export-setl-data` describes how to export
   these files.
 
-  After selecting all four CSV files, press the OK button to load all
-  SETL data from these files. A progress dialog is shown while the data
-  is being loaded. Once the data has been loaded, the
-  :ref:`dialog-loc-selection` will be updated with the new data.
+* Excel 97/2000/XP/2003 (\*.xls) files exported from the Microsoft Access SETL
+  database. One file for each of the four tables: SETL_localities, SETL_plates,
+  SETL_records, and SETL_species. Microsoft Access by default includes a header
+  row in the exported XLS files. The header row must be removed before
+  importing into SETLyze.
 
-* XLS files exported from Microsoft Excel. One file for each of the four
-  tables: SETL_localities, SETL_plates, SETL_records, and SETL_species. These
-  files should have the same format as the CSV files exported by Microsoft
-  Access and must not contain a header row.
-
-  After selecting all four XLS files, press the OK button to load all
-  SETL data from these files. A progress dialog is shown while the data
-  is being loaded. Once the data has been loaded, the
-  :ref:`dialog-loc-selection` will be updated with the new data.
-
-* The remote SETL database. The SETL database server has not been implemented
-  yet, so this functionality is not functional yet. The idea is to move the
-  data from the Microsoft Access database to a PostgreSQL/MySQL database.
-
-  This dialog should allow you to enter the information needed to
-  connect to the database server (i.e. the server address and a port number),
-  Pressing the OK button should load the locations and species data. A progress
-  dialog is shown while the data is being loaded. Once the data has been
-  loaded, the :ref:`dialog-loc-selection` will be updated with the new data.
-
-  The plates and records data will not be loaded directly (in contrast
-  to loading data from CSV/XLS files). The plates and record data will be
-  loaded when required by the analysis.
+After selecting all four data files files, press the OK button to load the
+SETL data from these files. A progress dialog is shown while the data
+is being loaded. Once the data has been loaded, the :ref:`dialog-loc-selection`
+will be updated with the new data.
 
 .. _dialog-define-plate-areas:
 
@@ -570,7 +552,8 @@ Save
 Save All
     The "Save All" button is only enabled in batch mode and allows you to export
     the reports of the individual analyses. Clicking the "Save" button in batch
-    mode only saves the summary report which is based on the individual reports.
+    mode only saves the :ref:`summary-report` which is based on the
+    :ref:`individual <standard-report>` reports.
 
 Repeat
     The "Repeat" button can be used to repeat an analysis with different
@@ -580,13 +563,16 @@ Repeat
 
 The report dialog can display two types of reports:
 
-* Standard: When running an analysis in standard mode (not in batch mode) the
-  report is divided into sub sections. Each subsection shows detailed results.
-* Summary: When running an analysis in batch mode the report will be a summary
-  of all standard reports that were generated. This report will show less
-  details than a standard report.
+* :ref:`standard-report`: When running an analysis in standard mode (not in
+  batch mode) the report is divided into sections. There is a section for each
+  statistical test that was performed.
+* :ref:`summary-report`: When running an analysis in batch mode the report will
+  be a summary of all standard reports that were generated. This report will
+  show less details than a standard report.
 
 Both types of reports will be explained below.
+
+.. _standard-report:
 
 Standard Report
 ---------------
@@ -962,17 +948,16 @@ Observed Totals
 Expected Totals
     The expected totals for the selected species.
 
+.. _summary-report:
+
 Summary Report
 --------------
 
-A summary report contains basic information from multiple standard reports.
-Such a summary report is basically a table where each row represents a single
-analysis and the columns contain the results.
-
-At this moment the presentation of a report in the report dialog is very
-minimal. You are encouraged to save the report to an .rst file with the "Save"
-button and view it in a text editor. The .rst report will include a definition
-list explaining the meaning of the codes.
+A summary report contains basic information from multiple
+:ref:`standard reports <standard-report>`. Such a summary report is basically
+a table where each row represents a single analysis and the columns contain
+the results. A summary report also has separate sections for analysis
+information and a definition list for the codes used in the summary report.
 
 Here are a few examples of summary reports:
 
@@ -1229,6 +1214,9 @@ column tells you to which group each result belongs.
 Exporting SETL data from the Access database
 --------------------------------------------
 
+Export to CSV files
+===================
+
 This section describes how to export the SETL data from the Microsoft
 Access database to CSV files.
 
@@ -1251,6 +1239,13 @@ Access database to CSV files.
 
 5. You should end up with four files, one CSV file for each table. Put
    these files in one folder.
+
+Export to Excel files
+=====================
+
+The database tables can also be exported to Excel files. Only the import of
+Excel 97/2000/XP/2003 (\*.xls) files are supported by SETLyze, so be sure to
+select the right format.
 
 ---------
 Use Cases

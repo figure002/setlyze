@@ -73,22 +73,21 @@
 <span class="c">#  You should have received a copy of the GNU General Public License</span>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 
-<span class="sd">&quot;&quot;&quot;This modules provides application-wide access to SETLyze&#39;s</span>
-<span class="sd">configuration and data variables.</span>
+<span class="sd">&quot;&quot;&quot;This modules provides application-wide access to SETLyze&#39;s configuration</span>
+<span class="sd">variables.</span>
 
-<span class="sd">This module provides an object ``cfg`` for handling a fixed set of</span>
-<span class="sd">configuration and data variables for SETLyze. The big advantage is that</span>
-<span class="sd">this makes the variables available across all modules. Here is a small</span>
-<span class="sd">usage example,</span>
+<span class="sd">This module provides an object *cfg* for handling a fixed set of configuration</span>
+<span class="sd">variables for SETLyze. The big advantage is that this makes the variables</span>
+<span class="sd">available across all modules. Here is a small usage example,</span>
 
 <span class="sd">    &gt;&gt;&gt; import setlyze.config</span>
 <span class="sd">    &gt;&gt;&gt; setlyze.config.cfg.set(&#39;alpha-level&#39;, 0.01)</span>
-<span class="sd">    &gt;&gt;&gt; print &quot;The alpha level for the t-test and Wilcoxon test is set to&quot;, setlyze.config.cfg.get(&#39;alpha-level&#39;)</span>
-<span class="sd">    The alpha level for the t-test and Wilcoxon test is set to 0.01</span>
+<span class="sd">    &gt;&gt;&gt; print &quot;The alpha level for statistical tests is set to %s&quot; % setlyze.config.cfg.get(&#39;alpha-level&#39;)</span>
+<span class="sd">    The alpha level for statistical tests is set to 0.01</span>
 
-<span class="sd">Importing this module in a different module gives access to the same</span>
-<span class="sd">``cfg`` object, and thus its variables can be obtained or manipulated</span>
-<span class="sd">using its get() and set() methods.</span>
+<span class="sd">Importing this module in a different module gives access to the same *cfg*</span>
+<span class="sd">object, and thus its variables can be obtained or manipulated using its</span>
+<span class="sd">:meth:`ConfigManager.get` and :meth:`ConfigManager.set` methods.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
@@ -143,7 +142,7 @@
     <span class="mf">4.47</span><span class="p">:</span> <span class="mi">12</span><span class="o">/</span><span class="mf">300.0</span><span class="p">,</span>
     <span class="mi">5</span><span class="p">:</span> <span class="mi">8</span><span class="o">/</span><span class="mf">300.0</span><span class="p">,</span>
     <span class="mf">5.66</span><span class="p">:</span> <span class="mi">2</span><span class="o">/</span><span class="mf">300.0</span><span class="p">,</span>
-    <span class="p">}</span>
+<span class="p">}</span>
 
 <span class="c"># The probability for each spot distance on a 5x5 SETL plate</span>
 <span class="c"># (inter-specific).</span>
@@ -164,7 +163,7 @@
     <span class="mf">4.47</span><span class="p">:</span> <span class="mi">24</span><span class="o">/</span><span class="mf">625.0</span><span class="p">,</span>
     <span class="mi">5</span><span class="p">:</span> <span class="mi">16</span><span class="o">/</span><span class="mf">625.0</span><span class="p">,</span>
     <span class="mf">5.66</span><span class="p">:</span> <span class="mi">4</span><span class="o">/</span><span class="mf">625.0</span><span class="p">,</span>
-    <span class="p">}</span>
+<span class="p">}</span>
 
 <span class="c"># Default configurations.</span>
 <span class="n">DEFAULT_CONFIG</span> <span class="o">=</span> <span class="p">[</span>
@@ -179,13 +178,15 @@
     <span class="p">(</span><span class="s">&#39;data-path&#39;</span><span class="p">,</span> <span class="n">DATA_PATH</span><span class="p">),</span>
     <span class="c"># Absolute path to the local database file.</span>
     <span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">,</span> <span class="n">DB_FILE</span><span class="p">),</span>
-    <span class="c"># Path to localities CSV or XLS file.</span>
+    <span class="c"># Minimum database version required.</span>
+    <span class="p">(</span><span class="s">&#39;minimum-db-version&#39;</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">),</span>
+    <span class="c"># Path to localities file.</span>
     <span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Path to species CSV or XLS file.</span>
+    <span class="c"># Path to species file.</span>
     <span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Path to records CSV or XLS file.</span>
+    <span class="c"># Path to records file.</span>
     <span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
-    <span class="c"># Path to plates CSV or XLS file.</span>
+    <span class="c"># Path to plates file.</span>
     <span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
     <span class="c"># Alpha level for significance tests. The confidence level is calculated</span>
     <span class="c"># with &quot;1 - alpha-level&quot;.</span>
@@ -196,10 +197,6 @@
     <span class="p">(</span><span class="s">&#39;spot-dist-to-prob-inter&#39;</span><span class="p">,</span> <span class="n">SPOT_DIST_TO_PROB_INTER</span><span class="p">),</span>
     <span class="c"># Number of repeats to perform for statistical tests.</span>
     <span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
-    <span class="c"># Save individual batch results.</span>
-    <span class="p">(</span><span class="s">&#39;save-batch-job-results&#39;</span><span class="p">,</span> <span class="bp">False</span><span class="p">),</span>
-    <span class="c"># Save path for individual batch results.</span>
-    <span class="p">(</span><span class="s">&#39;job-results-save-path&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">),</span>
     <span class="c"># Number of CPUs.</span>
     <span class="p">(</span><span class="s">&#39;cpu-count&#39;</span><span class="p">,</span> <span class="n">CPU_COUNT</span><span class="p">),</span>
     <span class="c"># Number of concurrent processes for batch mode.</span>
@@ -207,19 +204,18 @@
 <span class="p">]</span>
 
 <div class="viewcode-block" id="ConfigManager"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager">[docs]</a><span class="k">class</span> <span class="nc">ConfigManager</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Class for managing SETLyze&#39;s data and configuration variables.</span>
+    <span class="sd">&quot;&quot;&quot;Class for managing SETLyze&#39;s configuration variables.</span>
 
-<span class="sd">    An instance of this class provides access to a fixed set of</span>
-<span class="sd">    variables that need to be accessable across SETLyze&#39;s modules. By</span>
-<span class="sd">    importing this module, one instance of this class is created.</span>
-<span class="sd">    Subsequent imports in other modules provides access to that same</span>
-<span class="sd">    instance.</span>
+<span class="sd">    An instance of this class provides access to a fixed set of variables</span>
+<span class="sd">    that need to be accessable across SETLyze&#39;s modules. By importing this</span>
+<span class="sd">    module, one instance of this class is created. Subsequent imports in other</span>
+<span class="sd">    modules provides access to that same instance.</span>
 
-<span class="sd">    The method set() is used to change the value of variables. The</span>
-<span class="sd">    method get() is used to get the value of a variable.</span>
+<span class="sd">    The method :meth:`set` is used to change the value of variables. The</span>
+<span class="sd">    method :meth:`get` is used to get the value of a variable.</span>
 
-<span class="sd">    All variables and their default values can be found in the variable</span>
-<span class="sd">    ``DEFAULT_CONFIG`` of this module.</span>
+<span class="sd">    All configurations and their default values can be found in global variable</span>
+<span class="sd">    `DEFAULT_CONFIG` of this module.</span>
 
 <span class="sd">    Design Part: 1.57</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -230,16 +226,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">read_from_file</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ConfigManager.read_from_file"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.read_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">read_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Read settings from a configuration file.</span>
+        <span class="sd">&quot;&quot;&quot;Try to read settings from a configuration file.</span>
 
-<span class="sd">        The configuration file is by default saved to</span>
-<span class="sd">        ``~/.setlyze/setlyze.cfg``. If a configuration file ``setlyze.cfg``</span>
-<span class="sd">        is present in the working directory, that file is used instead.</span>
+<span class="sd">        The default location of the configuration file is</span>
+<span class="sd">        ``~/.setlyze/setlyze.cfg``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ints</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span><span class="s">&#39;concurrent-processes&#39;</span><span class="p">)</span>
         <span class="n">floats</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">SafeConfigParser</span><span class="p">()</span>
-        <span class="n">files</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">([</span><span class="s">&#39;setlyze.cfg&#39;</span><span class="p">,</span> <span class="n">CONF_FILE</span><span class="p">])</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">CONF_FILE</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">files</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s">&#39;general&#39;</span><span class="p">]:</span>
                 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">parser</span><span class="o">.</span><span class="n">options</span><span class="p">(</span><span class="n">section</span><span class="p">):</span>
@@ -255,13 +250,21 @@
                         <span class="k">continue</span>
 </div>
 <div class="viewcode-block" id="ConfigManager.save_to_file"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.save_to_file">[docs]</a>    <span class="k">def</span> <span class="nf">save_to_file</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Save user customizable settings to a configuration file.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Save user customizable settings to a configuration file.</span>
+
+<span class="sd">        The configuration file is by default saved to</span>
+<span class="sd">        ``~/.setlyze/setlyze.cfg``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">SafeConfigParser</span><span class="p">()</span>
+        <span class="c"># The configurations that need to be saved to a configuration file.</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;general&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">,</span><span class="s">&#39;test-repeats&#39;</span><span class="p">,</span><span class="s">&#39;concurrent-processes&#39;</span><span class="p">)</span>
+        <span class="p">}</span>
         <span class="c"># Set the configurations.</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">,</span> <span class="s">&#39;alpha-level&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;alpha-level&#39;</span><span class="p">)))</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">,</span> <span class="s">&#39;test-repeats&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;test-repeats&#39;</span><span class="p">)))</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;general&#39;</span><span class="p">,</span> <span class="s">&#39;concurrent-processes&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;concurrent-processes&#39;</span><span class="p">)))</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
+            <span class="n">parser</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">[</span><span class="n">section</span><span class="p">]:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">option</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">option</span><span class="p">)))</span>
         <span class="c"># Check if the data folder exists. If not, create it.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">)</span>
@@ -270,92 +273,38 @@
         <span class="n">parser</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
-<div class="viewcode-block" id="ConfigManager.set"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set the configuration with name `key` to `value`.</span>
-
-<span class="sd">        Some configurations have extra keyword arguments. These</span>
-<span class="sd">        arguments are handled by `kwargs`. The configurations that have</span>
-<span class="sd">        extra arguments are as follows:</span>
-
-<span class="sd">            ``locations-selection``, ``species-selection``</span>
-<span class="sd">                If `slot` is set to 0 (default), the value is saved</span>
-<span class="sd">                as the first selection. If set to 1, the value is saved</span>
-<span class="sd">                as the second selection.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ConfigManager.set"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the configuration with name `key` to `value`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;ConfigManager: unknown key &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
-
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39; is not a configuration key&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s">&#39;data-source&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_data_source</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
             <span class="k">return</span>
-
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="s">&#39;species-selection&#39;</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
-                <span class="c"># To reset the selection variables, use &#39;None&#39; as the</span>
-                <span class="c"># value. If value is &#39;None&#39;, save it as [None,None].</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">None</span><span class="p">,</span><span class="bp">None</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-                <span class="c"># The selection variable is a list, containing lists</span>
-                <span class="c"># of selected items. At the moment a selection variable</span>
-                <span class="c"># can contain up to two selection lists (two slots).</span>
-                <span class="c"># Default, insert the selection list in the first</span>
-                <span class="c"># slot (slot=0). If a slot is provided, use that slot</span>
-                <span class="c"># instead.</span>
-                <span class="n">slot</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;slot&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span> <span class="s">&quot;ConfigManager: invalid type </span><span class="si">%s</span><span class="s"> for &#39;</span><span class="si">%s</span><span class="s">&#39;. </span><span class="se">\</span>
-<span class="s">                                Must be either of type &#39;list&#39; or &#39;None&#39;.&quot;</span> <span class="o">%</span>
-                    <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">key</span><span class="p">)</span> <span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="c"># Set the new value for the configuration key.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 </div>
 <div class="viewcode-block" id="ConfigManager.set_data_source"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.set_data_source">[docs]</a>    <span class="k">def</span> <span class="nf">set_data_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the configuration with name ``data-source`` to `source`.</span>
 
-<span class="sd">        Possible values for `source` are ``setl-database``, ``xls`` and</span>
-<span class="sd">        ``csv-msaccess``. The value of this configuration tells the</span>
+<span class="sd">        Possible values for `source` are ``setl-database`` and</span>
+<span class="sd">        ``data-files``. The value of this configuration tells the</span>
 <span class="sd">        application where to look for SETL data. This is especially used</span>
 <span class="sd">        by the database module.</span>
 
 <span class="sd">        If an unknown data source is given, an error is printed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Legal data sources.</span>
-        <span class="n">legal_sources</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;setl-database&quot;</span><span class="p">,</span> <span class="s">&quot;csv-msaccess&quot;</span><span class="p">,</span> <span class="s">&quot;xls&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">legal_sources</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&quot;setl-database&quot;</span><span class="p">,</span> <span class="s">&quot;data-files&quot;</span><span class="p">):</span>
             <span class="c"># Set the new data source.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="s">&#39;data-source&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span>
-
             <span class="c"># A new database file must be created when the data source has</span>
             <span class="c"># changed.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;make-new-db&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Encountered unknown data source &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">source</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="ConfigManager.get"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the value for the configuration with name `key`.</span>
-
-<span class="sd">        Some configurations have extra keyword arguments. These</span>
-<span class="sd">        arguments are handled by `kwargs`. The configurations that have</span>
-<span class="sd">        extra arguments are as follows:</span>
-
-<span class="sd">            ``locations-selection``, ``species-selection``</span>
-<span class="sd">                If `slot` is set to 0 (default), the value of the</span>
-<span class="sd">                first selection is returned. If set to 1,the second</span>
-<span class="sd">                selection is returned.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="ConfigManager.get"><a class="viewcode-back" href="../../setlyze/config.html#setlyze.config.ConfigManager.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the value for the configuration with name `key`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unknown key &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;locations-selection&#39;</span><span class="p">,</span> <span class="s">&#39;species-selection&#39;</span><span class="p">):</span>
-            <span class="n">slot</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;slot&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slot</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">slot</span><span class="p">]</span>
-
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&quot;&#39;</span><span class="si">%s</span><span class="s">&#39; is not a configuration key&quot;</span> <span class="o">%</span> <span class="n">key</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
 
 <span class="c"># Create an instance of ConfigManager. This instance is only created once,</span>

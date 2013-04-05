@@ -73,17 +73,15 @@
 <span class="c">#  You should have received a copy of the GNU General Public License</span>
 <span class="c">#  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
 
-<span class="sd">&quot;&quot;&quot;Facilitate access to the local SQLite database and the remote SETL</span>
-<span class="sd">database.</span>
+<span class="sd">&quot;&quot;&quot;Facilitate access to the database.</span>
 
 <span class="sd">The local SQLite database is created by :meth:`setlyze.database.MakeLocalDB.create_new_db`.</span>
-<span class="sd">It is created using the SQLite Python module. This database is used</span>
-<span class="sd">internally by SETLyze for local data storage and allows for the</span>
-<span class="sd">execution of SQL queries. The database is a single file created in the</span>
-<span class="sd">user&#39;s home directory in a subfolder called ``.setlyze``.</span>
+<span class="sd">It is created using Python&#39;s SQLite module and is used internally by SETLyze</span>
+<span class="sd">for storing and retrieving data for analyses. The database is a single file</span>
+<span class="sd">created in the user&#39;s home directory in a subfolder called ``.setlyze``.</span>
 
-<span class="sd">Here we refer to the PostgreSQL SETL database as the remote SETL</span>
-<span class="sd">database.</span>
+<span class="sd">There are plans to create a central SETL database server which this module</span>
+<span class="sd">can interact with. We refer to this database as the remote database.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -110,94 +108,52 @@
 <span class="n">__status__</span> <span class="o">=</span> <span class="s">&quot;Production&quot;</span>
 <span class="n">__date__</span> <span class="o">=</span> <span class="s">&quot;2013/02/01&quot;</span>
 
-<div class="viewcode-block" id="get_database_accessor"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.get_database_accessor">[docs]</a><span class="k">def</span> <span class="nf">get_database_accessor</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Return an object that facilitates access to either the local or</span>
-<span class="sd">    the remote database.</span>
+<span class="c"># The current version of the local database.</span>
+<span class="n">DB_VERSION</span> <span class="o">=</span> <span class="mf">0.4</span>
 
-<span class="sd">    Based on the data source configuration, obtained with</span>
-<span class="sd">    ``setlyze.config.cfg.get(&#39;data-source&#39;)``, this function wil either</span>
-<span class="sd">    return an instance of AccessLocalDB or AccessRemoteDB. This instance</span>
-<span class="sd">    provides methods that are specific to the data source currently in</span>
-<span class="sd">    use.</span>
+<div class="viewcode-block" id="get_database_accessor"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.get_database_accessor">[docs]</a><span class="k">def</span> <span class="nf">get_database_accessor</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Return an object that facilitates access to the database.</span>
+
+<span class="sd">    Based on the data source configuration, this function wil either</span>
+<span class="sd">    return an instance of :class:`AccessLocalDB` or :class:`AccessRemoteDB`.</span>
+<span class="sd">    This instance provides methods that are specific to the data source that</span>
+<span class="sd">    is in use.</span>
 
 <span class="sd">    Design Part: 1.93</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data_source</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;csv-msaccess&#39;</span><span class="p">,</span> <span class="s">&#39;setl-database&#39;</span><span class="p">,</span> <span class="s">&#39;xls&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">data_source</span> <span class="ow">in</span> <span class="p">(</span><span class="s">&#39;data-files&#39;</span><span class="p">,</span> <span class="s">&#39;setl-database&#39;</span><span class="p">):</span>
         <span class="n">db</span> <span class="o">=</span> <span class="n">AccessLocalDB</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Invalid data source &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">data_source</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">db</span>
 </div>
-<div class="viewcode-block" id="get_plates_total_matching_spots_total"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.get_plates_total_matching_spots_total">[docs]</a><span class="k">def</span> <span class="nf">get_plates_total_matching_spots_total</span><span class="p">(</span><span class="n">n_spots</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return an integer representing the number of plates that</span>
-<span class="sd">    match the provided number of positive spots `n_spots`.</span>
-
-<span class="sd">    Possible values for `slot` are 0 for the first species selection,</span>
-<span class="sd">    and 1 for the second species selection.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">connection</span> <span class="o">=</span> <span class="n">sqlite</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">))</span>
-    <span class="n">cursor</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;n_spots_a&#39;</span>
-    <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;n_spots_b&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Possible values for &#39;slot&#39; are 0 and 1.&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">n_spots</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="c"># If spots_n is a negative number, get all distances</span>
-        <span class="c"># up to the absolute number. So if we find -5, get all</span>
-        <span class="c"># distances with up to 5 spots.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT COUNT(pla_id) &quot;</span>
-                        <span class="s">&quot;FROM plate_spot_totals &quot;</span>
-                        <span class="s">&quot;WHERE </span><span class="si">%s</span><span class="s"> &lt;= ?&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field</span><span class="p">),</span>
-                        <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">n_spots</span><span class="p">)])</span>
-        <span class="n">n_plates</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="c"># If it&#39;s a positive number, just get the plates that</span>
-        <span class="c"># match that spots number.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT COUNT(pla_id) &quot;</span>
-                        <span class="s">&quot;FROM plate_spot_totals &quot;</span>
-                        <span class="s">&quot;WHERE </span><span class="si">%s</span><span class="s"> = ?&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field</span><span class="p">),</span>
-                        <span class="p">[</span><span class="n">n_spots</span><span class="p">])</span>
-        <span class="n">n_plates</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-
-    <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-    <span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-    <span class="k">return</span> <span class="n">n_plates</span>
-
-</div>
 <div class="viewcode-block" id="MakeLocalDB"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB">[docs]</a><span class="k">class</span> <span class="nc">MakeLocalDB</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create a local SQLite database with default tables and fill some</span>
 <span class="sd">    tables based on the data source.</span>
 
-<span class="sd">    This class can load data from three data sources. One data source</span>
-<span class="sd">    is user supplied CSV files containing SETL data. The CSV files must</span>
-<span class="sd">    be exported by the MS Access SETL database.</span>
-<span class="sd">    The second source is the PostgreSQL SETL database. This function</span>
-<span class="sd">    requires a direct connection with the SETL database server.</span>
-<span class="sd">    The third source are XLS files containing SETL data. These files</span>
+<span class="sd">    This class can load data from three data sources. One data source is user</span>
+<span class="sd">    supplied CSV files containing SETL data. The CSV files must be exported by</span>
+<span class="sd">    the MS Access SETL database. The second source is the PostgreSQL SETL</span>
+<span class="sd">    database. This function requires a direct connection with the SETL database</span>
+<span class="sd">    server. The third source are XLS files containing SETL data. These files</span>
 <span class="sd">    must be exported by MS Excel 97/2000/xp.</span>
 
-<span class="sd">    Because the import of SETL data into the local database can take</span>
-<span class="sd">    a while, and instance of this class must run in a separate thread.</span>
-<span class="sd">    An instance of this class is therefor a thread object.</span>
+<span class="sd">    Because the import of SETL data into the local database can take a while,</span>
+<span class="sd">    and instance of this class must run in a separate thread. An instance of</span>
+<span class="sd">    this class is therefor a thread object.</span>
 
-<span class="sd">    Once a thread object is created, its activity must be started by</span>
-<span class="sd">    calling the thread’s start() method. This invokes the run() method</span>
-<span class="sd">    in a separate thread of control.</span>
+<span class="sd">    Once a thread object is created, its activity must be started by calling</span>
+<span class="sd">    the thread&#39;s start() method. This invokes the :meth:`run` method in a</span>
+<span class="sd">    separate thread of control.</span>
 
 <span class="sd">    Design Part: 1.2</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pd</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;MakeLocalDB.__init__ is called&quot;</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MakeLocalDB</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;db-file&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">ProgressDialogHandler</span><span class="p">(</span><span class="n">pd</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">None</span>
@@ -207,25 +163,22 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 <div class="viewcode-block" id="MakeLocalDB.run"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Decide based on the configuration variables which functions</span>
-<span class="sd">        should be called.</span>
+        <span class="sd">&quot;&quot;&quot;Decide based on the configuration variables which functions should</span>
+<span class="sd">        be called.</span>
 
-<span class="sd">        This method first checks if SETLyze is configured to create</span>
-<span class="sd">        a new local database. This is done by checking the value of</span>
-<span class="sd">        ``setlyze.config.cfg.get(&#39;make-new-db&#39;)``. If this is set to</span>
-<span class="sd">        ``False``, the method ends and the thread is destroyed. If set</span>
-<span class="sd">        to ``True``, a new local database is created based on the data</span>
-<span class="sd">        source configuration.</span>
+<span class="sd">        This method first checks if SETLyze is configured to create a new local</span>
+<span class="sd">        database. This is done by checking the value of configuration</span>
+<span class="sd">        &quot;make-new-db&quot;. If this is set to False, nothing will be done. If set</span>
+<span class="sd">        to True, a new local database is created based on the value of the</span>
+<span class="sd">        &quot;data-source&quot; configuration:</span>
 
-<span class="sd">        The data source configuration is checked by calling</span>
-<span class="sd">        ``setlyze.config.cfg.get(&#39;data-source&#39;)``. If this is set to</span>
-<span class="sd">        ``setl-database``, the method ``insert_from_db`` is called and</span>
-<span class="sd">        some SETL data from the remote SETL database is loaded into the</span>
-<span class="sd">        local database. If set to ``csv-msaccess``, the method</span>
-<span class="sd">        ``insert_from_csv`` is called which loads all SETL data from the</span>
-<span class="sd">        supplied CSV files into the local database. If this is set to ``xls``</span>
-<span class="sd">        the method ``insert_from_xls`` is called which loads all SETL data from</span>
-<span class="sd">        the supplied MS-excel files into the local database.</span>
+<span class="sd">        ``setl-database``</span>
+<span class="sd">          Method :meth:`insert_from_db` is called and some SETL data from the</span>
+<span class="sd">          remote SETL database is loaded into the local database.</span>
+
+<span class="sd">        ``data-files``</span>
+<span class="sd">          Method :meth:`insert_from_data_files` is called which loads SETL data</span>
+<span class="sd">          from the user supplied data files into the local database.</span>
 
 <span class="sd">        Design Part: 1.31</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -237,17 +190,15 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
             <span class="c"># Create new database with data.</span>
-            <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;setl-database&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span> <span class="o">==</span> <span class="s">&quot;setl-database&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">insert_from_db</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;csv-msaccess&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">insert_from_csv</span><span class="p">()</span>
-            <span class="k">elif</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s">&quot;xls&quot;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">insert_from_xls</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span> <span class="o">==</span> <span class="s">&quot;data-files&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_from_data_files</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c"># Exit gracefully.</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_exit</span><span class="p">()</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Encountered unknown data source &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span>
-                    <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;unknown data source &#39;</span><span class="si">%s</span><span class="s">&#39;&quot;</span> <span class="o">%</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="p">)</span>
 
             <span class="c"># Exit gracefully.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_exit</span><span class="p">()</span>
@@ -257,31 +208,36 @@
             <span class="c"># so we must use gobject.idle_add.</span>
             <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;local-db-created&#39;</span><span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new local database and load all SETL data from the</span>
-<span class="sd">        user selected CSV files into the local database.</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_from_data_files"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_from_data_files">[docs]</a>    <span class="k">def</span> <span class="nf">insert_from_data_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new local database and load all SETL data from user</span>
+<span class="sd">        selected CSV or Excel files into the local database.</span>
 
-<span class="sd">        The SETL data is loaded from four separate CSV files:</span>
-<span class="sd">            * localities_file, containing the SETL locations.</span>
-<span class="sd">            * species_file, containing the SETL species.</span>
-<span class="sd">            * records_file, containing the SETL records.</span>
-<span class="sd">            * plates_file, containing the SETL plates.</span>
+<span class="sd">        The SETL data is loaded from four separate files:</span>
 
-<span class="sd">        These files must be exported from the MS Access SETL database</span>
-<span class="sd">        and contain all fields. The CSV file must be in Excel format,</span>
-<span class="sd">        which means delimited by semicolons (;) and double quotes (&quot;) as</span>
-<span class="sd">        the quote character for fields with special characters.</span>
+<span class="sd">        * Locations file, containing the SETL locations.</span>
+<span class="sd">        * Species ile, containing the SETL species.</span>
+<span class="sd">        * Records file, containing the SETL records.</span>
+<span class="sd">        * Plates file, containing the SETL plates.</span>
+
+<span class="sd">        These files can be exported from the MS Access SETL database</span>
+<span class="sd">        and contain all fields. CSV files must be delimited by semicolons (;)</span>
+<span class="sd">        and double quotes (&quot;) as the quote character for fields with special</span>
+<span class="sd">        characters. Excel (*.xls) files must have the same format as the CSV</span>
+<span class="sd">        files and must not have a header.</span>
 
 <span class="sd">        Design Part: 1.32</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Creating local database from CSV files...&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Loading SETL data from local files...&quot;</span><span class="p">)</span>
+        <span class="n">localities_file</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">)</span>
+        <span class="n">plates_file</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">)</span>
+        <span class="n">records_file</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">)</span>
+        <span class="n">species_file</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">)</span>
 
-        <span class="c"># If data_source is not set to &quot;csv-msaccess&quot;, the required data</span>
+        <span class="c"># If data_source is not set to &quot;data-files&quot;, the required data</span>
         <span class="c"># files are probably not set by the user yet. ChangeDataSource</span>
         <span class="c"># must be called first.</span>
-        <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&#39;csv-msaccess&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot run this function while &#39;data-source&#39; is &quot;</span>
-                <span class="s">&quot;set to &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span> <span class="o">==</span> <span class="s">&#39;data-files&#39;</span><span class="p">,</span> \
+            <span class="s">&quot;The data source is not set to &#39;data-files&#39;&quot;</span>
 
         <span class="c"># First, create a new database file.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_new_db</span><span class="p">()</span>
@@ -290,7 +246,7 @@
         <span class="c"># Add the data source we can figure out what kind of data is</span>
         <span class="c"># present.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO info VALUES (null, &#39;source&#39;, ?)&quot;</span><span class="p">,</span>
-            <span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">),</span> <span class="p">)</span> <span class="p">)</span>
+            <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="p">,</span> <span class="p">)</span> <span class="p">)</span>
         <span class="c"># Also insert the data of creation, so we can give the user an</span>
         <span class="c"># indication when this database was created.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO info VALUES (null, &#39;date&#39;, date(&#39;now&#39;))&quot;</span> <span class="p">)</span>
@@ -299,23 +255,39 @@
         <span class="c"># dialog.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
 
-        <span class="c"># Insert the data from the CSV files into the local database.</span>
+        <span class="c"># Insert the data from the data files into the local database.</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">localities_file</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_localities_from_csv</span><span class="p">()</span>
 
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_plates_from_csv</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">localities_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.xls&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_locations_from_xls</span><span class="p">(</span><span class="n">localities_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_locations_from_csv</span><span class="p">(</span><span class="n">localities_file</span><span class="p">)</span>
 
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">plates_file</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_records_from_csv</span><span class="p">()</span>
 
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">plates_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.xls&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_plates_from_xls</span><span class="p">(</span><span class="n">plates_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_plates_from_csv</span><span class="p">(</span><span class="n">plates_file</span><span class="p">)</span>
+
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">records_file</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_species_from_csv</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">records_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.xls&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_records_from_xls</span><span class="p">(</span><span class="n">records_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_records_from_csv</span><span class="p">(</span><span class="n">records_file</span><span class="p">)</span>
+
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">species_file</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">species_file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;.xls&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_species_from_xls</span><span class="p">(</span><span class="n">species_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insert_species_from_csv</span><span class="p">(</span><span class="n">species_file</span><span class="p">)</span>
 
             <span class="c"># Commit the database changes.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
@@ -325,37 +297,35 @@
             <span class="c"># Rollback changes to the database.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
             <span class="c"># Emit the signal that the import failed.</span>
-            <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;file-import-failed&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
             <span class="k">return</span>
 
-        <span class="c"># If we are here, the import was successful. Set the progress dialog</span>
-        <span class="c"># to 100%.</span>
+        <span class="c"># If we are here, the import was successful.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
-
         <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Local database populated.&quot;</span><span class="p">)</span>
         <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;has-local-db&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">True</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_localities_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_localities_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_localities_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_locations_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_locations_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_locations_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the SETL localities from a CSV file into the local</span>
 <span class="sd">        database.</span>
 
-<span class="sd">        `delimiter` is a one-character string used to separate fields</span>
-<span class="sd">        in the CSV file. `quotechar` is a one-character string used to</span>
-<span class="sd">        quote fields containing special characters in the CSV file.</span>
-<span class="sd">        The default values for these two arguments are suited for CSV</span>
-<span class="sd">        files in Excel format.</span>
+<span class="sd">        Argument `delimiter` is a one-character string used to separate fields</span>
+<span class="sd">        in the CSV file, and `quotechar` is a one-character string used to</span>
+<span class="sd">        quote fields containing special characters in the CSV file. The default</span>
+<span class="sd">        values for these two arguments are suited for CSV files in Excel</span>
+<span class="sd">        format.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.18`.</span>
 
 <span class="sd">        Design Part: 1.34</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing localities data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing localities data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the CSV file.</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s CSV module to create a CSV reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="n">quotechar</span><span class="p">)</span>
@@ -371,24 +341,24 @@
                 <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
                 <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_species_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_species_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_species_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_species_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_species_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_species_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the species from a CSV file into the local database.</span>
 
-<span class="sd">        `delimiter` is a one-character string used to separate fields</span>
-<span class="sd">        in the CSV file. `quotechar` is a one-character string used to</span>
-<span class="sd">        quote fields containing special characters in the CSV file.</span>
-<span class="sd">        The default values for these two arguments are suited for CSV</span>
-<span class="sd">        files in Excel format.</span>
+<span class="sd">        Argument `delimiter` is a one-character string used to separate fields</span>
+<span class="sd">        in the CSV file, and `quotechar` is a one-character string used to</span>
+<span class="sd">        quote fields containing special characters in the CSV file. The default</span>
+<span class="sd">        values for these two arguments are suited for CSV files in Excel</span>
+<span class="sd">        format.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.19`.</span>
 
 <span class="sd">        Design Part: 1.35</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing species data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing species data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the CSV file.</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s CSV module to create a CSV reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="n">quotechar</span><span class="p">)</span>
@@ -396,32 +366,50 @@
         <span class="c"># Read through every row in the CSV file and insert that row</span>
         <span class="c"># into the local database.</span>
         <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">setl_reader</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Expecting 7 fields per row for the &quot;</span>
-                    <span class="s">&quot;species CSV file, found </span><span class="si">%d</span><span class="s"> fields.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">))</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Expecting 16 fields per row for the &quot;</span>
+                    <span class="s">&quot;species CSV file, found </span><span class="si">%d</span><span class="s"> fields.&quot;</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;INSERT INTO species VALUES (?,?,?,?,?,?)&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
-                <span class="p">)</span>
+            <span class="n">row_new</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">16</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                        <span class="n">row_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s">&#39;FALSE&#39;</span><span class="p">:</span>
+                        <span class="n">row_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="s">&#39;TRUE&#39;</span><span class="p">:</span>
+                        <span class="n">row_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">row_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">row_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+            <span class="n">placeholders</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;?&#39;</span> <span class="o">*</span> <span class="mi">16</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;INSERT INTO species VALUES (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span>
+                <span class="n">placeholders</span><span class="p">,</span>
+                <span class="n">row_new</span>
+            <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_plates_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_plates_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_plates_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_plates_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_plates_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_plates_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the plates from a CSV file into the local database.</span>
 
-<span class="sd">        `delimiter` is a one-character string used to separate fields</span>
-<span class="sd">        in the CSV file. `quotechar` is a one-character string used to</span>
-<span class="sd">        quote fields containing special characters in the CSV file.</span>
-<span class="sd">        The default values for these two arguments are suited for CSV</span>
-<span class="sd">        files in Excel format.</span>
+<span class="sd">        Argument `delimiter` is a one-character string used to separate fields</span>
+<span class="sd">        in the CSV file, and `quotechar` is a one-character string used to</span>
+<span class="sd">        quote fields containing special characters in the CSV file. The default</span>
+<span class="sd">        values for these two arguments are suited for CSV files in Excel</span>
+<span class="sd">        format.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.20`.</span>
 
 <span class="sd">        Design Part: 1.36</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing plates data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing plates data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the CSV file.</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s CSV module to create a CSV reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="n">quotechar</span><span class="p">)</span>
@@ -437,24 +425,24 @@
                 <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">4</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">5</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">6</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">8</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">9</span><span class="p">])</span>
                 <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_records_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_records_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_records_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_records_from_csv"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_records_from_csv">[docs]</a>    <span class="k">def</span> <span class="nf">insert_records_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the records from a CSV file into the local database.</span>
 
-<span class="sd">        `delimiter` is a one-character string used to separate fields</span>
-<span class="sd">        in the CSV file. `quotechar` is a one-character string used to</span>
-<span class="sd">        quote fields containing special characters in the CSV file.</span>
-<span class="sd">        The default values for these two arguments are suited for CSV</span>
-<span class="sd">        files in Excel format.</span>
+<span class="sd">        Argument `delimiter` is a one-character string used to separate fields</span>
+<span class="sd">        in the CSV file, and `quotechar` is a one-character string used to</span>
+<span class="sd">        quote fields containing special characters in the CSV file. The default</span>
+<span class="sd">        values for these two arguments are suited for CSV files in Excel</span>
+<span class="sd">        format.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.21`.</span>
 
 <span class="sd">        Design Part: 1.37</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing records data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing records data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the CSV file.</span>
-        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">),</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&#39;r&#39;</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s CSV module to create a CSV reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="n">delimiter</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="n">quotechar</span><span class="p">)</span>
@@ -474,99 +462,19 @@
                 <span class="n">row</span><span class="p">[</span><span class="mi">30</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">31</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">32</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">33</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">34</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">35</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">36</span><span class="p">],</span><span class="n">row</span><span class="p">[</span><span class="mi">37</span><span class="p">])</span>
                 <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c">#raise Exception(&quot;NOT implemented yet.&quot;)</span>
-
-        <span class="sd">&quot;&quot;&quot;Create a new local database and load all SETL data from the</span>
-<span class="sd">        user selected Excel files into the local database.</span>
-
-<span class="sd">        The SETL data is loaded from four separate Excel files:</span>
-<span class="sd">            * localities_XLS_file, containing the SETL locations.</span>
-<span class="sd">            * species_XLS_file, containing the SETL species.</span>
-<span class="sd">            * records_XLS_file, containing the SETL records.</span>
-<span class="sd">            * plates_XLS_file, containing the SETL plates.</span>
-
-<span class="sd">        These files must be exported from MS Excel 95/2000/xp</span>
-<span class="sd">        and contain all fields.</span>
-
-<span class="sd">        Design Part: ....									##### Design part</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Creating local database from Microsoft Excel spreadsheet files...&quot;</span><span class="p">)</span>
-
-        <span class="c"># If data_source is not set to &quot;xls&quot;, the required data</span>
-        <span class="c"># files are probably not set by the user yet. ChangeDataSource</span>
-        <span class="c"># must be called first.</span>
-        <span class="k">if</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="s">&#39;xls&#39;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Cannot run this function while &#39;data-source&#39; is &quot;</span>
-                <span class="s">&quot;set to &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">))</span>
-
-        <span class="c"># First, create a new database file.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">create_new_db</span><span class="p">()</span>
-
-        <span class="c"># Add some meta-data to a separate table in the local database.</span>
-        <span class="c"># Add the data source we can figure out what kind of data is</span>
-        <span class="c"># present.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO info VALUES (null, &#39;source&#39;, ?)&quot;</span><span class="p">,</span>
-            <span class="p">(</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">),</span> <span class="p">)</span> <span class="p">)</span>
-        <span class="c"># Also insert the data of creation, so we can give the user an</span>
-        <span class="c"># indication when this database was created.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO info VALUES (null, &#39;date&#39;, date(&#39;now&#39;))&quot;</span> <span class="p">)</span>
-
-        <span class="c"># Set the total number of times we&#39;re going to update the progress</span>
-        <span class="c"># dialog.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_total_steps</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-
-        <span class="c"># Insert the data from the xls files into the local database.</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">set_action</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_localities_from_xls</span><span class="p">()</span>
-
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_plates_from_xls</span><span class="p">()</span>
-
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_records_from_xls</span><span class="p">()</span>
-
-            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;Importing </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">insert_species_from_xls</span><span class="p">()</span>
-
-            <span class="c"># Commit the database changes.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="c"># Destroy the progress dialog.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
-            <span class="c"># Rollback changes to the database.</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
-            <span class="c"># Emit the signal that the import failed.</span>
-            <span class="n">gobject</span><span class="o">.</span><span class="n">idle_add</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">sender</span><span class="o">.</span><span class="n">emit</span><span class="p">,</span> <span class="s">&#39;csv-import-failed&#39;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="c"># If we are here, the import was successful. Set the progress dialog</span>
-        <span class="c"># to 100%.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pdialog_handler</span><span class="o">.</span><span class="n">increase</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">)</span>
-
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Local database populated.&quot;</span><span class="p">)</span>
-        <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s">&#39;has-local-db&#39;</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">True</span>
-</div>
-<div class="viewcode-block" id="MakeLocalDB.insert_localities_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_localities_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_localities_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_locations_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_locations_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_locations_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the SETL localities from a XLS file into the local</span>
 <span class="sd">        database.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.18`.</span>
 
-<span class="sd">        Design Part: ...								#### Design part aanpassen</span>
+<span class="sd">        Design Part: TODO</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing localities data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing localities data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the XLS file.</span>
-        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;localities-file&#39;</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s xlrd module to create a XLS reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sheet_by_index</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -586,18 +494,18 @@
                  <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">4</span><span class="p">])</span>
                 <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_plates_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_plates_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_plates_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_plates_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_plates_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_plates_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the plates from a XLS file into the local database.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.20`.</span>
 
-<span class="sd">        Design Part: ....								#### Design part aanpassen</span>
+<span class="sd">        Design Part: TODO</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing plates data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing plates data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the XLS file.</span>
-        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;plates-file&#39;</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s xlrd module to create a XLS reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sheet_by_index</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -622,18 +530,18 @@
                  <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">9</span><span class="p">])</span>
                 <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_records_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_records_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_records_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_records_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_records_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_records_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the records from a XLS file into the local database.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.21`.</span>
 
-<span class="sd">        Design Part: ...									#### Design part aanpassen</span>
+<span class="sd">        Design Part: TODO</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing records data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing records data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the XLS file.</span>
-        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;records-file&#39;</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s xlrd module to create a XLS reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sheet_by_index</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -687,18 +595,18 @@
                  <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">37</span><span class="p">])</span>
                 <span class="p">)</span>
 </div>
-<div class="viewcode-block" id="MakeLocalDB.insert_species_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_species_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_species_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s">&#39;;&#39;</span><span class="p">,</span> <span class="n">quotechar</span><span class="o">=</span><span class="s">&#39;&quot;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="MakeLocalDB.insert_species_from_xls"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_species_from_xls">[docs]</a>    <span class="k">def</span> <span class="nf">insert_species_from_xls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Insert the species from a XLS file into the local database.</span>
 
 <span class="sd">        For a description of the format for the localities file, refer</span>
 <span class="sd">        to :ref:`design-part-data-2.19`.</span>
 
-<span class="sd">        Design Part: 1.35(b)										# Design nummer aangeven</span>
+<span class="sd">        Design Part: 1.35(b) TODO</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing species data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">))</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Importing species data from </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Try to open the XLS file.</span>
-        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;species-file&#39;</span><span class="p">))</span>
+        <span class="n">f</span><span class="o">=</span> <span class="n">xlrd</span><span class="o">.</span><span class="n">open_workbook</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
 
         <span class="c"># Use Python&#39;s xlrd module to create a XLS reader.</span>
         <span class="n">setl_reader</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">sheet_by_index</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -706,18 +614,27 @@
         <span class="c"># Read through every row in the XLS file and insert that row</span>
         <span class="c"># into the local database.</span>
         <span class="k">for</span> <span class="n">rownum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">setl_reader</span><span class="o">.</span><span class="n">nrows</span><span class="p">):</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">))</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Expecting 7 fields per row for the &quot;</span>
-                    <span class="s">&quot;species XLS file, found </span><span class="si">%d</span><span class="s"> fields.&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)))</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">16</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Expecting at most 16 fields per row for the &quot;</span>
+                    <span class="s">&quot;species XLS file, found </span><span class="si">%d</span><span class="s"> fields.&quot;</span> <span class="o">%</span> <span class="n">n</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;INSERT INTO species VALUES (?,?,?,?,?,?)&quot;</span><span class="p">,</span>
-                <span class="p">(</span><span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
-                 <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">1</span><span class="p">],</span>
-                 <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">2</span><span class="p">],</span>
-                 <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span>
-                 <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">4</span><span class="p">],</span>
-                 <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="mi">5</span><span class="p">])</span>
-                <span class="p">)</span>
+            <span class="n">placeholders</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;?&#39;</span> <span class="o">*</span> <span class="mi">16</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">16</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">setl_reader</span><span class="o">.</span><span class="n">row_values</span><span class="p">(</span><span class="n">rownum</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="s">&#39;&#39;</span><span class="p">:</span>
+                        <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="n">row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;INSERT INTO species VALUES (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span>
+                <span class="n">placeholders</span><span class="p">,</span>
+                <span class="n">row</span>
+            <span class="p">)</span>
 </div>
 <div class="viewcode-block" id="MakeLocalDB.insert_from_db"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.insert_from_db">[docs]</a>    <span class="k">def</span> <span class="nf">insert_from_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new local database and load localities and species</span>
@@ -749,7 +666,7 @@
 
         <span class="c"># Next time we run the tool, we&#39;ll know what data is in the database.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO info VALUES (null, &#39;source&#39;, ?)&quot;</span><span class="p">,</span>
-            <span class="p">(</span><span class="n">setlyze</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;data-source&#39;</span><span class="p">),)</span> <span class="p">)</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_source</span><span class="p">,)</span> <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO info VALUES (null, &#39;date&#39;, date(&#39;now&#39;))&quot;</span> <span class="p">)</span>
 
         <span class="c"># Commit the transaction.</span>
@@ -767,11 +684,9 @@
         <span class="k">return</span> <span class="bp">True</span>
 </div>
 <div class="viewcode-block" id="MakeLocalDB.create_new_db"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_new_db">[docs]</a>    <span class="k">def</span> <span class="nf">create_new_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new local database and then calls the methods</span>
-<span class="sd">        that create the necessary tables.</span>
+        <span class="sd">&quot;&quot;&quot;Create a new local database.</span>
 
-<span class="sd">        This deletes the current local database if present in the user&#39;s</span>
-<span class="sd">        home folder.</span>
+<span class="sd">        This deletes any existing database file.</span>
 
 <span class="sd">        Design Part: 1.38</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -810,26 +725,21 @@
         <span class="sd">&quot;&quot;&quot;Remove the database file.</span>
 
 <span class="sd">        This method does three tries if for some reason the database file</span>
-<span class="sd">        could not be deleted (e.g. the file is in use by a different</span>
-<span class="sd">        process).</span>
+<span class="sd">        could not be deleted (e.g. the file is in use by a different process).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">tries</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s">&quot;I was unable to remove the file </span><span class="si">%s</span><span class="s">. &quot;</span>
-                <span class="s">&quot;Please make sure it&#39;s not in use by a different &quot;</span>
-                <span class="s">&quot;process.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span><span class="p">)</span>
-
+            <span class="k">raise</span> <span class="ne">EnvironmentError</span><span class="p">(</span><span class="s">&quot;Failed to delete database file </span><span class="si">%s</span><span class="s">. &quot;</span>
+                <span class="s">&quot;It may be in use by a different process.&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dbfile</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="n">tries</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">remove_db_file</span><span class="p">(</span><span class="n">tries</span><span class="p">)</span>
-
         <span class="k">return</span> <span class="bp">True</span>
 </div>
 <div class="viewcode-block" id="MakeLocalDB.create_table_info"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_table_info">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for storing basic information about the</span>
-<span class="sd">        local database.</span>
+        <span class="sd">&quot;&quot;&quot;Create the &quot;info&quot; table for storing general information.</span>
 
 <span class="sd">        This information includes its creation date and the data source.</span>
 <span class="sd">        The data source is either the SETL database (MS Access/PostgreSQL)</span>
@@ -847,10 +757,10 @@
             <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;INSERT INTO info &quot;</span>
-            <span class="s">&quot;VALUES (null, &#39;version&#39;, ?)&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">__version__</span><span class="p">])</span>
+            <span class="s">&quot;VALUES (null, &#39;version&#39;, ?)&quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">DB_VERSION</span><span class="p">])</span>
 </div>
 <div class="viewcode-block" id="MakeLocalDB.create_table_localities"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_table_localities">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_localities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the SETL localities.</span>
+        <span class="sd">&quot;&quot;&quot;Create the &quot;localities&quot; table for the SETL locations.</span>
 
 <span class="sd">        Because the data from this table is accessed frequently, the</span>
 <span class="sd">        localities records are automatically saved to this table when</span>
@@ -868,7 +778,7 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="MakeLocalDB.create_table_species"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_table_species">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the SETL species.</span>
+        <span class="sd">&quot;&quot;&quot;Create the &quot;species&quot; table for the SETL species.</span>
 
 <span class="sd">        Because the data from this table is accessed frequently, the</span>
 <span class="sd">        species records are automatically saved to this table when</span>
@@ -880,15 +790,25 @@
         <span class="c"># Design Part: 2.3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TABLE species (</span><span class="se">\</span>
 <span class="s">            spe_id INTEGER PRIMARY KEY, </span><span class="se">\</span>
+<span class="s">            spe_aphia_id INTEGER, </span><span class="se">\</span>
 <span class="s">            spe_name_venacular VARCHAR, </span><span class="se">\</span>
 <span class="s">            spe_name_latin VARCHAR, </span><span class="se">\</span>
 <span class="s">            spe_invasive_in_nl INTEGER, </span><span class="se">\</span>
 <span class="s">            spe_description VARCHAR, </span><span class="se">\</span>
-<span class="s">            spe_remarks VARCHAR </span><span class="se">\</span>
+<span class="s">            spe_remarks VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_kingdom VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_phylum VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_class VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_order VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_family VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_genus VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_subgenus VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_species VARCHAR, </span><span class="se">\</span>
+<span class="s">            spe_subspecies VARCHAR </span><span class="se">\</span>
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="MakeLocalDB.create_table_plates"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_table_plates">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_plates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the SETL plates.</span>
+        <span class="sd">&quot;&quot;&quot;Create the &quot;plates&quot; table for the SETL plates.</span>
 
 <span class="sd">        This table is only filled if the user selected CSV or XLS files to</span>
 <span class="sd">        import SETL data from. If the remote SETL database is used,</span>
@@ -911,7 +831,7 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="MakeLocalDB.create_table_records"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.MakeLocalDB.create_table_records">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the SETL records.</span>
+        <span class="sd">&quot;&quot;&quot;Create the &quot;records&quot; table for the SETL records.</span>
 
 <span class="sd">        This table is only filled if the user selected CSV or XLS files to</span>
 <span class="sd">        import SETL data from. If the remote SETL database is used,</span>
@@ -977,25 +897,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AccessDBGeneric.get_database_info"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric.get_database_info">[docs]</a>    <span class="k">def</span> <span class="nf">get_database_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return info (creation date, data source) stored in the local</span>
-<span class="sd">        database file.</span>
+        <span class="sd">&quot;&quot;&quot;Return database information.</span>
+
+<span class="sd">        These include the creation date and the data source.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT value FROM info WHERE name=&#39;source&#39;&quot;</span><span class="p">)</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT value FROM info WHERE name=&#39;date&#39;&quot;</span><span class="p">)</span>
-        <span class="n">date</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
-
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT name,value FROM info;&quot;</span><span class="p">)</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-        <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;source&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">,</span> <span class="s">&#39;date&#39;</span><span class="p">:</span> <span class="bp">None</span><span class="p">}</span>
-        <span class="k">if</span> <span class="n">source</span><span class="p">:</span>
-            <span class="n">info</span><span class="p">[</span><span class="s">&#39;source&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">source</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">date</span><span class="p">:</span>
-            <span class="n">info</span><span class="p">[</span><span class="s">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c"># Some types need to be converted from string.</span>
+        <span class="n">to_float</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;version&#39;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">to_float</span><span class="p">:</span>
+            <span class="n">info</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">info</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">info</span>
 </div>
@@ -1006,39 +921,33 @@
 
 <span class="sd">        Design Part: 1.95</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT loc_id, loc_name FROM localities&quot;</span><span class="p">)</span>
         <span class="n">locations</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
         <span class="k">return</span> <span class="n">locations</span>
 </div>
 <div class="viewcode-block" id="AccessDBGeneric.make_plates_unique"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric.make_plates_unique">[docs]</a>    <span class="k">def</span> <span class="nf">make_plates_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slot</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Combine the records with the same plate ID in a spots table.</span>
+
 <span class="sd">        The value for `slot` defines which spots table is used.</span>
 <span class="sd">        The possible values of `slot` are ``0`` for table</span>
-<span class="sd">        ``species_spots_1`` and ``1`` for ``species_spots_2``.</span>
+<span class="sd">        &quot;species_spots_1&quot; and ``1`` for table &quot;species_spots_2&quot;.</span>
 
 <span class="sd">        We&#39;re doing this so we can threat multiple species selected by</span>
 <span class="sd">        the user as a single species.</span>
 
+<span class="sd">        Returns the total numbers of distinctive plates.</span>
+
 <span class="sd">        Design Part: 1.20</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># The available tables to save the spots to.</span>
         <span class="n">tables</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;species_spots_1&#39;</span><span class="p">,</span><span class="s">&#39;species_spots_2&#39;</span><span class="p">)</span>
 
-        <span class="c"># Make a connection with the local database.</span>
+        <span class="c"># Get all distinctive plate IDs.</span>
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
-        <span class="c"># Get all plate IDs.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT rec_pla_id FROM </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="n">slot</span><span class="p">])</span> <span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT DISTINCT rec_pla_id FROM </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="n">slot</span><span class="p">])</span> <span class="p">)</span>
         <span class="n">pla_ids</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-        <span class="c"># Remove duplicate plate IDs.</span>
-        <span class="n">pla_ids</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">uniqify</span><span class="p">(</span><span class="n">pla_ids</span><span class="p">)</span>
 
-        <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">pla_id</span> <span class="ow">in</span> <span class="n">pla_ids</span><span class="p">:</span>
             <span class="c"># Get plate ID and all 25 spots for each plate ID.</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT rec_pla_id,&quot;</span>
@@ -1051,131 +960,64 @@
                             <span class="s">&quot;WHERE rec_pla_id = ?&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="n">slot</span><span class="p">]),</span>
                             <span class="p">(</span><span class="n">pla_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
-                            <span class="p">)</span>
+            <span class="p">)</span>
 
-            <span class="c"># Create a combined record from all records with this</span>
-            <span class="c"># plate ID.</span>
+            <span class="c"># Create a combined record from all records with this plate ID.</span>
             <span class="n">rows</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-            <span class="n">combined</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">combine_records</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
 
-            <span class="c"># Remove all records with that plate ID from the</span>
-            <span class="c"># species_spots table.</span>
+            <span class="c"># No need to do anything if there is just one record for a plate.</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c"># Remove all records with that plate ID from the species_spots table.</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;DELETE FROM </span><span class="si">%s</span><span class="s"> &quot;</span>
                             <span class="s">&quot;WHERE rec_pla_id = ?&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="n">slot</span><span class="p">]),</span>
                             <span class="p">(</span><span class="n">pla_id</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
-                            <span class="p">)</span>
+            <span class="p">)</span>
 
-            <span class="c"># Insert the combined record in the species_spots table. So</span>
-            <span class="c"># this single record replaces all other records with this</span>
-            <span class="c"># plate ID.</span>
+            <span class="c"># Insert the combined record in the species_spots table. So this</span>
+            <span class="c"># single record replaces all other records with this plate ID.</span>
+            <span class="n">combined</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">combine_records</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
             <span class="n">placeholders</span> <span class="o">=</span> <span class="s">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s">&#39;?&#39;</span> <span class="o">*</span> <span class="mi">26</span><span class="p">)</span>
             <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;INSERT INTO </span><span class="si">%s</span><span class="s"> VALUES (null,</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="n">slot</span><span class="p">],</span> <span class="n">placeholders</span><span class="p">),</span>
                             <span class="n">combined</span>
-                            <span class="p">)</span>
-
-            <span class="c"># Keep track of the new records being added.</span>
-            <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="p">)</span>
 
         <span class="c"># Commit the database transaction.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
-        <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
         <span class="c"># Return the total numbers of unique plate records.</span>
-        <span class="k">return</span> <span class="n">n</span>
-</div>
-<div class="viewcode-block" id="AccessDBGeneric.remove_single_spot_plates"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric.remove_single_spot_plates">[docs]</a>    <span class="k">def</span> <span class="nf">remove_single_spot_plates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Remove records that have just one positive spot. Intra-specific</span>
-<span class="sd">        distance can’t be calculated for those.</span>
-
-<span class="sd">        .. deprecated:: 0.1</span>
-<span class="sd">           Use of this function is discouraged. You can easily check for</span>
-<span class="sd">           a minimum number of spots in your functions. Also the function</span>
-<span class="sd">           :meth:`~setlyze.std.get_spot_combinations_from_record` will</span>
-<span class="sd">           return an empty list if no combinations are possibe (e.g. the</span>
-<span class="sd">           record contains less than 2 positive spots).</span>
-
-<span class="sd">        Design Part: 1.21</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Make a connection with the local database.</span>
-
-        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
-        <span class="c"># Get all spots for each plate.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT rec_pla_id,&quot;</span>
-                        <span class="s">&quot;rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,&quot;</span>
-                        <span class="s">&quot;rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,&quot;</span>
-                        <span class="s">&quot;rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,&quot;</span>
-                        <span class="s">&quot;rec_sur16,rec_sur17,rec_sur18,rec_sur19,rec_sur20,&quot;</span>
-                        <span class="s">&quot;rec_sur21,rec_sur22,rec_sur23,rec_sur24,rec_sur25 &quot;</span>
-                        <span class="s">&quot;FROM </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">table</span><span class="p">)</span>
-                        <span class="p">)</span>
-
-        <span class="n">delete</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span>
-            <span class="c"># Count total True&#39;s (n) for each record.</span>
-            <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">spot</span> <span class="ow">in</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
-                <span class="c"># Again, skip the first item, as it&#39;s the plate ID.</span>
-                <span class="c"># Count the number of True&#39;s.</span>
-                <span class="k">if</span> <span class="n">spot</span><span class="p">:</span>
-                    <span class="n">n</span> <span class="o">+=</span> <span class="mi">1</span>
-
-            <span class="c"># Total (n) must be at least 2; if not, add that plate ID</span>
-            <span class="c"># to the list of to be deleted plates/records.</span>
-            <span class="k">if</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">delete</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-
-        <span class="c"># Create a string of the IDs.</span>
-        <span class="n">delete_str</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">delete</span><span class="p">])</span>
-
-        <span class="c"># Delete the records in the list of plate IDs.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;DELETE FROM </span><span class="si">%s</span><span class="s"> &quot;</span>
-                        <span class="s">&quot;WHERE rec_pla_id IN (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span>
-                        <span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">delete_str</span><span class="p">)</span>
-                        <span class="p">)</span>
-
-        <span class="c"># Commit the database transaction.</span>
-        <span class="c"># Design Part: 2.10 -&gt; 2.11</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
-        <span class="c"># Close connection with the local database.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
-        <span class="c"># Return the list of deleted plates.</span>
-        <span class="k">return</span> <span class="n">delete</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">pla_ids</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="AccessDBGeneric.fill_plate_spot_totals_table"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric.fill_plate_spot_totals_table">[docs]</a>    <span class="k">def</span> <span class="nf">fill_plate_spot_totals_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spots_table1</span><span class="p">,</span> <span class="n">spots_table2</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fill the ``plate_spot_totals`` table with the number of</span>
-<span class="sd">        positive spots for each plate.</span>
+        <span class="sd">&quot;&quot;&quot;Populate table &quot;plate_spot_totals&quot;.</span>
 
-<span class="sd">        The information is obtained from the tables `spots_table1` and</span>
-<span class="sd">        `spots_table2` (optional).</span>
+<span class="sd">        This table is populated with the number of positive spots for each</span>
+<span class="sd">        plate. The information is obtained from the spots tables `spots_table1`</span>
+<span class="sd">        and optionally `spots_table2`.</span>
 
-<span class="sd">        The ``plate_spot_totals`` table is used in several situations:</span>
+<span class="sd">        The &quot;plate_spot_totals&quot; table is used in several situations:</span>
 
 <span class="sd">            * Calculating the expected distances, where the positive spot</span>
 <span class="sd">              number serves as a template for the random spots generator</span>
-<span class="sd">              (see :ref:`~setlyze.std.get_random_for_plate`).</span>
+<span class="sd">              (see :meth:`~setlyze.std.get_random_for_plate`).</span>
 
 <span class="sd">            * Significance calculators, where the tests are applied to</span>
 <span class="sd">              plates with a specific number of positive spots (see</span>
-<span class="sd">              :ref:`get_distances_matching_spots_total`).</span>
+<span class="sd">              :meth:`get_distances_matching_spots_total`).</span>
 
-<span class="sd">        If just `spots_table1` is provided, only the column ``n_spots_a``</span>
-<span class="sd">        is filled with positive spot numbers. If both `spots_table1` and</span>
-<span class="sd">        `spots_table2` are provided, ``n_spots_a`` is filled</span>
-<span class="sd">        from `spots_table1`, and ``n_spots_b`` filled from `spots_table2`.</span>
+<span class="sd">        If just `spots_table1` is provided, only the column &quot;n_spots_a&quot;</span>
+<span class="sd">        is populated with positive spot numbers. If both `spots_table1` and</span>
+<span class="sd">        `spots_table2` are provided, column &quot;n_spots_a&quot; is filled</span>
+<span class="sd">        from `spots_table1`, and column &quot;n_spots_b&quot; filled from `spots_table2`.</span>
+
+<span class="sd">        Returns a tuple (`rows affected`, `rows skipped`).</span>
 
 <span class="sd">        Design Part: 1.73</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Make a connection with the local database.</span>
-
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">cursor2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
@@ -1205,7 +1047,7 @@
                             <span class="s">&quot;INNER JOIN </span><span class="si">%s</span><span class="s"> as s2 &quot;</span>
                             <span class="s">&quot;ON s1.rec_pla_id=s2.rec_pla_id&quot;</span> <span class="o">%</span>
                             <span class="p">(</span><span class="n">spots_table1</span><span class="p">,</span> <span class="n">spots_table2</span><span class="p">)</span>
-                            <span class="p">)</span>
+            <span class="p">)</span>
 
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span>
                 <span class="n">record1</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">27</span><span class="p">]</span>
@@ -1220,20 +1062,19 @@
                 <span class="n">spots1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spots1</span><span class="p">)</span>
                 <span class="n">spots2</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">spots2</span><span class="p">)</span>
 
-                <span class="c"># Skip this plate if both records contain less than 1</span>
-                <span class="c"># positive spot.</span>
-                <span class="c"># We won&#39;t be able to calculate distances for such records</span>
-                <span class="c"># anyway.</span>
+                <span class="c"># Skip this plate if both records contain less than 1 positive</span>
+                <span class="c"># spot. We won&#39;t be able to calculate distances for such</span>
+                <span class="c"># records anyway.</span>
                 <span class="k">if</span> <span class="n">spots1</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">spots2</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="n">skipped</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">continue</span>
 
-                <span class="c"># Save the number of positive spots to the</span>
-                <span class="c"># plate_spot_totals table.</span>
+                <span class="c"># Save the number of positive spots to the plate_spot_totals</span>
+                <span class="c"># table.</span>
                 <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO plate_spot_totals &quot;</span>
                                  <span class="s">&quot;VALUES (?,?,?)&quot;</span><span class="p">,</span>
                                  <span class="p">(</span><span class="n">plate_id</span><span class="p">,</span> <span class="n">spots1</span><span class="p">,</span> <span class="n">spots2</span><span class="p">)</span>
-                                <span class="p">)</span>
+                <span class="p">)</span>
                 <span class="n">rowcount</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c"># One spots table is provided.</span>
@@ -1245,8 +1086,7 @@
             <span class="c"># rec_sur12|rec_sur13|rec_sur14|rec_sur15|rec_sur16|rec_sur17|</span>
             <span class="c"># rec_sur18|rec_sur19|rec_sur20|rec_sur21|rec_sur22|rec_sur23|</span>
             <span class="c"># rec_sur24|rec_sur25</span>
-            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT * FROM </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spots_table1</span><span class="p">)</span>
-                            <span class="p">)</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT * FROM </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">spots_table1</span><span class="p">)</span>
 
             <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span>
                 <span class="n">plate_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
@@ -1264,13 +1104,12 @@
                     <span class="n">skipped</span> <span class="o">+=</span> <span class="mi">1</span>
                     <span class="k">continue</span>
 
-                <span class="c"># Save the number of positive spots to the</span>
-                <span class="c"># plate_spot_totals table.</span>
+                <span class="c"># Save the number of positive spots to the plate_spot_totals</span>
+                <span class="c"># table.</span>
                 <span class="n">cursor2</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;INSERT INTO plate_spot_totals &quot;</span>
                                  <span class="s">&quot;VALUES (?,?,null)&quot;</span><span class="p">,</span>
                                  <span class="p">(</span><span class="n">plate_id</span><span class="p">,</span> <span class="n">spots</span><span class="p">)</span>
-                                <span class="p">)</span>
-
+                <span class="p">)</span>
                 <span class="n">rowcount</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="c"># Commit the transaction.</span>
@@ -1290,7 +1129,6 @@
 <span class="sd">        This is a generator, meaning that this method returns an</span>
 <span class="sd">        iterator. This iterator returns the distances.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">spots_n</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1353,9 +1191,7 @@
 <span class="sd">        This is a generator, meaning that this method returns an</span>
 <span class="sd">        iterator. This iterator returns the distances.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
         <span class="n">plate_ids</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">ratio</span> <span class="ow">in</span> <span class="n">ratios</span><span class="p">:</span>
@@ -1420,7 +1256,6 @@
 <span class="sd">        combination of the letters A, B, C, and D. Each letter is one of</span>
 <span class="sd">        the default areas on a SETL plate.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
         <span class="c"># Compile a string containing the area fields for &#39;area_group&#39;.</span>
@@ -1456,11 +1291,48 @@
 
         <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="AccessDBGeneric.get_plates_total_matching_spots_total"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessDBGeneric.get_plates_total_matching_spots_total">[docs]</a>    <span class="k">def</span> <span class="nf">get_plates_total_matching_spots_total</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_spots</span><span class="p">,</span> <span class="n">slot</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the number of plates that match the provided number of</span>
+<span class="sd">        positive spots `n_spots`.</span>
+
+<span class="sd">        Possible values for `slot` are 0 for the first species selection,</span>
+<span class="sd">        and 1 for the second species selection.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;n_spots_a&#39;</span>
+        <span class="k">elif</span> <span class="n">slot</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">field</span> <span class="o">=</span> <span class="s">&#39;n_spots_b&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Possible values for &#39;slot&#39; are 0 and 1.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">n_spots</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c"># If spots_n is a negative number, get all distances</span>
+            <span class="c"># up to the absolute number. So if we find -5, get all</span>
+            <span class="c"># distances with up to 5 spots.</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT COUNT(pla_id) &quot;</span>
+                            <span class="s">&quot;FROM plate_spot_totals &quot;</span>
+                            <span class="s">&quot;WHERE </span><span class="si">%s</span><span class="s"> &lt;= ?&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field</span><span class="p">),</span>
+                            <span class="p">[</span><span class="nb">abs</span><span class="p">(</span><span class="n">n_spots</span><span class="p">)])</span>
+            <span class="n">n_plates</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># If it&#39;s a positive number, just get the plates that</span>
+            <span class="c"># match that spots number.</span>
+            <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT COUNT(pla_id) &quot;</span>
+                            <span class="s">&quot;FROM plate_spot_totals &quot;</span>
+                            <span class="s">&quot;WHERE </span><span class="si">%s</span><span class="s"> = ?&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field</span><span class="p">),</span>
+                            <span class="p">[</span><span class="n">n_spots</span><span class="p">])</span>
+            <span class="n">n_plates</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">n_plates</span>
 </div></div>
 <div class="viewcode-block" id="AccessLocalDB"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB">[docs]</a><span class="k">class</span> <span class="nc">AccessLocalDB</span><span class="p">(</span><span class="n">AccessDBGeneric</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Provide standard methods for accessing data in the local</span>
 <span class="sd">    SQLite database. These methods are only used when the data source</span>
-<span class="sd">    is set to ``csv-msaccess`` or to ``xls``.</span>
+<span class="sd">    is set to ``data-files``.</span>
 
 <span class="sd">    Inherits from :class:`AccessDBGeneric` which provides this</span>
 <span class="sd">    class with methods that are not data source specific.</span>
@@ -1472,17 +1344,18 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">AccessLocalDB</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="AccessLocalDB.create_table_species_spots_1"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.create_table_species_spots_1">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_species_spots_1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table that will contain the SETL records for the</span>
-<span class="sd">        first species selection.</span>
+        <span class="sd">&quot;&quot;&quot;Create temporary table &quot;species_spots_1&quot;.</span>
 
-<span class="sd">        Because the user can select multiple species, the plate IDs in</span>
-<span class="sd">        column ``rec_pla_id`` don&#39;t have to be unique, so we&#39;re</span>
-<span class="sd">        creating a separate column ``id`` as the primary key.</span>
+<span class="sd">        This table will contain the SETL records for the first species</span>
+<span class="sd">        selection.</span>
+
+<span class="sd">        Because the user can select multiple species, the plate IDs in column</span>
+<span class="sd">        &quot;rec_pla_id&quot; don&#39;t have to be unique, so we&#39;re creating a separate</span>
+<span class="sd">        column &quot;id&quot; as the primary key.</span>
 
 <span class="sd">        Design Part: 1.80</span>
+<span class="sd">        Creates Design Part: 2.9, 2.9.1, 2.9.2</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Design Part: 2.9, 2.9.1, 2.9.2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TEMP TABLE species_spots_1 (</span><span class="se">\</span>
 <span class="s">            id INTEGER PRIMARY KEY, </span><span class="se">\</span>
 <span class="s">            rec_pla_id INTEGER, </span><span class="se">\</span>
@@ -1515,17 +1388,18 @@
 
 </div>
 <div class="viewcode-block" id="AccessLocalDB.create_table_species_spots_2"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.create_table_species_spots_2">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_species_spots_2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table that will contain the SETL records for the</span>
-<span class="sd">        second species selection.</span>
+        <span class="sd">&quot;&quot;&quot;Create temporary table &quot;species_spots_2&quot;.</span>
 
-<span class="sd">        Because the user can select multiple species, the plate IDs in</span>
-<span class="sd">        column ``rec_pla_id`` don&#39;t have to be unique, so we&#39;re</span>
-<span class="sd">        creating a separate column ``id`` as the primary key.</span>
+<span class="sd">        This table will contain the SETL records for the second species</span>
+<span class="sd">        selection.</span>
+
+<span class="sd">        Because the user can select multiple species, the plate IDs in column</span>
+<span class="sd">         &quot;rec_pla_id&quot; don&#39;t have to be unique, so we&#39;re creating a separate</span>
+<span class="sd">         column &quot;id&quot; as the primary key.</span>
 
 <span class="sd">        Design Part: 1.81</span>
+<span class="sd">        Creates Design Part: 2.10, 2.10.1, 2.10.2</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Design Part: 2.10, 2.10.1, 2.10.2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TEMP TABLE species_spots_2 (</span><span class="se">\</span>
 <span class="s">            id INTEGER PRIMARY KEY, </span><span class="se">\</span>
 <span class="s">            rec_pla_id INTEGER, </span><span class="se">\</span>
@@ -1557,12 +1431,13 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.create_table_spot_distances_observed"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.create_table_spot_distances_observed">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_spot_distances_observed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the observed spot distances.</span>
+        <span class="sd">&quot;&quot;&quot;Create temporary table &quot;spot_distances_observed&quot;.</span>
+
+<span class="sd">        This table is used to store observed spot distances.</span>
 
 <span class="sd">        Design Part: 1.83</span>
+<span class="sd">        Creates Design Part: 2.12</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Design Part: 2.12</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TEMP TABLE spot_distances_observed (</span><span class="se">\</span>
 <span class="s">            id INTEGER PRIMARY KEY, </span><span class="se">\</span>
 <span class="s">            rec_pla_id INTEGER, </span><span class="se">\</span>
@@ -1570,12 +1445,13 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.create_table_spot_distances_expected"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.create_table_spot_distances_expected">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_spot_distances_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the expected spot distances.</span>
+        <span class="sd">&quot;&quot;&quot;Create temporary table &quot;spot_distances_expected&quot;.</span>
+
+<span class="sd">        This table is used to store expected spot distances.</span>
 
 <span class="sd">        Design Part: 1.84</span>
+<span class="sd">        Creates Design Part: 2.13</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Design Part: 2.13</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TEMP TABLE spot_distances_expected (</span><span class="se">\</span>
 <span class="s">            id INTEGER PRIMARY KEY, </span><span class="se">\</span>
 <span class="s">            rec_pla_id INTEGER, </span><span class="se">\</span>
@@ -1583,13 +1459,13 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.create_table_plate_spot_totals"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.create_table_plate_spot_totals">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_plate_spot_totals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the total of spots per plate in the</span>
-<span class="sd">        distance tables.</span>
+        <span class="sd">&quot;&quot;&quot;Create temporary table &quot;plate_spot_totals&quot;.</span>
+
+<span class="sd">        This table is used to store the total of spots per plate.</span>
 
 <span class="sd">        Design Part: 1.85</span>
+<span class="sd">        Creates Design Part: 2.39</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Design Part: 2.39</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TEMP TABLE plate_spot_totals (</span><span class="se">\</span>
 <span class="s">            pla_id INTEGER PRIMARY KEY, </span><span class="se">\</span>
 <span class="s">            n_spots_a INTEGER, </span><span class="se">\</span>
@@ -1597,8 +1473,10 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.create_table_plate_area_totals_observed"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.create_table_plate_area_totals_observed">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_plate_area_totals_observed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the total of positive spots per plate area per</span>
-<span class="sd">        plate ID.</span>
+        <span class="sd">&quot;&quot;&quot;Create temporary table &quot;plate_area_totals_observed&quot;.</span>
+
+<span class="sd">        This table is used to store the total of positive spots per plate area</span>
+<span class="sd">        per plate ID.</span>
 
 <span class="sd">        Design Part:</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1613,13 +1491,13 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.create_table_plate_area_totals_expected"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.create_table_plate_area_totals_expected">[docs]</a>    <span class="k">def</span> <span class="nf">create_table_plate_area_totals_expected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a table for the total of positive spots per plate area per</span>
-<span class="sd">        plate ID.</span>
+        <span class="sd">&quot;&quot;&quot;Create temporary table &quot;plate_area_totals_expected&quot;.</span>
 
-<span class="sd">        Design Part:</span>
+<span class="sd">        This table is used to store the total of expected positive spots per</span>
+<span class="sd">        plate area per plate ID.</span>
+
+<span class="sd">        Design Part: TODO</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Design Part:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;CREATE TEMP TABLE plate_area_totals_expected (</span><span class="se">\</span>
 <span class="s">            pla_id INTEGER PRIMARY KEY, </span><span class="se">\</span>
 <span class="s">            area_a INTEGER, </span><span class="se">\</span>
@@ -1629,12 +1507,11 @@
 <span class="s">        )&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.get_species"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.get_species">[docs]</a>    <span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a list of species tuples in the format ``(spe_id,</span>
-<span class="sd">        &#39;spe_name_venacular&#39;, &#39;spe_name_latin&#39;)`` from the local</span>
-<span class="sd">        database that match the localities selection.</span>
+        <span class="sd">&quot;&quot;&quot;Return species that match a locations selection `locations`.</span>
 
-<span class="sd">        Only species matching a list of location IDs `locations` will be</span>
-<span class="sd">        returned.</span>
+<span class="sd">        Species are returned as tuples in the format</span>
+<span class="sd">        ``(id, &#39;common_name&#39;, &#39;latin_name&#39;)``. Argument `locations` is a list</span>
+<span class="sd">        of location IDs.</span>
 
 <span class="sd">        Design Part: 1.96</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1651,7 +1528,6 @@
         <span class="n">pla_ids</span> <span class="o">=</span> <span class="n">setlyze</span><span class="o">.</span><span class="n">std</span><span class="o">.</span><span class="n">uniqify</span><span class="p">(</span><span class="n">pla_ids</span><span class="p">)</span>
         <span class="c"># Create a string of the IDs for the query.</span>
         <span class="n">pla_ids_str</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">pla_ids</span><span class="p">])</span>
-        <span class="c">#print &quot;pla_ids: &quot;, pla_ids</span>
 
         <span class="c"># Select all species IDs from records with those plate IDs.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT rec_spe_id FROM records WHERE rec_pla_id IN (</span><span class="si">%s</span><span class="s">) AND rec_spe_id != &#39;&#39;&quot;</span> <span class="o">%</span> <span class="n">pla_ids_str</span><span class="p">)</span>
@@ -1664,16 +1540,16 @@
         <span class="c">#print &quot;spe_ids: &quot;, spe_ids</span>
 
         <span class="c"># Select information from species that match those species IDs.</span>
-        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT spe_id, spe_name_venacular, spe_name_latin FROM species WHERE spe_id IN (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="n">spe_ids_str</span><span class="p">)</span>
+        <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT spe_id,spe_name_venacular,spe_name_latin,&quot;</span>
+            <span class="s">&quot;spe_invasive_in_nl,spe_phylum,spe_class,spe_order,spe_family,&quot;</span>
+            <span class="s">&quot;spe_genus FROM species WHERE spe_id IN (</span><span class="si">%s</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="n">spe_ids_str</span><span class="p">)</span>
         <span class="n">species</span> <span class="o">=</span> <span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 
-        <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
         <span class="k">return</span> <span class="n">species</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.get_record_ids"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.get_record_ids">[docs]</a>    <span class="k">def</span> <span class="nf">get_record_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">locations</span><span class="p">,</span> <span class="n">species</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return records that match the locations and species.</span>
+        <span class="sd">&quot;&quot;&quot;Return records that match the locations and species selections.</span>
 
 <span class="sd">        Returns a list of record IDs that match the locations IDs</span>
 <span class="sd">        in the list `locations` and the species IDs in the list `species`.</span>
@@ -1683,7 +1559,6 @@
 
 <span class="sd">        Design Part: 1.41</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c"># Create strings containing all the selected locations and</span>
         <span class="c"># species IDs. These will be part of the queries below.</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">locations</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
@@ -1696,11 +1571,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">spe_ids_str</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">species</span><span class="p">])</span>
 
-        <span class="c"># Make a connection with the local database.</span>
-
-        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
         <span class="c"># Get the plate IDs that match the selected locations.</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s">&quot;SELECT pla_id FROM plates WHERE pla_loc_id IN (</span><span class="si">%s</span><span class="s">)&quot;</span>
             <span class="o">%</span> <span class="p">(</span><span class="n">loc_ids_str</span><span class="p">))</span>
 
@@ -1719,9 +1591,7 @@
         <span class="c"># Construct a list with the record IDs.</span>
         <span class="n">rec_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">]</span>
 
-        <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-
         <span class="k">return</span> <span class="n">rec_ids</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.get_spots"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.get_spots">[docs]</a>    <span class="k">def</span> <span class="nf">get_spots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec_ids</span><span class="p">):</span>
@@ -1732,16 +1602,12 @@
 <span class="sd">        iterator. This iterator returns tuples with the 25 spot booleans for</span>
 <span class="sd">        all matching records.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="c"># Make a connection with the local database.</span>
-
-        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-
         <span class="c"># Create a string of the IDs for the query.</span>
         <span class="n">rec_ids_str</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="n">rec_ids</span><span class="p">])</span>
 
         <span class="c"># Get all 25 spots from each record that matches the list of</span>
         <span class="c"># record IDs.</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;SELECT rec_sur1,rec_sur2,rec_sur3,rec_sur4,rec_sur5,&quot;</span>
                         <span class="s">&quot;rec_sur6,rec_sur7,rec_sur8,rec_sur9,rec_sur10,&quot;</span>
                         <span class="s">&quot;rec_sur11,rec_sur12,rec_sur13,rec_sur14,rec_sur15,&quot;</span>
@@ -1753,8 +1619,6 @@
 
         <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">cursor</span><span class="p">:</span>
             <span class="k">yield</span> <span class="n">record</span>
-
-        <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div>
 <div class="viewcode-block" id="AccessLocalDB.set_species_spots"><a class="viewcode-back" href="../../setlyze/database.html#setlyze.database.AccessLocalDB.set_species_spots">[docs]</a>    <span class="k">def</span> <span class="nf">set_species_spots</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rec_ids</span><span class="p">,</span> <span class="n">slot</span><span class="p">):</span>
@@ -1768,17 +1632,14 @@
 
 <span class="sd">        Design Part: 1.19.1</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+        <span class="n">cursor2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
         <span class="c"># The available tables to save the spots to.</span>
         <span class="n">tables</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;species_spots_1&#39;</span><span class="p">,</span><span class="s">&#39;species_spots_2&#39;</span><span class="p">)</span>
 
         <span class="c"># Turn the list into a string, as it&#39;ll be included in the query.</span>
         <span class="n">rec_ids_str</span> <span class="o">=</span> <span class="s">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">rec_ids</span><span class="p">])</span>
-
-        <span class="c"># Make a connection with the local database.</span>
-
-        <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
-        <span class="n">cursor2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
 
         <span class="c"># Empty the required tables before we start.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span> <span class="s">&quot;DELETE FROM </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">tables</span><span class="p">[</span><span class="n">slot</span><span class="p">])</span> <span class="p">)</span>
@@ -1807,8 +1668,6 @@
 
         <span class="c"># Commit the database transaction.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
-
-        <span class="c"># Close connection with the local database.</span>
         <span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="n">cursor2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </div></div>
