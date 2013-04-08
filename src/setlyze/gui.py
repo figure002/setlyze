@@ -317,7 +317,7 @@ class SelectAnalysis(object):
                 return
 
             # Check if we got any results.
-            if not info.getattr('source', None) or not info.getattr('date', None):
+            if not info.get('source') or not info.get('date'):
                 # No row was returned, just create a new local database.
                 self.on_make_local_db()
                 return
