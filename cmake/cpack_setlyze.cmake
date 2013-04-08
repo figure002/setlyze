@@ -3,13 +3,13 @@
 set (CPACK_GENERATORS "TGZ")
 set (CPACK_SOURCE_GENERATORS "TGZ")
 set (CPACK_STRIP_FILES ON)
-set (CPACK_SOURCE_IGNORE_FILES ".bzr;build;.swp;push.sh;win32;.*.pyc")
+set (CPACK_SOURCE_IGNORE_FILES ".git;.gitignore;build;doctrees;win32;.*.pyc;.*.pywc")
 
 set (CPACK_DEBIAN_PACKAGE_NAME "setlyze")
 set (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Species settlement analyzer\n A tool for analyzing the settlement of species on SETL plates.")
 set (CPACK_DEBIAN_PACKAGE_MAINTAINER "Serrano Pereira <serrano.pereira@gmail.com>")
 set (CPACK_PACKAGE_CONTACT "serrano.pereira@gmail.com")
-set (CPACK_DEBIAN_PACKAGE_DEPENDS "python (>=2.6), python (<3.0), python-gtk2, python-cairo, python-gobject, python-rpy, python-setuptools, r-base-core")
+set (CPACK_DEBIAN_PACKAGE_DEPENDS "python (>=2.7), python (<3.0), python-gtk2, python-cairo, python-gobject, python-rpy, python-setuptools, r-base-core")
 
 set (CPACK_DEBIAN_PACKAGE_SECTION "Science")
 set (CPACK_DEBIAN_PACKAGE_VERSION ${CPACK_PACKAGE_VERSION})
