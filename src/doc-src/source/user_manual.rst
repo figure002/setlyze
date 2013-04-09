@@ -100,7 +100,9 @@ To use SETLyze you will need:
 
 Hardware
 
-* Disk space: 2 MB (source) / 70 MB (Windows setup)
+* Disk space:
+    * SETLyze: 10 MB (source) / 30 MB (Windows setup)
+    * R: 50 MB
 * 512 MB RAM
 
 Software
