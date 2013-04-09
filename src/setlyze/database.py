@@ -169,7 +169,7 @@ class MakeLocalDB(threading.Thread):
         These files can be exported from the MS Access SETL database
         and contain all fields. CSV files must be delimited by semicolons (;)
         and double quotes (") as the quote character for fields with special
-        characters. Excel (*.xls) files must have the same format as the CSV
+        characters. Excel (\*.xls) files must have the same format as the CSV
         files and must not have a header.
 
         Design Part: 1.32
