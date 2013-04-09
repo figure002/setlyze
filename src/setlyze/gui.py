@@ -1622,7 +1622,7 @@ class Report(object):
         self.builder.add_from_file(os.path.join(module_path(), 'glade/report.glade'))
         self.window = self.builder.get_object('window_report')
         self.toolbutton_save_all = self.builder.get_object('toolbutton_save_all')
-        toolbutton_help = self.builder.get_object('toolbutton_help')
+        self.toolbutton_help = self.builder.get_object('toolbutton_help')
         self.vbox_top = self.builder.get_object('vbox_top')
         self.vbox_elements = self.builder.get_object('vbox_elements')
         self.label_header = self.builder.get_object('label_header')
@@ -1634,7 +1634,7 @@ class Report(object):
 
         # Modify some widgets.
         self.window.maximize()
-        toolbutton_help.connect('clicked', on_help, 'analysis-report-dialog')
+        self.toolbutton_help.connect('clicked', on_help, 'analysis-report-dialog')
 
         # Set the report header.
         if header:
@@ -1652,6 +1652,12 @@ class Report(object):
             self.report = report
         else:
             ValueError("Report must be an instance of setlyze.report.Report")
+
+    def set_help_section(self, section):
+        """Set the section of the user manual to be displayed when the help
+        button is clicked.
+        """
+        self.toolbutton_help.connect('clicked', on_help, section)
 
     def set_header(self, text):
         """Set the header of the report dialog to `text`."""

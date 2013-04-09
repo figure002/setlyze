@@ -393,6 +393,7 @@ class BeginBatch(Begin):
 
         # Display the report.
         w = setlyze.gui.Report(report, "Batch report for analysis Attraction within Species")
+        w.set_help_section('summary-report-attraction-within-species')
         # Enable export of individual reports.
         if len(self.results) > 0:
             w.toolbutton_save_all.set_sensitive(True)
