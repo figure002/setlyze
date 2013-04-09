@@ -1354,9 +1354,11 @@ class LoadData(object):
         filefilter_all.set_name("All supported")
         filefilter_all.add_mime_type("text/csv")
         filefilter_all.add_mime_type("application/vnd.ms-excel")
+        filefilter_all.add_mime_type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         filefilter_all.add_pattern("*.csv")
         filefilter_all.add_pattern("*.txt")
         filefilter_all.add_pattern("*.xls")
+        filefilter_all.add_pattern("*.xlsx")
 
         filefilter_csv = gtk.FileFilter()
         filefilter_csv.set_name("Comma Separated File (*.csv, *.txt)")
@@ -1365,9 +1367,11 @@ class LoadData(object):
         filefilter_csv.add_pattern("*.txt")
 
         filefilter_xls = gtk.FileFilter()
-        filefilter_xls.set_name("Excel File (*.xls)")
+        filefilter_xls.set_name("Excel File (*.xls, *.xlsx)")
         filefilter_xls.add_mime_type("application/vnd.ms-excel")
+        filefilter_xls.add_mime_type("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
         filefilter_xls.add_pattern("*.xls")
+        filefilter_xls.add_pattern("*.xlsx")
 
         # Set the filters.
         self.filechooserbutton_loc.add_filter(filefilter_all)

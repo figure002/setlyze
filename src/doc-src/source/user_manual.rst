@@ -129,7 +129,16 @@ package manager to install the dependencies.
 On Debian or derivatives, installing the dependencies can be done with the
 following command ::
 
-    sudo apt-get install python python-gtk2 python-rpy python-setuptools python-xlrd
+    sudo apt-get install python python-gtk2 python-rpy python-setuptools
+
+Linux distributions often come with older versions of `python-xlrd`, so it
+is recommended to install the latest version with PIP:
+
+    sudo apt-get install python-pip
+    sudo pip install xlrd
+
+Make sure you have python-xlrd 0.8.0 or later, otherwise loading of .xlsx files
+is not supported.
 
 System-wide install
 -------------------

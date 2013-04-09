@@ -37,6 +37,7 @@ import logging
 import threading
 import itertools
 from sqlite3 import dbapi2 as sqlite
+import re
 import time
 import xlrd
 
@@ -206,7 +207,12 @@ class MakeLocalDB(threading.Thread):
             filename = os.path.split(localities_file)[1]
             self.pdialog_handler.set_action("Importing %s" % filename)
 
-            if localities_file.endswith(".xls"):
+            # Regular expression for matching Excel files. Because we support
+            # .xlsx files, Python module xlrd version 0.8.0 or later is
+            # required.
+            re_excel = ".*\.(xls|xlsx)$"
+
+            if re.match(re_excel, localities_file):
                 self.insert_locations_from_xls(localities_file)
             else:
                 self.insert_locations_from_csv(localities_file)
@@ -214,7 +220,7 @@ class MakeLocalDB(threading.Thread):
             filename = os.path.split(plates_file)[1]
             self.pdialog_handler.increase("Importing %s" % filename)
 
-            if plates_file.endswith(".xls"):
+            if re.match(re_excel, plates_file):
                 self.insert_plates_from_xls(plates_file)
             else:
                 self.insert_plates_from_csv(plates_file)
@@ -222,7 +228,7 @@ class MakeLocalDB(threading.Thread):
             filename = os.path.split(records_file)[1]
             self.pdialog_handler.increase("Importing %s" % filename)
 
-            if records_file.endswith(".xls"):
+            if re.match(re_excel, records_file):
                 self.insert_records_from_xls(records_file)
             else:
                 self.insert_records_from_csv(records_file)
@@ -230,7 +236,7 @@ class MakeLocalDB(threading.Thread):
             filename = os.path.split(species_file)[1]
             self.pdialog_handler.increase("Importing %s" % filename)
 
-            if species_file.endswith(".xls"):
+            if re.match(re_excel, species_file):
                 self.insert_species_from_xls(species_file)
             else:
                 self.insert_species_from_csv(species_file)

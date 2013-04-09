@@ -15,13 +15,21 @@ order to run SETLyze.
 * python-cairo
 * python-gobject
 * python-rpy
-* python-xlrd
+* python-xlrd (>=0.8.0)
 
 On Debian or derivatives, installing the dependencies can be done with the
 following command:
 
-    sudo apt-get install python python-gtk2 python-rpy python-xlrd
+    sudo apt-get install python python-gtk2 python-rpy
 
+Linux distributions often come with older versions of `python-xlrd`, so it
+is recommended to install the latest version with PIP:
+
+    sudo apt-get install python-pip
+    sudo pip install xlrd
+
+Make sure you have python-xlrd 0.8.0 or later, otherwise loading of .xlsx files
+is not supported.
 
 Installation Instructions
 =========================
