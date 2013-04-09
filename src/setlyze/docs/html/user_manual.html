@@ -170,8 +170,15 @@ doesn&#8217;t contain SETLyze&#8217;s dependencies. GNU/Linux user can use their
 package manager to install the dependencies.</p>
 <p>On Debian or derivatives, installing the dependencies can be done with the
 following command</p>
-<div class="highlight-python"><pre>sudo apt-get install python python-gtk2 python-rpy python-setuptools python-xlrd</pre>
+<div class="highlight-python"><pre>sudo apt-get install python python-gtk2 python-rpy python-setuptools</pre>
 </div>
+<p>Linux distributions often come with older versions of <cite>python-xlrd</cite>, so it
+is recommended to install the latest version with PIP:</p>
+<blockquote>
+<div>sudo apt-get install python-pip
+sudo pip install xlrd</div></blockquote>
+<p>Make sure you have python-xlrd 0.8.0 or later, otherwise loading of .xlsx files
+is not supported.</p>
 <div class="section" id="system-wide-install">
 <h4>System-wide install<a class="headerlink" href="#system-wide-install" title="Permalink to this headline">¶</a></h4>
 <p>There is an INSTALL file in the source package. This file contains the
@@ -224,14 +231,26 @@ clicking the Help button on a dialog.</p>
 <p>This part of the user manual describes some terminology often used
 throughout the application and this manual.</p>
 <dl class="docutils">
-<dt>Intra-specific</dt>
+<dt>Intra specific</dt>
 <dd>Within a single species.</dd>
-<dt>Inter-specific</dt>
+<dt>Inter specific</dt>
 <dd>Between two different species.</dd>
+</dl>
+<dl class="docutils" id="definition-plate-area">
 <dt>Plate area</dt>
-<dd>The defined area on a SETL plate. By default the SETL plate is divided in
-four plate areas (A, B, C and D). See <a class="reference internal" href="#fig-plate-areas-default"><em>Default plate areas</em></a>.
-Plate areas can be combined, see <a class="reference internal" href="#dialog-define-plate-areas"><em>Define Plate Areas dialog</em></a>.</dd>
+<dd><p class="first">The defined area on a SETL plate. By default the SETL plate is divided in
+four plate areas (A, B, C and D):</p>
+<blockquote>
+<div><div class="figure" id="fig-plate-areas-default">
+<a class="reference internal image-reference" href="_images/plate_areas_default.png"><img alt="Default plate areas" src="_images/plate_areas_default.png" style="width: 200.0px; height: 200.0px;" /></a>
+<p class="caption">Default plate areas</p>
+</div>
+</div></blockquote>
+<p class="last">Plate areas can be customized during an analysis, see
+<a class="reference internal" href="#dialog-define-plate-areas"><em>Define Plate Areas dialog</em></a>.</p>
+</dd>
+</dl>
+<dl class="docutils" id="definition-positive-spot">
 <dt>Positive spot</dt>
 <dd>Each record in the SETL database contains data for each of the 25
 spots on a SETL plate. The spots are stored as booleans, meaning
@@ -254,6 +273,65 @@ presence/absence for each of the 25 spots on each SETL plate, and the
 data is stored in the SETL database in the form of records. So each
 SETL record in the database contains presence/absence data of one
 species for all 25 spots on a SETL plate.</dd>
+</dl>
+<dl class="docutils" id="definition-spot-distances">
+<dt>Spot distance</dt>
+<dd><p class="first">Spot distances are the distances between positive spots on a SETL plate.
+The spot distances are calculated from observed and expected positive
+spots data and are used to define whether species attract or repel.</p>
+<p><strong>Observed spot distances (intra specific)</strong></p>
+<p>All possible distances between the spots on each plate are calculated
+using the Pythagorean theorem. Consider the case of species A and the
+following plate:</p>
+<div class="figure">
+<a class="reference internal image-reference" href="_images/setl_plate_intra_distances.png"><img alt="Spot distances on SETL plate (intra specific)" src="_images/setl_plate_intra_distances.png" style="width: 250.0px; height: 250.0px;" /></a>
+<p class="caption">Spot distances on SETL plate (intra specific)</p>
+</div>
+<p>As you can see from the figure, three positive spots results in three
+spot distances (<em>a</em>, <em>b</em> and <em>c</em>). The distance from one spot to the next
+by moving horizontally or vertically is defined as 1. The distances from
+the figure are calculated as follows:</p>
+<div class="line-block">
+<div class="line"><img class="math" src="_images/math/5dc66ffd671f86b09107501390c7346f465910a9.png" alt="spot\_distance(a) = \sqrt{3^2 + 2^2} = 3.61"/></div>
+<div class="line"><img class="math" src="_images/math/f60d9e9978286493dd5094843bc0f6a730c8a493.png" alt="spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16"/></div>
+<div class="line"><img class="math" src="_images/math/ab6d1bbf28877968c29aceb0c135427b934517ad.png" alt="spot\_distance(c) = \sqrt{0^2 + 3^2} = 3"/></div>
+</div>
+<p>This is done for all plates of an analysis. Note that there can be no
+distance 0, in contrast to inter specific spot distances (see below).</p>
+<p><strong>Observed spot distances (inter specific)</strong></p>
+<p>To obtain spot distances for analyses where two species are involved,
+first the plate records are collected that contain both of the selected
+species. Then all possible spot distances are calculated between the
+two species. The following figure shows an example with positive spots
+for two species (A and B) and all possible spot distnaces.</p>
+<div class="figure" id="fig-spot-distances-inter">
+<a class="reference internal image-reference" href="_images/setl_plate_inter_distances.png"><img alt="Spot distances on SETL plate (inter specific)" src="_images/setl_plate_inter_distances.png" style="width: 239.0px; height: 239.0px;" /></a>
+<p class="caption">Spot distances on SETL plate (inter specific)</p>
+</div>
+<p>In the above figure, the distances are calculated the same way as for
+intra specific spot distances. Note however that only inter specific
+distances are calculated (distances between two different species). This
+also makes it possible to have a distance of 0 as visualized in the next
+figure.</p>
+<div class="figure" id="fig-spot-distances-inter2">
+<a class="reference internal image-reference" href="_images/setl_plate_inter_distances2.png"><img alt="Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances2.png" style="width: 239.0px; height: 239.0px;" /></a>
+<p class="caption">Spot distances on SETL plate (inter specific)</p>
+</div>
+<p>The distances for this figure are calculated as follows:</p>
+<div class="line-block">
+<div class="line"><img class="math" src="_images/math/5bbe001dc10d0308f83c3b772417034fe080350a.png" alt="spot\_distance(a) = \sqrt{0^2 + 0^2} = 0"/></div>
+<div class="line"><img class="math" src="_images/math/f60d9e9978286493dd5094843bc0f6a730c8a493.png" alt="spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16"/></div>
+<div class="line"><img class="math" src="_images/math/e99cc987a3ab555637be66e83c052bf6691ed62f.png" alt="spot\_distance(c) = \sqrt{0^2 + 2^2} = 2"/></div>
+</div>
+<p><strong>Expected spot distances</strong></p>
+<p class="last">The expected spot distances are calculated by generating a copy of
+each plate record matching the species selection. Each copy has the
+same number of positive spots as its original, except the positive
+spots are placed randomly at the plates. Then the spot distances
+are calculated the same way as for the observed spot distances. This
+means that the resulting list of expected spot distances has the same
+length as the observed spot distances.</p>
+</dd>
 </dl>
 </div>
 </div>
@@ -318,16 +396,9 @@ The default value <tt class="docutils literal"><span class="pre">0.05</span></tt
 <img class="math" src="_images/math/58a08cb720f6ba6d1fdecfcb3c4f8259ed566bcd.png" alt="conf. level = 1 - \alpha"/>. This confidence level is
 used for some statistical tests to calculate the confidence interval. At
 this moment this is just the t-test (not used in any analysis at this point).</p>
-<p>The alpha level is also used to determine if a P-value returned by
+<p class="last">The alpha level is also used to determine if a P-value returned by
 statistical tests is considered significant. The P-value is considered
 significant if the P-value is equal or less than the alpha level.</p>
-<p class="last">In the summary report for an analysis done in batch mode a result is only
-displayed if one of the statistical tests was considered significant. Some
-statistical tests are repeated (see next option) and the result for a
-repeated test is only considered significant if <img class="math" src="_images/math/bcd49041c2b4d16c7eb882a4055a114ca3566566.png" alt="((1-\alpha)*100)\%"/>
-of the repeats resulted in a significant P-value. So with 20 repeats
-and <img class="math" src="_images/math/db536bd2df135e525e6e2eae248614de50a75e26.png" alt="\alpha = 0.05"/>, 19 out of 20 repeats (95%) must have had a
-significant P-value for the test result to be considered significant.</p>
 </dd>
 <dt>Number of repeats for statistical tests</dt>
 <dd>Sets the number of repeats to perform on some statistical tests. Some
@@ -444,7 +515,7 @@ case the Wilcoxon test will analyze the plate areas A, B, C, D, A+B, C+D, A+B+C
 and B+C+D.</p>
 <p>Below is a schematic SETL plate with a grid. By default the plate is
 divided in four plate areas (A, B, C and D),</p>
-<div class="figure align-center" id="fig-plate-areas-default">
+<div class="figure align-center">
 <a class="reference internal image-reference" href="_images/plate_areas_default.png"><img alt="Default plate areas" src="_images/plate_areas_default.png" style="width: 200.0px; height: 200.0px;" /></a>
 <p class="caption">Default plate areas</p>
 </div>
@@ -526,68 +597,6 @@ below.</p>
 <p>Displays the locations and species selections. If multiple selections
 were made, each element is suffixed by a number. For example &#8220;Species
 selection (2)&#8221; stands for the second species selection.</p>
-</div>
-<div class="section" id="spot-distances">
-<h5>Spot Distances<a class="headerlink" href="#spot-distances" title="Permalink to this headline">¶</a></h5>
-<p>Displays the observed and expected spot distances. How these distances
-are calculated is described below.</p>
-<div class="section" id="observed-spot-distances-intra">
-<h6>Observed spot distances (intra)<a class="headerlink" href="#observed-spot-distances-intra" title="Permalink to this headline">¶</a></h6>
-<p>All possible distances between the spots on each plate are calculated
-using the Pythagorean theorem. Consider the case of species A and the
-following plate:</p>
-<div class="figure align-center">
-<a class="reference internal image-reference" href="_images/setl_plate_intra_distances.png"><img alt="Spot distances on SETL plate (intra)" src="_images/setl_plate_intra_distances.png" style="width: 250.0px; height: 250.0px;" /></a>
-<p class="caption">Spot distances on SETL plate (intra)</p>
-</div>
-<p>As you can see from the figure, three positive spots results in three
-spot distances (<em>a</em>, <em>b</em> and <em>c</em>). The distance from one spot to the next
-by moving horizontally or vertically is defined as 1. The distances from
-the figure are calculated as follows:</p>
-<div class="line-block">
-<div class="line"><img class="math" src="_images/math/5dc66ffd671f86b09107501390c7346f465910a9.png" alt="spot\_distance(a) = \sqrt{3^2 + 2^2} = 3.61"/></div>
-<div class="line"><img class="math" src="_images/math/f60d9e9978286493dd5094843bc0f6a730c8a493.png" alt="spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16"/></div>
-<div class="line"><img class="math" src="_images/math/ab6d1bbf28877968c29aceb0c135427b934517ad.png" alt="spot\_distance(c) = \sqrt{0^2 + 3^2} = 3"/></div>
-</div>
-<p>This is done for all possible spot distances on each plate. Note that
-there can be no distance 0 (in contrast to inter-specific spot
-distances).</p>
-</div>
-<div class="section" id="observed-spot-distances-inter">
-<h6>Observed spot distances (inter)<a class="headerlink" href="#observed-spot-distances-inter" title="Permalink to this headline">¶</a></h6>
-<p>First the plate records are collected that contain both of the selected
-species. Then all possible spot distances are calculated between the
-two species. The following figure shows an example with positive spots
-for two species (A and B) and all possible spot distnaces.</p>
-<div class="figure align-center" id="fig-spot-distances-inter">
-<a class="reference internal image-reference" href="_images/setl_plate_inter_distances.png"><img alt="Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances.png" style="width: 239.0px; height: 239.0px;" /></a>
-<p class="caption">Spot distances on SETL plate (inter)</p>
-</div>
-<p>In the above figure, the distances are calculated the same way as for
-analysis &#8220;Attraction within Species&#8221;. Note however that only inter-specific distances are
-calculated (distances between two different species). This also makes it
-possible to have a distance of 0 as visualized in the next figure.</p>
-<div class="figure align-center" id="fig-spot-distances-inter2">
-<a class="reference internal image-reference" href="_images/setl_plate_inter_distances2.png"><img alt="Spot distances on SETL plate (inter)" src="_images/setl_plate_inter_distances2.png" style="width: 239.0px; height: 239.0px;" /></a>
-<p class="caption">Spot distances on SETL plate (inter)</p>
-</div>
-<p>The distances for this figure are calculated as follows:</p>
-<div class="line-block">
-<div class="line"><img class="math" src="_images/math/5bbe001dc10d0308f83c3b772417034fe080350a.png" alt="spot\_distance(a) = \sqrt{0^2 + 0^2} = 0"/></div>
-<div class="line"><img class="math" src="_images/math/f60d9e9978286493dd5094843bc0f6a730c8a493.png" alt="spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16"/></div>
-<div class="line"><img class="math" src="_images/math/e99cc987a3ab555637be66e83c052bf6691ed62f.png" alt="spot\_distance(c) = \sqrt{0^2 + 2^2} = 2"/></div>
-</div>
-</div>
-<div class="section" id="expected-spot-distances">
-<h6>Expected spot distances<a class="headerlink" href="#expected-spot-distances" title="Permalink to this headline">¶</a></h6>
-<p>The expected spot distances are calculated by generating a copy of
-each plate record matching the species selection. Each copy has the
-same number of positive spots as its original, except the positive
-spots are placed randomly at the plates. Then the spot distances
-are calculated the same way as for the observed spot distances. This
-means that the resulting list of expected spot distances has the same
-length as the observed spot distances.</p>
-</div>
 </div>
 <div class="section" id="wilcoxon-rank-sum-test-with-continuity-correction">
 <span id="results-wilcoxon-rank-sum-test"></span><h5>Wilcoxon rank sum test with continuity correction<a class="headerlink" href="#wilcoxon-rank-sum-test-with-continuity-correction" title="Permalink to this headline">¶</a></h5>
@@ -898,10 +907,39 @@ the plate areas.</dd>
 <p>A summary report contains basic information from multiple
 <a class="reference internal" href="#standard-report"><em>standard reports</em></a>. Such a summary report is basically
 a table where each row represents a single analysis and the columns contain
-the results. A summary report also has separate sections for analysis
-information and a definition list for the codes used in the summary report.</p>
-<p>Here are a few examples of summary reports:</p>
-<p>Analysis &#8220;Spot Preference&#8221;:</p>
+the results per data group.</p>
+<p>In the summary report a result is only displayed if one of the statistical
+tests done for a species (combination) was considered significant. Some
+statistical tests are repeated and in this case there is a p-value for each
+repeat. In this case the p-value is calculated with <img class="math" src="_images/math/2199c302a747f2b3bb45eae1adb90b435761f801.png" alt="p = 1 - (s/t)"/> where
+<em>s</em> is the number of significant p-values for the major form of significance.
+For example, if attraction was more often significant than rejection, then
+<em>s</em> is the total number of significant p-values for attraction. And <em>t</em> is
+the total number of repeats for the test. So with 20 repeats and
+<img class="math" src="_images/math/db536bd2df135e525e6e2eae248614de50a75e26.png" alt="\alpha = 0.05"/>, 19 out of 20 repeats must have had a significant p-value
+in one direction for the test result to be considered significant.</p>
+<p>Below are the definitions for the result codes used in summary reports.</p>
+<dl class="docutils">
+<dt>na</dt>
+<dd>There is not enough data for the analysis or in case of the
+Chi Squared test one of the expected frequencies is less than 5.</dd>
+<dt>s</dt>
+<dd>The result for the statistical test was significant.</dd>
+<dt>ns</dt>
+<dd>The result for the statistical test was not significant.</dd>
+<dt>pr</dt>
+<dd>There was a significant preference for the plate area in question.</dd>
+<dt>rj</dt>
+<dd>There was a significant rejection for the plate area in question.</dd>
+<dt>at</dt>
+<dd>There was a significant attraction for the species in question.</dd>
+<dt>rp</dt>
+<dd>There was a significant repulsion for the species in question.</dd>
+</dl>
+<p>The summary report for each analysis are explained below.</p>
+<div class="section" id="summary-report-spot-preference">
+<span id="id5"></span><h5>Summary Report &#8220;Spot Preference&#8221;<a class="headerlink" href="#summary-report-spot-preference" title="Permalink to this headline">¶</a></h5>
+<p>Example report:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="14%" />
@@ -973,9 +1011,41 @@ information and a definition list for the codes used in the summary report.</p>
 </tr>
 </tbody>
 </table>
-<p>In the above example the columns containing letters (A,B,..) represent plate
-areas. See <a class="reference internal" href="#record-grouping-plate-area"><em>Grouping by Plate Area</em></a>.</p>
-<p>Analysis &#8220;Attraction between Species&#8221;:</p>
+<p>Explanation of the columns:</p>
+<dl class="docutils">
+<dt>Species</dt>
+<dd>Name of the species.</dd>
+<dt>n (plates)</dt>
+<dd>The total number of plates for the species selection. The real number of
+plates used for each data group may be smaller. Use the &#8220;Save All&#8221; button
+to see the number of plates used for each data group.</dd>
+<dt>A, B, C, D, A+B, C+D, A+B+C, and B+C+D</dt>
+<dd>In this report the results are grouped by plate area (see
+<a class="reference internal" href="#record-grouping-plate-area"><em>Grouping by Plate Area</em></a>). For the Wilcoxon rank sum test, the
+test is performed on each of the four plate areas, plus the combinations
+&#8220;A+B&#8221;, &#8220;C+D&#8221;, &#8220;A+B+C&#8221;, and &#8220;B+C+D&#8221;. For the Chi squared test the user
+defined plate areas are used. The user defined plate areas can be seen in
+the column name (e.g. &#8220;A+B,C,D&#8221; means that areas A and B were combined).</dd>
+</dl>
+</div>
+<div class="section" id="summary-report-attraction-within-species">
+<h5>Summary Report &#8220;Attraction within Species&#8221;<a class="headerlink" href="#summary-report-attraction-within-species" title="Permalink to this headline">¶</a></h5>
+<p>Explanation of the columns:</p>
+<dl class="docutils">
+<dt>Species</dt>
+<dd>Name of the species.</dd>
+<dt>n (plates)</dt>
+<dd>The total number of plates for the species selection. The real number of
+plates used for each data group may be smaller. Use the &#8220;Save All&#8221; button
+to see the number of plates used for each data group.</dd>
+<dt>2-24, 2, 3, ..., 24</dt>
+<dd>In this report the results are grouped by positive spot numbers (see
+<a class="reference internal" href="#record-grouping-positive-spots"><em>Record grouping by number of positive spots</em></a>).</dd>
+</dl>
+</div>
+<div class="section" id="summary-report-attraction-between-species">
+<span id="id6"></span><h5>Summary Report &#8220;Attraction between Species&#8221;<a class="headerlink" href="#summary-report-attraction-between-species" title="Permalink to this headline">¶</a></h5>
+<p>Example report:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="10%" />
@@ -1067,36 +1137,26 @@ areas. See <a class="reference internal" href="#record-grouping-plate-area"><em>
 </tr>
 </tbody>
 </table>
-<p>In this example the columns containing numbers (1,2,..) represent positive
-spot ratio groups. See <a class="reference internal" href="#record-grouping-ratio-groups"><em>Record grouping by ratios groups</em></a>.</p>
-<p>For analysis &#8220;Attraction within Species&#8221; (no example here) the columns also
-contain numbers (2,3,..), but in that case they represent positive
-spot numbers. See <a class="reference internal" href="#record-grouping-positive-spots"><em>Record grouping by number of positive spots</em></a>.</p>
-<div class="section" id="definitions">
-<h5>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h5>
-<p>Below are the definitions for the codes used in summary reports.</p>
+<p>In this example the columns containing numbers (1,2,..) represent</p>
+<p>Explanation of the columns:</p>
 <dl class="docutils">
-<dt>na</dt>
-<dd>There is not enough data for the analysis or in case of the
-Chi Squared test one of the expected frequencies is less than 5.</dd>
-<dt>s</dt>
-<dd>The result for the statistical test was significant.</dd>
-<dt>ns</dt>
-<dd>The result for the statistical test was not significant.</dd>
-<dt>pr</dt>
-<dd>There was a significant preference for the plate area in question.</dd>
-<dt>rj</dt>
-<dd>There was a significant rejection for the plate area in question.</dd>
-<dt>at</dt>
-<dd>There was a significant attraction for the species in question.</dd>
-<dt>rp</dt>
-<dd>There was a significant repulsion for the species in question.</dd>
+<dt>Species A</dt>
+<dd>Name of the first species.</dd>
+<dt>Species B</dt>
+<dd>Name of the species the first species was compared with.</dd>
+<dt>n (plates)</dt>
+<dd>The total number of plates for the species selection. The real number of
+plates used for each data group may be smaller. Use the &#8220;Save All&#8221; button
+to see the number of plates used for each data group.</dd>
+<dt>1-5, 1, 2, 3, 4, 5</dt>
+<dd>In this report the results are grouped by positive spot ratio groups (see
+<a class="reference internal" href="#record-grouping-ratio-groups"><em>Record grouping by ratios groups</em></a>).</dd>
 </dl>
 </div>
 </div>
 </div>
 <div class="section" id="record-grouping">
-<span id="id5"></span><h3>Record Grouping<a class="headerlink" href="#record-grouping" title="Permalink to this headline">¶</a></h3>
+<span id="id7"></span><span id="id8"></span><h3>Record Grouping<a class="headerlink" href="#record-grouping" title="Permalink to this headline">¶</a></h3>
 <p>SETLyze performs statistical tests to determine the significance of
 results. The key statistical tests used to determine significance are
 the Wilcoxon rank-sum test and Pearson&#8217;s Chi-squared test. The tests
@@ -1111,8 +1171,8 @@ each grouping method below.</p>
 <div class="section" id="grouping-by-plate-area">
 <span id="record-grouping-plate-area"></span><h4>Grouping by Plate Area<a class="headerlink" href="#grouping-by-plate-area" title="Permalink to this headline">¶</a></h4>
 <p>This type of grouping is done for analysis &#8220;Spot Preference&#8221;. Each group
-is a plate area or a combination of plate areas (see
-<a class="reference internal" href="#fig-plate-areas-default"><em>Default plate areas</em></a>). The following groups are defined:</p>
+is a <a class="reference internal" href="#definition-plate-area"><em>plate area</em></a> or a combination of plate areas.
+The following groups are defined:</p>
 <ol class="arabic simple">
 <li>Plate area A</li>
 <li>Plate area B</li>
@@ -1131,9 +1191,9 @@ plate area are calculated. These make up the observed values.</p>
 <p>This type of grouping is done in the case of calculated spot distances
 for a single species (or multiple species grouped together) on SETL
 plates (analysis &#8220;Attraction within Species&#8221;).</p>
-<p>A record has a maximum of 25 positive spots, so this results in a
-maximum of 25 record groups. Group 1 contains records with just one
-positive spot, group 2 contains records with two positive spots, et
+<p>A record has a maximum of 25 <a class="reference internal" href="#definition-positive-spot"><em>positive spots</em></a>,
+so this results in a maximum of 25 record groups. Group 1 contains records with
+just one positive spot, group 2 contains records with two positive spots, et
 cetera. Records of group 1 and 25 are left out however. Group 1 is
 skipped because it is not possible to calculate spot distances for
 records with just one positive spot. And group 25 is excluded because
@@ -1157,8 +1217,8 @@ column tells you to which group each result belongs.</p>
 <p>This type of grouping is done in the case of calculated spot distances
 between two different (groups of) species (analysis &#8220;Attraction between Species&#8221;).</p>
 <p>When dealing with two species, plate records are matched that contain
-both species. This means we can get a ratio for the positive spots for
-each matching SETL plate record. Consider <a class="reference internal" href="#fig-spot-distances-inter"><em>Spot distances on SETL plate (inter)</em></a>
+both species. This means we can get a ratio for the <a class="reference internal" href="#definition-positive-spot"><em>positive spots</em></a> for
+each matching SETL plate record. Consider <a class="reference internal" href="#fig-spot-distances-inter"><em>Spot distances on SETL plate (inter specific)</em></a>
 which visualizes a SETL plate with positive spots of species A and B.
 There are two positive spots of one species, and three positive spots of
 the other. That makes the ratio for this plate 2:3. The order of the
@@ -1354,12 +1414,6 @@ biological questions regarding the settlement of species on SETL plates.</p>
 <li><a class="reference internal" href="#analysis-report-dialog">Analysis Report dialog</a><ul>
 <li><a class="reference internal" href="#standard-report">Standard Report</a><ul>
 <li><a class="reference internal" href="#locations-and-species-selections">Locations and Species Selections</a></li>
-<li><a class="reference internal" href="#spot-distances">Spot Distances</a><ul>
-<li><a class="reference internal" href="#observed-spot-distances-intra">Observed spot distances (intra)</a></li>
-<li><a class="reference internal" href="#observed-spot-distances-inter">Observed spot distances (inter)</a></li>
-<li><a class="reference internal" href="#expected-spot-distances">Expected spot distances</a></li>
-</ul>
-</li>
 <li><a class="reference internal" href="#wilcoxon-rank-sum-test-with-continuity-correction">Wilcoxon rank sum test with continuity correction</a></li>
 <li><a class="reference internal" href="#wilcoxon-rank-sum-test-with-continuity-correction-repeated">Wilcoxon rank sum test with continuity correction (repeated)</a></li>
 <li><a class="reference internal" href="#chi-squared-test-for-given-probabilities">Chi-squared test for given probabilities</a></li>
@@ -1368,7 +1422,9 @@ biological questions regarding the settlement of species on SETL plates.</p>
 </ul>
 </li>
 <li><a class="reference internal" href="#summary-report">Summary Report</a><ul>
-<li><a class="reference internal" href="#definitions">Definitions</a></li>
+<li><a class="reference internal" href="#summary-report-spot-preference">Summary Report &#8220;Spot Preference&#8221;</a></li>
+<li><a class="reference internal" href="#summary-report-attraction-within-species">Summary Report &#8220;Attraction within Species&#8221;</a></li>
+<li><a class="reference internal" href="#summary-report-attraction-between-species">Summary Report &#8220;Attraction between Species&#8221;</a></li>
 </ul>
 </li>
 </ul>

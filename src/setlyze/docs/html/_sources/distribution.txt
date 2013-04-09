@@ -58,7 +58,7 @@ installers often have "win32" or "x86" (not "x86-64") in the filename.
 #. `R <http://cran.xl-mirror.nl/bin/windows/base/old/2.12.1/>`_ (=2.12.1)
 #. `PyGTK (bundle with PyCairo, PyGObject, GTK+ 2.24.0) <http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.24/>`_ (=2.24.0) *
 #. `RPy <http://sourceforge.net/projects/rpy/files/rpy/>`_ (>=1.0.3) *
-#. `xlrd <http://pypi.python.org/pypi/xlrd>`_ (>=0.7.1) *
+#. `xlrd <http://pypi.python.org/pypi/xlrd>`_ (>=0.8.0) *
 #. `Python Win32 Extensions <http://sourceforge.net/projects/pywin32/files/pywin32/>`_ (>=218) *
 
 SETLyze will probably run fine with Python 2.6 too, but the latest Python 2.7
