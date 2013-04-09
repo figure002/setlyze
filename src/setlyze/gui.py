@@ -1612,7 +1612,7 @@ class Report(object):
     :class:`setlyze.report.Report`.
     """
 
-    def __init__(self, report, header="Report"):
+    def __init__(self, report, header="Report", help_section='analysis-report-dialog'):
         self.report = None
         self.report_saved = False
         self.set_report(report)
@@ -1634,7 +1634,7 @@ class Report(object):
 
         # Modify some widgets.
         self.window.maximize()
-        self.toolbutton_help.connect('clicked', on_help, 'analysis-report-dialog')
+        self.set_help_section(help_section)
 
         # Set the report header.
         if header:

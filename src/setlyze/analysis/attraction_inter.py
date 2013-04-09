@@ -473,8 +473,9 @@ class BeginBatch(Begin):
         report.set_definitions(definitions)
 
         # Display the report.
-        w = setlyze.gui.Report(report, "Batch report for analysis Attraction between Species")
-        w.set_help_section('summary-report-attraction-between-species')
+        w = setlyze.gui.Report(report,
+            "Batch report for analysis Attraction between Species",
+            'summary-report-attraction-between-species')
         # Enable export of individual reports.
         if len(self.results) > 0:
             w.toolbutton_save_all.set_sensitive(True)
