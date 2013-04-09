@@ -55,7 +55,7 @@ __status__ = "Production"
 __date__ = "2013/02/01"
 
 # The current version of the local database.
-DB_VERSION = 0.4
+DB_VERSION = 0.5
 
 def get_database_accessor():
     """Return an object that facilitates access to the database.
@@ -278,14 +278,21 @@ class MakeLocalDB(threading.Thread):
 
         # Read through every row in the CSV file and insert that row
         # into the local database.
-        for row in setl_reader:
+        for rownum,row in enumerate(setl_reader):
             if len(row) != 5:
                 raise ValueError("Expecting 5 fields per row for the "
-                    "localities CSV file, found %d fields." % len(row))
+                    "localities file, found %d fields." % len(row))
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0:
+                try:
+                    row[0] = int(row[0])
+                except:
+                    continue
 
             self.cursor.execute("INSERT INTO localities VALUES (?,?,?,?,?)",
-                (row[0],row[1],row[2],row[3],row[4])
-                )
+                row)
 
     def insert_species_from_csv(self, filename, delimiter=';', quotechar='"'):
         """Insert the species from a CSV file into the local database.
@@ -311,14 +318,22 @@ class MakeLocalDB(threading.Thread):
 
         # Read through every row in the CSV file and insert that row
         # into the local database.
-        for row in setl_reader:
+        for rownum,row in enumerate(setl_reader):
             n = len(row)
-            if n not in (15,16):
-                raise ValueError("Expecting 16 fields per row for the "
-                    "species CSV file, found %d fields." % n)
+            if n > 17:
+                raise ValueError("Expecting at most 17 fields per row for the "
+                    "species file, found %d fields." % n)
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0:
+                try:
+                    row[0] = int(row[0])
+                except:
+                    continue
 
             row_new = []
-            for i in range(0,16):
+            for i in range(17):
                 try:
                     val = row[i]
                     if val == '':
@@ -332,7 +347,7 @@ class MakeLocalDB(threading.Thread):
                 except:
                     row_new.append(None)
 
-            placeholders = ','.join('?' * 16)
+            placeholders = ','.join('?' * 17)
             self.cursor.execute("INSERT INTO species VALUES (%s)" %
                 placeholders,
                 row_new
@@ -362,14 +377,21 @@ class MakeLocalDB(threading.Thread):
 
         # Read through every row in the CSV file and insert that row
         # into the local database.
-        for row in setl_reader:
+        for rownum,row in enumerate(setl_reader):
             if len(row) != 10:
                 raise ValueError("Expecting 10 fields per row for the "
-                    "plates CSV file, found %d fields." % len(row))
+                    "plates file, found %d fields." % len(row))
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0:
+                try:
+                    row[0] = int(row[0])
+                except:
+                    continue
 
             self.cursor.execute("INSERT INTO plates VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9])
-                )
+                row)
 
     def insert_records_from_csv(self, filename, delimiter=';', quotechar='"'):
         """Insert the records from a CSV file into the local database.
@@ -396,17 +418,21 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the CSV file and insert that row
         # into the local database.
         placeholders = ','.join('?' * 38)
-        for row in setl_reader:
+        for rownum,row in enumerate(setl_reader):
             if len(row) != 40:
                 raise ValueError("Expecting 40 fields per row for the "
-                    "plates CSV file, found %d fields." % len(row))
+                    "records file, found %d fields." % len(row))
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0:
+                try:
+                    row[0] = int(row[0])
+                except:
+                    continue
 
             self.cursor.execute("INSERT INTO records VALUES (%s)" % placeholders,
-                (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],
-                row[10],row[11],row[12],row[13],row[14],row[15],row[16],row[17],row[18],row[19],
-                row[20],row[21],row[22],row[23],row[24],row[25],row[26],row[27],row[28],row[29],
-                row[30],row[31],row[32],row[33],row[34],row[35],row[36],row[37])
-                )
+                row[:38])
 
     def insert_locations_from_xls(self, filename):
         """Insert the SETL localities from a XLS file into the local
@@ -420,7 +446,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing localities data from %s" % filename)
 
         # Try to open the XLS file.
-        f= xlrd.open_workbook(filename)
+        f = xlrd.open_workbook(filename)
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
@@ -428,17 +454,18 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the XLS file and insert that row
         # into the local database.
         for rownum in range(setl_reader.nrows):
-            if len(setl_reader.row_values(rownum)) != 5:
+            values = setl_reader.row_values(rownum)
+            if len(values) != 5:
                 raise ValueError("Expecting 5 fields per row for the "
-                    "localities XLS file, found %d fields." % len(setl_reader.row_values(rownum)))
+                    "localities file, found %d fields." % len(values))
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0 and isinstance(values[0], unicode):
+                continue
 
             self.cursor.execute("INSERT INTO localities VALUES (?,?,?,?,?)",
-                (setl_reader.row_values(rownum)[0],
-                 setl_reader.row_values(rownum)[1],
-                 setl_reader.row_values(rownum)[2],
-                 setl_reader.row_values(rownum)[3],
-                 setl_reader.row_values(rownum)[4])
-                )
+                values)
 
     def insert_plates_from_xls(self, filename):
         """Insert the plates from a XLS file into the local database.
@@ -451,7 +478,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing plates data from %s" % filename)
 
         # Try to open the XLS file.
-        f= xlrd.open_workbook(filename)
+        f = xlrd.open_workbook(filename)
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
@@ -459,22 +486,19 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the XLS file and insert that row
         # into the local database.
         for rownum in range(setl_reader.nrows):
-            if len(setl_reader.row_values(rownum)) != 10:
+            values = setl_reader.row_values(rownum)
+
+            if len(values) != 10:
                 raise ValueError("Expecting 10 fields per row for the "
-                    "plates xls file, found %d fields." % len(setl_reader.row_values(rownum)))
+                    "plates file, found %d fields." % len(values))
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0 and isinstance(values[0], unicode):
+                continue
 
             self.cursor.execute("INSERT INTO plates VALUES (?,?,?,?,?,?,?,?,?,?)",
-                (setl_reader.row_values(rownum)[0],
-                 setl_reader.row_values(rownum)[1],
-                 setl_reader.row_values(rownum)[2],
-                 setl_reader.row_values(rownum)[3],
-                 setl_reader.row_values(rownum)[4],
-                 setl_reader.row_values(rownum)[5],
-                 setl_reader.row_values(rownum)[6],
-                 setl_reader.row_values(rownum)[7],
-                 setl_reader.row_values(rownum)[8],
-                 setl_reader.row_values(rownum)[9])
-                )
+                values)
 
     def insert_records_from_xls(self, filename):
         """Insert the records from a XLS file into the local database.
@@ -487,7 +511,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing records data from %s" % filename)
 
         # Try to open the XLS file.
-        f= xlrd.open_workbook(filename)
+        f = xlrd.open_workbook(filename)
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
@@ -496,50 +520,19 @@ class MakeLocalDB(threading.Thread):
         # into the local database.
         placeholders = ','.join('?' * 38)
         for rownum in range(setl_reader.nrows):
-            if len(setl_reader.row_values(rownum)) != 40:
-                raise ValueError("Expecting 40 fields per row for the "
-                    "plates XLS file, found %d fields." % len(setl_reader.row_values(rownum)))
+            values = setl_reader.row_values(rownum)
+
+            if len(values) < 38:
+                raise ValueError("Expecting at least 38 fields per row for the "
+                    "records file, found %d fields." % len(values))
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0 and isinstance(values[0], unicode):
+                continue
 
             self.cursor.execute("INSERT INTO records VALUES (%s)" % placeholders,
-                (setl_reader.row_values(rownum)[0],
-                 setl_reader.row_values(rownum)[1],
-                 setl_reader.row_values(rownum)[2],
-                 setl_reader.row_values(rownum)[3],
-                 setl_reader.row_values(rownum)[4],
-                 setl_reader.row_values(rownum)[5],
-                 setl_reader.row_values(rownum)[6],
-                 setl_reader.row_values(rownum)[7],
-                 setl_reader.row_values(rownum)[8],
-                 setl_reader.row_values(rownum)[9],
-                 setl_reader.row_values(rownum)[10],
-                 setl_reader.row_values(rownum)[11],
-                 setl_reader.row_values(rownum)[12],
-                 setl_reader.row_values(rownum)[13],
-                 setl_reader.row_values(rownum)[14],
-                 setl_reader.row_values(rownum)[15],
-                 setl_reader.row_values(rownum)[16],
-                 setl_reader.row_values(rownum)[17],
-                 setl_reader.row_values(rownum)[18],
-                 setl_reader.row_values(rownum)[19],
-                 setl_reader.row_values(rownum)[20],
-                 setl_reader.row_values(rownum)[21],
-                 setl_reader.row_values(rownum)[22],
-                 setl_reader.row_values(rownum)[23],
-                 setl_reader.row_values(rownum)[24],
-                 setl_reader.row_values(rownum)[25],
-                 setl_reader.row_values(rownum)[26],
-                 setl_reader.row_values(rownum)[27],
-                 setl_reader.row_values(rownum)[28],
-                 setl_reader.row_values(rownum)[29],
-                 setl_reader.row_values(rownum)[30],
-                 setl_reader.row_values(rownum)[31],
-                 setl_reader.row_values(rownum)[32],
-                 setl_reader.row_values(rownum)[33],
-                 setl_reader.row_values(rownum)[34],
-                 setl_reader.row_values(rownum)[35],
-                 setl_reader.row_values(rownum)[36],
-                 setl_reader.row_values(rownum)[37])
-                )
+                values[:38])
 
     def insert_species_from_xls(self, filename):
         """Insert the species from a XLS file into the local database.
@@ -552,7 +545,7 @@ class MakeLocalDB(threading.Thread):
         logging.info("Importing species data from %s" % filename)
 
         # Try to open the XLS file.
-        f= xlrd.open_workbook(filename)
+        f = xlrd.open_workbook(filename)
 
         # Use Python's xlrd module to create a XLS reader.
         setl_reader = f.sheet_by_index(0)
@@ -560,16 +553,23 @@ class MakeLocalDB(threading.Thread):
         # Read through every row in the XLS file and insert that row
         # into the local database.
         for rownum in range(setl_reader.nrows):
-            n = len(setl_reader.row_values(rownum))
-            if n > 16:
-                raise ValueError("Expecting at most 16 fields per row for the "
-                    "species XLS file, found %d fields." % n)
+            values = setl_reader.row_values(rownum)
 
-            placeholders = ','.join('?' * 16)
+            n = len(values)
+            if n > 17:
+                raise ValueError("Expecting at most 17 fields per row for the "
+                    "species file, found %d fields." % n)
+
+            # Check if the first row contains headers by checking if the first
+            # field in the first row is a string. If so, skip the first row.
+            if rownum == 0 and isinstance(values[0], unicode):
+                continue
+
+            placeholders = ','.join('?' * 17)
             row = []
-            for i in range(0,16):
+            for i in range(17):
                 try:
-                    val = setl_reader.row_values(rownum)[i]
+                    val = values[i]
                     if val == '':
                         row.append(None)
                     else:
@@ -577,7 +577,7 @@ class MakeLocalDB(threading.Thread):
                 except:
                     row.append(None)
 
-            self.cursor.execute("INSERT INTO species VALUES (%s)" %
+            self.cursor.execute("INSERT INTO species VALUES (%s);" %
                 placeholders,
                 row
             )
@@ -736,12 +736,13 @@ class MakeLocalDB(threading.Thread):
         # Design Part: 2.3
         self.cursor.execute("CREATE TABLE species (\
             spe_id INTEGER PRIMARY KEY, \
-            spe_aphia_id INTEGER, \
             spe_name_venacular VARCHAR, \
             spe_name_latin VARCHAR, \
             spe_invasive_in_nl INTEGER, \
             spe_description VARCHAR, \
             spe_remarks VARCHAR, \
+            spe_picture VARCHAR, \
+            spe_aphia_id INTEGER, \
             spe_kingdom VARCHAR, \
             spe_phylum VARCHAR, \
             spe_class VARCHAR, \
