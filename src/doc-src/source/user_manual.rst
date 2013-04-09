@@ -200,16 +200,28 @@ Definition List
 This part of the user manual describes some terminology often used
 throughout the application and this manual.
 
-Intra-specific
+Intra specific
     Within a single species.
 
-Inter-specific
+Inter specific
     Between two different species.
 
+.. _definition-place-area:
+
 Plate area
-    The defined area on a SETL plate. By default the SETL plate is divided in
-    four plate areas (A, B, C and D). See :ref:`fig_plate_areas_default`.
-    Plate areas can be combined, see :ref:`dialog-define-plate-areas`.
+  The defined area on a SETL plate. By default the SETL plate is divided in
+  four plate areas (A, B, C and D):
+
+    .. _fig_plate_areas_default:
+
+    .. figure:: plate_areas_default.png
+       :scale: 100%
+       :alt: Default plate areas
+
+       Default plate areas
+
+  Plate areas can be customized during an analysis, see
+  :ref:`dialog-define-plate-areas`.
 
 Positive spot
     Each record in the SETL database contains data for each of the 25
@@ -235,6 +247,84 @@ Spot
     data is stored in the SETL database in the form of records. So each
     SETL record in the database contains presence/absence data of one
     species for all 25 spots on a SETL plate.
+
+.. _definition-spot-distances:
+
+Spot distance
+    Spot distances are the distances between positive spots on a SETL plate.
+    The spot distances are calculated from observed and expected positive
+    spots data and are used to define whether species attract or repel.
+
+    **Observed spot distances (intra specific)**
+
+    All possible distances between the spots on each plate are calculated
+    using the Pythagorean theorem. Consider the case of species A and the
+    following plate:
+
+    .. figure:: setl_plate_intra_distances.png
+       :scale: 100%
+       :alt: Spot distances on SETL plate (intra specific)
+
+       Spot distances on SETL plate (intra specific)
+
+    As you can see from the figure, three positive spots results in three
+    spot distances (*a*, *b* and *c*). The distance from one spot to the next
+    by moving horizontally or vertically is defined as 1. The distances from
+    the figure are calculated as follows:
+
+    | :math:`spot\_distance(a) = \sqrt{3^2 + 2^2} = 3.61`
+    | :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`
+    | :math:`spot\_distance(c) = \sqrt{0^2 + 3^2} = 3`
+
+    This is done for all plates of an analysis. Note that there can be no
+    distance 0, in contrast to inter specific spot distances (see below).
+
+    **Observed spot distances (inter specific)**
+
+    To obtain spot distances for analyses where two species are involved,
+    first the plate records are collected that contain both of the selected
+    species. Then all possible spot distances are calculated between the
+    two species. The following figure shows an example with positive spots
+    for two species (A and B) and all possible spot distnaces.
+
+    .. _fig_spot-distances-inter:
+
+    .. figure:: setl_plate_inter_distances.png
+       :scale: 100%
+       :alt: Spot distances on SETL plate (inter specific)
+
+       Spot distances on SETL plate (inter specific)
+
+    In the above figure, the distances are calculated the same way as for
+    intra specific spot distances. Note however that only inter specific
+    distances are calculated (distances between two different species). This
+    also makes it possible to have a distance of 0 as visualized in the next
+    figure.
+
+    .. _fig_spot-distances-inter2:
+
+    .. figure:: setl_plate_inter_distances2.png
+       :scale: 100%
+       :alt: Spot distances on SETL plate (inter)
+
+       Spot distances on SETL plate (inter specific)
+
+    The distances for this figure are calculated as follows:
+
+    | :math:`spot\_distance(a) = \sqrt{0^2 + 0^2} = 0`
+    | :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`
+    | :math:`spot\_distance(c) = \sqrt{0^2 + 2^2} = 2`
+
+    **Expected spot distances**
+
+    The expected spot distances are calculated by generating a copy of
+    each plate record matching the species selection. Each copy has the
+    same number of positive spots as its original, except the positive
+    spots are placed randomly at the plates. Then the spot distances
+    are calculated the same way as for the observed spot distances. This
+    means that the resulting list of expected spot distances has the same
+    length as the observed spot distances.
+
 
 .. _setlyze-dialogs:
 
@@ -329,14 +419,6 @@ Alpha level (α) for statistical tests
     The alpha level is also used to determine if a P-value returned by
     statistical tests is considered significant. The P-value is considered
     significant if the P-value is equal or less than the alpha level.
-
-    In the summary report for an analysis done in batch mode a result is only
-    displayed if one of the statistical tests was considered significant. Some
-    statistical tests are repeated (see next option) and the result for a
-    repeated test is only considered significant if :math:`((1-\alpha)*100)\%`
-    of the repeats resulted in a significant P-value. So with 20 repeats
-    and :math:`\alpha = 0.05`, 19 out of 20 repeats (95%) must have had a
-    significant P-value for the test result to be considered significant.
 
 Number of repeats for statistical tests
     Sets the number of repeats to perform on some statistical tests. Some
@@ -488,8 +570,6 @@ and B+C+D.
 Below is a schematic SETL plate with a grid. By default the plate is
 divided in four plate areas (A, B, C and D),
 
-.. _fig_plate_areas_default:
-
 .. figure:: plate_areas_default.png
    :scale: 100%
    :alt: Default plate areas
@@ -598,87 +678,6 @@ Locations and Species Selections
 Displays the locations and species selections. If multiple selections
 were made, each element is suffixed by a number. For example "Species
 selection (2)" stands for the second species selection.
-
-Spot Distances
-``````````````
-
-Displays the observed and expected spot distances. How these distances
-are calculated is described below.
-
-Observed spot distances (intra)
-'''''''''''''''''''''''''''''''
-
-All possible distances between the spots on each plate are calculated
-using the Pythagorean theorem. Consider the case of species A and the
-following plate:
-
-.. figure:: setl_plate_intra_distances.png
-   :scale: 100%
-   :alt: Spot distances on SETL plate (intra)
-   :align: center
-
-   Spot distances on SETL plate (intra)
-
-As you can see from the figure, three positive spots results in three
-spot distances (*a*, *b* and *c*). The distance from one spot to the next
-by moving horizontally or vertically is defined as 1. The distances from
-the figure are calculated as follows:
-
-| :math:`spot\_distance(a) = \sqrt{3^2 + 2^2} = 3.61`
-| :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`
-| :math:`spot\_distance(c) = \sqrt{0^2 + 3^2} = 3`
-
-This is done for all possible spot distances on each plate. Note that
-there can be no distance 0 (in contrast to inter-specific spot
-distances).
-
-Observed spot distances (inter)
-'''''''''''''''''''''''''''''''
-
-First the plate records are collected that contain both of the selected
-species. Then all possible spot distances are calculated between the
-two species. The following figure shows an example with positive spots
-for two species (A and B) and all possible spot distnaces.
-
-.. _fig_spot-distances-inter:
-
-.. figure:: setl_plate_inter_distances.png
-   :scale: 100%
-   :alt: Spot distances on SETL plate (inter)
-   :align: center
-
-   Spot distances on SETL plate (inter)
-
-In the above figure, the distances are calculated the same way as for
-analysis "Attraction within Species". Note however that only inter-specific distances are
-calculated (distances between two different species). This also makes it
-possible to have a distance of 0 as visualized in the next figure.
-
-.. _fig_spot-distances-inter2:
-
-.. figure:: setl_plate_inter_distances2.png
-   :scale: 100%
-   :alt: Spot distances on SETL plate (inter)
-   :align: center
-
-   Spot distances on SETL plate (inter)
-
-The distances for this figure are calculated as follows:
-
-| :math:`spot\_distance(a) = \sqrt{0^2 + 0^2} = 0`
-| :math:`spot\_distance(b) = \sqrt{3^2 + 1^2} = 3.16`
-| :math:`spot\_distance(c) = \sqrt{0^2 + 2^2} = 2`
-
-Expected spot distances
-'''''''''''''''''''''''
-
-The expected spot distances are calculated by generating a copy of
-each plate record matching the species selection. Each copy has the
-same number of positive spots as its original, except the positive
-spots are placed randomly at the plates. Then the spot distances
-are calculated the same way as for the observed spot distances. This
-means that the resulting list of expected spot distances has the same
-length as the observed spot distances.
 
 .. _results-wilcoxon-rank-sum-test:
 
@@ -967,49 +966,20 @@ Summary Report
 A summary report contains basic information from multiple
 :ref:`standard reports <standard-report>`. Such a summary report is basically
 a table where each row represents a single analysis and the columns contain
-the results. A summary report also has separate sections for analysis
-information and a definition list for the codes used in the summary report.
+the results per data group.
 
-Here are a few examples of summary reports:
+In the summary report a result is only displayed if one of the statistical
+tests done for a species (combination) was considered significant. Some
+statistical tests are repeated and in this case there is a p-value for each
+repeat. In this case the p-value is calculated with :math:`p = 1 - (s/t)` where
+*s* is the number of significant p-values for the major form of significance.
+For example, if attraction was more often significant than rejection, then
+*s* is the total number of significant p-values for attraction. And *t* is
+the total number of repeats for the test. So with 20 repeats and
+:math:`\alpha = 0.05`, 19 out of 20 repeats must have had a significant p-value
+in one direction for the test result to be considered significant.
 
-Analysis "Spot Preference":
-
-==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
-..                                                                                                                                                                                                      Wilcoxon rank sum test                                                                                                                                  Chi-sq
-----------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------------------------------
-Species                                                                 n (plates)                               A                               B                               C                               D                             A+B                             C+D                           A+B+C                           B+C+D                         A,B,C,D
-==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
-*Obelia dichotoma*                                                             177                    pr; p=0.0000                    ns; p=1.0000                    rj; p=0.0000                    ns; p=0.0500                    ns; p=0.3500                    rj; p=0.0000                    ns; p=1.0000                    ns; p=1.0000          s; χ²=103.98; p=0.0000
-*Obelia geniculata*                                                             91                    ns; p=0.4500                    ns; p=1.0000                    rj; p=0.0000                    ns; p=0.1000                    ns; p=1.0000                    rj; p=0.0000                    ns; p=1.0000                    ns; p=1.0000           s; χ²=62.30; p=0.0000
-*Obelia longissima*                                                            341                    pr; p=0.0000                    ns; p=1.0000                    rj; p=0.0000                    rj; p=0.0000                    pr; p=0.0000                    rj; p=0.0000                    ns; p=1.0000                    rj; p=0.0000          s; χ²=435.22; p=0.0000
-==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
-
-In the above example the columns containing letters (A,B,..) represent plate
-areas. See :ref:`record-grouping-plate-area`.
-
-Analysis "Attraction between Species":
-
-==================================================  ==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
-..                                                                                                                                                                                                                          Wilcoxon rank sum test                                                                                                                                                                             Chi-squared test
---------------------------------------------------------------------------------------------------------------------------------------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-Species A                                           Species B                                                               n (plates)                             1-5                               1                               2                               3                               4                               5                             1-5                               1                               2                               3                               4                               5
-==================================================  ==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
-*Obelia dichotoma*                                  *Obelia geniculata*                                                             12                    ns; p=0.8500                    ns; p=0.0500                    at; p=0.0000                    ns; p=1.0000                              na                              na          ns; χ²=16.90; p=0.2615          rp; χ²=35.36; p=0.0013          at; χ²=38.12; p=0.0005           ns; χ²=7.21; p=0.9263                              na                              na
-*Obelia dichotoma*                                  *Obelia longissima*                                                             81                    rp; p=0.0000                    ns; p=0.1000                    rp; p=0.0000                    rp; p=0.0000                    rp; p=0.0000                    rp; p=0.0000         rp; χ²=420.68; p=0.0000         rp; χ²=134.34; p=0.0000         rp; χ²=164.86; p=0.0000         rp; χ²=170.01; p=0.0000          rp; χ²=96.88; p=0.0000          rp; χ²=43.53; p=0.0001
-*Obelia geniculata*                                 *Obelia longissima*                                                             39                    rp; p=0.0000                    ns; p=0.9500                    ns; p=0.9500                    ns; p=0.5500                    ns; p=0.9500                    rp; p=0.0000         rp; χ²=211.92; p=0.0000          rp; χ²=39.46; p=0.0003          rp; χ²=28.69; p=0.0115         rp; χ²=105.26; p=0.0000           ns; χ²=8.14; p=0.8821         rp; χ²=141.94; p=0.0000
-==================================================  ==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
-
-In this example the columns containing numbers (1,2,..) represent positive
-spot ratio groups. See :ref:`record-grouping-ratio-groups`.
-
-For analysis "Attraction within Species" (no example here) the columns also
-contain numbers (2,3,..), but in that case they represent positive
-spot numbers. See :ref:`record-grouping-positive-spots`.
-
-Definitions
-```````````
-
-Below are the definitions for the codes used in summary reports.
+Below are the definitions for the result codes used in summary reports.
 
 na
   There is not enough data for the analysis or in case of the
@@ -1032,6 +1002,98 @@ at
 
 rp
   There was a significant repulsion for the species in question.
+
+The summary report for each analysis are explained below.
+
+.. _summary-report-spot-preference:
+
+Summary Report "Spot Preference"
+````````````````````````````````
+
+Example report:
+
+==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
+..                                                                                                                                                                                                      Wilcoxon rank sum test                                                                                                                                  Chi-sq
+----------------------------------------------------------------------------------  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ------------------------------
+Species                                                                 n (plates)                               A                               B                               C                               D                             A+B                             C+D                           A+B+C                           B+C+D                         A,B,C,D
+==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
+*Obelia dichotoma*                                                             177                    pr; p=0.0000                    ns; p=1.0000                    rj; p=0.0000                    ns; p=0.0500                    ns; p=0.3500                    rj; p=0.0000                    ns; p=1.0000                    ns; p=1.0000          s; χ²=103.98; p=0.0000
+*Obelia geniculata*                                                             91                    ns; p=0.4500                    ns; p=1.0000                    rj; p=0.0000                    ns; p=0.1000                    ns; p=1.0000                    rj; p=0.0000                    ns; p=1.0000                    ns; p=1.0000           s; χ²=62.30; p=0.0000
+*Obelia longissima*                                                            341                    pr; p=0.0000                    ns; p=1.0000                    rj; p=0.0000                    rj; p=0.0000                    pr; p=0.0000                    rj; p=0.0000                    ns; p=1.0000                    rj; p=0.0000          s; χ²=435.22; p=0.0000
+==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
+
+Explanation of the columns:
+
+Species
+    Name of the species.
+
+n (plates)
+    The total number of plates for the species selection. The real number of
+    plates used for each data group may be smaller. Use the "Save All" button
+    to see the number of plates used for each data group.
+
+A, B, C, D, A+B, C+D, A+B+C, and B+C+D
+    In this report the results are grouped by plate area (see
+    :ref:`record-grouping-plate-area`). For the Wilcoxon rank sum test, the
+    test is performed on each of the four plate areas, plus the combinations
+    "A+B", "C+D", "A+B+C", and "B+C+D". For the Chi squared test the user
+    defined plate areas are used. The user defined plate areas can be seen in
+    the column name (e.g. "A+B,C,D" means that areas A and B were combined).
+
+Summary Report "Attraction within Species"
+``````````````````````````````````````````
+
+Explanation of the columns:
+
+Species
+    Name of the species.
+
+n (plates)
+    The total number of plates for the species selection. The real number of
+    plates used for each data group may be smaller. Use the "Save All" button
+    to see the number of plates used for each data group.
+
+2-24, 2, 3, ..., 24
+    In this report the results are grouped by positive spot numbers (see
+    :ref:`record-grouping-positive-spots`).
+
+.. _summary-report-attraction-between-species:
+
+Summary Report "Attraction between Species"
+```````````````````````````````````````````
+
+Example report:
+
+==================================================  ==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
+..                                                                                                                                                                                                                          Wilcoxon rank sum test                                                                                                                                                                             Chi-squared test
+--------------------------------------------------------------------------------------------------------------------------------------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Species A                                           Species B                                                               n (plates)                             1-5                               1                               2                               3                               4                               5                             1-5                               1                               2                               3                               4                               5
+==================================================  ==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
+*Obelia dichotoma*                                  *Obelia geniculata*                                                             12                    ns; p=0.8500                    ns; p=0.0500                    at; p=0.0000                    ns; p=1.0000                              na                              na          ns; χ²=16.90; p=0.2615          rp; χ²=35.36; p=0.0013          at; χ²=38.12; p=0.0005           ns; χ²=7.21; p=0.9263                              na                              na
+*Obelia dichotoma*                                  *Obelia longissima*                                                             81                    rp; p=0.0000                    ns; p=0.1000                    rp; p=0.0000                    rp; p=0.0000                    rp; p=0.0000                    rp; p=0.0000         rp; χ²=420.68; p=0.0000         rp; χ²=134.34; p=0.0000         rp; χ²=164.86; p=0.0000         rp; χ²=170.01; p=0.0000          rp; χ²=96.88; p=0.0000          rp; χ²=43.53; p=0.0001
+*Obelia geniculata*                                 *Obelia longissima*                                                             39                    rp; p=0.0000                    ns; p=0.9500                    ns; p=0.9500                    ns; p=0.5500                    ns; p=0.9500                    rp; p=0.0000         rp; χ²=211.92; p=0.0000          rp; χ²=39.46; p=0.0003          rp; χ²=28.69; p=0.0115         rp; χ²=105.26; p=0.0000           ns; χ²=8.14; p=0.8821         rp; χ²=141.94; p=0.0000
+==================================================  ==================================================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================  ==============================
+
+In this example the columns containing numbers (1,2,..) represent
+
+Explanation of the columns:
+
+Species A
+    Name of the first species.
+
+Species B
+    Name of the species the first species was compared with.
+
+n (plates)
+    The total number of plates for the species selection. The real number of
+    plates used for each data group may be smaller. Use the "Save All" button
+    to see the number of plates used for each data group.
+
+1-5, 1, 2, 3, 4, 5
+    In this report the results are grouped by positive spot ratio groups (see
+    :ref:`record-grouping-ratio-groups`).
+
+.. _summary-report-attraction-within-species:
 
 .. _record-grouping:
 
