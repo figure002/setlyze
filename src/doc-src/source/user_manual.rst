@@ -206,7 +206,7 @@ Intra specific
 Inter specific
     Between two different species.
 
-.. _definition-place-area:
+.. _definition-plate-area:
 
 Plate area
   The defined area on a SETL plate. By default the SETL plate is divided in
@@ -222,6 +222,8 @@ Plate area
 
   Plate areas can be customized during an analysis, see
   :ref:`dialog-define-plate-areas`.
+
+.. _definition-positive-spot:
 
 Positive spot
     Each record in the SETL database contains data for each of the 25
@@ -1119,8 +1121,8 @@ Grouping by Plate Area
 ----------------------
 
 This type of grouping is done for analysis "Spot Preference". Each group
-is a plate area or a combination of plate areas (see
-:ref:`fig_plate_areas_default`). The following groups are defined:
+is a :ref:`plate area <definition-plate-area>` or a combination of plate areas.
+The following groups are defined:
 
 #. Plate area A
 #. Plate area B
@@ -1143,9 +1145,9 @@ This type of grouping is done in the case of calculated spot distances
 for a single species (or multiple species grouped together) on SETL
 plates (analysis "Attraction within Species").
 
-A record has a maximum of 25 positive spots, so this results in a
-maximum of 25 record groups. Group 1 contains records with just one
-positive spot, group 2 contains records with two positive spots, et
+A record has a maximum of 25 :ref:`positive spots <definition-positive-spot>`,
+so this results in a maximum of 25 record groups. Group 1 contains records with
+just one positive spot, group 2 contains records with two positive spots, et
 cetera. Records of group 1 and 25 are left out however. Group 1 is
 skipped because it is not possible to calculate spot distances for
 records with just one positive spot. And group 25 is excluded because
@@ -1175,7 +1177,7 @@ This type of grouping is done in the case of calculated spot distances
 between two different (groups of) species (analysis "Attraction between Species").
 
 When dealing with two species, plate records are matched that contain
-both species. This means we can get a ratio for the positive spots for
+both species. This means we can get a ratio for the :ref:`positive spots <definition-positive-spot>` for
 each matching SETL plate record. Consider :ref:`fig_spot-distances-inter`
 which visualizes a SETL plate with positive spots of species A and B.
 There are two positive spots of one species, and three positive spots of
