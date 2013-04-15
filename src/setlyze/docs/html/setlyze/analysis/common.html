@@ -71,7 +71,7 @@
 </tr>
 <tr class="field-even field"><th class="field-name">Release:</th><td class="field-body">1.0</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">April 05, 2013</td>
+<tr class="field-odd field"><th class="field-name">Date:</th><td class="field-body">April 15, 2013</td>
 </tr>
 </tbody>
 </table>
@@ -373,13 +373,13 @@ this class looks like this:</p>
 <dd><p>Worker process instantiated by <a class="reference internal" href="#setlyze.analysis.common.Pool" title="setlyze.analysis.common.Pool"><tt class="xref py py-class docutils literal"><span class="pre">Pool</span></tt></a>.</p>
 <p>This class can be used to create a number of workers which will each
 execute tasks from a task queue <cite>input</cite> (instance of
-<a class="reference external" href="http://docs.python.org/2.7/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt></a>). Each task is a tuple with a function
+<tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt>). Each task is a tuple with a function
 followed by arguments and keyword arguments for that function
 <tt class="docutils literal"><span class="pre">(func,</span> <span class="pre">*args,</span> <span class="pre">**kwargs)</span></tt>. Each worker instance will continuously obtain
 a task from the task queue <cite>input</cite> and execute the function with the
 arguments. Results from individual tasks are passed to the results queue
 <cite>output</cite>. Arguments <cite>input</cite> and <cite>output</cite> must be different instances of
-<a class="reference external" href="http://docs.python.org/2.7/library/multiprocessing.html#multiprocessing.Queue" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt></a>.</p>
+<tt class="xref py py-class docutils literal"><span class="pre">multiprocessing.Queue</span></tt>.</p>
 <p>An instance of this class will terminate immediately when the task queue is
 empty.</p>
 <blockquote>
@@ -443,7 +443,7 @@ take care of instantiating the class and passing the arguments.</p>
 
   <h4>Previous topic</h4>
   <p class="topless"><a href="batch.html"
-                        title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">setlyze.analysis.batch</span></tt> &#8212; Batch mode</a></p>
+                        title="previous chapter"><tt class="docutils literal docutils literal"><span class="pre">setlyze.analysis.batch</span></tt> &#8212; Batch mode</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="relations.html"
                         title="next chapter"><tt class="docutils literal"><span class="pre">setlyze.analysis.relations</span></tt> &#8212; Analysis Relations between Species</a></p>
