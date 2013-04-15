@@ -145,42 +145,6 @@ def slugify(value):
     value = unicode(re.sub('[^\w\s.-]', '-', value))
     return value
 
-def combinations_with_replacement(iterable, r):
-    """Return `r` length subsequences of elements from the input `iterable`
-    allowing individual elements to be repeated more than once.
-
-    Combinations are emitted in lexicographic sort order. So, if the
-    input `iterable` is sorted, the combination tuples will be produced
-    in sorted order.
-
-    Elements are treated as unique based on their position, not on their
-    value. So if the input elements are unique, the generated
-    combinations will also be unique.
-
-    This function was copied from the Python documentation for :py:mod:`itertools`.
-
-    A simple example:
-
-        >>> import setlyze.std
-        >>> i = setlyze.std.combinations_with_replacement('ABCD', 2)
-        >>> [x for x in i]
-        [('A', 'A'), ('A', 'B'), ('A', 'C'), ('A', 'D'), ('B', 'B'), ('B', 'C'), ('B', 'D'), ('C', 'C'), ('C', 'D'), ('D', 'D')]
-    """
-    pool = tuple(iterable)
-    n = len(pool)
-    if not n and r:
-        return
-    indices = [0] * r
-    yield tuple(pool[i] for i in indices)
-    while True:
-        for i in reversed(range(r)):
-            if indices[i] != n - 1:
-                break
-        else:
-            return
-        indices[i:] = [indices[i] + 1] * (r - i)
-        yield tuple(pool[i] for i in indices)
-
 def distance_frequency(x, method):
     if method == 'intra':
         frequencies = {

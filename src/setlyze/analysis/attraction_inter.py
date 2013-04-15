@@ -654,24 +654,28 @@ class Analysis(AnalysisWorker):
         tuples.
         """
         for end in range(6, 31, 5):
-            group = setlyze.std.combinations_with_replacement(xrange(1,end), 2)
+            previous_end = end-5
+
+            # Plates where one species has all 25 spots covered are not
+            # expected to be significant. So we exclude these from the
+            # ratios.
+            if end == 26:
+                end = 25
+
+            # Get the ratios for this group.
+            group = itertools.combinations_with_replacement(xrange(1,end), 2)
             group = list(group)
 
             if end > 6:
-                # Remove the ratios present in the previous group from
-                # the current group.
-                remove = setlyze.std.combinations_with_replacement(xrange(1,end-5), 2)
+                # Remove the ratios of the previous groups from the current group.
+                remove = itertools.combinations_with_replacement(xrange(1,previous_end), 2)
                 setlyze.std.remove_items_from_list(group,remove)
-            if end == 26:
-                # Plates with a 25:25 ratio will never be significant.
-                # So we remove this ratio, as it is useless.
-                group.remove((25,25))
 
+            # Yield the ratios for this group.
             yield group
 
-        all_ratios = list(setlyze.std.combinations_with_replacement(xrange(1,26), 2))
-        all_ratios.remove((25,25))
-
+        # Lastly, yield all ratios (excluding the ones containing 25)
+        all_ratios = list(itertools.combinations_with_replacement(xrange(1,25), 2))
         yield all_ratios
 
     def calculate_distances_inter(self):
