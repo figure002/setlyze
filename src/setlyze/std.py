@@ -29,7 +29,9 @@ import os
 import math
 import itertools
 import random
+import re
 import time
+import unicodedata
 
 import gobject
 import rpy
@@ -136,6 +138,12 @@ def remove_items_from_list(a,b):
             a.remove(x)
         except:
             pass
+
+def slugify(value):
+    """Normalizes string and removes non-alpha characters."""
+    value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore')
+    value = unicode(re.sub('[^\w\s.-]', '-', value))
+    return value
 
 def combinations_with_replacement(iterable, r):
     """Return `r` length subsequences of elements from the input `iterable`

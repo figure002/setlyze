@@ -529,6 +529,9 @@ class PrepareAnalysis(object):
                 filename = "%s%s_%s.rst" % (prefix, species_list[0], species_list[1])
             else:
                 filename = "%s%s.rst" % (prefix, species_list[0])
+            # Remove unwanted characters from the filename.
+            filename = setlyze.std.slugify(filename)
+            # Export the report.
             output_dir = os.path.join(path, filename)
             setlyze.report.export(result, output_dir, 'rst')
 
