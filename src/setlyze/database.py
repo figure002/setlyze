@@ -1495,7 +1495,7 @@ class AccessLocalDB(AccessDBGeneric):
         # Select information from species that match those species IDs.
         cursor.execute("SELECT spe_id,spe_name_venacular,spe_name_latin,"
             "spe_invasive_in_nl,spe_phylum,spe_class,spe_order,spe_family,"
-            "spe_genus FROM species WHERE spe_id IN (%s)" % spe_ids_str)
+            "spe_genus,spe_species,spe_subspecies FROM species WHERE spe_id IN (%s)" % spe_ids_str)
         species = cursor.fetchall()
 
         cursor.close()

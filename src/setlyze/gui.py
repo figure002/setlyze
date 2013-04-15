@@ -810,21 +810,22 @@ class SelectSpecies(SelectionWindow):
                                    gobject.TYPE_STRING,gobject.TYPE_STRING,
                                    gobject.TYPE_STRING,gobject.TYPE_STRING,
                                    gobject.TYPE_STRING,gobject.TYPE_STRING,
+                                   gobject.TYPE_STRING,gobject.TYPE_STRING,
                                    gobject.TYPE_STRING,gobject.TYPE_BOOLEAN,
        )
-        for id,common,latin,invasive_in_nl,phylum,cls,order,family,genus in db.get_species(self.locations):
-            self.store.append([id,latin,common,phylum,cls,order,family,genus,invasive_in_nl])
+        for id,common,latin,invasive_in_nl,phylum,cls,order,family,genus,species,subspecies in db.get_species(self.locations):
+            self.store.append([id,latin,common,phylum,cls,order,family,genus,species,subspecies,invasive_in_nl])
 
         self.model = gtk.TreeModelSort(self.store)
         self.model.set_sort_column_id(1, gtk.SORT_ASCENDING)
 
     def create_columns(self, treeview):
         """Create columns for the tree view."""
-        columns = ("Species (Latin)","Species (common)","Phylum","Class","Order","Family","Genus","Invasive in NL")
+        columns = ("Species (Latin)","Species (common)","Phylum","Class","Order","Family","Genus","Species","Subspecies","Invasive in NL")
         renderer_text = gtk.CellRendererText()
         renderer_toggle = gtk.CellRendererToggle()
         for i,name in enumerate(columns, start=1):
-            if i == 8:
+            if name == "Invasive in NL":
                 column = gtk.TreeViewColumn(name, renderer_toggle, active=i)
             else:
                 column = gtk.TreeViewColumn(name, renderer_text, text=i)
