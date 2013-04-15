@@ -101,8 +101,6 @@ def make_remarks(results, attributes):
 
         if significant:
             remarks.append("Significant")
-        else:
-            remarks.append("Not significant")
 
             # If significant, also add attraction/repulsion.
             if 'mean_observed' in results and 'mean_expected' in results:
@@ -110,6 +108,8 @@ def make_remarks(results, attributes):
                     remarks.append(conclusions[0])
                 else:
                     remarks.append(conclusions[1])
+        else:
+            remarks.append("Not significant")
 
         if math.isnan(results['p_value']):
             pass
