@@ -68,7 +68,7 @@ setup(name='setlyze',
     license='GPL3',
     platforms=['GNU/Linux','Windows'],
     url='http://www.gimaris.com/',
-    packages=['setlyze','setlyze.analysis'],
+    packages=['setlyze','setlyze.analysis','appdirs'],
 
     scripts=['setlyze.pyw'],
     windows = [
