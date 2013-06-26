@@ -60,7 +60,7 @@ On Windows, follow these steps to create the SETLyze executable for Windows:
 """
 
 setup(name='setlyze',
-    version='1.0',
+    version='1.0.1',
     description='A tool for analyzing the settlement of species.',
     long_description='A tool for analyzing the settlement of species.',
     author='Serrano Pereira',
