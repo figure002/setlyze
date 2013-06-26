@@ -132,9 +132,8 @@ class MakeLocalDB(threading.Thread):
 
         # Check if we need to make a new database file.
         if setlyze.config.cfg.get('make-new-db'):
-            # Make sqlite database connection.
-            self.connection = sqlite.connect(self.dbfile)
-            self.cursor = self.connection.cursor()
+            # Create a new database file and make a database connection.
+            self.create_new_db()
 
             # Create new database with data.
             if self.data_source == "setl-database":
@@ -185,9 +184,6 @@ class MakeLocalDB(threading.Thread):
         # must be called first.
         assert self.data_source == 'data-files', \
             "The data source is not set to 'data-files'"
-
-        # First, create a new database file.
-        self.create_new_db()
 
         # Add some meta-data to a separate table in the local database.
         # Add the data source we can figure out what kind of data is
@@ -610,9 +606,6 @@ class MakeLocalDB(threading.Thread):
         # dialog.
         self.pdialog_handler.set_total_steps(2)
 
-        # First, create a new database file.
-        self.create_new_db()
-
         # Update progress dialog.
         self.pdialog_handler.increase()
 
@@ -651,8 +644,6 @@ class MakeLocalDB(threading.Thread):
             os.makedirs(data_path)
 
         # Delete the current database file.
-        self.cursor.close()
-        self.connection.close()
         if os.path.isfile(self.dbfile):
             self.remove_db_file()
 
