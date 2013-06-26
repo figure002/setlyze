@@ -52,8 +52,7 @@ __status__ = "Production"
 __date__ = "2011/05/03"
 
 
-# Path where all data files are stored. The use of os.path.join may seem
-# unnecessary, but this is important for cross platform compatibility.
+# Path where all user data files are stored.
 DATA_PATH = appdirs.user_data_dir("SETLyze", "GiMaRIS")
 
 # Path to the local database file.
