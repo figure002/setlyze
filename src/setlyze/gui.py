@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  Copyright 2010, 2011, GiMaRIS <info@gimaris.com>
+#  Copyright 2010-2013, GiMaRIS <info@gimaris.com>
 #
 #  This file is part of SETLyze - A tool for analyzing the settlement
 #  of species on SETL plates.
@@ -66,7 +66,7 @@ import setlyze.report
 from setlyze.std import module_path,make_remarks
 
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
-__copyright__ = "Copyright 2010, 2011, GiMaRIS"
+__copyright__ = "Copyright 2010-2013, GiMaRIS"
 __license__ = "GPL3"
 __version__ = "1.0"
 __maintainer__ = "Serrano Pereira"

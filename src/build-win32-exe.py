@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  Copyright 2010, 2011, GiMaRIS <info@gimaris.com>
+#  Copyright 2010-2013, GiMaRIS <info@gimaris.com>
 #
 #  This file is part of SETLyze - A tool for analyzing the settlement
 #  of species on SETL plates.
