@@ -40,6 +40,8 @@ import os
 import multiprocessing
 import ConfigParser
 
+import appdirs
+
 __author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
 __copyright__ = "Copyright 2010-2013, GiMaRIS"
 __license__ = "GPL3"
@@ -52,7 +54,7 @@ __date__ = "2011/05/03"
 
 # Path where all data files are stored. The use of os.path.join may seem
 # unnecessary, but this is important for cross platform compatibility.
-DATA_PATH = os.path.expanduser(os.path.join('~','.setlyze'))
+DATA_PATH = appdirs.user_data_dir("SETLyze", "GiMaRIS")
 
 # Path to the local database file.
 DB_FILE = os.path.join(DATA_PATH, 'setl_local.db')
