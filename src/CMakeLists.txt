@@ -10,6 +10,7 @@ configure_file (
 # Add the install targets.
 install (FILES setlyze.pyw DESTINATION share/setlyze)
 install (DIRECTORY setlyze DESTINATION share/setlyze)
+install (DIRECTORY appdirs DESTINATION share/setlyze)
 install (PROGRAMS ${PROJECT_BINARY_DIR}/scripts/setlyze DESTINATION bin)
 
 # Add the install targets for the application icons.
