@@ -1,5 +1,7 @@
 *.pyc
 *.pywc
+*.swp
+Session.vim
 build/
 dist/
 doctrees/
