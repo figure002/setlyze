@@ -14,7 +14,7 @@
 
 ; MUI Settings
 !define MUI_ABORTWARNING
-!define MUI_ICON "..\icons\setlyze.ico"
+!define MUI_ICON "..\graphics\icons\setlyze.ico"
 !define MUI_UNICON "${NSISDIR}\Contrib\Graphics\Icons\modern-uninstall.ico"
 
 ; Language Selection Dialog Settings
@@ -63,7 +63,7 @@ Section "SETLyze Core" SEC01
   SectionIn RO # Make this section read-only.
   SetOutPath "$INSTDIR"
   SetOverwrite try
-  File /r "..\src\dist\*.*"
+  File /r "..\dist\*.*"
   CreateDirectory "$SMPROGRAMS\GiMaRIS\SETLyze"
   CreateShortCut "$SMPROGRAMS\GiMaRIS\SETLyze\SETLyze.lnk" "$INSTDIR\setlyze.exe"
   CreateShortCut "$DESKTOP\SETLyze.lnk" "$INSTDIR\setlyze.exe"

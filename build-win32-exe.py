@@ -73,7 +73,7 @@ setup(name='setlyze',
     scripts=['setlyze.pyw'],
     windows = [
         {'script': 'setlyze.pyw',
-        'icon_resources': [(1, '../icons/setlyze.ico')],
+        'icon_resources': [(1, 'graphics/icons/setlyze.ico')],
         }
     ],
     options= {
@@ -83,10 +83,10 @@ setup(name='setlyze',
         },
     },
     data_files=[
-        ('test-data/CSV', glob.glob('../test-data/CSV/*.*')),
-        ('test-data/Excel', glob.glob('../test-data/Excel/*.*')),
+        ('test-data/CSV', glob.glob('test/data/CSV/*.*')),
+        ('test-data/Excel', glob.glob('test/data/Excel/*.*')),
         ('glade', glob.glob('setlyze/glade/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
-        ('.',['../COPYING','../README.md']),
+        ('.',['COPYING','README.md']),
     ],
 )
