@@ -4,4 +4,4 @@
 Session.vim
 build/
 dist/
-doctrees/
+src/setlyze/docs/
