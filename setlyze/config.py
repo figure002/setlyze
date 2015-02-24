@@ -42,16 +42,6 @@ import ConfigParser
 
 import appdirs
 
-__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2011/05/03"
-
-
 # Path where all user data files are stored.
 DATA_PATH = appdirs.user_data_dir("SETLyze", "GiMaRIS")
 

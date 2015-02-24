@@ -1,1 +1,1 @@
-__all__ = ["spot_preference", "attraction_intra", "attraction_inter", "relations"]
+__all__ = ["batch", "spot_preference", "attraction_intra", "attraction_inter", "relations"]

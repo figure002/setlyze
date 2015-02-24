@@ -65,14 +65,6 @@ import setlyze.database
 import setlyze.report
 from setlyze.std import module_path,make_remarks
 
-__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2013/02/02"
 
 def on_help(button, section):
     """Display the help contents for `section` in the system's default

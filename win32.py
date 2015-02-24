@@ -24,20 +24,19 @@ import glob
 from distutils.core import setup
 import py2exe
 
+from setlyze import __version__
+
 """This setup script is used to create the py2exe executable of SETLyze. Do
-*not* use this script to install SETLyze. To install SETLyze on Linux, read
-the INSTALL file. To create and installer for Windows, read further.
+*not* use this script to install SETLyze. That's what setup.py is for.
 
 On Windows, follow these steps to create the SETLyze executable for Windows:
 
-1) Run the following command to create the Windows executable:
+1) Build the Windows executable with `python win32.py py2exe`. This should
+   create a 'dist' folder.
 
-    python build-win32-exe.py py2exe
-
-   This should create a 'dist' folder in SETLyze's root folder.
-
-2) Manually copy the folder 'src/setlyze/docs/' to the aforementioned 'dist'
-   folder. This folder contains SETLyze's documentation.
+2) Build the documentation with `python setup.py build_sphinx` and copy the
+   folder 'build/sphinx/html/' to the aforementioned 'dist' folder and rename it
+   to "docs".
 
 3) Manually copy the following folders to the 'dist' folder:
 
@@ -51,29 +50,26 @@ On Windows, follow these steps to create the SETLyze executable for Windows:
 4) Test the new executable by running 'setlyze.exe' in the 'dist' folder. If
    everything works fine, you can use the 'dist' folder to create a Windows
    installer using Nullsoft Scriptable Installer System (NSIS). The NSIS script
-   used to create the Windows setup is called 'setlyze_setup_modern.nsi'. To create
+   used to create the Windows setup is called 'setlyze.nsi'. To create
    the Windows installer for SETLyze, make sure you have NSIS installed. Then
-   simply right-click the 'setlyze_setup_modern.nsi' file and select "Compile
+   simply right-click the 'setlyze.nsi' file and select "Compile
    NSIS Script". This should produce the Windows installer, called something
-   like 'setlyze-0.1-bundle-win32.exe'.
+   like 'setlyze-x.x-bundle-win32.exe'.
 
 """
 
 setup(name='setlyze',
-    version='1.0.1',
+    version=__version__,
     description='A tool for analyzing the settlement of species.',
     long_description='A tool for analyzing the settlement of species.',
     author='Serrano Pereira',
     author_email='serrano.pereira@gmail.com',
     license='GPL3',
-    platforms=['GNU/Linux','Windows'],
     url='http://www.gimaris.com/',
-    packages=['setlyze','setlyze.analysis','appdirs'],
-
-    scripts=['setlyze.pyw'],
+    packages=['setlyze','setlyze.analysis'],
     windows = [
-        {'script': 'setlyze.pyw',
-        'icon_resources': [(1, 'graphics/icons/setlyze.ico')],
+        {'script': 'setlyze/main.py',
+        'icon_resources': [(1, 'data/graphics/icons/setlyze.ico')],
         }
     ],
     options= {
@@ -83,10 +79,10 @@ setup(name='setlyze',
         },
     },
     data_files=[
-        ('test-data/CSV', glob.glob('test/data/CSV/*.*')),
-        ('test-data/Excel', glob.glob('test/data/Excel/*.*')),
+        ('test-data/CSV', glob.glob('tests/data/CSV/*.*')),
+        ('test-data/Excel', glob.glob('tests/data/Excel/*.*')),
         ('glade', glob.glob('setlyze/glade/*.*')),
         ('images', glob.glob('setlyze/images/*.*')),
-        ('.',['COPYING','README.md']),
+        ('.', ['*.txt','*.rst']),
     ],
 )

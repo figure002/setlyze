@@ -46,15 +46,6 @@ import gobject
 import setlyze.config
 import setlyze.std
 
-__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2013/02/01"
-
 # The current version of the local database.
 DB_VERSION = 0.5
 

@@ -1,8 +1,0 @@
-This folder is for the third party Windows installers that need to be
-incorporated in the Windows installer of SETLyze.
-
-The Windows installer for SETLyze 1.0 incorporates the installer for R version
-2.12.1 (`R-2.12.1-win.exe`) which is required for our version of RPy.
-
-Put the required third party installers in this folder before compiling the
-NSIS script.

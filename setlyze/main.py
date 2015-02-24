@@ -40,19 +40,6 @@ import setlyze.analysis.attraction_inter
 import setlyze.analysis.relations
 import setlyze.analysis.batch
 
-__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__credits__ = ["Jonathan den Boer",
-    "Serrano Pereira <serrano.pereira@gmail.com>",
-    "Adam van Adrichem <a.v.adrichem@gmail.com>",
-    "Fedde Schaeffer <fedde.schaeffer@gmail.com>"]
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2013/02/24"
-
 # Allow only the main thread to touch the GUI (GTK) part, while letting other
 # threads do background work. For this to work, first call gobject.threads_init()
 # at applicaiton initialization. Then you launch your threads normally, but

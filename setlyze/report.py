@@ -29,14 +29,6 @@ from sqlite3 import dbapi2 as sqlite
 import setlyze.config
 from setlyze.std import make_remarks
 
-__author__ = "Serrano Pereira"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2013/02/26"
 
 def export(report, path, type):
     """Export the data from a :class:`Report` object `report` to a data file.

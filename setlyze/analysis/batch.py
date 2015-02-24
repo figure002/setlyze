@@ -25,7 +25,6 @@ Batch mode for an analysis is started by instantiating its :class:`BeginBatch`
 class. In batch mode, the selected analysis is repeated for a selection of
 species. The user can select multiple species and the analysis is repeated for
 each species separately and the results are displayed in a summary report.
-
 """
 
 import logging
@@ -37,15 +36,6 @@ import setlyze.analysis.spot_preference
 import setlyze.analysis.attraction_intra
 import setlyze.analysis.attraction_inter
 import setlyze.analysis.relations
-
-__author__ = "Serrano Pereira"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2013/02/12"
 
 class Begin(PrepareAnalysis):
     """Start an analysis in batch mode.

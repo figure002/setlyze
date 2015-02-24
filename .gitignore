@@ -1,7 +1,8 @@
+*~
 *.pyc
-*.pywc
 *.swp
-Session.vim
+*.egg-info/
 build/
 dist/
-src/setlyze/docs/
+env/
+deps/

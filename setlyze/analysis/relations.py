@@ -26,15 +26,6 @@ import setlyze.locale
 import setlyze.config
 import setlyze.gui
 
-__author__ = "Serrano Pereira"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2013/02/02"
-
 class Begin(PrepareAnalysis):
     def __init__(self):
         logging.info("Beginning analysis Relation between Species")

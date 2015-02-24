@@ -19,9 +19,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""This module provides standard functions and classes. All functions
-and classes that don't belong in any of the other modules are placed
-here.
+"""This module provides standard functions and classes. All functions and
+classes that don't belong in any of the other modules are placed here.
 """
 
 import sys
@@ -38,14 +37,6 @@ import rpy
 
 import setlyze.config
 
-__author__ = "Serrano Pereira, Adam van Adrichem, Fedde Schaeffer"
-__copyright__ = "Copyright 2010-2013, GiMaRIS"
-__license__ = "GPL3"
-__version__ = "1.0.1"
-__maintainer__ = "Serrano Pereira"
-__email__ = "serrano.pereira@gmail.com"
-__status__ = "Production"
-__date__ = "2013/02/01"
 
 # Suppress warnings from R. Last occurred warnings can still be obtained with
 # the `warnings` function.

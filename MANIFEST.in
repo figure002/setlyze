@@ -1,0 +1,5 @@
+include *.txt *.rst setlyze.nsi win32.py
+recursive-include setlyze *.glade *.png
+graft data
+graft docs
+graft tests
