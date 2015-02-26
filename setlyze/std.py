@@ -33,22 +33,22 @@ import time
 import unicodedata
 
 import gobject
+import pkg_resources
 
+from setlyze import FROZEN
 import setlyze.config
 
-def we_are_frozen():
-    """Returns whether we are frozen via py2exe. This will affect how we find
-    out where we are located.
-    """
-    return hasattr(sys, "frozen")
-
 def module_path():
-    """This will get us the program's directory, even if we are frozen using
-    py2exe.
-    """
-    if we_are_frozen():
+    """Return nodule path even if we are frozen using py2exe."""
+    if FROZEN:
         return os.path.dirname(unicode(sys.executable, sys.getfilesystemencoding()))
     return os.path.dirname(unicode(__file__, sys.getfilesystemencoding()))
+
+def resource_filename(resource_name):
+    """Return file path for package resource."""
+    if FROZEN:
+        return os.path.join(module_path(), resource_name)
+    return pkg_resources.resource_filename(__name__, resource_name)
 
 def seconds_to_hms(seconds):
     """Returns a duration in the format hours:minutes:seconds.

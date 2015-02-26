@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-#  Copyright 2010-2013, GiMaRIS <info@gimaris.com>
+#  Copyright 2010-2015, GiMaRIS <info@gimaris.com>
 #
 #  This file is part of SETLyze - A tool for analyzing the settlement
 #  of species on SETL plates.
@@ -57,30 +57,20 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 import gobject
-import pkg_resources
 
 from setlyze import __version__, __copyright__
 import setlyze.locale
 import setlyze.config
 import setlyze.database
 import setlyze.report
-from setlyze.std import module_path,make_remarks
+from setlyze.std import make_remarks, resource_filename
 
 
 def on_help(button, section):
     """Display the help contents for `section` in the system's default
     application for displaying HTML files (usually a web browser).
     """
-
-    # Construct the path to the help file.
-    if setlyze.std.we_are_frozen():
-        path = os.path.join(setlyze.std.module_path(),
-            'docs/html/user_manual.html#'+section)
-    else:
-        path = pkg_resources.resource_filename('setlyze',
-            '/docs/html/user_manual.html#'+section)
-
-    # Turn the path into an URL.
+    path = resource_filename('docs/html/user_manual.html#'+section)
     if path.startswith('/'):
         url = 'file://'+path
     else:
@@ -144,7 +134,7 @@ class SelectAnalysis(object):
 
     def __init__(self):
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(module_path(), 'glade/select_analysis.glade'))
+        self.builder.add_from_file(resource_filename('glade/select_analysis.glade'))
 
         # Get some GTK objects.
         self.window = self.builder.get_object('window_select_analysis')
@@ -157,12 +147,7 @@ class SelectAnalysis(object):
         image_logo = self.builder.get_object('image_logo')
 
         # Load an image for the logo.
-        if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(),
-                'images/setlyze-logo.png')
-        else:
-            image_path = pkg_resources.resource_filename('setlyze',
-                'images/setlyze-logo.png')
+        image_path = resource_filename('images/setlyze-logo.png')
         image_logo.set_from_file(image_path)
 
         # Connect the window signals to the handlers.
@@ -363,7 +348,7 @@ class SelectBatchAnalysis(object):
     def __init__(self):
         # Get some GTK objects.
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(module_path(), 'glade/select_batch_analysis.glade'))
+        self.builder.add_from_file(resource_filename('glade/select_batch_analysis.glade'))
         self.dialog = self.builder.get_object('dialog_select_analysis')
         self.radio_ana_spot_pref = self.builder.get_object('radio_ana_spot_pref')
         self.radio_ana_attraction_intra = self.builder.get_object('radio_ana_attraction_intra')
@@ -955,12 +940,7 @@ class DefinePlateAreas(gtk.Window):
 
         # Load an image of the SETL grid.
         setl_grid = gtk.Image()
-        if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(),
-                'images/setl-grid.png')
-        else:
-            image_path = pkg_resources.resource_filename('setlyze',
-                'images/setl-grid.png')
+        image_path = resource_filename('images/setl-grid.png')
         setl_grid.set_from_file(image_path)
         # Add the image to the table.
         table.attach(setl_grid, left_attach=1, right_attach=2,
@@ -1333,7 +1313,7 @@ class LoadData(object):
     def __init__(self):
         # Get some GTK objects.
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(module_path(), 'glade/load_data.glade'))
+        self.builder.add_from_file(resource_filename('glade/load_data.glade'))
         self.dialog = self.builder.get_object('dialog_load_data')
         self.notebook = self.builder.get_object('notebook')
         self.button_cancel = self.builder.get_object('button_cancel')
@@ -1613,7 +1593,7 @@ class Report(object):
 
         # Get some GTK objects.
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(module_path(), 'glade/report.glade'))
+        self.builder.add_from_file(resource_filename('glade/report.glade'))
         self.window = self.builder.get_object('window_report')
         self.toolbutton_save_all = self.builder.get_object('toolbutton_save_all')
         self.toolbutton_help = self.builder.get_object('toolbutton_help')
@@ -2884,7 +2864,7 @@ class Preferences(object):
 
     def __init__(self):
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(module_path(), 'glade/preferences.glade'))
+        self.builder.add_from_file(resource_filename('glade/preferences.glade'))
 
         # Get some GTK objects.
         self.window = self.builder.get_object('window_preferences')
@@ -2989,7 +2969,7 @@ class RepeatAnalysis(object):
 
     def __init__(self):
         self.builder = gtk.Builder()
-        self.builder.add_from_file(os.path.join(module_path(), 'glade/repeat_analysis.glade'))
+        self.builder.add_from_file(resource_filename('glade/repeat_analysis.glade'))
 
         # Get some GTK objects.
         self.dialog = self.builder.get_object('dialog_repeat_analysis')
@@ -3112,12 +3092,7 @@ class About(gtk.AboutDialog):
             "along with this program.  If not, see http://www.gnu.org/licenses/")
 
         # Load the logo file.
-        if setlyze.std.we_are_frozen():
-            image_path = os.path.join(setlyze.std.module_path(),
-                'images/setlyze-logo.png')
-        else:
-            image_path = pkg_resources.resource_filename('setlyze',
-                'images/setlyze-logo.png')
+        image_path = resource_filename('images/setlyze-logo.png')
         logo = gtk.gdk.pixbuf_new_from_file(image_path)
 
         self.set_position(gtk.WIN_POS_CENTER)
