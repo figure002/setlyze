@@ -36,6 +36,7 @@ setup(
     install_requires=[
         'appdirs',
         #'PyGTK>=2.24.0,!=2.24.8,!=2.24.10',
+        'pandas',
         'RPy2',
         'xlrd>=0.8',
     ],

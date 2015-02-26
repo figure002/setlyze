@@ -24,6 +24,8 @@ SETLyze has the following dependencies:
 
   * PyGTK, PyCairo, and PyGObject
 
+  * pandas
+
   * RPy2
 
   * xlrd (>=0.8)
@@ -31,7 +33,8 @@ SETLyze has the following dependencies:
 On Debian (based) systems, the dependencies can be installed from the software
 repository::
 
-    sudo apt-get install python-appdirs python-gtk2 python-rpy python-xlrd
+    sudo apt-get install python-appdirs python-gtk2 python-pandas python-rpy \
+    python-xlrd
 
 More recent versions of some Python packages can be obtained via the Python
 Package Index::
