@@ -47,9 +47,9 @@ import gtk
 import setlyze
 from setlyze.analysis.common import (calculatestar, ProcessGateway,
     PrepareAnalysis, AnalysisWorker)
-import setlyze.locale
 import setlyze.config
 import setlyze.gui
+import setlyze.locale
 import setlyze.std
 from setlyze.stats import chisq_test, wilcox_test
 import setlyze.report

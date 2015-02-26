@@ -60,14 +60,14 @@ pygtk.require('2.0')
 import gtk
 
 import setlyze
-from setlyze.analysis.common import (calculatestar, ProcessGateway,
-    PrepareAnalysis, AnalysisWorker)
-import setlyze.locale
 import setlyze.config
 import setlyze.gui
+import setlyze.locale
 import setlyze.std
-from setlyze.stats import chisq_test, wilcox_test
 import setlyze.report
+from setlyze.analysis.common import (calculatestar, ProcessGateway,
+    PrepareAnalysis, AnalysisWorker)
+from setlyze.stats import chisq_test, wilcox_test
 
 # The number of progress steps for this analysis.
 PROGRESS_STEPS = 7

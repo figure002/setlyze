@@ -30,15 +30,13 @@ each species separately and the results are displayed in a summary report.
 import logging
 
 import setlyze
-import setlyze.gui
-import setlyze.std
 from setlyze.analysis.common import PrepareAnalysis
-import setlyze.analysis.spot_preference
-import setlyze.analysis.attraction_intra
-import setlyze.analysis.attraction_inter
-import setlyze.analysis.relations
+from setlyze.gui import select_batch_analysis
+from setlyze.analysis import (spot_preference, attraction_intra,
+    attraction_inter, relations)
 
 class Begin(PrepareAnalysis):
+
     """Start an analysis in batch mode.
 
     First the user can select which analysis to start, then the analysis is
@@ -57,15 +55,15 @@ class Begin(PrepareAnalysis):
             'batch-analysis-selected': setlyze.sender.connect('batch-analysis-selected', self.on_analysis_selected),
         }
         # Display the window for selecting the batch analysis.
-        setlyze.gui.select_batch_analysis.show()
+        select_batch_analysis.show()
 
     def on_analysis_selected(self, sender, analysis):
         """Start the selected analysis `analysis` in batch mode."""
         if analysis == 'spot_preference':
-            setlyze.analysis.spot_preference.BeginBatch()
+            spot_preference.BeginBatch()
         elif analysis == 'attraction_intra':
-            setlyze.analysis.attraction_intra.BeginBatch()
+            attraction_intra.BeginBatch()
         elif analysis == 'attraction_inter':
-            setlyze.analysis.attraction_inter.BeginBatch()
+            attraction_inter.BeginBatch()
         elif analysis == 'relations':
-            setlyze.analysis.relations.BeginBatch()
+            relations.BeginBatch()

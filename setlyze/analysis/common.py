@@ -34,9 +34,9 @@ import gtk
 
 import setlyze
 import setlyze.config
-import setlyze.std
 import setlyze.report
 from setlyze.gui import ProgressDialogHandler
+from setlyze.std import slugify
 
 def calculate(cls, args):
     """Create an instance of class `cls` and call its run() method.
@@ -523,7 +523,7 @@ class PrepareAnalysis(object):
             else:
                 filename = "%s%s.rst" % (prefix, species_list[0])
             # Remove unwanted characters from the filename.
-            filename = setlyze.std.slugify(filename)
+            filename = slugify(filename)
             # Export the report.
             output_dir = os.path.join(path, filename)
             setlyze.report.export(result, output_dir, 'rst')

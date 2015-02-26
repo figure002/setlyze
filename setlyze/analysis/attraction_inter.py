@@ -44,8 +44,8 @@ import re
 import gtk
 
 import setlyze
-from setlyze.analysis.common import calculatestar,ProcessGateway,PrepareAnalysis,AnalysisWorker
-import setlyze.locale
+from setlyze.analysis.common import (calculatestar, ProcessGateway,
+    PrepareAnalysis, AnalysisWorker)
 import setlyze.config
 import setlyze.gui
 import setlyze.locale

@@ -22,14 +22,12 @@
 import logging
 
 from setlyze.analysis.common import PrepareAnalysis
-import setlyze.locale
-import setlyze.config
-import setlyze.gui
+from setlyze.gui import on_not_implemented
 
 class Begin(PrepareAnalysis):
     def __init__(self):
         logging.info("Beginning analysis Relation between Species")
-        setlyze.gui.on_not_implemented()
+        on_not_implemented()
 
 class BeginBatch(Begin):
     def __init__(self):
