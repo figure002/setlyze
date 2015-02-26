@@ -20,6 +20,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+from setlyze.sender import Sender
 
 __copyright__ = "Copyright 2010-2015, GiMaRIS"
 __credits__ = ["Jonathan den Boer",
@@ -35,3 +36,6 @@ __date__ = "2015/02/24"
 
 # True if frozen by py2exe.
 FROZEN = hasattr(sys, "frozen")
+
+# Create a sender object which will send all the application signals.
+sender = Sender()

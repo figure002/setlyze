@@ -32,9 +32,11 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
+import setlyze
 import setlyze.config
 import setlyze.std
 import setlyze.report
+from setlyze.gui import ProgressDialogHandler
 
 def calculate(cls, args):
     """Create an instance of class `cls` and call its run() method.
@@ -115,7 +117,7 @@ class Pool(threading.Thread):
         for w in self.workers:
             w.join()
         # Send the signal that all workers have finished.
-        gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', self.done_queue)
+        gobject.idle_add(setlyze.sender.emit, 'pool-finished', self.done_queue)
 
     def stop(self, block=True):
         """Stop all workers.
@@ -213,7 +215,7 @@ class ProcessGateway(threading.Thread):
         self.exec_task('progress.increase', "Performing statistical tests...")
 
     This results in a call to attribute `pdialog_handler` which is an instance
-    of :class:`~setlyze.std.ProgressDialogHandler`. The task string for
+    of :class:`~setlyze.gui.ProgressDialogHandler`. The task string for
     accessing the progress dialog handler has the format ``progress.method``,
     which translates to a call to ``self.pdialog_handler.method()`` from this
     class. Thus the above example translates to::
@@ -226,7 +228,7 @@ class ProcessGateway(threading.Thread):
 
     Translates to::
 
-        gobject.idle_add(setlyze.std.sender.emit, 'analysis-aborted', "Not enough data for this species")
+        gobject.idle_add(setlyze.sender.emit, 'analysis-aborted', "Not enough data for this species")
 
     Use method :meth:`set_pdialog_handler` to set the progress dialog handler
     if progress dialogs need to be updated by child processes. Typical usage of
@@ -234,7 +236,7 @@ class ProcessGateway(threading.Thread):
 
         pdialog = setlyze.gui.ProgressDialog(title="Performing analysis",
             description="Running the analysis...")
-        pdialog_handler = setlyze.std.ProgressDialogHandler(pdialog)
+        pdialog_handler = setlyze.gui.ProgressDialogHandler(pdialog)
         pdialog_handler.set_total_steps(10)
 
         gw = setlyze.analysis.common.ProcessGateway()
@@ -264,7 +266,7 @@ class ProcessGateway(threading.Thread):
                 return
             if task == 'emit':
                 # Emit a signal.
-                gobject.idle_add(setlyze.std.sender.emit, *args)
+                gobject.idle_add(setlyze.sender.emit, *args)
             elif task.startswith('progress.'):
                 # Call a ProgressDialogHandler method. The value of `task`
                 # has the format `progress.method`, which translates to
@@ -277,9 +279,9 @@ class ProcessGateway(threading.Thread):
         """Set a progress dialog handler `handler`.
 
         Argument `handler` must be an instance of
-        :class:`~setlyze.std.ProgressDialogHandler`.
+        :class:`~setlyze.gui.ProgressDialogHandler`.
         """
-        if not isinstance(handler, setlyze.std.ProgressDialogHandler):
+        if not isinstance(handler, ProgressDialogHandler):
             raise ValueError("Argument is not an instance of ProgressDialogHandler")
         self.pdialog_handler = handler
 
@@ -324,7 +326,7 @@ class PrepareAnalysis(object):
         pd = setlyze.gui.ProgressDialog(title="Performing analysis",
             description="Please stand by while the analysis is running. This "
             "may take a while...")
-        handler = setlyze.std.ProgressDialogHandler(pd)
+        handler = ProgressDialogHandler(pd)
         return (pd, handler)
 
     def in_batch_mode(self):
@@ -335,7 +337,7 @@ class PrepareAnalysis(object):
         """Disconnect all signal handlers set in attribute `signal_handlers`."""
         for handler in self.signal_handlers.values():
             if handler:
-                setlyze.std.sender.disconnect(handler)
+                setlyze.sender.disconnect(handler)
 
     def on_analysis_aborted(self, sender, reason):
         """Display an information dialog with the reason for the abortion.
@@ -407,7 +409,7 @@ class PrepareAnalysis(object):
             gobject.idle_add(self.pdialog.destroy)
 
         # This causes the main window to show.
-        gobject.idle_add(setlyze.std.sender.emit, 'analysis-closed')
+        gobject.idle_add(setlyze.sender.emit, 'analysis-closed')
 
         # Make sure all handlers are destroyed when this object is
         # finished. If we don't do this, the same handlers will be
@@ -452,7 +454,7 @@ class PrepareAnalysis(object):
         # analysis after a short timeout. The timeout gives signal handlers
         # a chance to catch any last minute signals from the analysis.
         if len(results) == 0:
-            gobject.idle_add(setlyze.std.sender.emit, 'no-results')
+            gobject.idle_add(setlyze.sender.emit, 'no-results')
             logging.info("No results to show.")
             self.on_analysis_closed(timeout=2)
             return
@@ -461,7 +463,7 @@ class PrepareAnalysis(object):
         self.results = results
 
         # Let the signal handler handle the results.
-        gobject.idle_add(setlyze.std.sender.emit, 'pool-finished', results)
+        gobject.idle_add(setlyze.sender.emit, 'pool-finished', results)
 
     def on_save_individual_reports(self, sender=None):
         """Save reports for the individual analyses."""

@@ -29,6 +29,7 @@ each species separately and the results are displayed in a summary report.
 
 import logging
 
+import setlyze
 import setlyze.gui
 import setlyze.std
 from setlyze.analysis.common import PrepareAnalysis
@@ -49,11 +50,11 @@ class Begin(PrepareAnalysis):
         # Set some signal handlers.
         self.signal_handlers = {
             # Unset signal handlers of this class once an analysis has started.
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.unset_signal_handlers),
+            'beginning-analysis': setlyze.sender.connect('beginning-analysis', self.unset_signal_handlers),
             # The batch analysis selection window back button was clicked.
-            'select-batch-analysis-window-back': setlyze.std.sender.connect('select-batch-analysis-window-back', self.on_analysis_closed),
+            'select-batch-analysis-window-back': setlyze.sender.connect('select-batch-analysis-window-back', self.on_analysis_closed),
             # An analysis was selected.
-            'batch-analysis-selected': setlyze.std.sender.connect('batch-analysis-selected', self.on_analysis_selected),
+            'batch-analysis-selected': setlyze.sender.connect('batch-analysis-selected', self.on_analysis_selected),
         }
         # Display the window for selecting the batch analysis.
         setlyze.gui.select_batch_analysis.show()

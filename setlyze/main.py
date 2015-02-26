@@ -32,9 +32,8 @@ pygtk.require('2.0')
 import gtk
 import gobject
 
-from setlyze import __version__, FROZEN
+import setlyze
 from setlyze.gui import select_analysis
-from setlyze.std import sender
 from setlyze.analysis import *
 
 # Allow only the main thread to touch the GUI (GTK) part, while letting other
@@ -48,17 +47,17 @@ gobject.threads_init()
 # Prevent SETLyze from printing warning messages when we are frozen by py2exe.
 # Py2exe treats printed messages as error messages, causing it to exit with an
 # error message.
-if FROZEN:
+if setlyze.FROZEN:
     warnings.simplefilter('ignore')
 
 def main():
     # Allow this script which uses multiprocessing to be frozen to produce a
     # Windows executable.
-    if FROZEN:
+    if setlyze.FROZEN:
         multiprocessing.freeze_support()
 
     # Initilize the logger.
-    if FROZEN:
+    if setlyze.FROZEN:
         level = logging.ERROR
     elif sys.flags.debug:
         # Print debug messages if the PYTHONDEBUG env variable is set. Also
@@ -75,10 +74,10 @@ def main():
     sqlite.register_adapter(str, adapt_str)
 
     # Set some signal handlers.
-    sender.connect('on-start-analysis', on_start_analysis)
+    setlyze.sender.connect('on-start-analysis', on_start_analysis)
 
     # Create an info message.
-    logging.info("SETLyze %s started." % __version__)
+    logging.info("SETLyze %s started." % setlyze.__version__)
 
     # Display the main window.
     select_analysis.show()

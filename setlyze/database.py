@@ -43,6 +43,7 @@ import xlrd
 
 import gobject
 
+import setlyze
 import setlyze.config
 import setlyze.std
 
@@ -143,7 +144,7 @@ class MakeLocalDB(threading.Thread):
             # Emit the signal that the local database has been created.
             # Note that the signal will be sent from a separate thread,
             # so we must use gobject.idle_add.
-            gobject.idle_add(setlyze.std.sender.emit, 'local-db-created')
+            gobject.idle_add(setlyze.sender.emit, 'local-db-created')
 
     def insert_from_data_files(self):
         """Create a new local database and load all SETL data from user
@@ -236,7 +237,7 @@ class MakeLocalDB(threading.Thread):
             # Rollback changes to the database.
             self.connection.rollback()
             # Emit the signal that the import failed.
-            gobject.idle_add(setlyze.std.sender.emit, 'file-import-failed', e)
+            gobject.idle_add(setlyze.sender.emit, 'file-import-failed', e)
             return
 
         # If we are here, the import was successful.

@@ -51,6 +51,7 @@ import logging
 import os
 import re
 import sys
+import time
 import webbrowser
 
 import pygtk
@@ -58,7 +59,7 @@ pygtk.require('2.0')
 import gtk
 import gobject
 
-from setlyze import __version__, __copyright__
+from setlyze import __version__, __copyright__, sender
 import setlyze.locale
 import setlyze.config
 import setlyze.database
@@ -158,9 +159,9 @@ class SelectAnalysis(object):
 
         # Handle application signals.
         self.signal_handlers = {
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.on_analysis_started),
-            'analysis-closed': setlyze.std.sender.connect('analysis-closed', self.on_analysis_closed),
-            'local-db-created': setlyze.std.sender.connect('local-db-created', self.on_continue),
+            'beginning-analysis': sender.connect('beginning-analysis', self.on_analysis_started),
+            'analysis-closed': sender.connect('analysis-closed', self.on_analysis_closed),
+            'local-db-created': sender.connect('local-db-created', self.on_continue),
         }
 
     def show(self, widget=None, data=None):
@@ -182,7 +183,7 @@ class SelectAnalysis(object):
         # self.on_continue to be called each time the local database
         # is recreated.
         if self.signal_handlers['local-db-created']:
-            setlyze.std.sender.disconnect(self.signal_handlers['local-db-created'])
+            sender.disconnect(self.signal_handlers['local-db-created'])
             self.signal_handlers['local-db-created'] = None
 
     def on_toggled(self, radiobutton=None):
@@ -237,13 +238,13 @@ class SelectAnalysis(object):
 
         # Then begin with the selected analysis.
         if self.radio_spot_pref.get_active():
-            setlyze.std.sender.emit('on-start-analysis', 'spot_preference')
+            sender.emit('on-start-analysis', 'spot_preference')
         elif self.radio_attraction_intra.get_active():
-            setlyze.std.sender.emit('on-start-analysis', 'attraction_intra')
+            sender.emit('on-start-analysis', 'attraction_intra')
         elif self.radio_attraction_inter.get_active():
-            setlyze.std.sender.emit('on-start-analysis', 'attraction_inter')
+            sender.emit('on-start-analysis', 'attraction_inter')
         elif self.radio_batch_mode.get_active():
-            setlyze.std.sender.emit('on-start-analysis', 'batch')
+            sender.emit('on-start-analysis', 'batch')
 
         return False
 
@@ -368,7 +369,7 @@ class SelectBatchAnalysis(object):
 
         # Handle application signals.
         self.signal_handlers = {
-            'beginning-analysis': setlyze.std.sender.connect('beginning-analysis', self.hide),
+            'beginning-analysis': sender.connect('beginning-analysis', self.hide),
         }
 
     def show(self, widget=None, data=None):
@@ -400,18 +401,18 @@ class SelectBatchAnalysis(object):
         signal attribute.
         """
         if self.radio_ana_spot_pref.get_active():
-            setlyze.std.sender.emit('batch-analysis-selected', 'spot_preference')
+            sender.emit('batch-analysis-selected', 'spot_preference')
         elif self.radio_ana_attraction_intra.get_active():
-            setlyze.std.sender.emit('batch-analysis-selected', 'attraction_intra')
+            sender.emit('batch-analysis-selected', 'attraction_intra')
         elif self.radio_ana_attraction_inter.get_active():
-            setlyze.std.sender.emit('batch-analysis-selected', 'attraction_inter')
+            sender.emit('batch-analysis-selected', 'attraction_inter')
 
     def on_close(self, button):
         """Go back to the main window."""
         # Hide the window.
         self.hide()
         # Emit the signal that the Back button was pressed.
-        setlyze.std.sender.emit('select-batch-analysis-window-back')
+        sender.emit('select-batch-analysis-window-back')
         # Prevent default action of the close button.
         return False
 
@@ -444,7 +445,7 @@ class SelectionWindow(gtk.Window):
 
         # Handle application signals.
         self.signal_handlers = {
-            'local-db-created': setlyze.std.sender.connect('local-db-created', self.update_tree)
+            'local-db-created': sender.connect('local-db-created', self.update_tree)
         }
 
         # Add widgets to the GTK window.
@@ -594,7 +595,7 @@ class SelectionWindow(gtk.Window):
     def unset_signal_handlers(self):
         """Disconnect all signal handlers created by this class."""
         for handler in self.signal_handlers.values():
-            setlyze.std.sender.disconnect(handler)
+            sender.disconnect(handler)
 
     def set_header(self, header):
         """Set the header text to `header`."""
@@ -631,7 +632,7 @@ class SelectionWindow(gtk.Window):
         """
         self.destroy()
         self.unset_signal_handlers()
-        setlyze.std.sender.emit(self.back_signal, self.save_slot)
+        sender.emit(self.back_signal, self.save_slot)
 
     def on_continue(self, button):
         """Emit the selection saved signal and close the dialog.
@@ -661,7 +662,7 @@ class SelectionWindow(gtk.Window):
             return
 
         # Emit the signal. This method is present in one of the sub classes.
-        setlyze.std.sender.emit(self.saved_signal, self.selection, self.save_slot)
+        sender.emit(self.saved_signal, self.selection, self.save_slot)
 
         # Destroy the signal handlers and close this window.
         self.unset_signal_handlers()
@@ -712,7 +713,7 @@ class SelectionWindow(gtk.Window):
         self.unset_signal_handlers()
 
         # Emit the signal that a selection dialog was closed.
-        setlyze.std.sender.emit('selection-dialog-closed')
+        sender.emit('selection-dialog-closed')
 
     def on_load_data(self, button):
         """Display the LoadData dialog.
@@ -1144,7 +1145,7 @@ class DefinePlateAreas(gtk.Window):
         self.destroy()
 
         # Emit the signal that the dialog was closed.
-        setlyze.std.sender.emit('define-areas-dialog-closed')
+        sender.emit('define-areas-dialog-closed')
 
     def on_continue(self, widget, data=None):
         """Emit the "plate-areas-defined" signal.
@@ -1167,7 +1168,7 @@ class DefinePlateAreas(gtk.Window):
         definition = self.normalize(definition)
 
         # Emit the signal that the plate areas are defined.
-        setlyze.std.sender.emit('plate-areas-defined', definition)
+        sender.emit('plate-areas-defined', definition)
 
     def on_back(self, widget, data=None):
         """Destroy the dialog and send the ``define-areas-dialog-back``
@@ -1180,7 +1181,7 @@ class DefinePlateAreas(gtk.Window):
         self.destroy()
 
         # Emit the signal that the Back button was pressed.
-        setlyze.std.sender.emit('define-areas-dialog-back')
+        sender.emit('define-areas-dialog-back')
 
     def get_selection(self):
         """Return the plate areas as defined by the user."""
@@ -1375,15 +1376,15 @@ class LoadData(object):
         """Respond to signals emitted by the application."""
         self.signal_handlers = {
             # Show an epic fail message when import fails.
-            'file-import-failed': setlyze.std.sender.connect('file-import-failed', self.on_import_failed),
+            'file-import-failed': sender.connect('file-import-failed', self.on_import_failed),
             # Make sure the above handle is disconnected when loading new SETL data succeeds.
-            'local-db-created': setlyze.std.sender.connect('local-db-created', self.unset_signal_handlers)
+            'local-db-created': sender.connect('local-db-created', self.unset_signal_handlers)
         }
 
     def unset_signal_handlers(self, sender=None, data=None):
         """Disconnect all signal handlers created by this class."""
         for handler in self.signal_handlers.values():
-            setlyze.std.sender.disconnect(handler)
+            sender.disconnect(handler)
 
     def update_working_folder(self, chooser, data=None):
         """Set the working folder for the file choosers to the folder
@@ -1484,7 +1485,7 @@ class ProgressDialog(gtk.Window):
     You cannot access the progress dialog, which runs in the main thread, from
     a separate (worker) thread. Doing this will cause the application to crash.
     For the purpose of controlling the progress dialog from the worker
-    process, use :class:`setlyze.std.ProgressDialogHandler`. Read the
+    process, use :class:`ProgressDialogHandler`. Read the
     documentation for that class for usage information.
 
     Design Part: 1.92
@@ -1572,12 +1573,210 @@ class ProgressDialog(gtk.Window):
 
         logging.info("Cancel button is pressed")
         self.destroy()
-        setlyze.std.sender.emit('analysis-canceled')
+        sender.emit('analysis-canceled')
 
         # Return True to stop other handlers from being invoked for the
         # 'delete-event' signal. This prevents the GTK window that calles
         # this function from closing anyway.
         return True
+
+class ProgressDialogHandler(object):
+    """This class allows you to control the progress dialog from a separate
+    thread.
+
+    Follow these steps to get the progress dialog working:
+
+    1) Somewhere in the main thread, create a progress dialog ::
+
+            pd = setlyze.gui.ProgressDialog(title="Analyzing",
+                description="Performing heavy calculations, please wait...")
+
+    2) Edit the worker process to automatically update the progress dialog.
+       Create an instance of this class as follows (notice that the progress
+       dialog is passed as its only argument) ::
+
+            self.pdialog_handler = ProgressDialogHandler(pd)
+
+    3) Then you need to tell the handler how many times you're going to update
+       the progress dialog (which is the number of times you'll call the
+       :meth:`increase` method) ::
+
+            self.pdialog_handler.set_total_steps(8)
+
+    4) Then call the :meth:`increase` method in you worker class at the moments
+       you want to update the progress dialog. Notice that :meth:`increase`
+       will be called 8 times in the example below (hence total steps was set
+       to 8) ::
+
+            self.pdialog_handler.set_action("Calculating this...")
+            self.some_heavy_function()
+
+            self.pdialog_handler.increase("Still calculating...")
+            for x in range(5):
+                self.pdialog_handler.increase()
+                self.calculate_this(x)
+
+            self.pdialog_handler.increase("Calculating that...")
+            self.more_heavy_calculations()
+
+            self.pdialog_handler.increase("Finished!")
+
+    5) Then start your worker process in a separate thread (if you're new to
+       threading, start with the `threading documentation
+       <http://docs.python.org/library/threading.html>`_) ::
+
+        t = Worker()
+        t.start()
+
+    The progress bar should now increase while the worker process is running.
+    For more examples you can look at the sources of the analysis modules (e.g.
+    :mod:`setlyze.analysis.spot_preference`).
+
+    """
+
+    def __init__(self, pdialog=None):
+        self.total_steps = None
+        self.current_step = 0
+        self.autoclose = True
+        self.pdialog = None
+
+        if pdialog: self.set_pdialog(pdialog)
+
+    def set_pdialog(self, pdialog):
+        """Set the progress dialog.
+
+        The progress dialog must be an instance of
+        :class:`setlyze.gui.ProgressDialog`.
+        """
+        if not isinstance(pdialog, setlyze.gui.ProgressDialog):
+             raise ValueError("Invalid object type passed.")
+        self.pdialog = pdialog
+
+    def set_total_steps(self, number):
+        """Set the total number of steps for the progress."""
+        if not isinstance(number, int):
+            raise ValueError("Value for 'number' should be an integer, not '%s'." %
+                (type(number).__name__))
+
+        # Reset the current step so we start with 0% again.
+        self.current_step = 0
+
+        # Set the new value for total steps. This number must be saved as a
+        # float, because we want to calculate fractions.
+        self.total_steps = float(number)
+
+    def set_action(self, action):
+        """Set the progress dialog's action string to `action`. This action
+        string is showed in italics below the progress bar.
+        """
+        action = "<span style='italic'>%s</span>" % (action)
+        gobject.idle_add(self.pdialog.action.set_markup, action)
+
+    def increase(self, action=None):
+        """Increase the progress bar's fraction. Calling this method causes
+        the progress bar to fill a portion of the bar. This method takes care
+        of calculating the right fraction. If `action` is supplied, the
+        progress dialog's action string is set to `action`.
+        """
+        if not self.pdialog:
+            return
+
+        if not self.total_steps:
+            raise ValueError("You didn't set the total number of steps. Use "
+                "'set_total_steps()'.")
+
+        # Calculate the new fraction.
+        self.current_step += 1
+        fraction = self.current_step / self.total_steps
+
+        # Check if the fraction has a logical value.
+        if 0.0 > fraction > 1.0:
+            raise ValueError("Incorrect fraction '%f' encountered. You "
+                "probably didn't set the correct total steps." % fraction)
+
+        # Update the progress dialog.
+        self.update(fraction, action)
+
+    def complete(self, action=None):
+        """Set the progress dialog to 100%."""
+        if not self.pdialog:
+            return
+        gobject.idle_add(self.__update_progress_dialog, 1.0, action)
+
+    def update(self, fraction, action=None):
+        """Set the progress dialog's progress bar fraction to `fraction`.
+        The value of `fraction` should be between 0.0 and 1.0. Optionally set
+        the current action to `action`, a short string explaining the current
+        action.
+        """
+        if not self.pdialog:
+            return
+
+        # In case this is always called from a separate thread, so we must use
+        # gobject.idle_add to access the GUI.
+        gobject.idle_add(self.__update_progress_dialog, fraction, action)
+
+    def destroy(self):
+        """Destroy the progress dialog."""
+        gobject.idle_add(self.__close_progress_dialog)
+
+    def __update_progress_dialog(self, fraction, action=None):
+        """Set the progress dialog's progressbar fraction to `fraction`.
+        The value of `fraction` should be between 0.0 and 1.0. Optionally set
+        the current action to `action`, a short string explaining the current
+        action.
+
+        Don't call this function manually; use :meth:`increase` instead.
+        """
+        if not self.pdialog:
+            return False
+
+        # Update fraction.
+        self.pdialog.pbar.set_fraction(fraction)
+
+        # Set percentage text for the progress bar.
+        percent = fraction * 100.0
+        self.pdialog.pbar.set_text("%.1f%%" % percent)
+
+        # Show the current action below the progress bar.
+        if isinstance(action, str):
+            action = "<span style='italic'>%s</span>" % (action)
+            self.pdialog.action.set_markup(action)
+
+        if fraction == 1.0:
+            self.pdialog.pbar.set_text("Finished!")
+            self.pdialog.button_cancel.set_sensitive(False)
+
+            # Close the progress dialog when finished. We set a delay
+            # of 1 second before closing it, so the user gets to see the
+            # dialog when an analysis finishes very fast.
+            if self.autoclose:
+                gobject.idle_add(self.__close_progress_dialog, 1)
+
+        # This callback function must return False, so it is
+        # automatically removed from the list of event sources.
+        return False
+
+    def __close_progress_dialog(self, delay=0):
+        """Close the progress dialog. Optionally set a delay of `delay`
+        seconds before it's being closed.
+
+        There's no need to call this function manually, as it is called
+        by :meth:`__update_progress_dialog` when needed.
+        """
+        if not self.pdialog:
+            return False
+
+        # If a delay is set, sleep 'delay' seconds.
+        if delay: time.sleep(delay)
+
+        # Close the progress dialog.
+        self.pdialog.destroy()
+        self.pdialog = None
+
+        # This callback function must return False, so it is
+        # automatically removed from the list of event sources.
+        return False
 
 class Report(object):
     """Display a dialog visualizing the elements in a report object.
@@ -1656,11 +1855,11 @@ class Report(object):
 
             if response == gtk.RESPONSE_OK:
                 self.window.destroy()
-                setlyze.std.sender.emit('report-dialog-closed')
+                sender.emit('report-dialog-closed')
             dialog.destroy()
         else:
             self.window.destroy()
-            setlyze.std.sender.emit('report-dialog-closed')
+            sender.emit('report-dialog-closed')
 
     def on_save(self, button):
         """Display a dialog that allows the user to save the report to
@@ -1714,11 +1913,11 @@ class Report(object):
 
     def on_save_all(self, button):
         """Emit the 'save-individual-reports' signal."""
-        setlyze.std.sender.emit('save-individual-reports')
+        sender.emit('save-individual-reports')
 
     def on_repeat(self, button):
         """Emit the 'repeat-analysis' signal."""
-        setlyze.std.sender.emit('repeat-analysis')
+        sender.emit('repeat-analysis')
 
     def add_report_elements(self):
         """Add the report elements present in the report object to the
