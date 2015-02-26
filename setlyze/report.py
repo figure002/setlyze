@@ -26,6 +26,7 @@ import datetime
 import logging
 from sqlite3 import dbapi2 as sqlite
 
+from setlyze import __version__
 import setlyze.config
 from setlyze.std import make_remarks
 

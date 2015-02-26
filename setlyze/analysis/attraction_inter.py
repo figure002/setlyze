@@ -49,6 +49,7 @@ import setlyze.config
 import setlyze.gui
 import setlyze.locale
 import setlyze.std
+from setlyze.stats import chisq_test, wilcox_test
 import setlyze.report
 
 # The number of progress steps for this analysis.
@@ -905,7 +906,7 @@ class Analysis(AnalysisWorker):
             mean_expected = setlyze.std.mean(expected)
 
             # Perform two sample Wilcoxon tests.
-            test_result = setlyze.std.wilcox_test(observed, expected,
+            test_result = wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
                 conf_level = 1 - self.alpha_level,
                 conf_int = False)
@@ -947,7 +948,7 @@ class Analysis(AnalysisWorker):
             observed_freq = setlyze.std.distance_frequency(observed, 'inter')
 
             # Also perform Chi-squared test.
-            test_result = setlyze.std.chisq_test(observed_freq.values(),
+            test_result = chisq_test(observed_freq.values(),
                 p = spot_dist_to_prob.values())
 
             # If we find an expected frequency that is less than 5, do not save
@@ -1069,7 +1070,7 @@ class Analysis(AnalysisWorker):
             mean_expected = setlyze.std.mean(expected)
 
             # Perform two sample Wilcoxon tests.
-            test_result = setlyze.std.wilcox_test(observed, expected,
+            test_result = wilcox_test(observed, expected,
                 alternative = "two.sided", paired = False,
                 conf_level = 1 - self.alpha_level,
                 conf_int = False)

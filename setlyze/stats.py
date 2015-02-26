@@ -26,7 +26,6 @@ import random
 
 from pandas.core.series import Series
 from pandas.rpy.common import convert_robj
-import rpy2
 import rpy2.robjects as robjects
 from rpy2.rinterface import NULL
 from rpy2.robjects import FloatVector
