@@ -32,6 +32,7 @@ pygtk.require('2.0')
 import gtk
 import gobject
 
+from setlyze import __version__
 import setlyze.std
 import setlyze.gui
 import setlyze.analysis.spot_preference

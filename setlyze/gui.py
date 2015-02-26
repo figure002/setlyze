@@ -59,6 +59,7 @@ import gtk
 import gobject
 import pkg_resources
 
+from setlyze import __version__, __copyright__
 import setlyze.locale
 import setlyze.config
 import setlyze.database

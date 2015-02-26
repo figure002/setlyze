@@ -24,7 +24,7 @@ SETLyze has the following dependencies:
 
   * PyGTK, PyCairo, and PyGObject
 
-  * Rpy (>=1.0.3)
+  * RPy2
 
   * xlrd (>=0.8)
 
