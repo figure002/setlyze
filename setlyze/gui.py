@@ -59,7 +59,7 @@ pygtk.require('2.0')
 import gtk
 import gobject
 
-from setlyze import __version__, __copyright__, sender
+import setlyze
 import setlyze.locale
 import setlyze.config
 import setlyze.database
@@ -151,9 +151,9 @@ class SelectAnalysis(object):
 
         # Handle application signals.
         self.signal_handlers = {
-            'beginning-analysis': sender.connect('beginning-analysis', self.on_analysis_started),
-            'analysis-closed': sender.connect('analysis-closed', self.on_analysis_closed),
-            'local-db-created': sender.connect('local-db-created', self.on_continue),
+            'beginning-analysis': setlyze.sender.connect('beginning-analysis', self.on_analysis_started),
+            'analysis-closed': setlyze.sender.connect('analysis-closed', self.on_analysis_closed),
+            'local-db-created': setlyze.sender.connect('local-db-created', self.on_continue),
         }
 
     def show(self, widget=None, data=None):
@@ -175,7 +175,7 @@ class SelectAnalysis(object):
         # self.on_continue to be called each time the local database
         # is recreated.
         if self.signal_handlers['local-db-created']:
-            sender.disconnect(self.signal_handlers['local-db-created'])
+            setlyze.sender.disconnect(self.signal_handlers['local-db-created'])
             self.signal_handlers['local-db-created'] = None
 
     def on_toggled(self, radiobutton=None):
@@ -230,13 +230,13 @@ class SelectAnalysis(object):
 
         # Then begin with the selected analysis.
         if self.radio_spot_pref.get_active():
-            sender.emit('on-start-analysis', 'spot_preference')
+            setlyze.sender.emit('on-start-analysis', 'spot_preference')
         elif self.radio_attraction_intra.get_active():
-            sender.emit('on-start-analysis', 'attraction_intra')
+            setlyze.sender.emit('on-start-analysis', 'attraction_intra')
         elif self.radio_attraction_inter.get_active():
-            sender.emit('on-start-analysis', 'attraction_inter')
+            setlyze.sender.emit('on-start-analysis', 'attraction_inter')
         elif self.radio_batch_mode.get_active():
-            sender.emit('on-start-analysis', 'batch')
+            setlyze.sender.emit('on-start-analysis', 'batch')
 
         return False
 
@@ -361,7 +361,7 @@ class SelectBatchAnalysis(object):
 
         # Handle application signals.
         self.signal_handlers = {
-            'beginning-analysis': sender.connect('beginning-analysis', self.hide),
+            'beginning-analysis': setlyze.sender.connect('beginning-analysis', self.hide),
         }
 
     def show(self, widget=None, data=None):
@@ -393,18 +393,18 @@ class SelectBatchAnalysis(object):
         signal attribute.
         """
         if self.radio_ana_spot_pref.get_active():
-            sender.emit('batch-analysis-selected', 'spot_preference')
+            setlyze.sender.emit('batch-analysis-selected', 'spot_preference')
         elif self.radio_ana_attraction_intra.get_active():
-            sender.emit('batch-analysis-selected', 'attraction_intra')
+            setlyze.sender.emit('batch-analysis-selected', 'attraction_intra')
         elif self.radio_ana_attraction_inter.get_active():
-            sender.emit('batch-analysis-selected', 'attraction_inter')
+            setlyze.sender.emit('batch-analysis-selected', 'attraction_inter')
 
     def on_close(self, button):
         """Go back to the main window."""
         # Hide the window.
         self.hide()
         # Emit the signal that the Back button was pressed.
-        sender.emit('select-batch-analysis-window-back')
+        setlyze.sender.emit('select-batch-analysis-window-back')
         # Prevent default action of the close button.
         return False
 
@@ -437,7 +437,7 @@ class SelectionWindow(gtk.Window):
 
         # Handle application signals.
         self.signal_handlers = {
-            'local-db-created': sender.connect('local-db-created', self.update_tree)
+            'local-db-created': setlyze.sender.connect('local-db-created', self.update_tree)
         }
 
         # Add widgets to the GTK window.
@@ -587,7 +587,7 @@ class SelectionWindow(gtk.Window):
     def unset_signal_handlers(self):
         """Disconnect all signal handlers created by this class."""
         for handler in self.signal_handlers.values():
-            sender.disconnect(handler)
+            setlyze.sender.disconnect(handler)
 
     def set_header(self, header):
         """Set the header text to `header`."""
@@ -624,7 +624,7 @@ class SelectionWindow(gtk.Window):
         """
         self.destroy()
         self.unset_signal_handlers()
-        sender.emit(self.back_signal, self.save_slot)
+        setlyze.sender.emit(self.back_signal, self.save_slot)
 
     def on_continue(self, button):
         """Emit the selection saved signal and close the dialog.
@@ -654,7 +654,7 @@ class SelectionWindow(gtk.Window):
             return
 
         # Emit the signal. This method is present in one of the sub classes.
-        sender.emit(self.saved_signal, self.selection, self.save_slot)
+        setlyze.sender.emit(self.saved_signal, self.selection, self.save_slot)
 
         # Destroy the signal handlers and close this window.
         self.unset_signal_handlers()
@@ -705,7 +705,7 @@ class SelectionWindow(gtk.Window):
         self.unset_signal_handlers()
 
         # Emit the signal that a selection dialog was closed.
-        sender.emit('selection-dialog-closed')
+        setlyze.sender.emit('selection-dialog-closed')
 
     def on_load_data(self, button):
         """Display the LoadData dialog.
@@ -1137,7 +1137,7 @@ class DefinePlateAreas(gtk.Window):
         self.destroy()
 
         # Emit the signal that the dialog was closed.
-        sender.emit('define-areas-dialog-closed')
+        setlyze.sender.emit('define-areas-dialog-closed')
 
     def on_continue(self, widget, data=None):
         """Emit the "plate-areas-defined" signal.
@@ -1160,7 +1160,7 @@ class DefinePlateAreas(gtk.Window):
         definition = self.normalize(definition)
 
         # Emit the signal that the plate areas are defined.
-        sender.emit('plate-areas-defined', definition)
+        setlyze.sender.emit('plate-areas-defined', definition)
 
     def on_back(self, widget, data=None):
         """Destroy the dialog and send the ``define-areas-dialog-back``
@@ -1173,7 +1173,7 @@ class DefinePlateAreas(gtk.Window):
         self.destroy()
 
         # Emit the signal that the Back button was pressed.
-        sender.emit('define-areas-dialog-back')
+        setlyze.sender.emit('define-areas-dialog-back')
 
     def get_selection(self):
         """Return the plate areas as defined by the user."""
@@ -1368,15 +1368,15 @@ class LoadData(object):
         """Respond to signals emitted by the application."""
         self.signal_handlers = {
             # Show an epic fail message when import fails.
-            'file-import-failed': sender.connect('file-import-failed', self.on_import_failed),
+            'file-import-failed': setlyze.sender.connect('file-import-failed', self.on_import_failed),
             # Make sure the above handle is disconnected when loading new SETL data succeeds.
-            'local-db-created': sender.connect('local-db-created', self.unset_signal_handlers)
+            'local-db-created': setlyze.sender.connect('local-db-created', self.unset_signal_handlers)
         }
 
     def unset_signal_handlers(self, sender=None, data=None):
         """Disconnect all signal handlers created by this class."""
         for handler in self.signal_handlers.values():
-            sender.disconnect(handler)
+            setlyze.sender.disconnect(handler)
 
     def update_working_folder(self, chooser, data=None):
         """Set the working folder for the file choosers to the folder
@@ -1565,7 +1565,7 @@ class ProgressDialog(gtk.Window):
 
         logging.info("Cancel button is pressed")
         self.destroy()
-        sender.emit('analysis-canceled')
+        setlyze.sender.emit('analysis-canceled')
 
         # Return True to stop other handlers from being invoked for the
         # 'delete-event' signal. This prevents the GTK window that calles
@@ -1847,11 +1847,11 @@ class Report(object):
 
             if response == gtk.RESPONSE_OK:
                 self.window.destroy()
-                sender.emit('report-dialog-closed')
+                setlyze.sender.emit('report-dialog-closed')
             dialog.destroy()
         else:
             self.window.destroy()
-            sender.emit('report-dialog-closed')
+            setlyze.sender.emit('report-dialog-closed')
 
     def on_save(self, button):
         """Display a dialog that allows the user to save the report to
@@ -1905,11 +1905,11 @@ class Report(object):
 
     def on_save_all(self, button):
         """Emit the 'save-individual-reports' signal."""
-        sender.emit('save-individual-reports')
+        setlyze.sender.emit('save-individual-reports')
 
     def on_repeat(self, button):
         """Emit the 'repeat-analysis' signal."""
-        sender.emit('repeat-analysis')
+        setlyze.sender.emit('repeat-analysis')
 
     def add_report_elements(self):
         """Add the report elements present in the report object to the
@@ -3288,8 +3288,8 @@ class About(gtk.AboutDialog):
 
         self.set_position(gtk.WIN_POS_CENTER)
         self.set_program_name("SETLyze")
-        self.set_version(__version__)
-        self.set_copyright(__copyright__)
+        self.set_version(setlyze.__version__)
+        self.set_copyright(setlyze.__copyright__)
         self.set_authors(["Project Leader/Contact Person:\n"
             "\tArjan Gittenberger <gittenberger@gimaris.com>",
             "Application Developers:\n"
