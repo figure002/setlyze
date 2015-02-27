@@ -3286,7 +3286,7 @@ class About(gtk.AboutDialog):
         image_path = resource_filename('images/setlyze-logo.png')
         logo = gtk.gdk.pixbuf_new_from_file(image_path)
 
-        self.set_position(gtk.WIN_POS_CENTER)
+        self.set_transient_for(select_analysis.window)
         self.set_program_name("SETLyze")
         self.set_version(setlyze.__version__)
         self.set_copyright(setlyze.__copyright__)
