@@ -5,8 +5,9 @@
   <object class="GtkWindow" id="window_preferences">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="border_width">10</property>
+    <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences</property>
+    <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">center</property>
     <property name="icon_name">setlyze</property>
@@ -14,6 +15,7 @@
       <object class="GtkTable" id="table1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="border_width">5</property>
         <property name="n_rows">5</property>
         <property name="n_columns">2</property>
         <property name="column_spacing">10</property>
