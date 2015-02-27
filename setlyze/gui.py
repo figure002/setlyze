@@ -338,11 +338,12 @@ class SelectAnalysis(object):
 class SelectBatchAnalysis(object):
     """Display a window that allows the user to select an analysis for batch mode."""
 
-    def __init__(self):
+    def __init__(self, parent):
         # Get some GTK objects.
         self.builder = gtk.Builder()
         self.builder.add_from_file(resource_filename('glade/select_batch_analysis.glade'))
         self.dialog = self.builder.get_object('dialog_select_analysis')
+        self.dialog.set_transient_for(parent)
         self.radio_ana_spot_pref = self.builder.get_object('radio_ana_spot_pref')
         self.radio_ana_attraction_intra = self.builder.get_object('radio_ana_attraction_intra')
         self.radio_ana_attraction_inter = self.builder.get_object('radio_ana_attraction_inter')
@@ -3310,4 +3311,4 @@ class About(gtk.AboutDialog):
 # Instantiate some windows. These windows are not visible by default. Call
 # their show() method to make them visible.
 select_analysis = SelectAnalysis()
-select_batch_analysis = SelectBatchAnalysis()
+select_batch_analysis = SelectBatchAnalysis(select_analysis.window)
