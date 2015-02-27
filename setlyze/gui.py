@@ -66,25 +66,17 @@ import setlyze.database
 import setlyze.report
 from setlyze.std import make_remarks, resource_filename
 
+DOCS_URL = "http://setlyze.readthedocs.org/en/latest/"
 
-def on_help(button, section):
-    """Display the help contents for `section` in the system's default
-    application for displaying HTML files (usually a web browser).
+def on_help_user_manual(button, section=None):
+    """Display the online user manual in the web browser.
+
+    A section ID `section` may be passed to display that section.
     """
-    path = resource_filename('docs/html/user_manual.html#'+section)
-    if path.startswith('/'):
-        url = 'file://'+path
+    if section:
+        url = "%suser_manual.html#%s" % (DOCS_URL, section)
     else:
-        url = 'file:///'+path
-
-    # WORKAROUND:
-    # On Windows, the section part of the URL (the '#...' part)
-    # is stripped off. This doesn't happen if 'file:///' is left out.
-    # This however always launches IE instead of the default browser.
-    if os.name == 'nt':
-        url = path
-
-    # Open the URL in the system's default web browser.
+        url = "%suser_manual.html" % (DOCS_URL,)
     webbrowser.open(url)
 
 def on_quit(button, data=None):
@@ -493,9 +485,9 @@ class SelectionWindow(gtk.Window):
         # Handle button signals.
         button_home.connect("clicked", self.on_close_dialog)
         if isinstance(self, SelectLocations):
-            button_help.connect("clicked", on_help, 'locations-selection-dialog')
+            button_help.connect("clicked", on_help_user_manual, 'locations-selection-dialog')
         elif isinstance(self, SelectSpecies):
-            button_help.connect("clicked", on_help, 'species-selection-dialog')
+            button_help.connect("clicked", on_help_user_manual, 'species-selection-dialog')
 
         # Add the toolbar to the vertical box.
         table.attach(toolbar, left_attach=0, right_attach=2,
@@ -900,7 +892,7 @@ class DefinePlateAreas(gtk.Window):
 
         # Handle button signals.
         button_home.connect("clicked", self.on_close_dialog)
-        button_help.connect("clicked", on_help, 'define-plate-areas-dialog')
+        button_help.connect("clicked", on_help_user_manual, 'define-plate-areas-dialog')
 
         # Add the toolbar to the vertical box.
         table.attach(toolbar, left_attach=0, right_attach=2,
@@ -1830,7 +1822,7 @@ class Report(object):
         """Set the section of the user manual to be displayed when the help
         button is clicked.
         """
-        self.toolbutton_help.connect('clicked', on_help, section)
+        self.toolbutton_help.connect('clicked', on_help_user_manual, section)
 
     def set_header(self, text):
         """Set the header of the report dialog to `text`."""
@@ -3074,7 +3066,7 @@ class Preferences(object):
         self.entry_processes = self.builder.get_object('entry_processes')
         self.entry_processes.set_text(str(setlyze.config.cfg.get('concurrent-processes')))
         button_help = self.builder.get_object('button_help')
-        button_help.connect("clicked", on_help, 'preferences-dialog')
+        button_help.connect("clicked", on_help_user_manual, 'preferences-dialog')
         button_cancel = self.builder.get_object('button_cancel')
         button_ok = self.builder.get_object('button_ok')
 
@@ -3179,7 +3171,7 @@ class RepeatAnalysis(object):
         self.entry_processes = self.builder.get_object('entry_processes')
         self.entry_processes.set_text(str(setlyze.config.cfg.get('concurrent-processes')))
         #button_help = self.builder.get_object('button_help')
-        #button_help.connect("clicked", on_help, 'preferences-dialog')
+        #button_help.connect("clicked", on_help_user_manual, 'preferences-dialog')
         button_cancel = self.builder.get_object('button_cancel')
         button_ok = self.builder.get_object('button_ok')
 
