@@ -8,6 +8,10 @@ SETL database. The SETL database at GiMaRIS contains data about the settlement
 of species in Dutch waters. SETLyze helps provide more insight in a set of
 biological questions by performing a set of analyses on this data.
 
+.. image:: https://readthedocs.org/projects/setlyze/badge/?version=latest
+        :target: https://readthedocs.org/projects/setlyze/?badge=latest
+        :alt: Documentation Status
+
 
 Requirements
 ============
@@ -63,7 +67,11 @@ Or if you have a source archive file::
 Documentation
 =============
 
-The documentation can be built using Sphinx_::
+The documentation can be found here:
+
+http://setlyze.readthedocs.org/
+
+Alternatively, the same documentation can be built using Sphinx_::
 
     $ python setup.py build_sphinx
 
