@@ -245,7 +245,7 @@ class SelectAnalysis(object):
         gtk.main_quit()
 
     def on_preferences(self, widget, data=None):
-        Preferences()
+        Preferences(select_analysis.window)
 
     def on_about(self, widget, data=None):
         """Display SETLyze's about dialog."""
@@ -3053,12 +3053,13 @@ class Preferences(object):
     The preferences dialog allows the user to customize some settings.
     """
 
-    def __init__(self):
+    def __init__(self, parent):
         self.builder = gtk.Builder()
         self.builder.add_from_file(resource_filename('glade/preferences.glade'))
 
         # Get some GTK objects.
         self.window = self.builder.get_object('window_preferences')
+        self.window.set_transient_for(parent)
         self.entry_alpha_level = self.builder.get_object('entry_alpha_level')
         self.entry_alpha_level.set_text(str(setlyze.config.cfg.get('alpha-level')))
         self.entry_test_repeats = self.builder.get_object('entry_test_repeats')
