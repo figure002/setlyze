@@ -712,7 +712,7 @@ class SelectionWindow(gtk.Window):
 
         Design Part: 1.11
         """
-        LoadData()
+        LoadData(self)
 
 class SelectLocations(SelectionWindow):
     """Display a selection dialog that allows the user to make a
@@ -1303,11 +1303,12 @@ class LoadData(object):
     Design Part: 1.90
     """
 
-    def __init__(self):
+    def __init__(self, parent):
         # Get some GTK objects.
         self.builder = gtk.Builder()
         self.builder.add_from_file(resource_filename('glade/load_data.glade'))
         self.dialog = self.builder.get_object('dialog_load_data')
+        self.dialog.set_transient_for(parent)
         self.notebook = self.builder.get_object('notebook')
         self.button_cancel = self.builder.get_object('button_cancel')
         self.button_ok = self.builder.get_object('button_ok')

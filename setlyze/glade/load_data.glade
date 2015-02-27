@@ -9,7 +9,7 @@
     <property name="title" translatable="yes">Load SETL Data</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
-    <property name="window_position">center</property>
+    <property name="window_position">center-on-parent</property>
     <property name="default_width">450</property>
     <property name="icon_name">setlyze</property>
     <property name="type_hint">dialog</property>
