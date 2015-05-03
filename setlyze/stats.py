@@ -33,7 +33,6 @@ from rpy2.robjects.packages import importr
 
 # Get the R singleton.
 r = robjects.r
-stats = importr('stats')
 
 # Suppress warnings from R. Last occurred warnings can still be obtained with
 # the `warnings` function.
@@ -116,7 +115,7 @@ def t_test(x, y=NULL, **kwargs):
     x = FloatVector(x)
     if y:
         y = FloatVector(y)
-    return stats.t_test(x, y, **kwargs)
+    return r('t.test')(x, y, **kwargs)
 
 @ListVectorAsDict
 def wilcox_test(x, y=NULL, **kwargs):
@@ -150,7 +149,7 @@ def wilcox_test(x, y=NULL, **kwargs):
     x = FloatVector(x)
     if y:
         y = FloatVector(y)
-    return stats.wilcox_test(x, y, **kwargs)
+    return r('wilcox.test')(x, y, **kwargs)
 
 @ListVectorAsDict
 def shapiro_test(x):
@@ -179,7 +178,7 @@ def shapiro_test(x):
     elif len(x) < 3:
         raise ValueError("Argument 'x' must contain at least 3 numeric values.")
 
-    return stats.shapiro_test( FloatVector(x) )
+    return r('shapiro.test')( FloatVector(x) )
 
 @ListVectorAsDict
 def chisq_test(x, y=NULL, **kwargs):
@@ -221,4 +220,4 @@ def chisq_test(x, y=NULL, **kwargs):
     if y:
         y = FloatVector(y)
 
-    return stats.chisq_test(x, y, **kwargs)
+    return r('chisq.test')(x, y, **kwargs)
