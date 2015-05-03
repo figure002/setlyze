@@ -38,7 +38,7 @@ On Debian (based) systems, the dependencies can be installed from the software
 repository::
 
     sudo apt-get install python-appdirs python-gtk2 python-pandas python-rpy2 \
-    python-xlrd
+    python-xlrd r-base-core
 
 More recent versions of some Python packages can be obtained via the Python
 Package Index::
