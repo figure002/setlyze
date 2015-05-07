@@ -1,3 +1,5 @@
+.. _design-parts:
+
 ============
 Design Parts
 ============

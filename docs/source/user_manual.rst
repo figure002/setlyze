@@ -1,13 +1,15 @@
-=========================================
-SETLyze User Manual
-=========================================
+.. _user_manual:
+
+===========
+User Manual
+===========
 
 Welcome to the user manual for SETLyze. This manual explains the usage of
 SETLyze.
 
------------------------
-Introduction to SETLyze
------------------------
+------------
+Introduction
+------------
 
 SETLyze is a part of the SETL project, a fouling community study focussing on
 marine invasive species. The website describes the SETL project as follows:
@@ -91,67 +93,6 @@ was absent from that spot.
 With 25 spots x 2500 records = 625000+ booleans for the presence/absence of
 species, automatic methods of analyzing this data are required. Hence SETLyze
 was developed, a tool for analyzing the settlement of species on SETL plates.
-
-------------
-Requirements
-------------
-
-To use SETLyze you will need:
-
-Hardware
-
-* Disk space:
-    * SETLyze: 10 MB (source) / 30 MB (Windows setup)
-    * R: 50 MB
-* 512 MB RAM
-
-Software
-
-* Microsoft Windows or GNU/Linux
-
-------------
-Installation
-------------
-
-Microsoft Windows
-===================
-
-For Windows users, an installer is available that installs SETLyze together
-with the pre-requisites (``setlyze-x.x-bundle-win32.exe``).
-
-GNU/Linux
-=========
-
-For GNU/Linux users, a source package is available. The source package
-doesn't contain SETLyze's dependencies. GNU/Linux user can use their
-package manager to install the dependencies.
-
-On Debian or derivatives, installing the dependencies can be done with the
-following command ::
-
-    sudo apt-get install python python-gtk2 python-rpy python-setuptools
-
-Linux distributions often come with older versions of `python-xlrd`, so it
-is recommended to install the latest version with PIP:
-
-    sudo apt-get install python-pip
-    sudo pip install xlrd
-
-Make sure you have python-xlrd 0.8.0 or later, otherwise loading of .xlsx files
-is not supported.
-
-System-wide install
--------------------
-
-There is an INSTALL file in the source package. This file contains the
-instructions for installing SETLyze on GNU/Linux systems.
-
-Run from source directory
--------------------------
-
-You can also just run SETLyze by (double) clicking ``setlyze.pyw`` in the
-source directory. For this to work, ``setlyze.pyw`` needs to have execute
-rights.
 
 -------------
 Using SETLyze

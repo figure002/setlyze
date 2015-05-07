@@ -36,6 +36,7 @@ Documentations
 .. toctree::
    :maxdepth: 2
 
+   installation
    user_manual
    developer_guide
    references
