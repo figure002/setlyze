@@ -45,6 +45,7 @@ import gobject
 
 import setlyze
 import setlyze.config
+import setlyze.gui
 import setlyze.std
 
 # The current version of the local database.
@@ -93,7 +94,7 @@ class MakeLocalDB(threading.Thread):
         super(MakeLocalDB, self).__init__()
         self.dbfile = setlyze.config.cfg.get('db-file')
         self.data_source = setlyze.config.cfg.get('data-source')
-        self.pdialog_handler = setlyze.std.ProgressDialogHandler(pd)
+        self.pdialog_handler = setlyze.gui.ProgressDialogHandler(pd)
         self.connection = None
         self.cursor = None
 
