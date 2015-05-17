@@ -265,7 +265,12 @@ class SelectAnalysis(object):
         if os.path.isfile(dbfile):
             # Use the existing database.
             db = setlyze.database.get_database_accessor()
-            info = db.get_database_info()
+
+            try:
+                info = db.get_database_info()
+            except:
+                self.on_make_local_db()
+                return
 
             # Check the database verion.
             min_version = setlyze.config.cfg.get('minimum-db-version')
