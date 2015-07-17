@@ -64,6 +64,18 @@ Or if you have a source archive file::
     pip install setlyze-x.x.tar.gz
 
 
+Tests
+=====
+
+Run the unit tests with::
+
+    python -m unittest discover -v
+
+Or if you have Make::
+
+    make test
+
+
 Documentation
 =============
 
